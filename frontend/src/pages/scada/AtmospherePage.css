@@ -1,35 +1,165 @@
 /* ===========================================================================
    분위기제어 화면
-   지금은 가운데 ADDTION CONTROL MOTOR VALVE와 좌측 하단 동작 조건판만 있다.
-   나머지(블로워·가스 배관, 발생기, O2 센서, 로내 투입)는 이후에 채운다.
+
+   배관·설비 그림은 작화 원본(atmosphereOverview.css)이 그리고, 이 파일은 그림을
+   화면에 앉히는 일과 그 위에 얹는 밸브판·조건판만 맡는다.
+   작화 쪽 클래스(.atmosphere, .pipe-*, .obj-*, .valve-*, .motor-*)는 건드리지 않는다.
    =========================================================================== */
 
 .at-page {
-  min-height: 100%;
-  display: grid;
-  /* 3열 × 2행 — 밸브판은 가운데 윗칸, 조건판은 왼쪽 아랫칸.
-     나머지 칸은 앞으로 배관·발생기·센서가 들어갈 자리다. */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 16px;
-  padding: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  /* 그림을 줄여 넣는 화면이라 스크롤이 생기면 안 된다. */
+  overflow: hidden;
 }
 
-.at-valve {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: center;
-  justify-self: center;
-  width: 100%;
-  max-width: 350px;
+.at-stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
 }
 
+/* 원본 크기(1801x742) 그대로 그려 두고 통째로 줄인다.
+   크기·배율·음수 margin은 AtmospherePage.jsx가 인라인으로 넣는다. */
+.at-stage-inner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform-origin: top center;
+}
+
+/* 판들이 얹히는 층. 층 자체는 클릭을 가로채지 않고, 조작할 것만 다시 켠다. */
+.at-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 얹히는 것은 전부 절대배치. 위치는 JSX가 인라인 left/top으로 넣는다.
+   이걸 .at-slot 에만 걸면 이름판·라벨이 static으로 남아 좌표가 무시되고
+   좌측 상단에 줄줄이 쌓인다. */
+.at-overlay > * {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.at-valve,
 .at-cond {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: end;
   width: 100%;
-  max-width: 330px;
+}
+
+/* 조건판은 슬롯 높이를 그대로 채운다 — SLOTS.cond의 height만 고치면 판이 커진다.
+   height를 안 주면 예전처럼 내용 높이만큼만 차지한다. */
+.at-cond {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 설비 제목판 ====================================================== */
+
+/* 사진의 띠 모양 이름판 — 흰 테두리에 가운데가 밝은 그라데이션 */
+.at-plate {
+  display: block;
+  padding: 4px 10px;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
+}
+
+.at-plate--blower {
+  background: linear-gradient(180deg, #8f8f8f 0%, #6d6d6d 50%, #4a4a4a 100%);
+}
+
+.at-plate--gas {
+  background: linear-gradient(180deg, #ffc04d 0%, #ff9500 50%, #e07a00 100%);
+}
+
+.at-plate--gen {
+  border-color: #d8d4ee;
+  background: linear-gradient(180deg, #9a93cf 0%, #6f66b0 50%, #4c4390 100%);
+  letter-spacing: 4px;
+}
+
+/* 로내 투입 — 화면에서 가장 눈에 띄어야 하는 판이라 다른 이름판보다 크게 잡는다 */
+.at-plate--furnace {
+  border-color: #efe4cf;
+  background: linear-gradient(180deg, #c9ab7d 0%, #a8834f 55%, #8a6636 100%);
+  font-size: 24px;
+  letter-spacing: 2px;
+  padding: 12px 10px;
+}
+
+.at-plate--o2 {
+  border-color: #cfe4ff;
+  background: linear-gradient(180deg, #6fb2ff 0%, #2a7fe0 55%, #1560b4 100%);
+  font-style: normal;
+}
+
+/* ===== OPEN / CLOSE 표시 =============================================== */
+
+/* 조작 버튼이 아니라 PLC 상태 표시다. 지금 걸린 쪽만 진하게 남기고 반대쪽은 죽인다. */
+.at-openclose {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.at-openclose em {
+  font-style: normal;
+  color: rgba(70, 70, 70, .45);
+}
+
+.at-openclose em.is-on {
+  color: #101010;
+}
+
+/* ===== 배관 상태 글씨 =================================================== */
+
+.at-pipe-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--hmi-text);
+  white-space: nowrap;
+}
+
+/* ===== O2 SENSOR ======================================================= */
+
+.at-o2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 검은 바탕 표시칸 — 표시 전용이라 입력 부품을 쓰지 않는다 */
+.at-val {
+  padding: 4px 6px;
+  border: 1px solid #000000;
+  background: var(--hmi-led-bg);
+  color: #58a6ff;
+  font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.at-o2-unit {
+  font-size: 15px;
+  font-weight: 700;
+  font-style: normal;
+  color: var(--hmi-text);
 }
 
 /* ===== ADDTION CONTROL MOTOR VALVE ====================================== */
@@ -183,28 +313,35 @@
 
 /* ===== 자동모드 동작 조건 =============================================== */
 
+/* 사진처럼 키워 둔다 — 조건이 7줄이라 글씨가 작으면 현장에서 읽기 힘들다.
+   폭은 JSX의 SLOTS.cond가 잡고, 여기서는 글자·램프 크기만 맡는다. */
 .at-cond-title {
-  padding: 5px 12px;
+  padding: 6px 14px;
   border: 1px solid #4a7a2a;
   border-bottom: none;
   border-radius: 5px 5px 0 0;
-  font-size: 13.5px;
+  font-size: 16px;
   font-weight: 800;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
   background: linear-gradient(90deg, #3f8f2f 0%, #7cc456 55%, #b9e29a 100%);
 }
 
+/* 제목 아래 남는 높이를 전부 차지한다 */
 .at-cond-body {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 10px;
+  gap: 7px;
+  padding: 11px 13px;
   border: 1px solid #4a7a2a;
   background: #fbfbf9;
 }
 
+/* 7줄이 남는 높이를 고르게 나눠 갖는다. 판을 키우면 줄 간격이 같이 벌어진다. */
 .at-cond-row {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -213,8 +350,8 @@
 
 /* 조건 충족 램프 — 네모, PLC 상태 표시라 누를 수 없다 */
 .at-cond-lamp {
-  width: 16px;
-  height: 16px;
+  width: 21px;
+  height: 21px;
   flex-shrink: 0;
   background: #14501a;
   border: 1px solid #000000;
@@ -227,28 +364,12 @@
 }
 
 .at-cond-text {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* ===== 좁은 화면 ===== */
-
-@media (max-width: 900px) {
-  .at-page {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    justify-items: center;
-  }
-
-  .at-valve,
-  .at-cond {
-    grid-column: 1;
-    justify-self: center;
-  }
-
-  .at-valve { grid-row: 1; }
-  .at-cond { grid-row: 2; }
-}
+/* 좁은 화면용 그리드 재배치는 없앴다 — 이제 판이 그림 좌표에 붙어 있어서,
+   화면이 좁아지면 그림과 함께 통째로 줄어든다. */

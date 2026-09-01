@@ -1,3 +1,13 @@
+﻿/* 작화 도구가 뽑아준 style.css. 딱 한 가지만 기계적으로 고쳤다 —
+   모든 선택자 앞에 루트 클래스 '.cooling-tower' 를 붙여 이 화면 안으로 범위를 좁혔다.
+
+   작화 화면끼리 .pipe-1 / .obj-1 / .motor-1 같은 흔한 이름이 겹치는데, SPA는 문서를
+   새로 로드하지 않아서 모든 화면의 CSS가 한 파일로 합쳐져 동시에 떠 있는다. 범위를
+   안 좁히면 나중에 로드된 쪽이 앞 화면을 덮어써 그림이 깨진다.
+
+   클래스 이름 자체는 하나도 바꾸지 않았다(JSX와 DOM은 그대로 class="pipe-1").
+   작화에서 다시 뽑아 교체할 때도 이 변환만 한 번 다시 돌리면 된다. */
+
 .cooling-tower,
 .cooling-tower * {
   box-sizing: border-box;
@@ -6,7 +16,7 @@
   height: 708px;
   position: relative;
 }
-.pipe-1 {
+.cooling-tower .pipe-1 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -15,7 +25,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-2 {
+.cooling-tower .pipe-2 {
   width: 75px;
   height: 30px;
   position: absolute;
@@ -24,7 +34,7 @@
   object-fit: cover;
   aspect-ratio: 75/30;
 }
-.pipe-3 {
+.cooling-tower .pipe-3 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -33,7 +43,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-4 {
+.cooling-tower .pipe-4 {
   width: 26px;
   height: 482px;
   position: absolute;
@@ -42,7 +52,7 @@
   object-fit: cover;
   aspect-ratio: 26/482;
 }
-.pipe-5 {
+.cooling-tower .pipe-5 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -51,7 +61,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-6 {
+.cooling-tower .pipe-6 {
   width: 69px;
   height: 71px;
   position: absolute;
@@ -60,7 +70,7 @@
   object-fit: cover;
   aspect-ratio: 69/71;
 }
-.pipe-7 {
+.cooling-tower .pipe-7 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -69,7 +79,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-8 {
+.cooling-tower .pipe-8 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -78,7 +88,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-9 {
+.cooling-tower .pipe-9 {
   width: 48px;
   height: 31px;
   position: absolute;
@@ -87,7 +97,7 @@
   object-fit: cover;
   aspect-ratio: 48/31;
 }
-.pipe-10 {
+.cooling-tower .pipe-10 {
   width: 48px;
   height: 31px;
   position: absolute;
@@ -96,7 +106,7 @@
   object-fit: cover;
   aspect-ratio: 48/31;
 }
-.pipe-11 {
+.cooling-tower .pipe-11 {
   width: 49px;
   height: 31px;
   position: absolute;
@@ -105,7 +115,7 @@
   object-fit: cover;
   aspect-ratio: 49/31;
 }
-.pipe-12 {
+.cooling-tower .pipe-12 {
   width: 49px;
   height: 31px;
   position: absolute;
@@ -114,7 +124,7 @@
   object-fit: cover;
   aspect-ratio: 49/31;
 }
-.pipe-13 {
+.cooling-tower .pipe-13 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -123,7 +133,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-14 {
+.cooling-tower .pipe-14 {
   width: 69px;
   height: 71px;
   position: absolute;
@@ -132,7 +142,7 @@
   object-fit: cover;
   aspect-ratio: 69/71;
 }
-.pipe-15 {
+.cooling-tower .pipe-15 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -141,7 +151,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-16 {
+.cooling-tower .pipe-16 {
   width: 43px;
   height: 44px;
   position: absolute;
@@ -150,7 +160,7 @@
   object-fit: cover;
   aspect-ratio: 43/44;
 }
-.pipe-17 {
+.cooling-tower .pipe-17 {
   width: 43px;
   height: 44px;
   position: absolute;
@@ -159,7 +169,7 @@
   object-fit: cover;
   aspect-ratio: 43/44;
 }
-.pipe-18 {
+.cooling-tower .pipe-18 {
   width: 390px;
   height: 25px;
   position: absolute;
@@ -168,7 +178,7 @@
   object-fit: cover;
   aspect-ratio: 390/25;
 }
-.pipe-19 {
+.cooling-tower .pipe-19 {
   width: 98px;
   height: 24px;
   position: absolute;
@@ -177,7 +187,7 @@
   object-fit: cover;
   aspect-ratio: 98/24;
 }
-.pipe-20 {
+.cooling-tower .pipe-20 {
   width: 69px;
   height: 71px;
   position: absolute;
@@ -186,7 +196,7 @@
   object-fit: cover;
   aspect-ratio: 69/71;
 }
-.pipe-21 {
+.cooling-tower .pipe-21 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -195,7 +205,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-22 {
+.cooling-tower .pipe-22 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -204,7 +214,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-23 {
+.cooling-tower .pipe-23 {
   width: 48px;
   height: 31px;
   position: absolute;
@@ -213,7 +223,7 @@
   object-fit: cover;
   aspect-ratio: 48/31;
 }
-.pipe-24 {
+.cooling-tower .pipe-24 {
   width: 48px;
   height: 31px;
   position: absolute;
@@ -222,7 +232,7 @@
   object-fit: cover;
   aspect-ratio: 48/31;
 }
-.pipe-25 {
+.cooling-tower .pipe-25 {
   width: 49px;
   height: 31px;
   position: absolute;
@@ -231,7 +241,7 @@
   object-fit: cover;
   aspect-ratio: 49/31;
 }
-.pipe-26 {
+.cooling-tower .pipe-26 {
   width: 49px;
   height: 31px;
   position: absolute;
@@ -240,7 +250,7 @@
   object-fit: cover;
   aspect-ratio: 49/31;
 }
-.pipe-27 {
+.cooling-tower .pipe-27 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -249,7 +259,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-28 {
+.cooling-tower .pipe-28 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -258,7 +268,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-29 {
+.cooling-tower .pipe-29 {
   width: 69px;
   height: 71px;
   position: absolute;
@@ -267,7 +277,7 @@
   object-fit: cover;
   aspect-ratio: 69/71;
 }
-.pipe-30 {
+.cooling-tower .pipe-30 {
   width: 42px;
   height: 42px;
   position: absolute;
@@ -276,7 +286,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-31 {
+.cooling-tower .pipe-31 {
   width: 24px;
   height: 324px;
   position: absolute;
@@ -285,7 +295,7 @@
   object-fit: cover;
   aspect-ratio: 24/324;
 }
-.pipe-32 {
+.cooling-tower .pipe-32 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -294,7 +304,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-33 {
+.cooling-tower .pipe-33 {
   width: 426px;
   height: 24px;
   position: absolute;
@@ -303,7 +313,7 @@
   object-fit: cover;
   aspect-ratio: 426/24;
 }
-.pipe-34 {
+.cooling-tower .pipe-34 {
   width: 43px;
   height: 43px;
   position: absolute;
@@ -312,7 +322,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.pipe-35 {
+.cooling-tower .pipe-35 {
   width: 26px;
   height: 46px;
   position: absolute;
@@ -321,7 +331,7 @@
   object-fit: cover;
   aspect-ratio: 26/46;
 }
-.pipe-36 {
+.cooling-tower .pipe-36 {
   width: 24px;
   height: 324px;
   position: absolute;
@@ -330,7 +340,7 @@
   object-fit: cover;
   aspect-ratio: 24/324;
 }
-.pipe-37 {
+.cooling-tower .pipe-37 {
   width: 24px;
   height: 324px;
   position: absolute;
@@ -339,7 +349,7 @@
   object-fit: cover;
   aspect-ratio: 24/324;
 }
-.pipe-38 {
+.cooling-tower .pipe-38 {
   width: 25px;
   height: 57px;
   position: absolute;
@@ -348,7 +358,7 @@
   object-fit: cover;
   aspect-ratio: 25/51;
 }
-.pump-1 {
+.cooling-tower .pump-1 {
   width: 142px;
   height: 75px;
   position: absolute;
@@ -357,7 +367,7 @@
   object-fit: cover;
   aspect-ratio: 142/75;
 }
-.pump-2 {
+.cooling-tower .pump-2 {
   width: 142px;
   height: 75px;
   position: absolute;
@@ -366,7 +376,7 @@
   object-fit: cover;
   aspect-ratio: 142/75;
 }
-.pump-3 {
+.cooling-tower .pump-3 {
   width: 142px;
   height: 75px;
   position: absolute;
@@ -377,7 +387,7 @@
   object-fit: cover;
   aspect-ratio: 142/75;
 }
-.pump-4 {
+.cooling-tower .pump-4 {
   width: 142px;
   height: 75px;
   position: absolute;
@@ -388,7 +398,7 @@
   object-fit: cover;
   aspect-ratio: 142/75;
 }
-.obj-1 {
+.cooling-tower .obj-1 {
   width: 382px;
   height: 289px;
   position: absolute;
@@ -397,7 +407,7 @@
   object-fit: cover;
   aspect-ratio: 382/289;
 }
-.obj-2 {
+.cooling-tower .obj-2 {
   width: 330px;
   height: 95px;
   position: absolute;
@@ -406,7 +416,7 @@
   object-fit: cover;
   aspect-ratio: 330/95;
 }
-.obj-3 {
+.cooling-tower .obj-3 {
   width: 678px;
   height: 192px;
   position: absolute;
@@ -415,7 +425,7 @@
   object-fit: cover;
   aspect-ratio: 678/192;
 }
-.obj-4 {
+.cooling-tower .obj-4 {
   width: 581px;
   height: 159px;
   position: absolute;
@@ -424,7 +434,7 @@
   object-fit: cover;
   aspect-ratio: 581/159;
 }
-.obj-5 {
+.cooling-tower .obj-5 {
   width: 14px;
   height: 37px;
   position: absolute;
@@ -433,7 +443,7 @@
   object-fit: cover;
   aspect-ratio: 14/37;
 }
-.obj-6 {
+.cooling-tower .obj-6 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -442,7 +452,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-7 {
+.cooling-tower .obj-7 {
   width: 14px;
   height: 37px;
   position: absolute;
@@ -451,7 +461,7 @@
   object-fit: cover;
   aspect-ratio: 14/37;
 }
-.obj-8 {
+.cooling-tower .obj-8 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -460,7 +470,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-9 {
+.cooling-tower .obj-9 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -469,7 +479,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-10 {
+.cooling-tower .obj-10 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -480,7 +490,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-11 {
+.cooling-tower .obj-11 {
   width: 14px;
   height: 37px;
   position: absolute;
@@ -491,7 +501,7 @@
   object-fit: cover;
   aspect-ratio: 14/37;
 }
-.obj-12 {
+.cooling-tower .obj-12 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -502,7 +512,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-13 {
+.cooling-tower .obj-13 {
   width: 14px;
   height: 37px;
   position: absolute;
@@ -513,7 +523,7 @@
   object-fit: cover;
   aspect-ratio: 14/37;
 }
-.obj-14 {
+.cooling-tower .obj-14 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -524,7 +534,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-15 {
+.cooling-tower .obj-15 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -535,7 +545,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-16 {
+.cooling-tower .obj-16 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -546,7 +556,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-17 {
+.cooling-tower .obj-17 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -557,7 +567,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-18 {
+.cooling-tower .obj-18 {
   width: 15px;
   height: 37px;
   position: absolute;
@@ -568,7 +578,7 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
-.obj-19 {
+.cooling-tower .obj-19 {
   width: 262px;
   height: 157px;
   position: absolute;
@@ -577,7 +587,7 @@
   object-fit: cover;
   aspect-ratio: 262/157;
 }
-.obj-20 {
+.cooling-tower .obj-20 {
   width: 262px;
   height: 157px;
   position: absolute;
@@ -586,7 +596,7 @@
   object-fit: cover;
   aspect-ratio: 262/157;
 }
-.motor-1 {
+.cooling-tower .motor-1 {
   width: 71px;
   height: 74px;
   position: absolute;
@@ -595,7 +605,7 @@
   object-fit: cover;
   aspect-ratio: 71/74;
 }
-.arrow-1 {
+.cooling-tower .arrow-1 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -604,7 +614,7 @@
   object-fit: cover;
   aspect-ratio: 39/38;
 }
-.arrow-2 {
+.cooling-tower .arrow-2 {
   width: 38px;
   height: 38px;
   position: absolute;
@@ -613,7 +623,7 @@
   object-fit: cover;
   aspect-ratio: 1;
 }
-.arrow-3 {
+.cooling-tower .arrow-3 {
   width: 43px;
   height: 44px;
   position: absolute;
@@ -622,7 +632,7 @@
   object-fit: cover;
   aspect-ratio: 43/44;
 }
-.arrow-4 {
+.cooling-tower .arrow-4 {
   width: 43px;
   height: 44px;
   position: absolute;
@@ -631,7 +641,7 @@
   object-fit: cover;
   aspect-ratio: 43/44;
 }
-.arrow-5 {
+.cooling-tower .arrow-5 {
   width: 43px;
   height: 44px;
   position: absolute;
@@ -640,7 +650,7 @@
   object-fit: cover;
   aspect-ratio: 43/44;
 }
-.arrow-6 {
+.cooling-tower .arrow-6 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -649,7 +659,7 @@
   object-fit: cover;
   aspect-ratio: 39/38;
 }
-.arrow-7 {
+.cooling-tower .arrow-7 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -660,7 +670,7 @@
   object-fit: cover;
   aspect-ratio: 39/38;
 }
-.arrow-8 {
+.cooling-tower .arrow-8 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -677,7 +687,7 @@
    rotate를 -90deg로 바꾸면 (x,y) -> (y,x)가 되어 원래 그림을 180도 뒤집은 모양이 되고,
    그리는 자리도 left/top의 "오른쪽 38px, 아래쪽 39px"로 옮겨간다. 그래서 세로 위치를
    그대로 두려고 top에서 39를 뺐다. 결과: 가로만 정확히 +38px, 방향은 반대. */
-.arrow-9 {
+.cooling-tower .arrow-9 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -688,7 +698,7 @@
   object-fit: cover;
   aspect-ratio: 39/38;
 }
-.arrow-10 {
+.cooling-tower .arrow-10 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -699,7 +709,7 @@
   object-fit: cover;
   aspect-ratio: 39/38;
 }
-.arrow-11 {
+.cooling-tower .arrow-11 {
   width: 39px;
   height: 38px;
   position: absolute;
@@ -710,7 +720,7 @@
   object-fit: cover;
   aspect-ratio: 39/38;
 }
-.arrow-12 {
+.cooling-tower .arrow-12 {
   width: 39px;
   height: 38px;
   position: absolute;

@@ -1,0 +1,247 @@
+﻿/* 작화 도구가 뽑아준 style.css. 딱 한 가지만 기계적으로 고쳤다 —
+   모든 선택자 앞에 루트 클래스 '.atmosphere' 를 붙여 이 화면 안으로 범위를 좁혔다.
+
+   .pipe-1 / .obj-1 / .motor-1 은 쿨링타워 작화와 이름이 그대로 겹친다. SPA는 문서를
+   새로 로드하지 않아 모든 화면의 CSS가 한 파일로 합쳐져 동시에 떠 있으므로, 범위를
+   안 좁히면 나중에 로드된 쪽이 앞 화면을 덮어써 그림이 깨진다.
+
+   클래스 이름 자체는 하나도 바꾸지 않았다(JSX와 DOM은 그대로 class="pipe-1"). */
+
+.atmosphere,
+.atmosphere * {
+  box-sizing: border-box;
+}
+.atmosphere {
+  height: 742px;
+  position: relative;
+}
+.atmosphere .pipe-1 {
+  background: #ffffff;
+  width: 53px;
+  height: 21px;
+  position: absolute;
+  left: 281px;
+  top: 45px;
+}
+.atmosphere .pipe-2 {
+  background: #ffffff;
+  width: 56px;
+  height: 21px;
+  position: absolute;
+  left: 400px;
+  top: 45px;
+}
+.atmosphere .pipe-3 {
+  background: #ffffff;
+  width: 124px;
+  height: 21px;
+  position: absolute;
+  left: 532px;
+  top: 45px;
+}
+.atmosphere .pipe-4 {
+  background: #ffffff;
+  width: 45px;
+  height: 21px;
+  position: absolute;
+  left: 656px;
+  top: 45px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.atmosphere .pipe-5 {
+  background: #ffcc00;
+  width: 45px;
+  height: 21px;
+  position: absolute;
+  left: 656px;
+  top: 190px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.atmosphere .pipe-6 {
+  background: #ffcc00;
+  width: 189px;
+  height: 21px;
+  position: absolute;
+  left: 446px;
+  top: 214px;
+}
+.atmosphere .pipe-7 {
+  background: #ffcc00;
+  width: 68px;
+  height: 21px;
+  position: absolute;
+  left: 300px;
+  top: 214px;
+}
+.atmosphere .pipe-8 {
+  background: #ffcc00;
+  width: 33px;
+  height: 21px;
+  position: absolute;
+  left: 202px;
+  top: 214px;
+}
+.atmosphere .pipe-9 {
+  background: #ff6600;
+  width: 762px;
+  height: 21px;
+  position: absolute;
+  left: 656px;
+  top: 129px;
+}
+.atmosphere .pipe-10 {
+  background: #ff6600;
+  width: 471px;
+  height: 21px;
+  position: absolute;
+  left: 1362px;
+  top: 600px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.atmosphere .blowe {
+  width: 259px;
+  height: 93px;
+  position: absolute;
+  left: 1px;
+  top: 18px;
+  object-fit: cover;
+  aspect-ratio: 259/93;
+}
+.atmosphere .gas {
+  width: 202px;
+  height: 93px;
+  position: absolute;
+  left: 0px;
+  top: 178px;
+  object-fit: cover;
+  aspect-ratio: 202/93;
+}
+.atmosphere .obj-1 {
+  width: 30px;
+  height: 32px;
+  position: absolute;
+  left: 630px;
+  top: 88px;
+  object-fit: cover;
+  aspect-ratio: 30/32;
+}
+.atmosphere .obj-2 {
+  width: 30px;
+  height: 32px;
+  position: absolute;
+  left: 630px;
+  top: 159px;
+  object-fit: cover;
+  aspect-ratio: 30/32;
+}
+.atmosphere .obj-3 {
+  width: 190px;
+  height: 114px;
+  position: absolute;
+  left: 1490px;
+  top: 80px;
+  object-fit: cover;
+  aspect-ratio: 190/114;
+}
+.atmosphere .obj-4 {
+  width: 877px;
+  height: 142px;
+  position: absolute;
+  left: 924px;
+  top: 600px;
+  object-fit: cover;
+  aspect-ratio: 877/142;
+}
+.atmosphere .valve-1 {
+  width: 50px;
+  height: 43px;
+  position: absolute;
+  left: 626px;
+  top: 118px;
+  object-fit: cover;
+  aspect-ratio: 50/43;
+}
+.atmosphere .valve-2 {
+  width: 124px;
+  height: 48px;
+  position: absolute;
+  left: 1369px;
+  top: 110px;
+  object-fit: cover;
+  aspect-ratio: 124/48;
+}
+.atmosphere .motor-1 {
+  width: 79px;
+  height: 68px;
+  position: absolute;
+  left: 202px;
+  top: 43px;
+  object-fit: cover;
+  aspect-ratio: 79/68;
+}
+.atmosphere .blowe-pre {
+  width: 77px;
+  height: 77px;
+  position: absolute;
+  left: 328px;
+  top: 0px;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+.atmosphere .blowe-sol {
+  width: 79px;
+  height: 54px;
+  position: absolute;
+  left: 454px;
+  top: 14px;
+  object-fit: cover;
+  aspect-ratio: 79/54;
+}
+.atmosphere .gas-pre {
+  width: 68px;
+  height: 68px;
+  position: absolute;
+  left: 232px;
+  top: 172px;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+.atmosphere .gas-sol {
+  width: 78px;
+  height: 52px;
+  position: absolute;
+  left: 368px;
+  top: 183px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.atmosphere .down-1 {
+  width: 48px;
+  height: 112px;
+  position: absolute;
+  left: 1284px;
+  top: 461px;
+  object-fit: cover;
+  aspect-ratio: 48/112;
+}
+.atmosphere .down-2 {
+  width: 48px;
+  height: 112px;
+  position: absolute;
+  left: 1413px;
+  top: 461px;
+  object-fit: cover;
+  aspect-ratio: 48/112;
+}
+.atmosphere .alarm-1 {
+  width: 40px;
+  height: 44px;
+  position: absolute;
+  left: 1565px;
+  top: 36px;
+  object-fit: cover;
+  aspect-ratio: 40/44;
+}
