@@ -1,0 +1,442 @@
+/* ===========================================================================
+   구동화면
+
+   가운데 설비 그림은 작화 원본(driveOverview.css)이 그리고, 이 파일은 그 위에
+   얹는 라벨·박스와 위아래 패널만 맡는다. 작화 쪽 클래스(.overview-1, .ent-*,
+   .exit-*, .main-*, .mini-rail*)는 여기서 건드리지 않는다.
+   =========================================================================== */
+
+.dr-page {
+  /* SV(설정값) 숫자색 — 현장 화면에서 쓰는 연두색. PV의 빨강과 구분하려고 쓴다. */
+  --dr-sv: #99cc00;
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  /* 그림을 줄여 넣는 화면이라 스크롤이 생기면 안 된다. */
+  overflow: hidden;
+}
+
+/* ===== 상단 조작·상태 패널 =============================================== */
+
+/* 패널들은 내용만큼만 넓어지므로(늘어나지 않는다) 남는 폭이 좌우로 갈리게 가운데 모은다. */
+.dr-top {
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* .hmi-group에 붙여 쓴다 — 폭은 내용에 맞추되 좁아지면 같이 줄어들게. */
+.dr-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 10px 9px;
+  min-width: 0;
+}
+
+/* 조건 램프판은 글자가 길어 폭을 더 준다 */
+.dr-panel .dr-lamp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* 램프 이름을 DrivePage.jsx에서 \n으로 끊어 쓸 수 있게 한다.
+   .hmi-lamp 기본값이 nowrap이라 그대로 두면 \n이 공백으로 접혀 한 줄이 된다.
+   pre-line은 줄바꿈만 살리고 들여쓰기용 앞뒤 공백은 접어주므로 이 용도에 맞다.
+   ENT/EXIT_CONDITIONS(상단)와 LAMP_BOARDS(하단) 양쪽에 다 걸린다. */
+.dr-lamp-list .hmi-lamp {
+  align-items: flex-start;
+  white-space: pre-line;
+  line-height: 1.2;
+}
+
+/* 두 줄짜리 글자 옆에서 점이 가운데로 뜨지 않게 첫 줄 높이에 맞춰 내린다 */
+.dr-lamp-list .hmi-lamp-dot {
+  margin-top: 2px;
+}
+
+.dr-op-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dr-op-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text-sub);
+  white-space: nowrap;
+}
+
+/* 솟은 테두리 버튼 — scada.css의 .hmi-pad-key와 같은 방식 */
+.dr-op-btn {
+  padding: 4px 12px;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
+  color: var(--hmi-text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dr-op-btn.is-wide {
+  flex: 1;
+  text-align: center;
+}
+
+.dr-op-btn:not(:disabled):hover {
+  background: #e8e8e8;
+}
+
+/* 선택된 쪽은 눌린 것처럼 들어가 보이게 */
+.dr-op-btn.is-on {
+  border-top-color: var(--hmi-shadow);
+  border-left-color: var(--hmi-shadow);
+  border-right-color: var(--hmi-light);
+  border-bottom-color: var(--hmi-light);
+  background: var(--hmi-panel-dark);
+}
+
+.dr-op-btn.is-stop:not(:disabled) {
+  color: #a01818;
+}
+
+/* 아직 PLC에 쓰지 않는 버튼 — 사진처럼 흐리게 두어 조작 대상이 아님을 보인다 */
+.dr-op-btn:disabled {
+  color: var(--hmi-text-faint);
+  background: var(--hmi-panel-dark);
+  cursor: not-allowed;
+}
+
+.dr-alarm-sw {
+  justify-content: center;
+}
+
+/* TIME 설정 — 라벨 + LED + 단위가 줄마다 세로로 정렬되게 그리드로 */
+.dr-time-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.dr-time-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text);
+  white-space: nowrap;
+}
+
+/* 셋 다 작업자가 넣는 설정값이라 MAIN DRIVE 존 SV와 같은 연두색을 쓴다. */
+.dr-time .hmi-led-input {
+  width: 62px;
+  flex: none;
+  color: var(--dr-sv);
+}
+
+/* ===== 설비 그림 무대 ==================================================== */
+
+/* 높이는 DrivePage.jsx가 배율에 맞춰 인라인으로 넣는다(그림을 줄인 실제 높이).
+   창이 세로로 좁으면 flex가 이 칸부터 줄이도록 두어, 아래 램프판이 잘리는 대신
+   그림 아래쪽이 조금 가려지게 한다. */
+.dr-stage {
+  flex: 0 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 원본 크기(1981x406) 그대로 그려 두고 통째로 줄인다.
+   왼쪽 위를 고정점으로 삼아야 줄인 폭이 그대로 무대 폭이 되어 좌우 끝에 맞는다.
+   크기와 배율은 DrivePage.jsx가 인라인으로 넣는다. */
+.dr-stage-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+/* 라벨·박스 층. 층 자체는 클릭을 가로채지 않고, 조작할 것만 다시 켠다. */
+.dr-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dr-overlay > * {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* 그림 위에 붙는 이름표 — .hmi-group-title과 같은 생김새 */
+.dr-tag {
+  padding: 2px 12px;
+  background: var(--hmi-panel);
+  border: 1px solid var(--hmi-shadow);
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--hmi-text);
+  /* LABELS의 \n으로 줄을 끊을 수 있게. \n이 없으면 nowrap과 똑같이 동작한다. */
+  white-space: pre-line;
+  text-align: center;
+}
+
+/* ===== 그림 위에 떠 있는 드라이브 박스 =================================== */
+
+.dr-drive {
+  position: absolute;
+  width: 250px;
+  /* .hmi-group의 margin-top(제목 자리)은 절대배치에선 위치를 어긋나게 해서 없앤다 */
+  margin-top: 0;
+  padding: 15px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dr-drive-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ON/OFF 글자 — 켜진 쪽만 진하게, 꺼진 쪽은 흐리게 */
+.dr-onoff {
+  width: 30px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--hmi-text-faint);
+}
+
+.dr-onoff.is-on {
+  color: #0a7a0a;
+}
+
+.dr-onoff.is-off {
+  color: var(--hmi-text);
+}
+
+.dr-drive-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text-sub);
+}
+
+.dr-drive .hmi-led-input {
+  width: 74px;
+  flex: none;
+}
+
+/* SV는 작업자가 넣는 설정값이라 PV(빨강)와 색으로 구분한다.
+   존 SV의 연두(--dr-sv)와 달리 여기는 순수 초록이다 — 사진이 그렇다.
+   LedInput의 color prop(led-red 등)보다 뒤에 오므로 이 규칙이 이긴다. */
+.dr-drive-row.is-sv .hmi-led-input {
+  color: var(--hmi-led-green);
+}
+
+.dr-drive-foot {
+  padding-top: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--hmi-text-sub);
+}
+
+/* ===== MAIN DRIVE 존 / COOLING CHAMBER =================================== */
+
+.dr-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 2px;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: var(--hmi-panel);
+}
+
+.dr-zone-title {
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* 라벨이 표시창 바로 위에 오는 한 칸(사진의 PV/SV 모양) */
+.dr-vbox {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.dr-vbox-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--hmi-text-sub);
+}
+
+/* 검은 바탕 표시칸. 표시 전용이라 입력 부품(LedInput)을 쓰지 않는다. */
+.dr-val {
+  width: 100%;
+  min-width: 40px;
+  padding: 0 3px;
+  border: 1px solid #000000;
+  background: var(--hmi-led-bg);
+  font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: .5px;
+  text-align: center;
+}
+
+/* 사진을 따라 PV는 빨강, SV는 초록 */
+.dr-val.is-red {
+  color: var(--hmi-led-red);
+}
+
+.dr-val.is-green {
+  color: var(--dr-sv);
+}
+
+/* 존 SV는 표시칸이 아니라 입력 부품(LedInput)이다. 좁은 칸에 맞게 기본 테두리 2px를
+   1px로 줄여 위쪽 PV 표시칸과 굵기·높이를 맞춘다. */
+.dr-zone .hmi-led-row {
+  width: 100%;
+}
+
+.dr-zone .hmi-led-input {
+  width: 100%;
+  border-width: 1px;
+  padding: 0 3px;
+  font-size: 11px;
+  letter-spacing: .5px;
+  text-align: center;
+  color: var(--dr-sv);
+}
+
+/* DOOR 이름만 담는 칸. PV는 PV_BOXES가 따로 배치한다(쿨링챔버 PV와 높이를 맞추려고). */
+.dr-door {
+  display: flex;
+  align-items: center;
+  height: 160px;
+}
+
+/* 글자를 눕히지 않고 선 채로 세로로 쌓는다(D / O / O / R).
+   writing-mode만 주면 알파벳이 90도 돌아가므로 text-orientation: upright가 같이 필요하다.
+   세로쓰기에서는 letter-spacing이 글자 사이 세로 간격이 된다. */
+.dr-door-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  width: 31px;
+  text-align: center;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* ===== 그림 아래 회전감지 =============================================== */
+
+/* 모터 바로 아래에 붙는 램프. 위치는 DrivePage.jsx의 TRIP_LAMPS가 인라인으로 넣고,
+   .dr-overlay > * 규칙이 position: absolute를 이미 걸어 준다.
+
+   램프 이름은 \n으로 두 줄로 끊어 쓴다 — .hmi-lamp 기본값이 nowrap이라 그대로 두면
+   \n이 공백으로 접혀 한 줄이 된다. pre-line은 줄바꿈만 살리고 들여쓰기용 앞뒤 공백은
+   접어주므로 이 용도에 맞다. */
+.dr-trip-lamp {
+  align-items: flex-start;
+  white-space: pre-line;
+  line-height: 1.2;
+  text-align: left;
+}
+
+/* 두 줄짜리 글자 옆에서 점이 가운데로 뜨지 않게 첫 줄 높이에 맞춰 내린다 */
+.dr-trip-lamp .hmi-lamp-dot {
+  margin-top: 2px;
+}
+
+/* 그림 위에 얹는 짧은 문구. 위치는 DrivePage.jsx의 NOTES가 인라인으로 넣는다. */
+.dr-note {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text);
+  white-space: nowrap;
+}
+
+/* NOTES의 value 부분 — PLC 값이 들어갈 자리만 빨갛게, 설명 글씨는 검은색으로 둔다. */
+.dr-note-val {
+  color: var(--hmi-led-red);
+}
+
+/* ===== 하단 경보 목록 + 램프판 =========================================== */
+
+/* Tabulator에 height="100%"를 주려면 부모가 확정된 높이를 가져야 해서 여기서 못박는다.
+   램프 4줄짜리 묶음이 대략 이 높이라 옆에 나란히 두기에도 맞다. */
+.dr-bottom {
+  flex-shrink: 0;
+  height: 140px;
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+
+/* 경보 목록 — 폭은 고정하고 램프판이 남는 폭을 나눠 갖는다 */
+.dr-alarm {
+  flex: 0 0 600px;
+  min-width: 0;
+  position: relative;
+  border-top: 2px solid var(--hmi-shadow);
+  border-left: 2px solid var(--hmi-shadow);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  background: var(--hmi-panel);
+}
+
+.dr-alarm .hmi-table-wrap,
+.dr-alarm .hmi-table-wrap > div {
+  height: 100%;
+}
+
+/* 조회 실패 안내 — 표가 비어 있는 이유를 알 수 있게 표 위에 겹쳐 띄운다 */
+.dr-alarm-error {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 3px 8px;
+  background: #ffe6e6;
+  color: #a01818;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 제목 없는 램프 묶음 — 제목 자리를 비우고 위쪽 여백만 줄인다 */
+.dr-board {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+  padding: 7px 8px;
+}
+
+.dr-board .hmi-lamp {
+  font-size: 11px;
+}

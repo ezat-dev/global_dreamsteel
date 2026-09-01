@@ -1,0 +1,117 @@
+/* ===========================================================================
+   알람 화면 — 10열 격자
+   칸에 테두리가 없고 회색 글자만 놓이는 형태(참고 HMI 그대로). 발생하면 빨갛게 켠다.
+   =========================================================================== */
+
+.al-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 4px;
+}
+
+.al-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  /* minmax의 최소를 0으로 못박아야 10개 행이 정확히 같은 높이가 된다.
+     1fr이나 minmax(58px, 1fr)로 두면 행의 최소가 내용 높이로 잡혀서,
+     3줄짜리 글자가 든 행(회전감지 이상 / TOWER ALARM 발생 등)만 혼자 높아진다. */
+  grid-auto-rows: minmax(0, 1fr);
+  /* 화면 세로가 짧을 때 행이 뭉개지는 대신 스크롤이 생기게 하는 하한 */
+  min-height: 640px;
+  column-gap: 4px;
+}
+
+.al-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  text-align: center;
+  /* label에 넣은 줄바꿈(\n)을 그대로 살린다 */
+  white-space: pre-line;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  /* 꺼진 알람 — 있다는 건 보이되 눈에 띄지 않는 회색 */
+  color: #8a8a8a;
+  transition: color .15s, text-shadow .15s;
+}
+
+.al-cell.is-empty {
+  /* 자리만 차지해서 아래 행이 밀려 올라오지 않게 한다 */
+  padding: 0;
+}
+
+/* 발생 중인 알람 */
+.al-cell.on {
+  color: #e00000;
+  text-shadow: 0 0 1px rgba(224, 0, 0, .5);
+  animation: al-blink 1s steps(1, end) infinite;
+}
+
+@keyframes al-blink {
+  50% { opacity: .35; }
+}
+
+/* ===== 하단 조작 ===== */
+
+.al-actions {
+  flex-shrink: 0;
+  display: grid;
+  /* 사진과 같이 오른쪽 두 열(입구/출구 다음 칸) 위치에 맞춘다 */
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  column-gap: 4px;
+  padding: 6px 0 2px;
+}
+
+.al-action {
+  grid-column: 9;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  color: #e00000;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  cursor: pointer;
+}
+
+.al-action + .al-action {
+  grid-column: 10;
+}
+
+.al-action:hover {
+  text-decoration: underline;
+}
+
+/* ===== 좁은 화면 =====
+   10열이 다 들어가지 않으면 글자가 뭉개져서 단계적으로 열을 줄인다. */
+
+@media (max-width: 1500px) {
+  .al-cell {
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .al-grid,
+  .al-actions {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .al-action { grid-column: 4; }
+  .al-action + .al-action { grid-column: 5; }
+}
+
+@media (max-width: 700px) {
+  .al-grid,
+  .al-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .al-action { grid-column: 1; }
+  .al-action + .al-action { grid-column: 2; }
+}

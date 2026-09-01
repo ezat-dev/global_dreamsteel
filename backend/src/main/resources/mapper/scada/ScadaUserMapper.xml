@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ScadaUserMapper">
+
+    <!-- 사용자 1명 조회(selectOne) — 아이디와 비밀번호를 WHERE에서 한 번에 맞춘다.
+         SELECT 절에 user_password를 넣지 않으므로 비밀번호가 응답으로 새어나갈 일이 없다.
+         행이 나오면 로그인 성공, null이면 실패. -->
+    <select id="getUser" parameterType="com.mes.domain.scada.ScadaUser"
+            resultType="com.mes.domain.scada.ScadaUser">
+        SELECT id, user_id, user_name
+        FROM scada_user
+        WHERE user_id = #{userId}
+          AND user_password = #{userPassword}
+    </select>
+
+</mapper>

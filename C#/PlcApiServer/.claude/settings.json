@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"D:\\\\apache-maven-3.9.9\\\\bin\\\\mvn.cmd\" -f \"D:\\\\����뱸_����\\\\0724������Ʈ ���\\(������ C# DB\\)\\\\0724������Ʈ ���\\(������ C# DB\\)\\\\sample_pro\\\\pom.xml\" -DskipTests clean package 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" \"http://localhost:8080/sample_pro/tag/TagMonitorPage\")",
+      "Bash(grep -n \"SEVERE\" \"/d/apache-tomcat-9.0.115/logs/localhost.$\\(date +%Y-%m-%d\\).log\")",
+      "PowerShell(Get-Process -Id 23236 -ErrorAction SilentlyContinue)",
+      "Bash(powershell -Command \"Stop-Process -Id 23236 -Force\")",
+      "Bash(nohup dotnet bin/Debug/net8.0/PlcApiServer.dll)",
+      "Bash(curl -s \"http://localhost:5050/api/plc/list\")",
+      "Bash(powershell -Command \"Get-Process -Name PlcApiServer,dotnet -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime\")",
+      "PowerShell(Get-Process -Id 36572 -ErrorAction SilentlyContinue)",
+      "Bash(curl -s \"http://localhost:5050/api/plc/read/MST_MITSUBISHI?start=100&count=-5&device=D\")",
+      "Bash(curl -s \"http://localhost:5050/api/plc/read/MST_MITSUBISHI?start=100&count=0&device=D\")",
+      "Bash(curl -s \"http://localhost:5050/api/plc/read/NOT_EXIST?start=100&count=1\")",
+      "Bash(curl -s \"http://localhost:5050/api/plc/writeBit/MST_MITSUBISHI?address=99999&value=tru&device=M\")",
+      "Bash(grep -n -A 15 \"CREATE TABLE.*\\\\`folders\\\\`\" \"/d/동우대구_관련/0724프로젝트 백업\\(스프링 C# DB\\)/0724프로젝트 백업\\(스프링 C# DB\\)/0724DB.sql\")",
+      "Bash(powershell -Command \"Stop-Process -Id 8396 -Force\")",
+      "Bash(powershell -Command 'Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -eq 5050} | Select-Object LocalPort,OwningProcess')",
+      "Bash(grep -i \"severe\\\\|exception\" \"D:/apache-tomcat-9.0.115/logs/catalina.$\\(date +%Y-%m-%d\\).log\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(grep -i \"severe\" \"D:/apache-tomcat-9.0.115/logs/localhost.$\\(date +%Y-%m-%d\\).log\")"
+    ]
+  }
+}

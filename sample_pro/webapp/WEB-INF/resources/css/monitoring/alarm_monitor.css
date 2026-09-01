@@ -1,0 +1,64 @@
+body {
+  font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+  margin: 0;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.page {
+  padding: 18px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.status {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table th, .table td {
+  border-bottom: 1px solid #1f2937;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.table th {
+  color: #cbd5e1;
+  background: #0b1220;
+}
+
+.level-1 { color: #38bdf8; }
+.level-2 { color: #fbbf24; }
+.level-3 { color: #f87171; }

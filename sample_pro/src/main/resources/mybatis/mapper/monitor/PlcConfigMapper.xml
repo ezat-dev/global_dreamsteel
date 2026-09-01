@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PlcConfigMapper">
+
+  <resultMap id="plcConfigMap" type="com.sample_pro.domain.PlcConfig">
+    <result column="plc_id"   property="plcId"/>
+    <result column="ip"       property="ip"/>
+    <result column="port"     property="port"/>
+    <result column="plc_type" property="plcType"/>
+    <result column="label"    property="label"/>
+    <result column="enabled"  property="enabled"/>
+  </resultMap>
+
+  <select id="selectAll" resultMap="plcConfigMap">
+    SELECT plc_id, ip, port, plc_type, label, enabled
+    FROM tb_plc
+    WHERE enabled = 1
+    ORDER BY label
+  </select>
+
+  <select id="selectById" parameterType="String" resultMap="plcConfigMap">
+    SELECT plc_id, ip, port, plc_type, label, enabled
+    FROM tb_plc
+    WHERE plc_id = #{plcId}
+  </select>
+
+</mapper>

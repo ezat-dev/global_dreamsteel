@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="TempMapper">
+
+    <resultMap id="tempTagMap" type="com.sample_pro.domain.TempTag">
+        <id     property="tempId"    column="temp_id"/>
+        <result property="tagName"   column="tag_name"/>
+        <result property="address"   column="address"/>
+        <result property="plcId"     column="plc_id"/>
+        <result property="colName"   column="col_name"/>
+        <result property="trendName" column="trend_name"/>
+        <result property="equipId"   column="equip_id"/>
+        <result property="scale"     column="scale"/>
+        <result property="enabled"   column="enabled"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <resultMap id="tempHistoryMap" type="com.sample_pro.domain.TempHistory">
+        <id     property="historyId" column="history_id"/>
+        <result property="tempId"    column="temp_id"/>
+        <result property="tagName"   column="tag_name"/>
+        <result property="address"   column="address"/>
+        <result property="plcId"     column="plc_id"/>
+        <result property="tempValue" column="temp_value"/>
+        <result property="recordTime" column="record_time"/>
+    </resultMap>
+
+    <!-- Ensure tables -->
+    <update id="ensureTempTagTable" statementType="STATEMENT">
+        CREATE TABLE IF NOT EXISTS tb_temp_tag (
+            temp_id    INT AUTO_INCREMENT PRIMARY KEY,
+            tag_name   VARCHAR(100) NOT NULL,
+            address    VARCHAR(50)  NOT NULL,
+            plc_id     VARCHAR(50)  NOT NULL,
+            col_name   VARCHAR(120) NOT NULL,
+            enabled    TINYINT NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY uk_temp_tag (plc_id, address),
+            UNIQUE KEY uk_temp_col (col_name)
+        )
+    </update>
+
+    <select id="countTempTagColumn" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'tb_temp_tag'
+          AND column_name = #{colName}
+    </select>
+
+    <update id="addTempTagColName" statementType="STATEMENT">
+        ALTER TABLE tb_temp_tag
+        ADD COLUMN col_name VARCHAR(120) NOT NULL DEFAULT ''
+    </update>
+
+    <update id="addEquipIdColumn" statementType="STATEMENT">
+        ALTER TABLE tb_temp_tag
+        ADD COLUMN equip_id VARCHAR(20) NULL DEFAULT NULL
+    </update>
+
+    <update id="addScaleColumn" statementType="STATEMENT">
+        ALTER TABLE tb_temp_tag
+        ADD COLUMN scale VARCHAR(20) NULL DEFAULT NULL
+        COMMENT '스냅샷 저장 전 원시값(raw)에 적용할 보정식. 맨 앞 1글자가 연산자, 나머지가 숫자.
+  +50   -&gt; raw + 50   (더하기)
+  -100  -&gt; raw - 100  (빼기)
+  *0.01 -&gt; raw * 0.01 (곱하기)
+  /2    -&gt; raw / 2    (나누기)
+  NULL 또는 빈 문자열 -&gt; 보정 안 함(raw 그대로 저장)
+  주의: 반드시 +,-,*,/ 중 하나로 시작해야 함. 기호 없이 숫자만 넣으면 무시되고 raw 그대로 저장됨(안전장치).'
+    </update>
+
+    <update id="ensureTempHistoryTable" statementType="STATEMENT">
+        CREATE TABLE IF NOT EXISTS tb_temp_history (
+            history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            temp_id    INT NOT NULL,
+            temp_name  VARCHAR(100),
+            address    VARCHAR(50),
+            plc_id     VARCHAR(50),
+            temp_value DOUBLE,
+            record_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_temp_record (record_time),
+            INDEX idx_temp_id (temp_id)
+        )
+    </update>
+
+    <update id="ensureTempSnapshotTable" statementType="STATEMENT">
+        CREATE TABLE IF NOT EXISTS tb_temp_snapshot (
+            snapshot_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            record_time DATETIME DEFAULT NULL,
+            INDEX idx_snap_time (record_time)
+        )
+    </update>
+
+    <update id="addTempSnapshotColumn" parameterType="string" statementType="STATEMENT">
+        ALTER TABLE tb_temp_snapshot
+        ADD COLUMN `${colName}` DOUBLE NULL DEFAULT NULL
+    </update>
+
+    <!-- Temp tags -->
+    <select id="selectTempTagList" resultMap="tempTagMap">
+        SELECT temp_id, tag_name, address, plc_id, col_name, trend_name, equip_id, scale, enabled,
+               DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+        FROM   tb_temp_tag
+        ORDER  BY temp_id ASC
+    </select>
+
+    <select id="selectTempTagById" parameterType="int" resultMap="tempTagMap">
+        SELECT temp_id, tag_name, address, plc_id, col_name, trend_name, equip_id, scale, enabled,
+               DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+        FROM   tb_temp_tag
+        WHERE  temp_id = #{tempId}
+        LIMIT  1
+    </select>
+
+    <select id="selectTempTagsMissingColName" resultMap="tempTagMap">
+        SELECT temp_id, tag_name, address, plc_id, col_name, trend_name, equip_id, scale, enabled,
+               DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+        FROM   tb_temp_tag
+        WHERE  col_name IS NULL OR col_name = ''
+    </select>
+
+    <select id="selectTempColNames" resultType="string">
+        SELECT col_name FROM tb_temp_tag
+    </select>
+
+    <insert id="insertTempTag" parameterType="com.sample_pro.domain.TempTag"
+            useGeneratedKeys="true" keyProperty="tempId">
+        INSERT INTO tb_temp_tag (tag_name, address, plc_id, col_name, trend_name, equip_id, scale, enabled)
+        VALUES (#{tagName}, #{address}, #{plcId}, #{colName}, #{trendName}, #{equipId}, #{scale}, #{enabled})
+        ON DUPLICATE KEY UPDATE
+            tag_name   = VALUES(tag_name),
+            col_name   = VALUES(col_name),
+            trend_name = VALUES(trend_name),
+            equip_id   = VALUES(equip_id),
+            scale      = VALUES(scale),
+            enabled    = VALUES(enabled)
+    </insert>
+
+    <update id="updateTempTag" parameterType="com.sample_pro.domain.TempTag">
+        UPDATE tb_temp_tag
+        SET    tag_name   = #{tagName},
+               address    = #{address},
+               plc_id     = #{plcId},
+               col_name   = #{colName},
+               trend_name = #{trendName},
+               equip_id   = #{equipId},
+               scale      = #{scale},
+               enabled    = #{enabled}
+        WHERE  temp_id = #{tempId}
+    </update>
+
+    <delete id="deleteTempTag" parameterType="int">
+        DELETE FROM tb_temp_tag WHERE temp_id = #{tempId}
+    </delete>
+
+    <!-- Temp history -->
+    <select id="selectTempHistory" parameterType="map" resultMap="tempHistoryMap">
+        SELECT h.history_id, h.temp_id, t.tag_name, t.address, t.plc_id,
+               h.temp_value,
+               DATE_FORMAT(h.record_time, '%Y-%m-%d %H:%i:%s') AS record_time
+        FROM   tb_temp_history h
+        LEFT JOIN tb_temp_tag t ON h.temp_id = t.temp_id
+        <where>
+            <if test="tempId != null">
+                h.temp_id = #{tempId}
+            </if>
+        </where>
+        ORDER  BY h.record_time DESC
+        LIMIT  #{limit}
+    </select>
+
+    <select id="countTempSnapshotColumn" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'tb_temp_snapshot'
+          AND column_name = #{colName}
+    </select>
+
+    <update id="renameTempSnapshotColumn" parameterType="map" statementType="STATEMENT">
+        ALTER TABLE tb_temp_snapshot
+        CHANGE COLUMN `${oldCol}` `${newCol}` DOUBLE
+    </update>
+
+    <select id="selectTempSnapshot" parameterType="map" resultType="hashmap">
+        SELECT *
+        FROM tb_temp_snapshot
+        ORDER BY record_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectTempSnapshotRange" parameterType="map" resultType="hashmap">
+        SELECT *
+        FROM tb_temp_snapshot
+        WHERE record_time BETWEEN #{from} AND #{to}
+        ORDER BY record_time ASC
+    </select>
+
+
+    <!-- Memo -->
+    <resultMap id="tempMemoMap" type="com.sample_pro.domain.TempMemo">
+        <id     property="tcCnt"      column="tc_cnt"/>
+        <result property="tcRegtime"  column="tc_regtime"/>
+        <result property="tcName"     column="tc_name"/>
+        <result property="tcDesc"     column="tc_desc"/>
+        <result property="tcUserCode" column="tc_user_code"/>
+        <result property="tcUserName" column="tc_user_name"/>
+        <result property="tcYn"       column="tc_yn"/>
+    </resultMap>
+
+    <select id="selectMemoList" parameterType="map" resultMap="tempMemoMap">
+        SELECT tc_cnt, tc_regtime, tc_name, tc_desc, tc_user_code, tc_user_name, tc_yn
+        FROM   tb_temp_memo
+        WHERE  tc_yn = 'Y'
+          AND  tc_regtime BETWEEN #{from} AND #{to}
+        ORDER  BY tc_regtime ASC
+    </select>
+
+    <insert id="insertMemo" parameterType="com.sample_pro.domain.TempMemo"
+            useGeneratedKeys="true" keyProperty="tcCnt">
+        INSERT INTO tb_temp_memo (tc_regtime, tc_name, tc_desc, tc_user_code, tc_user_name, tc_yn)
+        VALUES (#{tcRegtime}, #{tcName}, #{tcDesc}, #{tcUserCode}, #{tcUserName}, 'Y')
+    </insert>
+
+    <update id="deleteMemo" parameterType="int">
+        UPDATE tb_temp_memo SET tc_yn = 'N' WHERE tc_cnt = #{value}
+    </update>
+
+</mapper>

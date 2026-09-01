@@ -1,0 +1,13 @@
+{
+    // build.gradle이 바뀌면 물어보지 않고 바로 클래스패스를 다시 읽는다.
+    // "interactive"로 두면 확인 팝업을 놓쳤을 때 클래스패스가 옛날 상태로 남아
+    // import가 안 잡히거나 빨간 줄이 안 뜨는 일이 생긴다.
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "automatic",
+    // 워크스페이스 루트가 global_dreamsteel이고 Gradle 프로젝트는 backend/ 한 단계 아래라
+    // 위치를 명시해준다.
+    "java.import.gradle.enabled": true,
+    "java.project.sourcePaths": [
+        "backend/src/main/java"
+    ]
+}

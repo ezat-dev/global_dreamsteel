@@ -1,0 +1,127 @@
+/* ===========================================================================
+   쿨링타워
+
+   설비 그림은 작화 원본(coolingOverview.css)이 그리고, 이 파일은 그림을 화면에
+   앉히는 일과 그 위에 얹는 이름판·경보 띠·설정값만 맡는다.
+   작화 쪽 클래스(.cooling-tower, .pipe-*, .pump-*, .obj-*, .motor-*, .arrow-*)는
+   여기서 건드리지 않는다.
+   =========================================================================== */
+
+.ct-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  /* 그림을 줄여 넣는 화면이라 스크롤이 생기면 안 된다. */
+  overflow: hidden;
+}
+
+.ct-stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 원본 크기(1496x708) 그대로 그려 두고 통째로 줄인다.
+   크기·배율·음수 margin은 CoolingPage.jsx가 인라인으로 넣는다. */
+.ct-stage-inner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform-origin: top center;
+}
+
+/* 얹는 것들의 층. 층 자체는 클릭을 가로채지 않고, 조작할 것만 다시 켠다. */
+.ct-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ct-overlay > * {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* ===== 이름판 =========================================================== */
+
+/* 금속판에 새긴 것처럼 — 위·왼쪽이 밝고 아래·오른쪽이 어두운 입체 테두리 */
+.ct-plate {
+  display: block;
+  padding: 4px 10px;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: linear-gradient(180deg, #fbfbfb 0%, var(--hmi-panel) 55%, #c2c2c2 100%);
+  color: var(--hmi-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 탱크 한가운데에 박히는 판 — 폭을 지정해서 탱크 안에 자리를 잡는다 */
+.ct-tank-plate {
+  font-size: 13px;
+  letter-spacing: .5px;
+}
+
+.ct-pump-plate {
+  padding: 2px 8px;
+  font-size: 11.5px;
+}
+
+/* ===== 집수조 레벨 경보 띠 ============================================== */
+
+/* 사진의 빨간 띠 — 가운데가 밝은 빨강 그라데이션에 검은 글씨 */
+.ct-banner {
+  display: block;
+  padding: 6px 8px;
+  border-top: 2px solid #ffb0b0;
+  border-left: 2px solid #ffb0b0;
+  border-right: 2px solid #8e0000;
+  border-bottom: 2px solid #8e0000;
+  background: linear-gradient(180deg, #ff9a9a 0%, #ff2b2b 45%, #d40000 100%);
+  color: #000000;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ===== 냉각수 알람 지연시간 ============================================= */
+
+.ct-delay {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ct-delay-title {
+  font-size: 12.5px;
+}
+
+.ct-delay-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* HIGH / LOW 글자판 — 폭을 맞춰야 두 줄의 입력칸이 세로로 정렬된다 */
+.ct-delay-label {
+  width: 54px;
+  flex: none;
+  padding: 2px 4px;
+  font-size: 11.5px;
+}
+
+.ct-delay-row .hmi-led-input {
+  width: 84px;
+  flex: none;
+}
+
+.ct-delay-row .hmi-led-unit {
+  font-size: 11px;
+}

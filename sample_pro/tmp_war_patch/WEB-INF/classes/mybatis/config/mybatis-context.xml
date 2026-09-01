@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<typeAliases>
+	<typeAlias alias="users" type="com.sample_pro.domain.Users"/>
+	<typeAlias alias="Users" type="com.sample_pro.domain.Users"/>
+	<typeAlias alias="permission" type="com.sample_pro.domain.Permission"/>
+	<typeAlias alias="Permission" type="com.sample_pro.domain.Permission"/>
+	<typeAlias alias="userMenu" type="com.sample_pro.domain.UserMenu"/>
+	<typeAlias alias="UserMenu" type="com.sample_pro.domain.UserMenu"/>
+	<typeAlias alias="userLog" type="com.sample_pro.domain.UserLog"/>
+	<typeAlias alias="UserLog" type="com.sample_pro.domain.UserLog"/>
+	<package name="com.sample_pro.domain"/>
+</typeAliases>
+  <mappers>
+  	<mapper resource="mybatis/mapper/users.xml"/>
+
+    <mapper resource="mybatis/mapper/TagMapper.xml"/>
+    <mapper resource="mybatis/mapper/AlarmMapper.xml"/>
+    <mapper resource="mybatis/mapper/TempMapper.xml"/>
+  </mappers>
+</configuration>

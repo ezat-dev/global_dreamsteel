@@ -1,0 +1,1200 @@
+/* ===========================================================================
+   SCADA(HMI) 화면 스타일
+   ---------------------------------------------------------------------------
+   현장 HMI 패널을 그대로 옮긴 형태(회색 배경 + 입체 테두리 + 파란 제목바 +
+   하단 메뉴바). 토큰/클래스는 --hmi-*, .hmi-* 로 통일하고, 토큰은 화면 최상위
+   래퍼인 .hmi-root에 선언한다(ScadaLayout / ScadaLoginPage가 붙인다).
+   =========================================================================== */
+
+/* ===== 기본 리셋 ========================================================== */
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #d6d6d6;
+}
+
+/* ===== 토큰 ============================================================== */
+
+.hmi-root {
+  /* 바탕 */
+  --hmi-bg: #d6d6d6;
+  --hmi-panel: #d9d9d9;
+  --hmi-panel-dark: #c8c8c8;
+
+  /* 입체(3D) 테두리 — 윈도우 클래식 패널 느낌 */
+  --hmi-light: #ffffff;
+  --hmi-shadow: #808080;
+  --hmi-shadow-dark: #5a5a5a;
+
+  /* 제목바 파랑 */
+  --hmi-blue-edge: #1e5fa8;
+  --hmi-blue-mid: #4b9fe0;
+  --hmi-blue-light: #8ecdf5;
+
+  /* 하단 메뉴바 남색 */
+  --hmi-navy: #17386d;
+  --hmi-navy-dark: #0e2549;
+  --hmi-navy-hover: #24559d;
+
+  /* 상태색 */
+  --hmi-lamp-on: #00c800;
+  --hmi-lamp-off: #2e5f2e;
+  --hmi-lamp-warn: #ffb400;
+  --hmi-lamp-alarm: #ff2020;
+  --hmi-led-bg: #000000;
+  --hmi-led-red: #ff2b2b;
+  --hmi-led-yellow: #ffe000;
+  --hmi-led-green: #35ff58;
+
+  --hmi-text: #101010;
+  --hmi-text-sub: #444444;
+  --hmi-text-faint: #767676;
+
+  --hmi-header-h: 54px;
+  --hmi-menu-h: 46px;
+  /* 세로 막대 게이지 높이 — 화면마다 .hmi-root 안쪽에서 덮어써서 조절한다
+     (예: 온도제어는 TempPage.css의 .tz-grid에서 키운다). */
+  --hmi-gauge-h: 200px;
+
+  height: 100%;
+  background: var(--hmi-bg);
+  color: var(--hmi-text);
+  font-family: '맑은 고딕', 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  /* 값이 바뀔 때 자릿수 때문에 레이아웃이 흔들리지 않도록 */
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.hmi-root *,
+.hmi-root *::before,
+.hmi-root *::after {
+  box-sizing: border-box;
+}
+
+/* ===== 전체 뼈대 ========================================================== */
+
+.hmi-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── 상단: 로고 + 화면 제목 + 로그아웃 ── */
+
+.hmi-header {
+  height: var(--hmi-header-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 3px;
+  background: var(--hmi-bg);
+}
+
+/* 로고 자리 — public/logo.png를 넣으면 그 이미지가, 없으면 회사명 텍스트가 나온다.
+   로고가 가로로 긴 워드마크(약 4.3:1)라 폭을 넉넉히 잡아야 글자가 읽힌다.
+   배경을 흰색으로 두는 건 로고 PNG 배경이 흰색이어도 네모가 튀어 보이지 않게 하기 위함. */
+.hmi-logo {
+  width: 210px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  background: #ffffff;
+  border: 1px solid #9a9a9a;
+  overflow: hidden;
+}
+
+.hmi-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.hmi-logo-text {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #1b3a6b;
+  white-space: nowrap;
+}
+
+/* 로그인 카드 안 — 제목바 위에 가로로 꽉 차는 흰 띠로 얹는다. */
+.hmi-logo--login {
+  width: 100%;
+  height: 64px;
+  padding: 10px 18px;
+  margin-bottom: 3px;
+  border-color: #b4b4b4;
+}
+
+/* 화면 제목바 */
+.hmi-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  /* 위쪽 광택 + 가로 방향(가장자리 진하고 가운데 밝은) 그라데이션 두 겹 */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
+    linear-gradient(90deg,
+      var(--hmi-blue-edge) 0%,
+      var(--hmi-blue-mid) 22%,
+      var(--hmi-blue-light) 50%,
+      var(--hmi-blue-mid) 78%,
+      var(--hmi-blue-edge) 100%);
+  border: 1px solid #14477f;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.hmi-title-text {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  /* 원본 HMI가 "구 동 화 면"처럼 자간을 벌려 쓰던 것을 CSS로 재현한다 */
+  letter-spacing: 10px;
+  text-indent: 10px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 우측 상단 시계 — 참고 HMI와 같이 YYYY/MM/DD HH:mm:ss */
+.hmi-clock {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 208px;
+  padding: 0 16px;
+  border-radius: 6px;
+  border: 1px solid #14477f;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
+    linear-gradient(90deg,
+      var(--hmi-blue-edge) 0%,
+      var(--hmi-blue-mid) 30%,
+      var(--hmi-blue-light) 50%,
+      var(--hmi-blue-mid) 70%,
+      var(--hmi-blue-edge) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+/* 우측 상단 로그아웃 */
+.hmi-logout {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid #14477f;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
+    linear-gradient(90deg,
+      var(--hmi-blue-edge) 0%,
+      var(--hmi-blue-mid) 30%,
+      var(--hmi-blue-light) 50%,
+      var(--hmi-blue-mid) 70%,
+      var(--hmi-blue-edge) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+  transition: filter .12s;
+}
+
+.hmi-logout:hover {
+  filter: brightness(1.1);
+}
+
+.hmi-logout:active {
+  filter: brightness(.92);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .35);
+}
+
+.hmi-logout-user {
+  font-size: 11.5px;
+  font-weight: 600;
+  opacity: .85;
+}
+
+/* ── 본문 ── */
+
+.hmi-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px;
+}
+
+/* ── 하단 메뉴바 ── */
+
+.hmi-menu {
+  height: var(--hmi-menu-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 2px;
+  background: var(--hmi-navy-dark);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.hmi-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.hmi-menu-item {
+  flex: 1 1 0;
+  min-width: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #0b1e3c;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #2a5595 0%, var(--hmi-navy) 55%, #102b56 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+  transition: background .12s, color .12s;
+}
+
+.hmi-menu-item:hover {
+  background: linear-gradient(180deg, #3c6cb4 0%, var(--hmi-navy-hover) 55%, #1a3f78 100%);
+}
+
+.hmi-menu-item.active {
+  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
+  color: #ffffff;
+  border-color: #14477f;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+
+.hmi-menu-item:active {
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, .45);
+}
+
+/* ===== 화면 안에서 쓰는 HMI 부품 ========================================= */
+
+/* 입체 테두리 유틸 — 튀어나온(outset) / 들어간(inset) 두 종류 */
+.hmi-out {
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: var(--hmi-panel);
+}
+
+.hmi-in {
+  border-top: 2px solid var(--hmi-shadow);
+  border-left: 2px solid var(--hmi-shadow);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  background: var(--hmi-panel);
+}
+
+/* 그룹박스 — 제목이 위쪽에 작은 라벨로 붙는 패널 */
+.hmi-group {
+  position: relative;
+  padding: 16px 12px 12px;
+  margin-top: 11px;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: var(--hmi-panel);
+}
+
+.hmi-group-title {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 14px;
+  background: var(--hmi-panel);
+  border: 1px solid var(--hmi-shadow);
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--hmi-text);
+  white-space: nowrap;
+}
+
+/* 램프 */
+.hmi-lamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hmi-text);
+  white-space: nowrap;
+}
+
+.hmi-lamp-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--hmi-lamp-off);
+  border: 1px solid rgba(0, 0, 0, .45);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .35);
+}
+
+.hmi-lamp.on .hmi-lamp-dot {
+  background: var(--hmi-lamp-on);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .6), 0 0 6px rgba(0, 200, 0, .8);
+}
+
+.hmi-lamp.warn .hmi-lamp-dot {
+  background: var(--hmi-lamp-warn);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .6), 0 0 6px rgba(255, 180, 0, .8);
+}
+
+.hmi-lamp.alarm .hmi-lamp-dot {
+  background: var(--hmi-lamp-alarm);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .5), 0 0 7px rgba(255, 32, 32, .9);
+  animation: hmi-blink .8s steps(1, end) infinite;
+}
+
+@keyframes hmi-blink {
+  50% { opacity: .3; }
+}
+
+/* LED 수치 표시기 — 검은 바탕에 빨강/노랑 숫자 */
+.hmi-led {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 62px;
+  padding: 2px 7px;
+  background: var(--hmi-led-bg);
+  border-top: 2px solid var(--hmi-shadow-dark);
+  border-left: 2px solid var(--hmi-shadow-dark);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--hmi-led-red);
+}
+
+.hmi-led.yellow { color: var(--hmi-led-yellow); }
+.hmi-led.green { color: var(--hmi-led-green); }
+
+.hmi-led-unit {
+  margin-left: 5px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hmi-text);
+}
+
+/* ===== LED 입력창 =====
+   검은 바탕에 색 숫자인 계장 표시기 모양이지만 실제로는 input이라 값을 고칠 수 있다. */
+
+.hmi-led-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hmi-led-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 2px 6px;
+  background: var(--hmi-led-bg);
+  border-top: 2px solid var(--hmi-shadow-dark);
+  border-left: 2px solid var(--hmi-shadow-dark);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-align: right;
+  outline: none;
+}
+
+.hmi-led-input:focus {
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+/* PLC 읽기 전용 칸 — 계장 표시기처럼 보이되 클릭·포커스로 반응하지 않는다 */
+.hmi-led-input.is-readonly {
+  cursor: default;
+  user-select: none;
+}
+
+.hmi-led-input.is-readonly:focus,
+.hmi-led-input.is-disabled:focus {
+  box-shadow: none;
+}
+
+/* 지금은 쓰지 않는 칸 — 꺼진 LED처럼 숫자만 어둡게 (검은 바탕은 그대로) */
+.hmi-led-input.is-disabled {
+  color: #4a4a4a;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+/* 입력 가능한 칸 — 눌러서 숫자패드를 여는 곳임을 알린다 */
+.hmi-led-input:not(.is-readonly):not(.is-disabled) {
+  cursor: pointer;
+}
+
+.hmi-led-input:not(.is-readonly):not(.is-disabled):hover {
+  background: #141414;
+  box-shadow: inset 0 0 0 1px #4d6a8a;
+}
+
+/* 숫자패드가 열려 있는 칸 — 패드가 어느 값을 고치는 중인지 한눈에 보이게 테두리를 준다 */
+.hmi-led-input.is-editing {
+  box-shadow: inset 0 0 0 2px var(--hmi-blue-light);
+}
+
+/* ===== 숫자 입력 패드 ===== */
+
+/* 바깥 클릭으로 닫기 위한 투명 판. 어둡게 덮지 않는 건, 지금 고치는 칸이 계속 보여야
+   "뭘 수정하는 중인지" 알 수 있기 때문이다. */
+.hmi-pad-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+}
+
+/* 위치는 NumPad가 누른 칸 기준으로 계산해서 인라인 스타일로 넣는다 */
+.hmi-pad {
+  position: fixed;
+  width: 216px;
+  padding: 8px;
+  background: var(--hmi-panel);
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  box-shadow: 0 10px 26px -8px rgba(0, 0, 0, .6);
+}
+
+.hmi-pad-title {
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid #14477f;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .35) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
+    linear-gradient(90deg, var(--hmi-blue-edge) 0%, var(--hmi-blue-light) 50%, var(--hmi-blue-edge) 100%);
+}
+
+.hmi-pad-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 5px 9px;
+  background: var(--hmi-led-bg);
+  border-top: 2px solid var(--hmi-shadow-dark);
+  border-left: 2px solid var(--hmi-shadow-dark);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+}
+
+.hmi-pad-value {
+  font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--hmi-led-green);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hmi-pad-unit {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #9a9a9a;
+}
+
+.hmi-pad-hint {
+  min-height: 15px;
+  margin: 4px 0 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--hmi-text-faint);
+}
+
+.hmi-pad-hint.error {
+  color: #c00000;
+}
+
+.hmi-pad-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.hmi-pad-edit {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.hmi-pad-key {
+  padding: 7px 0;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.hmi-pad-key.wide {
+  font-size: 12px;
+}
+
+.hmi-pad-key:hover {
+  background: #e8e8e8;
+}
+
+.hmi-pad-key:active {
+  border-top-color: var(--hmi-shadow);
+  border-left-color: var(--hmi-shadow);
+  border-right-color: var(--hmi-light);
+  border-bottom-color: var(--hmi-light);
+}
+
+.hmi-pad-key:disabled {
+  color: var(--hmi-text-faint);
+  cursor: not-allowed;
+  background: var(--hmi-panel-dark);
+}
+
+.hmi-pad-foot {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.hmi-pad-cancel,
+.hmi-pad-ok {
+  padding: 8px 0;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+}
+
+.hmi-pad-cancel {
+  border: 1px solid #8d8574;
+  color: #2a2a2a;
+  background: linear-gradient(180deg, #f2f2f2 0%, #d2d2d2 100%);
+}
+
+.hmi-pad-ok {
+  border: 1px solid #14477f;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
+}
+
+.hmi-pad-cancel:hover,
+.hmi-pad-ok:hover {
+  filter: brightness(1.06);
+}
+
+.hmi-pad-ok:disabled {
+  filter: none;
+  cursor: not-allowed;
+  color: #8fa3b8;
+  text-shadow: none;
+  background: linear-gradient(180deg, #d0d6dc 0%, #b3bcc6 100%);
+  border-color: #9aa4ae;
+}
+
+.hmi-led-input.led-md { font-size: 14px; }
+.hmi-led-input.led-sm { font-size: 12px; padding: 1px 5px; letter-spacing: .5px; }
+
+.hmi-led-input.led-red { color: var(--hmi-led-red); }
+.hmi-led-input.led-green { color: var(--hmi-led-green); }
+.hmi-led-input.led-blue { color: #58a6ff; }
+.hmi-led-input.led-orange { color: #ff9426; }
+.hmi-led-input.led-yellow { color: var(--hmi-led-yellow); }
+.hmi-led-input.led-white { color: #f0f0f0; }
+.hmi-led-input.led-violet { color: #c58cff; }
+
+/* ===== 세로 막대 게이지 ===== */
+
+.hmi-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hmi-gauge-head {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, .35);
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+}
+
+.hmi-gauge-head.head-red { background: linear-gradient(180deg, #ff7a7a 0%, #e01414 55%, #a80000 100%); }
+.hmi-gauge-head.head-green { background: linear-gradient(180deg, #7ce87c 0%, #16b616 55%, #0a7c0a 100%); }
+.hmi-gauge-head.head-blue { background: linear-gradient(180deg, #86bdf7 0%, #2f6fd6 55%, #14479c 100%); }
+
+.hmi-gauge-body {
+  display: flex;
+  align-items: stretch;
+  gap: 3px;
+  height: var(--hmi-gauge-h);
+}
+
+/* 눈금 라벨 — 등간격 전제(HmiParts.jsx 주석 참고) */
+.hmi-gauge-scale {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-shrink: 0;
+  padding: 1px 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  color: #1a1a1a;
+}
+
+.hmi-gauge-track {
+  position: relative;
+  flex: 1;
+  min-width: 16px;
+  max-width: 30px;
+  background: #ffffff;
+  border-top: 2px solid var(--hmi-shadow);
+  border-left: 2px solid var(--hmi-shadow);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  overflow: hidden;
+}
+
+/* 아래에서 위로 차오른다 */
+.hmi-gauge-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: height .18s ease-out;
+}
+
+.hmi-gauge-fill.fill-red { background: linear-gradient(90deg, #ff4d4d, #c00000); }
+.hmi-gauge-fill.fill-green { background: linear-gradient(90deg, #35d635, #0a8c0a); }
+.hmi-gauge-fill.fill-blue { background: linear-gradient(90deg, #5aa0ef, #1a4fae); }
+
+/* 눈금선 — 라벨과 같은 개수/간격으로 얹는다 */
+.hmi-gauge-marks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.hmi-gauge-marks span {
+  height: 1px;
+  background: rgba(0, 0, 0, .35);
+}
+
+/* 조작 버튼 */
+.hmi-btn {
+  padding: 6px 14px;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: var(--hmi-panel);
+  color: var(--hmi-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.hmi-btn:hover {
+  background: #e2e2e2;
+}
+
+.hmi-btn:active {
+  border-top-color: var(--hmi-shadow);
+  border-left-color: var(--hmi-shadow);
+  border-right-color: var(--hmi-light);
+  border-bottom-color: var(--hmi-light);
+}
+
+.hmi-btn:disabled {
+  color: var(--hmi-text-faint);
+  cursor: not-allowed;
+}
+
+/* ===== Tabulator HMI 테마 =====
+   HmiTable(components/scada/HmiTable.jsx)이 만드는 표의 겉모습.
+   주의: .tabulator-cell의 display는 건드리지 말 것 — Tabulator가 셀을 inline-block으로
+   가로 배치하는데 flex로 바꾸면 셀이 세로로 쌓인다. */
+
+.hmi-table-wrap .tabulator {
+  border-top: 2px solid var(--hmi-shadow);
+  border-left: 2px solid var(--hmi-shadow);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  border-radius: 0;
+  background: #ffffff;
+  font-size: 12.5px;
+}
+
+.hmi-table-wrap .tabulator-header {
+  background: var(--hmi-panel);
+  border-bottom: 1px solid var(--hmi-shadow);
+}
+
+.hmi-table-wrap .tabulator-col {
+  background: var(--hmi-panel);
+  border-right: 1px solid var(--hmi-shadow);
+}
+
+.hmi-table-wrap .tabulator-col-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--hmi-text);
+}
+
+.hmi-table-wrap .tabulator-col.tabulator-sortable:hover {
+  background: #e6e6e6;
+}
+
+.hmi-table-wrap .tabulator-row {
+  border-bottom: 1px solid #d8d8d8;
+}
+
+.hmi-table-wrap .tabulator-row.tabulator-row-even {
+  background: #f5f5f5;
+}
+
+.hmi-table-wrap .tabulator-row:hover {
+  background: #d8e8fb !important;
+}
+
+.hmi-table-wrap .tabulator-row .tabulator-cell {
+  padding: 5px 9px;
+  border-right: 1px solid #e6e6e6;
+}
+
+.hmi-table-wrap .tabulator-footer {
+  background: var(--hmi-panel);
+  border-top: 1px solid var(--hmi-shadow);
+  padding: 4px 8px;
+}
+
+.hmi-table-wrap .tabulator-footer .tabulator-page {
+  border: 1px solid var(--hmi-shadow);
+  border-radius: 3px;
+  font-weight: 700;
+  color: var(--hmi-text);
+  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
+}
+
+.hmi-table-wrap .tabulator-footer .tabulator-page.active {
+  color: #ffffff;
+  border-color: #14477f;
+  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
+}
+
+.hmi-table-wrap .tabulator-footer .tabulator-page:disabled {
+  color: var(--hmi-text-faint);
+}
+
+/* 경보상태 배지 — 발생 중이면 빨강, 해제됐으면 회색 */
+.hmi-table-wrap .ht-badge {
+  display: inline-block;
+  min-width: 42px;
+  padding: 1px 8px;
+  border-radius: 3px;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.hmi-table-wrap .ht-badge.on {
+  color: #ffffff;
+  background: #d02020;
+}
+
+.hmi-table-wrap .ht-badge.off {
+  color: #454545;
+  background: #d5d5d5;
+}
+
+/* 표 */
+.hmi-table-wrap {
+  overflow: auto;
+  border-top: 2px solid var(--hmi-shadow);
+  border-left: 2px solid var(--hmi-shadow);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  background: #ffffff;
+}
+
+.hmi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.hmi-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 5px 8px;
+  background: var(--hmi-panel);
+  border: 1px solid var(--hmi-shadow);
+  font-weight: 700;
+  text-align: left;
+}
+
+.hmi-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #cfcfcf;
+  border-right: 1px solid #e2e2e2;
+}
+
+.hmi-table tbody tr:nth-child(even) td {
+  background: #f4f4f4;
+}
+
+.hmi-table tbody tr:hover td {
+  background: #d8e8fb;
+}
+
+.hmi-table-empty {
+  text-align: center;
+  padding: 36px 0;
+  color: var(--hmi-text-faint);
+}
+
+/* ===== 메인화면 — 화면 이동 버튼판 ====================================== */
+
+.hmi-mainmenu {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.hmi-mainmenu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* 참고 HMI가 1920 화면에서 버튼 폭 ≈385px, 열 간격 ≈185px로 넓게 벌려 쓰던 비율에 맞춘다 */
+  gap: 46px 130px;
+  width: 100%;
+  max-width: 1560px;
+}
+
+.hmi-mainmenu-tile {
+  height: 78px;
+  border-radius: 10px;
+  border: 1px solid #3f8fd4;
+  cursor: pointer;
+  font-size: 28px;
+  font-weight: 800;
+  /* 참고 HMI가 "구 동 화 면"처럼 자간을 벌려 쓰던 것을 맞춘다 */
+  letter-spacing: 7px;
+  text-indent: 7px;
+  color: #ffffff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .46) 0%, rgba(255, 255, 255, .06) 46%, rgba(0, 0, 0, .10) 100%),
+    linear-gradient(180deg, #7fc0f7 0%, #56a5ee 55%, #3f8fd4 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .7),
+    0 3px 6px -2px rgba(16, 40, 80, .45);
+  transition: filter .12s, box-shadow .12s, transform .05s;
+}
+
+.hmi-mainmenu-tile:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .8),
+    0 5px 10px -2px rgba(16, 40, 80, .5);
+}
+
+.hmi-mainmenu-tile:active {
+  transform: translateY(1px);
+  filter: brightness(.94);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .3);
+}
+
+@media (max-width: 1500px) {
+  .hmi-mainmenu-grid {
+    gap: 34px 70px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .hmi-mainmenu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 32px;
+  }
+
+  .hmi-mainmenu-tile {
+    height: 62px;
+    font-size: 21px;
+    letter-spacing: 4px;
+    text-indent: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hmi-mainmenu-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 페이지 안내(내용 미구현 화면) */
+.hmi-placeholder {
+  height: 100%;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--hmi-text-faint);
+}
+
+.hmi-placeholder-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--hmi-text-sub);
+}
+
+.hmi-placeholder-desc {
+  font-size: 12.5px;
+}
+
+/* ===== 로그인 화면 ======================================================== */
+
+.hmi-login {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(0, 0, 0, .06)),
+    var(--hmi-bg);
+}
+
+.hmi-login-box {
+  width: 100%;
+  max-width: 380px;
+  padding: 3px;
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+  background: var(--hmi-panel);
+  box-shadow: 0 12px 34px -10px rgba(0, 0, 0, .5);
+}
+
+.hmi-login-titlebar {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #14477f;
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
+    linear-gradient(90deg,
+      var(--hmi-blue-edge) 0%,
+      var(--hmi-blue-mid) 25%,
+      var(--hmi-blue-light) 50%,
+      var(--hmi-blue-mid) 75%,
+      var(--hmi-blue-edge) 100%);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  text-indent: 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
+}
+
+.hmi-login-body {
+  padding: 22px 22px 18px;
+}
+
+.hmi-login-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.hmi-login-field label {
+  width: 74px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.hmi-login-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+  border-top: 2px solid var(--hmi-shadow);
+  border-left: 2px solid var(--hmi-shadow);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  background: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.hmi-login-field input:focus {
+  background: #fffde8;
+}
+
+.hmi-login-error {
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid #b03030;
+  background: #ffe6e6;
+  color: #a01818;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hmi-login-submit {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  letter-spacing: 3px;
+}
+
+.hmi-login-foot {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--hmi-text-faint);
+}
+
+/* ===== 스크롤바 ========================================================== */
+
+.hmi-root ::-webkit-scrollbar {
+  width: 15px;
+  height: 15px;
+}
+
+.hmi-root ::-webkit-scrollbar-track {
+  background: #efefef;
+  border: 1px solid #cfcfcf;
+}
+
+.hmi-root ::-webkit-scrollbar-thumb {
+  background: var(--hmi-panel);
+  border-top: 2px solid var(--hmi-light);
+  border-left: 2px solid var(--hmi-light);
+  border-right: 2px solid var(--hmi-shadow);
+  border-bottom: 2px solid var(--hmi-shadow);
+}
+
+/* ===== 좁은 화면 ========================================================= */
+
+@media (max-width: 1100px) {
+  .hmi-root {
+    --hmi-header-h: 48px;
+  }
+
+  .hmi-logo {
+    width: 150px;
+    padding: 3px 6px;
+  }
+
+  .hmi-logout {
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+
+  .hmi-clock {
+    min-width: 168px;
+    padding: 0 10px;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+  }
+
+  .hmi-title-text {
+    font-size: 17px;
+    letter-spacing: 5px;
+    text-indent: 5px;
+  }
+
+  .hmi-menu-item {
+    font-size: 13px;
+    letter-spacing: 0;
+    min-width: 80px;
+  }
+
+  .hmi-logout-user {
+    display: none;
+  }
+}

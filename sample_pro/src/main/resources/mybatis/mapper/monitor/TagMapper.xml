@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="TagMapper">
+
+    <resultMap id="folderMap" type="com.sample_pro.domain.Folder">
+        <id     property="id"       column="id"/>
+        <result property="name"     column="name"/>
+        <result property="parentId" column="parent_id"/>
+    </resultMap>
+
+    <resultMap id="tagMap" type="com.sample_pro.domain.Tag">
+        <id     property="id"        column="id"/>
+        <result property="folderId"  column="folder_id"/>
+        <result property="name"      column="name"/>
+        <result property="address"   column="address"/>
+        <result property="type"      column="type"/>
+        <result property="plcId"     column="plc_id"/>
+        <result property="plcType"   column="plc_type"/>
+        <result property="enabled"   column="enabled"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- ══ 폴더 ══ -->
+
+    <select id="selectFolderList" resultMap="folderMap">
+        SELECT id, name, parent_id
+        FROM   folders
+        ORDER  BY name ASC
+    </select>
+
+    <insert id="insertFolder" parameterType="com.sample_pro.domain.Folder"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO folders (name, parent_id)
+        VALUES (#{name}, #{parentId})
+    </insert>
+
+    <delete id="deleteFolder" parameterType="int">
+        DELETE FROM folders WHERE id = #{folderId}
+    </delete>
+
+    <delete id="deleteTagsByFolderId" parameterType="int">
+        DELETE FROM folders_tags WHERE folder_id = #{folderId}
+    </delete>
+
+    <!-- ══ 태그 ══ -->
+
+    <!-- folders_tags에는 plc_type 컬럼이 없다 — plc_id로 tb_plc를 조인해서 그때그때 최신값을 읽어온다.
+         (plc_type을 folders_tags에도 중복 저장하면, tb_plc에서 타입을 바꿨을 때 여기 값이 낡아버리는
+          문제가 있어서 리뉴얼 때 제거했다.) -->
+    <select id="selectTagList" parameterType="int" resultMap="tagMap">
+        SELECT t.id, t.folder_id, t.name, t.address, t.type, t.plc_id, p.plc_type, t.enabled,
+               DATE_FORMAT(t.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               DATE_FORMAT(t.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
+        FROM   folders_tags t
+        LEFT JOIN tb_plc p ON t.plc_id = p.plc_id
+        WHERE  t.folder_id = #{folderId}
+        ORDER  BY t.id ASC
+    </select>
+
+    <!-- 태그 추가 -->
+    <insert id="insertTag" parameterType="com.sample_pro.domain.Tag"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO folders_tags
+            (folder_id, name, address, type, plc_id, enabled)
+        VALUES
+            (#{folderId}, #{name}, #{address}, #{type}, #{plcId}, #{enabled})
+        ON DUPLICATE KEY UPDATE
+            address = VALUES(address),
+            type    = VALUES(type),
+            plc_id  = VALUES(plc_id),
+            enabled = VALUES(enabled)
+    </insert>
+
+    <!-- 태그 수정 -->
+    <update id="updateTag" parameterType="com.sample_pro.domain.Tag">
+        UPDATE folders_tags
+        SET    name    = #{name},
+               address = #{address},
+               type    = #{type},
+               plc_id  = #{plcId},
+               enabled = #{enabled}
+        WHERE  id = #{id}
+    </update>
+
+    <!-- 태그 삭제 -->
+    <delete id="deleteTag" parameterType="int">
+        DELETE FROM folders_tags WHERE id = #{id}
+    </delete>
+
+</mapper>

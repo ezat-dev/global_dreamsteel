@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Maven: clean package (skipTests)",
+      "type": "shell",
+      "command": "mvn -DskipTests clean package",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Tomcat: start",
+      "type": "shell",
+      "command": ".\\start-tomcat.cmd",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Tomcat: stop",
+      "type": "shell",
+      "command": ".\\stop-tomcat.cmd",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Tomcat: redeploy (local)",
+      "type": "shell",
+      "command": ".\\redeploy.cmd",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Tomcat: redeploy (community server)",
+      "type": "shell",
+      "command": "mvn -DskipTests tomcat7:redeploy",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

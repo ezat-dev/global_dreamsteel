@@ -1,0 +1,245 @@
+/* ===========================================================================
+   온도제어 화면 — ZONE별 온도제어 패널 격자
+   게이지/LED 같은 공용 부품 스타일은 styles/scada.css에 있다.
+   =========================================================================== */
+
+.tz-grid {
+  /* ZONE이 2줄(1~4 / 5~7)이라 게이지를 키우면 패널 높이가 그만큼 늘어 아래 메뉴바까지
+     여백이 줄어든다. 화면 세로가 달라서 딱 맞추긴 어려우니, 높이 조절은 이 값 하나로만 한다. */
+  --hmi-gauge-h: 250px;
+
+  display: grid;
+  /* 참고 HMI와 같이 4열 고정(1~4 / 5~7). auto-fill로 두면 넓은 화면에서 5칸이 들어가버려
+     윗줄에 5개가 붙는다. 좁은 화면에서만 아래 미디어쿼리로 열 수를 줄인다. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+/* ===== ZONE 패널 ===== */
+
+.tz-panel {
+  position: relative;
+  padding: 15px 8px 8px;
+  /* 참고 HMI의 베이지색 계장 패널 */
+  background: #d5d1c7;
+  border-top: 2px solid #f2eee4;
+  border-left: 2px solid #f2eee4;
+  border-right: 2px solid #8d8574;
+  border-bottom: 2px solid #8d8574;
+}
+
+.tz-title {
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 22px;
+  background: #d5d1c7;
+  border: 1px solid #8d8574;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* align-items: stretch(기본)로 두어야 우측 열이 왼쪽 높이(게이지 + 수동모드 줄)만큼
+   늘어나서 출력 LIMIT이 패널 아래끝에서 끝난다. */
+.tz-body {
+  display: flex;
+  gap: 6px;
+}
+
+.tz-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 게이지 3열 (PV / SV / MV) ===== */
+
+.tz-gauges {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.tz-gauge-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px;
+  background: linear-gradient(180deg, #e6e2d8 0%, #cfcabe 100%);
+  border-top: 1px solid #f6f2e8;
+  border-left: 1px solid #f6f2e8;
+  border-right: 1px solid #9a9280;
+  border-bottom: 1px solid #9a9280;
+}
+
+/* ===== 우측 세로 열 (경보설정 / PID / 출력 LIMIT) ===== */
+
+.tz-side {
+  width: 92px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 세 묶음이 남는 높이를 나눠 가져서, 마지막(출력 LIMIT)이 패널 아래끝에 닿는다.
+   칸 사이는 space-evenly로 벌려 늘어난 높이를 고르게 쓴다. */
+.tz-side-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 3px;
+  padding: 5px 4px;
+  background: #cfcabe;
+  border-top: 1px solid #f2eee4;
+  border-left: 1px solid #f2eee4;
+  border-right: 1px solid #9a9280;
+  border-bottom: 1px solid #9a9280;
+}
+
+.tz-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* 우측 열은 단위가 없어서 오른쪽 정렬하면 숫자가 한쪽으로 쏠려 보인다 — 가운데로 둔다.
+   (게이지 아래·수동 출력량은 단위가 붙으니 기본값인 오른쪽 정렬 유지) */
+.tz-side .hmi-led-input {
+  text-align: center;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.tz-field label {
+  width: 20px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tz-limit-title {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+/* 상한/하한은 라벨이 두 글자라 라벨 칸을 넓힌다 */
+.tz-limit .tz-field label {
+  width: 24px;
+  font-size: 10px;
+}
+
+/* ===== 하단 (수동모드 / 수동 출력량) ===== */
+
+.tz-foot {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* 게이지와 하단 사이 남는 높이가 생기면 하단이 아니라 게이지 쪽이 먹게 한다 */
+.tz-gauges {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 현재 모드를 그대로 보여주는 버튼 — 빨강이면 수동, 초록이면 자동 */
+.tz-mode-btn {
+  width: 108px;
+  flex-shrink: 0;
+  padding: 8px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+  transition: filter .12s;
+}
+
+.tz-mode-btn:hover {
+  filter: brightness(1.06);
+}
+
+.tz-mode-btn:active {
+  filter: brightness(.94);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, .3);
+}
+
+.tz-mode-btn.manual {
+  border: 1px solid #a33;
+  color: #c00000;
+  background: linear-gradient(180deg, #ffdede 0%, #ffa8a8 55%, #ff8c8c 100%);
+}
+
+.tz-mode-btn.auto {
+  border: 1px solid #7f7f7f;
+  color: #103010;
+  background: linear-gradient(180deg, #e2f5e2 0%, #b2e0b2 55%, #90cf90 100%);
+}
+
+.tz-manual-mv {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 3px 5px;
+  background: #cfcabe;
+  border-top: 1px solid #f2eee4;
+  border-left: 1px solid #f2eee4;
+  border-right: 1px solid #9a9280;
+  border-bottom: 1px solid #9a9280;
+}
+
+.tz-manual-mv-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 회색 판은 남는 폭을 다 쓰되, 그 안의 LED는 너무 길어지지 않게 상한을 두고 가운데로 모은다 */
+.tz-manual-mv .hmi-led-row {
+  width: 100%;
+  max-width: 140px;
+  margin: 0 auto;
+}
+
+/* 자동모드일 때 — 라벨까지 흐리게 해서 지금 쓰는 칸이 아님을 알린다 */
+.tz-manual-mv.is-off .tz-manual-mv-label {
+  color: #7b7568;
+}
+
+/* ===== 좁은 화면 =====
+   패널 한 칸이 대략 330px 아래로 내려가면 게이지·LED가 뭉개져서, 그 전에 열 수를 줄인다. */
+
+@media (max-width: 1400px) {
+  .tz-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1050px) {
+  .tz-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .tz-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

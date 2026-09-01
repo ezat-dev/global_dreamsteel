@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PermMapper">
+
+    <resultMap id="permMap" type="com.sample_pro.domain.PagePermission">
+        <id     property="permId"  column="perm_id"/>
+        <result property="empId"   column="emp_id"/>
+        <result property="pageUrl" column="page_url"/>
+        <result property="canView" column="can_view"/>
+        <result property="canAdd"  column="can_add"/>
+        <result property="canEdit" column="can_edit"/>
+        <result property="canDel"  column="can_del"/>
+    </resultMap>
+
+    <select id="selectByEmpId" parameterType="int" resultMap="permMap">
+        SELECT perm_id, emp_id, page_url, can_view, can_add, can_edit, can_del
+        FROM tb_page_permission
+        WHERE emp_id = #{empId}
+    </select>
+
+    <insert id="upsertPerm" parameterType="com.sample_pro.domain.PagePermission">
+        INSERT INTO tb_page_permission (emp_id, page_url, can_view, can_add, can_edit, can_del)
+        VALUES (#{empId}, #{pageUrl}, #{canView}, #{canAdd}, #{canEdit}, #{canDel})
+        ON DUPLICATE KEY UPDATE
+            can_view = VALUES(can_view),
+            can_add  = VALUES(can_add),
+            can_edit = VALUES(can_edit),
+            can_del  = VALUES(can_del)
+    </insert>
+
+    <delete id="deleteByEmpId" parameterType="int">
+        DELETE FROM tb_page_permission WHERE emp_id = #{empId}
+    </delete>
+
+</mapper>

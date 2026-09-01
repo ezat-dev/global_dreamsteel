@@ -1,0 +1,254 @@
+/* ===========================================================================
+   분위기제어 화면
+   지금은 가운데 ADDTION CONTROL MOTOR VALVE와 좌측 하단 동작 조건판만 있다.
+   나머지(블로워·가스 배관, 발생기, O2 센서, 로내 투입)는 이후에 채운다.
+   =========================================================================== */
+
+.at-page {
+  min-height: 100%;
+  display: grid;
+  /* 3열 × 2행 — 밸브판은 가운데 윗칸, 조건판은 왼쪽 아랫칸.
+     나머지 칸은 앞으로 배관·발생기·센서가 들어갈 자리다. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+  padding: 10px;
+}
+
+.at-valve {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  width: 100%;
+  max-width: 350px;
+}
+
+.at-cond {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  width: 100%;
+  max-width: 330px;
+}
+
+/* ===== ADDTION CONTROL MOTOR VALVE ====================================== */
+
+.at-valve-title {
+  padding: 5px 12px;
+  border: 1px solid #4a7a2a;
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
+  background: linear-gradient(90deg, #3f8f2f 0%, #7cc456 55%, #b9e29a 100%);
+}
+
+.at-valve-body {
+  padding: 10px;
+  border: 1px solid #4a7a2a;
+  /* 참고 HMI의 위는 연두, 아래로 갈수록 흰색으로 빠지는 패널 */
+  background: linear-gradient(180deg, #cfe8b4 0%, #e6f2d9 45%, #f4f8f0 100%);
+}
+
+.at-valve-boxes {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.at-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px;
+  background: #f2f6ec;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #9aa88c;
+  border-bottom: 2px solid #9aa88c;
+}
+
+.at-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.at-field label {
+  width: 22px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* 단위 글자 수가 달라도(mmV vs %) LED 폭이 어긋나지 않게 단위칸을 고정한다 */
+.at-box .hmi-led-unit {
+  width: 30px;
+  flex-shrink: 0;
+}
+
+/* ===== 허용 기준온도 ===== */
+
+.at-reftemp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 5px 9px;
+  border: 1px solid #7aa85a;
+  background: linear-gradient(90deg, #c7e5a8 0%, #ddeecb 100%);
+}
+
+.at-reftemp-label {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.at-reftemp .hmi-led-row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 도달 여부 램프 — PLC 상태 표시라 누를 수 없다 */
+.at-reftemp-lamp {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #1d5c2a;
+  border: 1px solid rgba(0, 0, 0, .5);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .35);
+}
+
+.at-reftemp-lamp.on {
+  background: var(--hmi-lamp-on);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .6), 0 0 7px rgba(0, 200, 0, .85);
+}
+
+/* ===== 자동 / 수동 표시 =====
+   이 화면에서는 조작하지 않는다. PLC가 주는 모드에 따라 걸린 쪽만 검게 두고
+   나머지에 .off를 붙여 회색으로 죽일 예정이라, 지금은 둘 다 검은 글씨다. */
+
+.at-mode {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 8px;
+  padding: 2px;
+  border: 1px solid #7aa85a;
+  background: linear-gradient(180deg, #d7ecc0 0%, #b9d99a 100%);
+}
+
+.at-mode-item {
+  padding: 7px 0;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  color: #101010;
+  user-select: none;
+}
+
+.at-mode-item.off {
+  color: #8a8f84;
+}
+
+/* ===== MANUAL MV ===== */
+
+.at-manual {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 6px 9px;
+  background: linear-gradient(180deg, #f4f8f0 0%, #e4ecdc 100%);
+  border: 1px solid #9aa88c;
+}
+
+.at-manual-label {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  color: var(--hmi-text);
+}
+
+.at-manual .hmi-led-row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===== 자동모드 동작 조건 =============================================== */
+
+.at-cond-title {
+  padding: 5px 12px;
+  border: 1px solid #4a7a2a;
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
+  background: linear-gradient(90deg, #3f8f2f 0%, #7cc456 55%, #b9e29a 100%);
+}
+
+.at-cond-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid #4a7a2a;
+  background: #fbfbf9;
+}
+
+.at-cond-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+/* 조건 충족 램프 — 네모, PLC 상태 표시라 누를 수 없다 */
+.at-cond-lamp {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background: #14501a;
+  border: 1px solid #000000;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .3);
+}
+
+.at-cond-lamp.on {
+  background: var(--hmi-lamp-on);
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .55), 0 0 7px rgba(0, 200, 0, .85);
+}
+
+.at-cond-text {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 좁은 화면 ===== */
+
+@media (max-width: 900px) {
+  .at-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+  }
+
+  .at-valve,
+  .at-cond {
+    grid-column: 1;
+    justify-self: center;
+  }
+
+  .at-valve { grid-row: 1; }
+  .at-cond { grid-row: 2; }
+}

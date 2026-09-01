@@ -1,0 +1,27 @@
+.DS_Store
+Thumbs.db
+*.log
+
+# VS Code Java Upgrade 확장이 세션 중 자동 생성하는 폴더(프로젝트와 무관)
+.github/modernize/
+
+# 실제 DB 비밀번호가 들어있는 로컬 실행 스크립트 (run-backend.bat.example 참고해서 각자 생성)
+run-backend.bat
+
+# sample_pro(레거시 참고용 복사본) 빌드 캐시/의존성/배포 산출물 — 코드가 아니라 매번 재생성 가능
+sample_pro/.m2/
+sample_pro/.m2repo/
+sample_pro/webapp/WEB-INF/lib/
+sample_pro/webapp/WEB-INF/classes/
+
+# sample_pro 실제 DB 비밀번호 / SMS API 키가 그대로 들어있는 설정 파일 — 공개 리포에 올리면 안 됨
+sample_pro/src/main/resources/mybatis/config/db.properties
+sample_pro/src/main/resources/spring/config/root-context.xml
+sample_pro/src/main/resources/solapi.properties
+
+# C# PlcApiServer 빌드/배포 산출물 + 실제 DB 연결정보가 든 설정 파일
+C#/PlcApiServer/bin/
+C#/PlcApiServer/obj/
+C#/PlcApiServer/publish/
+C#/PlcApiServer/appsettings.json
+C#/PlcApiServer/appsettings.Development.json

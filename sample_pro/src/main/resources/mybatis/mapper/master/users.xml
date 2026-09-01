@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="users">
+
+	<!-- ── tb_company_employee CRUD ── -->
+	<select id="empList" resultType="map">
+		SELECT emp_id, IFNULL(dept_name,'') dept_name, emp_name,
+		       IFNULL(title_name,'') title_name, IFNULL(mobile_no,'') mobile_no,
+		       IFNULL(id,'') id, IFNULL(direct_no,'') direct_no, use_yn,
+		       DATE_FORMAT(reg_date,'%Y-%m-%d %H:%i') reg_date
+		FROM tb_company_employee
+		ORDER BY emp_id
+	</select>
+
+	<insert id="empInsert" parameterType="map" useGeneratedKeys="true" keyProperty="emp_id">
+		INSERT INTO tb_company_employee
+		  (dept_name, emp_name, title_name, mobile_no, id, pw_no, direct_no, use_yn, reg_date)
+		VALUES
+		  (#{dept_name}, #{emp_name}, #{title_name}, #{mobile_no}, #{id}, #{pw_no}, #{direct_no}, 'Y', NOW())
+	</insert>
+
+	<update id="empUpdate" parameterType="map">
+		UPDATE tb_company_employee SET
+		  dept_name  = #{dept_name},
+		  emp_name   = #{emp_name},
+		  title_name = #{title_name},
+		  mobile_no  = #{mobile_no},
+		  id         = #{id},
+		  direct_no  = #{direct_no}
+		  <if test="pw_no != null and pw_no != ''">, pw_no = #{pw_no}</if>
+		WHERE emp_id = #{emp_id}
+	</update>
+
+	<update id="empToggle" parameterType="map">
+		UPDATE tb_company_employee
+		SET use_yn = CASE WHEN use_yn='Y' THEN 'N' ELSE 'Y' END
+		WHERE emp_id = #{emp_id}
+	</update>
+
+	<delete id="empDelete" parameterType="map">
+		DELETE FROM tb_company_employee WHERE emp_id = #{emp_id}
+	</delete>
+
+	<select id="empLoginCheck" parameterType="map" resultType="map">
+		SELECT emp_id, emp_name, dept_name, title_name, mobile_no, id, direct_no
+		FROM tb_company_employee
+		WHERE id = #{id} AND pw_no = #{pw_no} AND use_yn = 'Y'
+	</select>
+
+</mapper>
