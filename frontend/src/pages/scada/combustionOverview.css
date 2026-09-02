@@ -1,0 +1,3349 @@
+﻿/* 작화 도구가 뽑아준 style.css. 딱 한 가지만 기계적으로 고쳤다 —
+   모든 선택자 앞에 루트 클래스 '.combustion' 를 붙여 이 화면 안으로 범위를 좁혔다.
+
+   .pipe-6 은 쿨링타워와, .gas-pre / .gas-sol 은 분위기제어와 이름이 그대로 겹친다.
+   SPA는 문서를 새로 로드하지 않아 모든 화면의 CSS가 한 파일로 합쳐져 동시에 떠 있으므로,
+   범위를 안 좁히면 나중에 로드된 쪽이 앞 화면을 덮어써 그림이 깨진다.
+
+   클래스 이름 자체는 하나도 바꾸지 않았다(JSX와 DOM은 그대로 class="pipe-6"). */
+
+.combustion,
+.combustion * {
+  box-sizing: border-box;
+}
+.combustion {
+  height: 469px;
+  position: relative;
+}
+.combustion .pipe-group-1 {
+  width: 974px;
+  height: 81px;
+  position: static;
+}
+.combustion .pipe {
+  background: #ffffff;
+  width: 974px;
+  height: 10px;
+  position: absolute;
+  left: 1127px;
+  top: 120px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe2 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 235px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe3 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 204px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe4 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 204px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe5 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 153px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe6 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 153px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe7 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 382px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe8 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 351px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe9 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 351px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe10 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 300px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe11 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 300px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe12 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 529px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe13 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 498px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe14 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 498px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe15 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 447px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe16 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 447px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe17 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 676px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe18 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 645px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe19 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 645px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe20 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 594px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe21 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 594px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe22 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 823px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe23 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 792px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe24 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 792px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe25 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 741px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe26 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 741px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe27 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 970px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe28 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 939px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe29 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 939px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe30 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 888px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe31 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 888px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe32 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 1117px;
+  top: 191px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe33 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 1086px;
+  top: 153px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe34 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 1086px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe35 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 1035px;
+  top: 156px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe36 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 1035px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe-group-2 {
+  width: 974px;
+  height: 83px;
+  position: static;
+}
+.combustion .pipe-6 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 245px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe37 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 163px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe38 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 153px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe39 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 213px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe40 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 392px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe41 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 310px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe42 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 300px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe43 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 360px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe44 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 539px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe45 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 457px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe46 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 447px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe47 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 507px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe48 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 686px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe49 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 604px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe50 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 594px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe51 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 654px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe52 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 833px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe53 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 751px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe54 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 741px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe55 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 801px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe56 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 980px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe57 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 898px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe58 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 888px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe59 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 948px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe60 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 1127px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe61 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 1045px;
+  top: 161px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe62 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 1035px;
+  top: 176px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe63 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 1095px;
+  top: 128px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe64 {
+  background: #ffcc00;
+  width: 907px;
+  height: 10px;
+  position: absolute;
+  left: 1127px;
+  top: 103px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe-group-3 {
+  width: 974px;
+  height: 81px;
+  position: static;
+}
+.combustion .pipe65 {
+  background: #ffffff;
+  width: 974px;
+  height: 10px;
+  position: absolute;
+  left: 153px;
+  top: 438px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe66 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 1045px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe67 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 1076px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe68 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 1076px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe69 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 1127px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe70 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 1127px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe71 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 898px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe72 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 929px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe73 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 929px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe74 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 980px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe75 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 980px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe76 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 751px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe77 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 782px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe78 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 782px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe79 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 833px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe80 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 833px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe81 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 604px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe82 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 635px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe83 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 635px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe84 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 686px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe85 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 686px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe86 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 457px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe87 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 488px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe88 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 488px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe89 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 539px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe90 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 539px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe91 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 310px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe92 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 341px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe93 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 341px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe94 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 392px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe95 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 392px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe96 {
+  background: #ffffff;
+  width: 72px;
+  height: 10px;
+  position: absolute;
+  left: 163px;
+  top: 367px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe97 {
+  background: #ffffff;
+  width: 28px;
+  height: 10px;
+  position: absolute;
+  left: 194px;
+  top: 405px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe98 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 194px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .pipe99 {
+  background: #ffffff;
+  width: 36px;
+  height: 10px;
+  position: absolute;
+  left: 245px;
+  top: 402px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe100 {
+  background: #ffffff;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 245px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe-group-4 {
+  width: 974px;
+  height: 83px;
+  position: static;
+}
+.combustion .pipe-62 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 1035px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe101 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 1117px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe102 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 1127px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe103 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 1067px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe104 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 888px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe105 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 970px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe106 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 980px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe107 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 920px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe108 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 741px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe109 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 823px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe110 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 833px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe111 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 773px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe112 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 594px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe113 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 676px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe114 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 686px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe115 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 626px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe116 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 447px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe117 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 529px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe118 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 539px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe119 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 479px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe120 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 300px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe121 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 382px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe122 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 392px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe123 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 332px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe124 {
+  background: #ffcc00;
+  width: 83px;
+  height: 10px;
+  position: absolute;
+  left: 153px;
+  top: 465px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, 1);
+}
+.combustion .pipe125 {
+  background: #ffcc00;
+  width: 82px;
+  height: 10px;
+  position: absolute;
+  left: 235px;
+  top: 397px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe126 {
+  background: #ffcc00;
+  width: 15px;
+  height: 10px;
+  position: absolute;
+  left: 245px;
+  top: 382px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe127 {
+  background: #ffcc00;
+  width: 32px;
+  height: 10px;
+  position: absolute;
+  left: 185px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(180deg) scale(1, 1);
+}
+.combustion .pipe128 {
+  background: #ffcc00;
+  width: 907px;
+  height: 10px;
+  position: absolute;
+  left: 153px;
+  top: 455px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, 1);
+}
+.combustion .main-gas {
+  width: 378px;
+  height: 93px;
+  position: static;
+}
+.combustion .main-gas2 {
+  width: 242px;
+  height: 64px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  object-fit: cover;
+  aspect-ratio: 242/64;
+}
+.combustion .pipe129 {
+  background: #ffcc00;
+  width: 18px;
+  height: 10px;
+  position: absolute;
+  left: 242px;
+  top: 27px;
+}
+.combustion .pipe130 {
+  background: #ffcc00;
+  width: 14px;
+  height: 10px;
+  position: absolute;
+  left: 354px;
+  top: 27px;
+}
+.combustion .pipe131 {
+  background: #ffcc00;
+  width: 66px;
+  height: 10px;
+  position: absolute;
+  left: 378px;
+  top: 27px;
+  transform-origin: 0 0;
+  transform: rotate(90deg) scale(1, 1);
+}
+.combustion .pipe132 {
+  background: #ffcc00;
+  width: 21px;
+  height: 10px;
+  position: absolute;
+  left: 289px;
+  top: 27px;
+}
+.combustion .gas-pre {
+  width: 31px;
+  height: 31px;
+  position: absolute;
+  left: 258px;
+  top: 8px;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+.combustion .gas-sol {
+  width: 44px;
+  height: 29px;
+  position: absolute;
+  left: 310px;
+  top: 9px;
+  object-fit: cover;
+  aspect-ratio: 44/29;
+}
+.combustion .main-blower {
+  width: 377px;
+  height: 93px;
+  position: static;
+}
+.combustion .main-blower2 {
+  width: 241px;
+  height: 64px;
+  position: absolute;
+  left: 1038px;
+  top: 0px;
+  object-fit: cover;
+  aspect-ratio: 241/64;
+}
+.combustion .pipe133 {
+  background: #ffffff;
+  width: 18px;
+  height: 10px;
+  position: absolute;
+  left: 1038px;
+  top: 27px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+}
+.combustion .pipe134 {
+  background: #ffffff;
+  width: 14px;
+  height: 10px;
+  position: absolute;
+  left: 926px;
+  top: 27px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+}
+.combustion .pipe135 {
+  background: #ffffff;
+  width: 66px;
+  height: 10px;
+  position: absolute;
+  left: 912px;
+  top: 93px;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) scale(1, -1);
+}
+.combustion .pipe136 {
+  background: #ffffff;
+  width: 51px;
+  height: 10px;
+  position: absolute;
+  left: 1002px;
+  top: 27px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+}
+.combustion .blower-pre {
+  width: 37px;
+  height: 39px;
+  position: absolute;
+  left: 920px;
+  top: 4px;
+  object-fit: cover;
+  aspect-ratio: 37/39;
+}
+.combustion .blower-pump {
+  width: 43px;
+  height: 34px;
+  position: absolute;
+  left: 1001px;
+  top: 26px;
+  object-fit: cover;
+  aspect-ratio: 43/34;
+}
+.combustion .zon-box-1 {
+  background: #929292;
+  width: 1035px;
+  height: 178px;
+  position: absolute;
+  left: 120px;
+  top: 191px;
+}
+.combustion .zon-box-2 {
+  background: #dadada;
+  width: 1020px;
+  height: 165px;
+  position: absolute;
+  left: 128px;
+  top: 197px;
+}
+.combustion .for-1-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-1-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 163px;
+  top: 90px;
+}
+.combustion .pipe137 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 153px;
+  top: 129px;
+}
+.combustion .pipe138 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 204px;
+  top: 129px;
+}
+.combustion .obj {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 149px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj2 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 180px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj3 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 231px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-1-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 165px;
+  top: 92px;
+}
+.combustion .for-1-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 137px;
+  top: 175px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-1-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 261px;
+  top: 175px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-2-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-2-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 310px;
+  top: 90px;
+}
+.combustion .pipe139 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 300px;
+  top: 129px;
+}
+.combustion .pipe140 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 351px;
+  top: 129px;
+}
+.combustion .obj4 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 296px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj5 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 327px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj6 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 378px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-2-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 312px;
+  top: 92px;
+}
+.combustion .for-2-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 284px;
+  top: 175px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-2-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 408px;
+  top: 175px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-3-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-3-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 457px;
+  top: 90px;
+}
+.combustion .pipe141 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 447px;
+  top: 129px;
+}
+.combustion .pipe142 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 498px;
+  top: 129px;
+}
+.combustion .obj7 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 443px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj8 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 474px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj9 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 525px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-3-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 459px;
+  top: 92px;
+}
+.combustion .for-3-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 431px;
+  top: 175px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-3-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 555px;
+  top: 175px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-4-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-4-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 604px;
+  top: 90px;
+}
+.combustion .pipe143 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 594px;
+  top: 129px;
+}
+.combustion .pipe144 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 645px;
+  top: 129px;
+}
+.combustion .obj10 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 590px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj11 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 621px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj12 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 672px;
+  top: 122px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-4-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 606px;
+  top: 92px;
+}
+.combustion .for-4-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 578px;
+  top: 175px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-4-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 702px;
+  top: 175px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-5-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-5-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 751px;
+  top: 89px;
+}
+.combustion .pipe145 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 741px;
+  top: 128px;
+}
+.combustion .pipe146 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 792px;
+  top: 128px;
+}
+.combustion .obj13 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 737px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj14 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 768px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj15 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 819px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-5-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 753px;
+  top: 91px;
+}
+.combustion .for-5-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 725px;
+  top: 174px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-5-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 849px;
+  top: 174px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-6-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-6-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 898px;
+  top: 89px;
+}
+.combustion .pipe147 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 888px;
+  top: 128px;
+}
+.combustion .pipe148 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 939px;
+  top: 128px;
+}
+.combustion .obj16 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 884px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj17 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 915px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj18 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 966px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-6-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 900px;
+  top: 91px;
+}
+.combustion .for-6-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 872px;
+  top: 174px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-6-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 996px;
+  top: 174px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-7-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .for-7-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 1045px;
+  top: 89px;
+}
+.combustion .pipe149 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 1035px;
+  top: 128px;
+}
+.combustion .pipe150 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 1086px;
+  top: 128px;
+}
+.combustion .obj19 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 1031px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj20 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 1062px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj21 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 1113px;
+  top: 121px;
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .for-7-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 1047px;
+  top: 91px;
+}
+.combustion .for-7-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 1019px;
+  top: 174px;
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-7-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 1143px;
+  top: 174px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .for-fire-group {
+  width: 985px;
+  height: 36px;
+  position: static;
+}
+.combustion .for-thun-1 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 148px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-1 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 149px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-2 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 230px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-2 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 231px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-3 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 295px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-3 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 296px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-4 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 377px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-4 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 378px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-5 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 442px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-5 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 443px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-6 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 524px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-6 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 525px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-7 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 589px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-7 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 590px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-8 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 671px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-8 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 672px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-9 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 736px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-9 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 737px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-10 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 818px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-10 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 819px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-11 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 883px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-11 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 884px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-12 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 965px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-12 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 966px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-13 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 1030px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-13 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 1031px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .for-thun-14 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 1112px;
+  top: 197px;
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .for-fire-14 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 1113px;
+  top: 195px;
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-1-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-1-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 1117px;
+  top: 468px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe151 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 1127px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe152 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 1076px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj22 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 1131px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj23 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 1100px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj24 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 1049px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-1-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 1115px;
+  top: 466px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-1-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 1143px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-1-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 1019px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-2-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-2-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 970px;
+  top: 468px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe153 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 980px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe154 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 929px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj25 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 984px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj26 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 953px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj27 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 902px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-2-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 968px;
+  top: 466px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-2-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 996px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-2-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 872px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-3-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-3-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 823px;
+  top: 468px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe155 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 833px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe156 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 782px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj28 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 837px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj29 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 806px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj30 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 755px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-3-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 821px;
+  top: 466px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-3-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 849px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-3-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 725px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-4-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-4-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 676px;
+  top: 468px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe157 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 686px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe158 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 635px;
+  top: 429px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj31 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 690px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj32 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 659px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj33 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 608px;
+  top: 436px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-4-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 674px;
+  top: 466px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-4-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 702px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-4-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 578px;
+  top: 383px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-5-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-5-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 529px;
+  top: 469px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe159 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 539px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe160 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 488px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj34 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 543px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj35 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 512px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj36 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 461px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-5-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 527px;
+  top: 467px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-5-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 555px;
+  top: 384px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-5-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 431px;
+  top: 384px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-6-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-6-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 382px;
+  top: 469px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe161 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 392px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe162 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 341px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj37 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 396px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj38 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 365px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj39 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 314px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-6-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 380px;
+  top: 467px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-6-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 408px;
+  top: 384px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-6-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 284px;
+  top: 384px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-7-zone-obj {
+  width: 124px;
+  height: 107px;
+  position: static;
+}
+.combustion .rev-7-zone-box {
+  background: #aca095;
+  width: 72px;
+  height: 63px;
+  position: absolute;
+  left: 235px;
+  top: 469px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe163 {
+  background: #ffffff;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 245px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .pipe164 {
+  background: #ffcc00;
+  width: 41px;
+  height: 9px;
+  position: absolute;
+  left: 194px;
+  top: 430px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .obj40 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 249px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .obj41 {
+  width: 39px;
+  height: 28px;
+  position: absolute;
+  left: 218px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 39/28;
+}
+.combustion .obj42 {
+  width: 19px;
+  height: 22px;
+  position: absolute;
+  left: 167px;
+  top: 437px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 19/22;
+}
+.combustion .rev-7-zone-per {
+  background: #d9d9d9;
+  width: 68px;
+  height: 29px;
+  position: absolute;
+  left: 233px;
+  top: 467px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+}
+.combustion .rev-7-zone-valve-1 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 261px;
+  top: 384px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-7-zone-valve-2 {
+  width: 27px;
+  height: 22px;
+  position: absolute;
+  left: 137px;
+  top: 384px;
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 27/22;
+}
+.combustion .rev-fire-group {
+  width: 985px;
+  height: 36px;
+  position: static;
+}
+.combustion .rev-thun-1 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 1132px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-1 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 1131px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-2 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 1050px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-2 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 1049px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-3 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 985px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-3 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 984px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-4 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 903px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-4 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 902px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-5 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 838px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-5 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 837px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-6 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 756px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-6 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 755px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-7 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 691px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-7 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 690px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-8 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 609px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-8 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 608px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-9 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 544px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-9 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 543px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-10 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 462px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-10 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 461px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-11 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 397px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-11 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 396px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-12 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 315px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-12 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 314px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-13 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 250px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-13 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 249px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
+.combustion .rev-thun-14 {
+  width: 21px;
+  height: 14px;
+  position: absolute;
+  left: 168px;
+  top: 361px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 3/2;
+}
+.combustion .rev-fire-14 {
+  width: 17px;
+  height: 36px;
+  position: absolute;
+  left: 167px;
+  top: 363px;
+  transform-origin: 0 0;
+  transform: rotate(-180deg) scale(1, 1);
+  object-fit: cover;
+  aspect-ratio: 17/36;
+}
