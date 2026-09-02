@@ -18,4 +18,5 @@ public interface ScadaService {
      */
     ScadaUser getUser(ScadaUser param);
     List<ScadaAlarm> getAlarmList(ScadaAlarm scadaAlarm);
+    List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm);
 }

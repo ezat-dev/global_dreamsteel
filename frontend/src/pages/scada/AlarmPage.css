@@ -35,8 +35,9 @@
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.2px;
-  /* 꺼진 알람 — 있다는 건 보이되 눈에 띄지 않는 회색 */
-  color: #8a8a8a;
+  /* 꺼진 알람도 글씨는 또렷하게 — 회색이면 현장 조명에서 잘 안 읽힌다.
+     발생 중인 것과의 구분은 아래 .al-cell.on 의 빨간색이 맡는다. */
+  color: var(--hmi-text);
   transition: color .15s, text-shadow .15s;
 }
 

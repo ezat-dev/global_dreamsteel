@@ -38,4 +38,9 @@ public class ScadaServiceImpl implements ScadaService {
     public List<ScadaAlarm> getAlarmList(ScadaAlarm scadaAlarm) {
         return scadaDao.getAlarmList(scadaAlarm);  
     }
+
+    @Override
+    public List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm) {
+        return scadaDao.getTrendList(scadaAlarm);
+    }
 }

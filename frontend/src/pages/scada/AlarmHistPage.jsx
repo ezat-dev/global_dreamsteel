@@ -24,6 +24,11 @@ registerLocale('ko', ko);
    칸에 직접 적으면 된다. */
 const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
+/* 한 페이지에 뿌릴 행 수. HmiTable 기본값(20)을 덮어쓴다.
+   화면에서 20/50/100/200 중에 다시 고를 수 있고, 여기 값은 처음 열었을 때의 선택이다.
+   모듈 상수로 두는 이유는 매 렌더 새 객체를 넘기지 않기 위해서다. */
+const ALARM_OPTIONS = { paginationSize: 50 };
+
 export default function AlarmHistPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,21 +117,25 @@ export default function AlarmHistPage() {
      늘어나게 둔다. 둘 중 하나만 width를 비워두면 그 컬럼이 남는 공간을 전부 먹는다. */
   const columns = useMemo(
     () => [
-      { title: '발생시각', field: 'alarmGenerateTime', width: 165, hozAlign: 'center' },
+      { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 60 },
+      { title: '태그이름', field: 'tagName', minWidth: 160, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+      { title: '태그주소', field: 'address', width: 120, hozAlign: 'center' },
+      { title: '경보주석', field: 'alarmMsg', minWidth: 240, widthGrow: 3, tooltip: true, hozAlign: 'center' },
       {
-        title: '경보상태', field: 'alarmStatus', width: 150, hozAlign: 'center',
+        title: '경보상태', field: 'alarmStatus', width: 120, hozAlign: 'center',
+        /* DB(vw_alarm_history)는 ACTIVE / CLEARED로 주는데 현장에서 읽을 말로 바꿔 보여준다.
+           ACTIVE만 빨간 '발생'이고 나머지는 전부 회색 '해제'다 — 지금 값이 둘뿐이지만
+           나중에 다른 상태가 늘어도 발생으로 오인하지 않게 ACTIVE만 골라낸다. */
         formatter: (cell) => {
-          const v = cell.getValue() ?? '';
-          const cls = v === '경보발생' ? 'ht-badge on' : 'ht-badge off';
-          return `<span class="${cls}">${v}</span>`;
+          const on = cell.getValue() === 'ACTIVE';
+          return on
+            ? '<span class="ht-badge on">발생</span>'
+            : '<span class="ht-badge off">해제</span>';
         },
       },
-      { title: '해제시각', field: 'alarmClearTime', width: 165, hozAlign: 'center' },
-      // 잘려 보일 수 있으니 전체 내용은 마우스를 올려 확인한다.
-      { title: '경보주석', field: 'alarmComment', minWidth: 240, widthGrow: 3, tooltip: true, hozAlign: 'center' },
-      { title: '태그이름', field: 'alarmTagName', minWidth: 200, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-      // 발생/해제시각과 같은 타임스탬프 형식이라 같은 폭을 준다(110px에선 잘렸다).
-      { title: '경보시간', field: 'alarmTime', width: 165, hozAlign: 'center' },
+      // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭. 더 주면 가운데만 비어 보인다.
+      { title: '발생시각', field: 'occurTimeStr', width: 170, hozAlign: 'center' },
+      { title: '해제시각', field: 'clearTimeStr', width: 170, hozAlign: 'center' },
     ],
     []
   );
@@ -169,7 +178,7 @@ export default function AlarmHistPage() {
       </div>
 
       <div className="ah-table">
-        <HmiTable data={rows} columns={columns} height="100%" />
+        <HmiTable data={rows} columns={columns} options={ALARM_OPTIONS} height="100%" />
       </div>
     </div>
   );

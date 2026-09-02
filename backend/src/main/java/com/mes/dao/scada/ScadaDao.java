@@ -32,4 +32,8 @@ public class ScadaDao {
     public List<ScadaAlarm> getAlarmList(ScadaAlarm scadaAlarm) {
         return sqlSession.selectList("ScadaAlarmMapper.getAlarmList", scadaAlarm);
     }
+
+    public List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm) {
+        return sqlSession.selectList("ScadaAlarmMapper.getTrendList", scadaAlarm);
+    }
 }

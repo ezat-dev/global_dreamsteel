@@ -22,4 +22,20 @@ public class ScadaAlarm {
     private String endTime;
     private String alarmTagValue;
 
+    private String historyId;
+    private String tagId;
+    private String tagName; //태그 이름
+    private String address; //plc 주소
+    private String plcId;
+    private String alarmMsg;    //코멘트
+    private String level;
+    private String occureTime;  //발생시간
+    private String clearTime;   //해제시간
+    private String ackTime;
+    private String ackUser;
+    private String valueAtOccur;
+    private String durationSec;
+    private String occurTimeStr;
+    private String clearTimeStr;
+
 }
