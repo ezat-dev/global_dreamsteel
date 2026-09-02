@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CombustionOverview from '../../components/scada/CombustionOverview';
+import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import { useStageScale } from '../../components/scada/useStageScale';
+import { getAlarmList } from '../../api/scada/alarmHistApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -111,6 +113,25 @@ const PIPE_LABELS = [
   { key: 'blowPre', cx: 938, top: 48, text: '압력 이상' },
 ];
 
+/* 좌측 하단 경보 목록 — 경보이력·구동화면과 같은 API(getAlarmList)를 그대로 쓴다.
+   좁은 칸이라 컬럼을 줄였다. 컬럼이 바뀌면 표를 통째로 다시 만들기 때문에
+   모듈 상수로 둔다(매 렌더 새 배열을 넘기면 표가 계속 재생성된다). */
+const ALARM_COLUMNS = [
+  { title: '발생시각', field: 'occurTimeStr', width: 145, hozAlign: 'center' },
+  { title: '태그이름', field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+  { title: '경보주석', field: 'alarmMsg', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+  {
+    title: '경보상태', field: 'alarmStatus', width: 90, hozAlign: 'center',
+    // DB(vw_alarm_history)는 ACTIVE / CLEARED로 준다. ACTIVE만 빨간 '발생'이다.
+    formatter: (cell) => (cell.getValue() === 'ACTIVE'
+      ? '<span class="ht-badge on">발생</span>'
+      : '<span class="ht-badge off">해제</span>'),
+  },
+];
+
+/* 낮은 칸이라 페이지 넘김 줄이 자리를 너무 먹는다. 대신 세로 스크롤로 본다. */
+const ALARM_OPTIONS = { pagination: false };
+
 // 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지
 const ACTION_PANELS = [
   { key: 'misfire', title: '실화 ALARM', items: ['실화', 'RESET'] },
@@ -134,6 +155,26 @@ export default function CombustionPage() {
   const handleZoneSv = (idx, value) => {
     setZoneSv((prev) => prev.map((v, i) => (i === idx ? value : v)));
   };
+
+  /* 좌측 하단 경보 목록. 조회 조건 없이 전부 받는다 — 범위 지정은 경보이력 화면 몫이다.
+     화면을 벗어난 뒤 응답이 도착해도 state를 건드리지 않게 한다
+     (개발 모드의 StrictMode는 effect를 두 번 실행한다). */
+  const [alarms, setAlarms] = useState([]);
+  const [alarmError, setAlarmError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+
+    getAlarmList()
+      .then((res) => {
+        if (alive) setAlarms(res.data ?? []);
+      })
+      .catch((e) => {
+        if (alive) setAlarmError(e.response?.data?.message ?? '경보를 불러오지 못했습니다.');
+      });
+
+    return () => { alive = false; };
+  }, []);
 
   return (
     <div className="cb-page">
@@ -258,7 +299,10 @@ export default function CombustionPage() {
 
       {/* ===== 무대 밖 — 경보 목록과 조작판 (글씨가 배율에 안 눌리도록 밖에 둔다) ===== */}
       <div className="cb-bottom">
-        <div className="cb-alarm">경보 목록 — 연결 예정</div>
+        <div className="cb-alarm">
+          {alarmError && <div className="cb-alarm-error">{alarmError}</div>}
+          <HmiTable data={alarms} columns={ALARM_COLUMNS} options={ALARM_OPTIONS} height="100%" />
+        </div>
 
         {ACTION_PANELS.map((p) => (
           <div className="cb-action" key={p.key}>

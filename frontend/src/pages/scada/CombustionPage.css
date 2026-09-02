@@ -313,21 +313,37 @@
   gap: 8px;
 }
 
-/* 경보 목록 자리 — 표를 붙일 때 .dr-alarm 처럼 확정 높이가 필요하다 */
+/* 경보 목록 — Tabulator에 height="100%"를 주려면 부모가 확정된 높이를 가져야 하는데,
+   .cb-bottom 이 height를 못박고 있어서 여기서는 늘어나기만 하면 된다. */
 .cb-alarm {
   flex: 0 0 560px;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   border-top: 2px solid var(--hmi-shadow);
   border-left: 2px solid var(--hmi-shadow);
   border-right: 2px solid var(--hmi-light);
   border-bottom: 2px solid var(--hmi-light);
   background: #ffffff;
-  color: var(--hmi-text-faint);
-  font-size: 12.5px;
+}
+
+.cb-alarm .hmi-table-wrap,
+.cb-alarm .hmi-table-wrap > div {
+  height: 100%;
+}
+
+/* 조회 실패 안내 — 표가 비어 있는 이유를 알 수 있게 표 위에 겹쳐 띄운다 */
+.cb-alarm-error {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 3px 8px;
+  background: #ffe6e6;
+  color: #a01818;
+  font-size: 11.5px;
   font-weight: 700;
+  text-align: center;
 }
 
 .cb-action {

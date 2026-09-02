@@ -212,18 +212,22 @@ const NOTES = [
    만들면 표가 계속 재생성된다).
    ------------------------------------------------------------------------- */
 const ALARM_COLUMNS = [
-  { title: '발생시각', field: 'alarmGenerateTime', width: 145, hozAlign: 'center' },
-  { title: '태그이름', field: 'alarmTagName', minWidth: 120, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-  { title: '경보주석', field: 'alarmComment', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
-  { title: '태그값', field: 'alarmTagValue', width: 80, hozAlign: 'center' },
-  {
-    title: '경보상태', field: 'alarmStatus', width: 95, hozAlign: 'center',
-    formatter: (cell) => {
-      const v = cell.getValue() ?? '';
-      const cls = v === '경보발생' ? 'ht-badge on' : 'ht-badge off';
-      return `<span class="${cls}">${v}</span>`;
-    },
-  },
+  { title: '발생시각', field: 'occurTimeStr', width: 145, hozAlign: 'center' },
+  { title: '태그이름', field: 'tagName', minWidth: 120, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+  { title: '경보주석', field: 'alarmMsg', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+  { title: '태그값', field: 'valueAtOccur', width: 80, hozAlign: 'center' },
+      {
+        title: '경보상태', field: 'alarmStatus', width: 95, hozAlign: 'center',
+        /* DB(vw_alarm_history)는 ACTIVE / CLEARED로 주는데 현장에서 읽을 말로 바꿔 보여준다.
+           ACTIVE만 빨간 '발생'이고 나머지는 전부 회색 '해제'다 — 지금 값이 둘뿐이지만
+           나중에 다른 상태가 늘어도 발생으로 오인하지 않게 ACTIVE만 골라낸다. */
+        formatter: (cell) => {
+          const on = cell.getValue() === 'ACTIVE';
+          return on
+            ? '<span class="ht-badge on">발생</span>'
+            : '<span class="ht-badge off">해제</span>';
+        },
+      },
 ];
 
 /* 좁은 칸에 얹는 표라 페이지 넘김 줄이 자리를 너무 먹는다. 대신 세로 스크롤로 본다. */
