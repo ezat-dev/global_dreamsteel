@@ -138,6 +138,50 @@
     linear-gradient(90deg, var(--hmi-blue-edge) 0%, var(--hmi-blue-light) 50%, var(--hmi-blue-edge) 100%);
 }
 
+/* ===== 연·월 드롭다운 =====================================================
+   showYearDropdown / showMonthDropdown이 제목바 아래에 붙이는 select 두 개.
+   기본 스타일이 흰 네모라 파란 제목바 위에서 튀어서, 파인 테두리로 눌러 앉힌다. */
+
+.ah-cal .react-datepicker__header__dropdown {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 4px 5px;
+}
+
+.ah-cal .react-datepicker__month-dropdown-container,
+.ah-cal .react-datepicker__year-dropdown-container {
+  margin: 0;
+}
+
+/* 라이브러리는 월을 먼저 그리는데, 우리는 년-월 순으로 읽으므로 자리를 바꾼다.
+   DOM 순서는 그대로 두고 flex order로만 뒤집는다. */
+.ah-cal .react-datepicker__year-dropdown-container {
+  order: 1;
+}
+
+.ah-cal .react-datepicker__month-dropdown-container {
+  order: 2;
+}
+
+.ah-cal .react-datepicker__month-select,
+.ah-cal .react-datepicker__year-select {
+  padding: 1px 2px;
+  border-top: 2px solid var(--hmi-shadow-dark);
+  border-left: 2px solid var(--hmi-shadow-dark);
+  border-right: 2px solid var(--hmi-light);
+  border-bottom: 2px solid var(--hmi-light);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--hmi-text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  cursor: pointer;
+}
+
 .ah-cal .react-datepicker__day-name {
   color: var(--hmi-text-sub);
   font-weight: 700;

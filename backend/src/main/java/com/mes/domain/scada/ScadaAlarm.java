@@ -37,5 +37,5 @@ public class ScadaAlarm {
     private String durationSec;
     private String occurTimeStr;
     private String clearTimeStr;
-
+    private String occurTime;
 }

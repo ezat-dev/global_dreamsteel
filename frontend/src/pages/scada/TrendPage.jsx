@@ -108,6 +108,14 @@ export default function TrendPage() {
     showTimeSelect: true,
     timeIntervals: 10,
     timeCaption: '시각',
+    /* 연·월을 골라 뛸 수 있게 한다 — 화살표만 있으면 2년 전으로 가려고 24번 눌러야 한다.
+       'select'는 OS 기본 드롭다운이라 자리를 덜 먹고 터치로도 고르기 쉽다. */
+    showMonthDropdown: true,
+    showYearDropdown: true,
+    dropdownMode: 'select',
+    /* 달력 제목 — 기본값 'LLLL yyyy'는 ko 로케일에서 "9월 2026"으로 나온다.
+       우리가 읽는 순서(년→월)로 바꾼다. */
+    dateFormatCalendar: 'yyyy년 M월',
     className: 'ah-date',
     calendarClassName: 'ah-cal',
     popperClassName: 'ah-cal-pop',
