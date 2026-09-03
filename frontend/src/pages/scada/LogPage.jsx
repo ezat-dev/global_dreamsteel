@@ -13,10 +13,13 @@ import './AlarmHistPage.css';
 /* ===========================================================================
    로그 화면 — scada_log 조회
 
-   조작 이력이다: 어떤 PLC 주소(address)에 어떤 값(send_value)을 언제(insert_date)
-   써 넣었는지. 컬럼 field는 DB 컬럼을 카멜케이스로 바꾼 이름 그대로 쓴다
+   조작 이력이다: 누가(user_id, user_name) 어떤 PLC 주소(address)에 어떤 값(send_value)을
+   언제(insert_date) 써 넣었는지. 컬럼 field는 DB 컬럼을 카멜케이스로 바꾼 이름 그대로 쓴다
    (send_value → sendValue). MyBatis에 mapUnderscoreToCamelCase가 켜져 있어서
    백엔드가 따로 매핑하지 않아도 이 이름으로 내려온다.
+
+   log_id는 표에 넣지 않는다 — PK라 작업자가 볼 이유가 없다. 정렬은 백엔드가
+   log_id DESC로 하고 있어서 최신이 위에 온다(NO 열이 그 순서다).
    =========================================================================== */
 
 registerLocale('ko', ko);
@@ -118,7 +121,8 @@ export default function LogPage() {
   const columns = useMemo(
     () => [
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 60 },
-      { title: '로그ID', field: 'logId', width: 90, hozAlign: 'center' },
+      { title: '아이디', field: 'userId', width: 120, hozAlign: 'center' },
+      { title: '이름', field: 'userName', width: 110, hozAlign: 'center' },
       { title: '태그주소', field: 'address', minWidth: 160, widthGrow: 2, tooltip: true, hozAlign: 'center' },
       { title: '전송값', field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center' },
       {

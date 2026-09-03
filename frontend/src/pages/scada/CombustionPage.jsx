@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import CombustionOverview from '../../components/scada/CombustionOverview';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
+import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageScale } from '../../components/scada/useStageScale';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
@@ -148,6 +149,10 @@ export default function CombustionPage() {
   const [devices] = useState({ mainGas: false, blower: false, burnerCool: false });
   const [zoneBurn] = useState(() => ZONES.map(() => false));
 
+  /* 개별연소 모달을 띄운 존 번호. null이면 닫힘.
+     존마다 창을 따로 두지 않고 번호만 바꿔 끼운다 — 내용이 존 번호로만 갈린다. */
+  const [burnerZone, setBurnerZone] = useState(null);
+
   /* 존별 SV — 작업자가 넣는 설정값이라 화면에서 바꿀 수 있다
      (PV는 PLC가 주는 현재값이라 표시만 한다). */
   const [zoneSv, setZoneSv] = useState(() => ZONES.map(() => '0'));
@@ -292,7 +297,14 @@ export default function CombustionPage() {
               <b className={zoneBurn[n - 1] ? 'is-on' : ''}>연소 ON</b>
               <b className={zoneBurn[n - 1] ? '' : 'is-on'}>연소 OFF</b>
             </span>
-            <span className="cb-plate cb-plate--zone">{`${n}ZONE 개별연소`}</span>
+            {/* 이름표지만 누르면 그 존의 버너 4개 운전창이 열린다 */}
+            <button
+              type="button"
+              className="cb-plate cb-plate--zone cb-plate--btn"
+              onClick={() => setBurnerZone(n)}
+            >
+              {`${n}ZONE 개별연소`}
+            </button>
           </div>
         ))}
       </div>
@@ -315,6 +327,10 @@ export default function CombustionPage() {
           </div>
         ))}
       </div>
+
+      {burnerZone !== null && (
+        <ZoneBurnerModal zone={burnerZone} onClose={() => setBurnerZone(null)} />
+      )}
     </div>
   );
 }
