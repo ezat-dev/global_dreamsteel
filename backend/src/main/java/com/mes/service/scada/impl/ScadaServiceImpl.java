@@ -36,11 +36,36 @@ public class ScadaServiceImpl implements ScadaService {
 
     @Override
     public List<ScadaAlarm> getAlarmList(ScadaAlarm scadaAlarm) {
-        return scadaDao.getAlarmList(scadaAlarm);  
+        return scadaDao.getAlarmList(scadaAlarm);
     }
 
     @Override
     public List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm) {
         return scadaDao.getTrendList(scadaAlarm);
+    }
+
+    @Override
+    public List<ScadaAlarm> getLogList(ScadaAlarm scadaAlarm) {
+        return scadaDao.getLogList(scadaAlarm);
+    }
+
+        @Override
+    public boolean insertUser(ScadaUser scadaUser) {
+        return scadaDao.insertUser(scadaUser);
+    }
+
+    @Override
+    public ScadaUser getId(ScadaUser scadaUser) {
+        return scadaDao.getId(scadaUser);
+    }
+
+    @Override
+    public List<ScadaUser> getUserList(ScadaUser scadaUser) {
+        return scadaDao.getUserList(scadaUser);
+    }
+
+    @Override
+    public boolean updateUser(ScadaUser scadaUser) {
+        return scadaDao.updateUser(scadaUser);
     }
 }

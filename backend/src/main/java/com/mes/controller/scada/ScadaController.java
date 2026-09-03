@@ -3,6 +3,8 @@ package com.mes.controller.scada;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +16,8 @@ import com.mes.common.response.ApiResponse;
 import com.mes.domain.scada.ScadaAlarm;
 import com.mes.domain.scada.ScadaUser;
 import com.mes.service.scada.ScadaService;
+
+import jakarta.servlet.http.HttpSession;
 
 /**
  * SCADA(HMI) 화면 REST 엔드포인트.
@@ -44,10 +48,14 @@ public class ScadaController {
      * @param param userId, userPassword
      * @return 로그인한 사용자(id, userId, userName — 비밀번호 제외)
      */
-    //로그인
+    // 로그인
     @PostMapping("/login")
-    public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param) {
-        return ApiResponse.success(scadaService.getUser(param));
+    public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param, HttpSession session) {
+        ScadaUser data = scadaService.getUser(param);
+        session.setAttribute("loginUserId", data.getId());
+        session.setAttribute("loginUserName", data.getUserName());
+        session.setAttribute("loginUserRole", data.getUserRole());
+        return ApiResponse.success(data);
     }
 
     // ===================== 경보이력 =====================
@@ -63,15 +71,43 @@ public class ScadaController {
      *
      * @param param 조회 조건(비어 있으면 전체)
      */
-    //알람 목록 조회
+    // 알람 목록 조회
     @GetMapping("/getAlarmList")
     public ApiResponse<List<ScadaAlarm>> getAlarmList(@ModelAttribute ScadaAlarm scadaAlarm) {
         return ApiResponse.success(scadaService.getAlarmList(scadaAlarm));
     }
 
-    //트렌드 조회
+    // 트렌드 조회
     @GetMapping("/getTrendList")
     public ApiResponse<List<ScadaAlarm>> getTrendList(@ModelAttribute ScadaAlarm scadaAlarm) {
         return ApiResponse.success(scadaService.getTrendList(scadaAlarm));
+    }
+
+    // 로그 리스트 조회
+    @GetMapping("/getLogList")
+    public ApiResponse<List<ScadaAlarm>> getLogList(@ModelAttribute ScadaAlarm scadaAlarm) {
+        return ApiResponse.success(scadaService.getLogList(scadaAlarm));
+    }
+
+    // 사용자 추가
+    @PostMapping("/insertUser")
+    public ResponseEntity<ApiResponse<Boolean>> insertUser(@RequestBody ScadaUser scadaUser) {
+        if (scadaService.getId(scadaUser) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error("COMMON_409", "중복된 ID 입니다."));
+        }
+        return ResponseEntity.ok(ApiResponse.success(scadaService.insertUser(scadaUser)));
+    }
+
+    // 사용자 정보 조회
+    @GetMapping("/getUserList")
+    public ApiResponse<List<ScadaUser>> getUserList(@ModelAttribute ScadaUser scadaUser) {
+        return ApiResponse.success(scadaService.getUserList(scadaUser));
+    }
+
+    // 사용자 수정
+    @PostMapping("/updateUser")
+    public ResponseEntity<ApiResponse<Boolean>> updateUser(@RequestBody ScadaUser scadaUser) {
+        return ResponseEntity.ok(ApiResponse.success(scadaService.updateUser(scadaUser)));
     }
 }

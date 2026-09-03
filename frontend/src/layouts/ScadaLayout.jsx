@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { IconLogout } from '@tabler/icons-react';
-import SCADA_MENU, { findScadaMenu } from '../constants/scadaMenu';
+import { findScadaMenu, filterScadaMenu } from '../constants/scadaMenu';
 import ScadaLogo from '../components/scada/ScadaLogo';
 import ScadaClock from '../components/scada/ScadaClock';
 import { useAuth } from '../context/AuthContext';
@@ -23,9 +23,11 @@ import '../styles/scada.css';
 export default function ScadaLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
 
   const current = findScadaMenu(location.pathname);
+  // 하단 메뉴바에는 권한이 되는 화면만 깐다(관리자 전용 화면은 사라진다).
+  const menus = filterScadaMenu(isAdmin);
 
   const handleLogout = () => {
     if (!window.confirm('로그아웃하시겠습니까?')) return;
@@ -58,7 +60,7 @@ export default function ScadaLayout() {
 
         {!current.hideMenuBar && (
           <div className="hmi-menu">
-            {SCADA_MENU.map((menu) => (
+            {menus.map((menu) => (
               <button
                 key={menu.key}
                 type="button"

@@ -17,4 +17,10 @@ public class ScadaUser {
     private String userId;
     private String userPassword;
     private String userName;
+    private String logId;
+    private String address;
+    private String sendValue;
+    private String insertDate;
+    private String userRole;
+    private String deleteYn;
 }

@@ -39,8 +39,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  /* scada_user.user_role은 VARCHAR라 '1'로 내려온다(숫자 1이 아니다).
+     권한이 없으면(로그인 응답에 user_role이 없던 시절의 저장값 등) 관리자로 보지 않는다 —
+     기능을 감추는 쪽이 안전한 기본값이다.
+
+     화면마다 따로 비교하지 않고 여기서 한 번만 판단한다. 판정 기준이 바뀌어도
+     이 줄만 고치면 메뉴·라우트·버튼이 같이 따라온다. */
+  const isAdmin = String(user?.userRole ?? '') === '1';
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

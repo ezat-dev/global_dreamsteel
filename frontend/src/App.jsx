@@ -3,17 +3,24 @@ import scadaRoutes from './router/scadaRoutes';
 import ScadaLayout from './layouts/ScadaLayout';
 import ScadaLoginPage from './pages/scada/ScadaLoginPage';
 import RequireAuth from './components/RequireAuth';
+import RequireAdmin from './components/RequireAdmin';
 import { AuthProvider } from './context/AuthContext';
 
 function renderRoutes(routeList) {
   return routeList.map((route) => {
     const Element = route.element;
+    /* adminOnly 화면은 한 겹 더 감싼다 — 메뉴에서 감추는 것만으로는 주소를 직접
+       쳐서 들어갈 수 있다. 관리자가 아니면 RequireAdmin이 메인화면으로 되돌린다. */
+    const element = route.adminOnly
+      ? <RequireAdmin><Element /></RequireAdmin>
+      : <Element />;
+
     return (
       <Route
         key={route.path ?? 'index'}
         index={route.index}
         path={route.path}
-        element={<Element />}
+        element={element}
       />
     );
   });

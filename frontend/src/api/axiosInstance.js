@@ -8,6 +8,11 @@ const defaultBaseUrl = `http://${window.location.hostname}:8081`;
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || defaultBaseUrl,
   timeout: 10000,
+  /* 프론트(5051)와 백엔드(8081)가 다른 오리진이라, 이걸 켜지 않으면 브라우저가
+     세션 쿠키(JSESSIONID)를 실어 보내지 않는다 — 로그인할 때 담아 둔 서버 세션이
+     다음 요청에서 새 세션으로 갈려 버린다. 백엔드는 CorsConfig에서 이미
+     allowCredentials(true)로 받아 줄 준비가 되어 있다. */
+  withCredentials: true,
 });
 
 export default axiosInstance;

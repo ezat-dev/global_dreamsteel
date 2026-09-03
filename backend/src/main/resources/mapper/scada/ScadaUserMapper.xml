@@ -3,14 +3,74 @@
 <mapper namespace="ScadaUserMapper">
 
     <!-- 사용자 1명 조회(selectOne) — 아이디와 비밀번호를 WHERE에서 한 번에 맞춘다.
-         SELECT 절에 user_password를 넣지 않으므로 비밀번호가 응답으로 새어나갈 일이 없다.
-         행이 나오면 로그인 성공, null이면 실패. -->
+         행이 나오면 로그인 성공, null이면 실패.
+
+         컬럼을 하나씩 적는다(SELECT * 금지) — 이 결과가 로그인 API 응답으로 그대로
+         나가고 프론트가 localStorage에 담기 때문에, user_password가 섞이면 평문
+         비밀번호가 브라우저에 남는다. user_role은 화면이 관리자 기능을 보일지
+         판단하는 데 쓴다. -->
     <select id="getUser" parameterType="com.mes.domain.scada.ScadaUser"
             resultType="com.mes.domain.scada.ScadaUser">
-        SELECT id, user_id, user_name
+        SELECT id, user_id, user_name, user_role
         FROM scada_user
         WHERE user_id = #{userId}
           AND user_password = #{userPassword}
+          AND delete_yn = 'N'
     </select>
+
+    <select id="getLogList" parameterType="com.mes.domain.scada.ScadaUser"
+            resultType="com.mes.domain.scada.ScadaUser">
+        SELECT * FROM scada_log
+        <where>
+            <if test="startTime != null and startTime != ''">
+                AND insert_date &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND insert_date &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY log_id DESC
+    </select>
+
+    <!-- 사용자 추가. delete_yn은 DEFAULT 'N'이라 적지 않는다. -->
+    <insert id="insertUser" parameterType="com.mes.domain.scada.ScadaUser">
+        INSERT INTO scada_user (user_id, user_password, user_name, user_role)
+        VALUES (#{userId}, #{userPassword}, #{userName}, #{userRole})
+    </insert>
+
+    <select id="getId" parameterType="com.mes.domain.scada.ScadaUser"
+            resultType="com.mes.domain.scada.ScadaUser">
+        SELECT id
+        FROM scada_user
+        WHERE user_id = #{userId}
+          AND delete_yn = 'N'
+    </select>
+
+    <!-- 사용자 관리(관리자 전용) 목록. 삭제 표시된 행도 같이 내린다 — 관리자가
+         삭제 상태를 보고 되돌릴 수 있어야 한다.
+
+         getUser(로그인)와 달리 user_password를 포함한다. 수정 화면이 현재 비밀번호를
+         칸에 채워 보여주기 때문이다. 이 응답은 관리자 화면에서만 쓰지만, 서버가
+         권한을 확인하지 않는 동안에는 로그인만 하면 누구나 이 API를 직접 호출해
+         전원의 평문 비밀번호를 받아볼 수 있다는 뜻이기도 하다. -->
+    <select id="getUserList" parameterType="com.mes.domain.scada.ScadaUser"
+            resultType="com.mes.domain.scada.ScadaUser">
+        SELECT id, user_id, user_password, user_name, user_role, delete_yn
+        FROM scada_user
+        ORDER BY id
+    </select>
+
+    <!-- 사용자 수정. id로 한 행만 집는다(user_id는 바뀔 수 있으므로 키로 쓰지 않는다).
+         삭제도 이 쿼리로 한다 — delete_yn을 'Y'로 담아 보내면 소프트 삭제이고,
+         'N'으로 되돌리면 복구다. 그래서 삭제 전용 쿼리를 따로 두지 않는다. -->
+    <update id="updateUser" parameterType="com.mes.domain.scada.ScadaUser">
+        UPDATE scada_user
+        SET user_id = #{userId},
+            user_password = #{userPassword},
+            user_name = #{userName},
+            user_role = #{userRole},
+            delete_yn = #{deleteYn}
+        WHERE id = #{id}
+    </update>
 
 </mapper>
