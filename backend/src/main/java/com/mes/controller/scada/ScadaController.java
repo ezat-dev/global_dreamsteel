@@ -110,4 +110,6 @@ public class ScadaController {
     public ResponseEntity<ApiResponse<Boolean>> updateUser(@RequestBody ScadaUser scadaUser) {
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateUser(scadaUser)));
     }
+
+    //테스트 커밋
 }
