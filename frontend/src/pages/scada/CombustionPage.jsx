@@ -73,6 +73,11 @@ const ZONE_PV_TOP = 258;
 const ZONE_SV_TOP = 302;
 const ZONE_BOX_W = 128;   // 존 하나가 쓰는 폭(간격 147보다 좁게 잡아 여백을 둔다)
 
+/* 존 설정온도(SV) 허용 범위(℃) — 7개 존이 모두 같다.
+   숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
+const ZONE_SV_MIN = 0;
+const ZONE_SV_MAX = 1000;
+
 /* 그림 아래(y 469~) — 존 이름표와 개별연소 판.
    하단 개도 글씨(PER_BOT 470)가 그림 아래끝과 겹치므로 이름표는 그보다 아래에서 시작한다. */
 const NAME_TOP = 490;
@@ -274,8 +279,8 @@ export default function CombustionPage() {
                   size="sm"
                   unit="℃"
                   label={`${n}ZONE 설정온도`}
-                  min={0}
-                  max={9999}
+                  min={ZONE_SV_MIN}
+                  max={ZONE_SV_MAX}
                 />
               </span>
             ))}

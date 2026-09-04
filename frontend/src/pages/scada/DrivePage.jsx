@@ -59,11 +59,13 @@ const LABELS = [
 ];
 
 // 빈 띠(그림 위쪽 y 10~145)에 떠 있는 드라이브 조작 박스 3개.
+/* svMin/svMax는 구동부마다 다른 속도 설정 허용 범위(mm/Min).
+   숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
 const DRIVE_PANELS = [
-  { key: 'entTable', title: '입구 TABLE DRIVE', left: 350, top: 12 },
-  { key: 'mainCc', title: 'MAIN/CC DRIVE', left: 700, top: 12 },
+  { key: 'entTable', title: '입구 TABLE DRIVE', left: 350, top: 12, svMin: 0, svMax: 2610 },
+  { key: 'mainCc', title: 'MAIN/CC DRIVE', left: 700, top: 12, svMin: 0, svMax: 2610 },
   // 출구 컨베이어(x 1353~1723) 위에 오도록. 폭이 250이라 left는 1473을 넘기면 안 된다.
-  { key: 'exitTable', title: '출구 TABLE DRIVE', left: 1050, top: 12 },
+  { key: 'exitTable', title: '출구 TABLE DRIVE', left: 1050, top: 12, svMin: 0, svMax: 4110 },
 ];
 
 // MAIN DRIVE 존 — 작화 존 이미지 위에 PV/SV를 그대로 얹는다(존 폭 75.5px 간격).
@@ -71,6 +73,11 @@ const ZONE_LEFT = 609;
 const ZONE_STEP = 75.5;
 const ZONE_W = 75;
 const ZONES = [1, 2, 3, 4, 5, 6, 7];
+
+/* 존 속도 설정(SV) 허용 범위 — 7개 존이 모두 같다.
+   숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
+const ZONE_SV_MIN = 0;
+const ZONE_SV_MAX = 1000;
 
 /* DOOR 오른쪽과 COOLING CHAMBER TABLE DRIVE의 PV 칸.
    셋을 한 목록으로 묶어 같은 top을 쓰게 한다 — 따로 두면 높이가 어긋난다.
@@ -103,11 +110,13 @@ const EXIT_CONDITIONS = [
   '출구 비상정지 OFF',
 ];
 
-// 출구 구동부 자동운전 TIME 설정 — 초 단위 설정값 3개.
+/* 출구 구동부 자동운전 TIME 설정 — 초 단위 설정값 3개.
+   min/max는 항목마다 다르다. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다
+   (NumPad에서 "입력" 버튼이 잠긴다). */
 const EXIT_TIMES = [
-  { key: 'align', label: '출구제품 정렬(지연)시간' },
-  { key: 'clear', label: '제품 감지 해제TIME' },
-  { key: 'sideConv', label: '출구 SIDE CONVEYOR 전진 TIME' },
+  { key: 'align', label: '출구제품 정렬(지연)시간', min: 0, max: 600 },
+  { key: 'clear', label: '제품 감지 해제TIME', min: 0, max: 600 },
+  { key: 'sideConv', label: '출구 SIDE CONVEYOR 전진 TIME', min: 15, max: 50 },
 ];
 
 /* ---------------------------------------------------------------------------
@@ -303,7 +312,7 @@ function LampList({ title, lamps, className = '' }) {
 }
 
 /** ON/OFF 표시 + PV/SV(mm/Min) + 구동감지 한 벌. 그림 위에 떠 있는 박스. */
-function DrivePanel({ title, style, data, onChange }) {
+function DrivePanel({ title, style, data, onChange, svMin, svMax }) {
   return (
     <div className="hmi-group dr-drive" style={style}>
       <span className="hmi-group-title">{title}</span>
@@ -325,8 +334,8 @@ function DrivePanel({ title, style, data, onChange }) {
           size="sm"
           unit="mm/Min"
           label={`${title} 속도 설정`}
-          min={0}
-          max={9999}
+          min={svMin}
+          max={svMax}
         />
       </div>
 
@@ -385,7 +394,9 @@ export default function DrivePage() {
   const [entMode, setEntMode] = useState('manual');
   const [exitMode, setExitMode] = useState('manual');
 
-  const [times, setTimes] = useState({ align: '0', clear: '0', sideConv: '0' });
+  /* PLC 값이 붙기 전의 초기 표시값. sideConv는 하한이 15라 0으로 두면 화면에
+     허용 범위 밖 값이 보이므로 하한으로 맞춰 둔다(EXIT_TIMES의 min/max 참고). */
+  const [times, setTimes] = useState({ align: '0', clear: '0', sideConv: '15' });
 
   const [drives, setDrives] = useState({
     entTable: { on: false, pv: '0', sv: '0', detect: '정상' },
@@ -432,8 +443,8 @@ export default function DrivePage() {
                 size="sm"
                 unit="SEC"
                 label={t.label}
-                min={0}
-                max={9999}
+                min={t.min}
+                max={t.max}
               />
             </div>
           ))}
@@ -480,6 +491,8 @@ export default function DrivePage() {
                 style={{ left: p.left, top: p.top }}
                 data={drives[p.key]}
                 onChange={(field, v) => handleDriveChange(p.key, field, v)}
+                svMin={p.svMin}
+                svMax={p.svMax}
               />
             ))}
 
@@ -502,8 +515,8 @@ export default function DrivePage() {
                     onChange={(v) => handleZoneSv(n - 1, v)}
                     size="sm"
                     label={`${n}ZONE 속도 설정`}
-                    min={0}
-                    max={9999}
+                    min={ZONE_SV_MIN}
+                    max={ZONE_SV_MAX}
                   />
                 </div>
               </div>

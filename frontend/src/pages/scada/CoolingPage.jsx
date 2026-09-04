@@ -61,6 +61,10 @@ const LEVEL_BANNERS = [
 // 냉각수 알람 지연시간 — HIGH/LOW를 분 단위로 넣는다.
 const DELAY_PANEL = { left: 1140, top: 556, width: 215 };
 
+/* 두 칸의 허용 범위가 같다. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
+const DELAY_MIN = 0;
+const DELAY_MAX = 60;
+
 const DELAY_ROWS = [
   { key: 'high', label: 'HIGH' },
   { key: 'low', label: 'LOW' },
@@ -150,8 +154,8 @@ export default function CoolingPage() {
                     size="sm"
                     unit="min"
                     label={`냉각수 알람 지연시간 ${r.label}`}
-                    min={0}
-                    max={9999}
+                    min={DELAY_MIN}
+                    max={DELAY_MAX}
                   />
                 </div>
               ))}
