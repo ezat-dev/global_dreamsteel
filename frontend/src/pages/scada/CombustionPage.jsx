@@ -3,7 +3,7 @@ import CombustionOverview from '../../components/scada/CombustionOverview';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
-import { useStageScale } from '../../components/scada/useStageScale';
+import { useStageStretch } from '../../components/scada/useStageScale';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
@@ -143,7 +143,10 @@ const ACTION_PANELS = [
 export default function CombustionPage() {
   /* 가로 기준으로 잡아 좌우 여백을 없앤다. 그림만 담으면 1285x508(약 2.5:1)이라
      1080 화면에서 아래 판들까지 세로가 맞는다. */
-  const [stageRef, scale] = useStageScale(STAGE_W);
+  /* 가로·세로를 각각 칸에 맞춘다 — 좌우 여백 없이 꽉 채우는 대신 그림이 조금 늘어난다.
+     비율을 지키면(useStageScale) 아래 판들(.cb-zonebar 104 + .cb-bottom 96)이 세로를
+     먼저 가져가는 만큼 그림이 작아지고 좌우가 비게 된다. */
+  const [stageRef, scale] = useStageStretch(STAGE_W, STAGE_TOTAL_H);
 
   /* PLC 상태·설정값. 지금은 사진과 같은 더미다. */
   const [devices] = useState({ mainGas: false, blower: false, burnerCool: false });
@@ -184,14 +187,16 @@ export default function CombustionPage() {
   return (
     <div className="cb-page">
       {/* 줄인 뒤의 실제 높이만큼만 자리를 차지하게 한다 */}
-      <div className="cb-stage" ref={stageRef} style={{ height: STAGE_TOTAL_H * scale }}>
+      {/* 높이를 인라인으로 못박지 않는다 — 남는 세로를 그대로 차지해야 그 크기를 재서
+          배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}
+      <div className="cb-stage" ref={stageRef}>
         <div
           className="cb-stage-inner"
           style={{
             width: STAGE_W,
             height: STAGE_TOTAL_H,
-            transform: `scale(${scale})`,
-            visibility: scale ? 'visible' : 'hidden',
+            transform: `scale(${scale.x}, ${scale.y})`,
+            visibility: scale.x ? 'visible' : 'hidden',
           }}
         >
           {/* 그림과 오버레이를 함께 내려서 y가 음수인 조각(pipe135)이 안 잘리게 한다.
@@ -284,13 +289,13 @@ export default function CombustionPage() {
           무대 밖에 둔다. 안에 넣으면 무대가 세로로 길어져(1285x650) 배율이 높이에 묶이고
           좌우에 여백이 생긴다. 그림만 두면 1285x508이라 폭이 꽉 찬다.
           폭을 "줄인 그림과 똑같이" 잡아서, 존 위치를 %로 주면 그림과 정확히 맞는다. */}
-      <div className="cb-zonebar" style={{ width: STAGE_W * scale }}>
+      <div className="cb-zonebar">
         {ZONES.map((n) => (
           /* 존 기둥(topCx)에 맞춘다. botCx는 하단 개도 박스 좌표라 68px 오른쪽으로 치우쳐 있다. */
           <div
             className="cb-burn"
             key={`burn${n}`}
-            style={{ left: `${(topCx(n) / STAGE_W) * 100}%`, width: ZONE_STEP * scale * 0.94 }}
+            style={{ left: `${(topCx(n) / STAGE_W) * 100}%`, width: ZONE_STEP * scale.x * 0.94 }}
           >
             <span className="cb-plate cb-plate--zone">{`NO.${n}ZONE`}</span>
             <span className="cb-onoff">

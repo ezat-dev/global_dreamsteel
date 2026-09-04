@@ -18,15 +18,19 @@
 
 /* 높이는 CombustionPage.jsx가 배율에 맞춰 인라인으로 넣는다(그림을 줄인 실제 높이).
    창이 세로로 좁으면 flex가 이 칸부터 줄이도록 둔다. */
+/* 아래 판들(.cb-zonebar / .cb-bottom)을 뺀 남는 세로를 전부 차지한다.
+   이 칸의 실제 크기를 useStageScale이 재서 가로·세로에 모두 맞는 배율을 낸다 —
+   높이를 배율로 정해 버리면(예전 방식) 세로가 모자랄 때 flex가 이 칸을 눌러서
+   overflow: hidden에 그림 아래쪽(밸브·불꽃)이 잘린다. */
 .cb-stage {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-height: 0;
   position: relative;
   overflow: hidden;
 }
 
-/* 원본 크기 그대로 그려 두고 통째로 줄인다.
-   왼쪽 위를 고정점으로 삼아야 줄인 폭이 그대로 무대 폭이 되어 좌우 끝에 맞는다. */
+/* 원본 크기 그대로 그려 두고 통째로 늘린다(가로·세로 배율이 다르다 — useStageStretch).
+   왼쪽 위를 고정점으로 삼아야 늘린 그림이 무대 좌우 끝에 그대로 맞는다. */
 .cb-stage-inner {
   position: absolute;
   top: 0;
@@ -36,12 +40,12 @@
 
 /* ===== 존 이름표 + 개별연소 판 (무대 밖) ================================ */
 
-/* 폭을 줄인 그림과 똑같이 잡고 가운데 정렬하면, 아래 %좌표가 그림의 존과 맞는다. */
+/* 무대와 똑같이 좌우로 꽉 채운다(flex column의 기본 stretch).
+   존 위치를 %로 주므로 폭이 그림과 같기만 하면 기둥과 자동으로 맞는다. */
 .cb-zonebar {
   flex-shrink: 0;
   position: relative;
   height: 104px;
-  margin: 0 auto;
 }
 
 /* 그림과 오버레이를 함께 내리는 껍데기. 작화에 y가 음수인 조각(pipe135, y -39~0)이

@@ -41,3 +41,44 @@ export function useStageScale(stageW, stageH) {
 
   return [ref, scale];
 }
+
+/**
+ * 가로·세로를 각각 칸에 맞추는 배율을 잰다 — 그림이 칸을 빈틈없이 채운다.
+ *
+ * useStageScale은 가로·세로 중 작은 쪽을 써서 비율을 지키는 대신 남는 쪽에 여백이
+ * 생긴다. 이 훅은 반대로 여백을 없애는 대신 그림이 늘어난다(원 → 타원).
+ *
+ * 연소화면처럼 아래 판들이 세로를 먼저 가져가서 그림이 작아지는데, 좌우 여백은
+ * 비어 보이는 경우에 쓴다. 늘어난 티가 나면 안 되는 그림에는 쓰지 말 것.
+ *
+ * @param stageW 그림 원본 폭(px)
+ * @param stageH 그림 원본 높이(px)
+ * @returns [ref, {x, y}] — 둘 다 0으로 시작한다(아직 못 잰 상태).
+ */
+export function useStageStretch(stageW, stageH) {
+  const ref = useRef(null);
+  const [scale, setScale] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (!width || !height) return;
+
+      /* 같은 값이 다시 들어오면 state를 갱신하지 않는다 — 매번 새 객체를 넣으면
+         참조가 달라져 이 값을 의존성으로 쓰는 쪽이 불필요하게 다시 돈다. */
+      setScale((prev) => {
+        const x = width / stageW;
+        const y = height / stageH;
+        return prev.x === x && prev.y === y ? prev : { x, y };
+      });
+    });
+
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [stageW, stageH]);
+
+  return [ref, scale];
+}
