@@ -110,4 +110,10 @@ public class ScadaController {
     public ResponseEntity<ApiResponse<Boolean>> updateUser(@RequestBody ScadaUser scadaUser) {
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateUser(scadaUser)));
     }
+
+    //알람 태그 리스트 조회
+    @GetMapping("/getAlarmTagList")
+    public ApiResponse<List<ScadaAlarm>> getAlarmTagList(@ModelAttribute ScadaAlarm scadaAlarm) {
+        return ApiResponse.success(scadaService.getAlarmTagList(scadaAlarm));
+    }
 }

@@ -31,4 +31,17 @@
         </where>
     </select>
 
+    <select id="getAlarmTagList" parameterType="com.mes.domain.scada.ScadaAlarm"
+            resultType="com.mes.domain.scada.ScadaAlarm">
+            SELECT a.tag_name, a.address, a.alarm_msg, a.level,
+                l.id AS lamp_id                     
+            FROM ez_scada.tb_alarm_tag a                 
+            LEFT JOIN ez_scada.folders_tags l
+                    ON l.folder_id = 6
+                    AND l.name = CONCAT(a.tag_name, '_lamp')
+            WHERE a.folder_id = 54                           
+            AND a.enabled = 1
+            ORDER BY a.tag_id
+    </select>
+
 </mapper>

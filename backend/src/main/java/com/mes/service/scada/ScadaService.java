@@ -31,4 +31,5 @@ public interface ScadaService {
 
     List<ScadaUser> getUserList(ScadaUser scadaUser);
     boolean updateUser(ScadaUser scadaUser);
+    List<ScadaAlarm> getAlarmTagList(ScadaAlarm scadaAlarm);
 }

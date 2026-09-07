@@ -67,4 +67,8 @@ public class ScadaDao {
         }
         return true;
     }
+
+    public List<ScadaAlarm> getAlarmTagList(ScadaAlarm scadaAlarm) {
+        return sqlSession.selectList("ScadaAlarmMapper.getAlarmTagList", scadaAlarm);
+    }
 }

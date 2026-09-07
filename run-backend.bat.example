@@ -9,7 +9,10 @@ REM (override with DB_HOST / DB_PORT / DB_NAME if the server moves)
 set "DB_USERNAME=root"
 set "DB_PASSWORD=your-password-here"
 cd /d "%~dp0backend"
-call "%cd%\gradlew.bat" bootRun
+REM --console=plain: turn off Gradle's progress bar. The bar redraws every second
+REM ("<====----> 75% EXECUTING [3m 12s]"), which yanks the console back to the
+REM bottom and makes it impossible to scroll up and read the log.
+call "%cd%\gradlew.bat" bootRun --console=plain
 
 echo.
 echo [backend process exited - see log above. Press any key to close this window]

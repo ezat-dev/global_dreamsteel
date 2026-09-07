@@ -2,34 +2,49 @@
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
+REM ---------------------------------------------------------------------------
+REM Keep this file ASCII-only. Do not put Korean text back in.
+REM
+REM cmd.exe parses a .bat one line at a time using the *console* code page.
+REM This file used to hold UTF-8 Korean text; on Korean Windows (cp949 console)
+REM every multi-byte character shifted the parser and ate the first characters
+REM of the following commands - "echo." ran as "ho.", "set" as "et", "5050" as
+REM "050", and "cd /d %~dp0" was mangled so dotnet ran in the wrong directory
+REM ("Couldn't find a project to run").
+REM
+REM "chcp 65001" on line 2 does NOT fix it: cmd has already begun reading the
+REM file under the previous code page, so the byte offsets are wrong either way.
+REM It stays only so that dotnet's own output renders correctly.
+REM ---------------------------------------------------------------------------
+
 echo.
 echo =====================================
-echo   PlcApiServer 시작
+echo   PlcApiServer start
 echo =====================================
 echo.
 
 cd /d "%~dp0"
 
-REM 빌드
-echo [1/2] 프로젝트 빌드 중...
+REM build
+echo [1/2] Building project...
 dotnet build -c Debug
 if errorlevel 1 (
     echo.
-    echo ❌ 빌드 실패!
+    echo [X] Build failed!
     pause
     exit /b 1
 )
 
 echo.
-echo [2/2] 서버 시작 중...
+echo [2/2] Starting server...
 echo.
-echo ✅ 포트 5050 에서 실행 중...
+echo Listening on port 5050
 echo    http://localhost:5050
 echo.
-echo Ctrl+C 를 눌러 서버를 중지할 수 있습니다.
+echo Press Ctrl+C to stop the server.
 echo.
 
-REM 실행
+REM run
 dotnet run -c Debug
 
 pause

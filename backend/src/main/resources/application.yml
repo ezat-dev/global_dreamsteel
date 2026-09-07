@@ -24,3 +24,14 @@ plc-api:
 logging:
   level:
     com.mes: debug
+  # 콘솔과 함께 파일에도 남긴다. 콘솔은 스크롤백이 짧고 새 출력이 오면 맨 아래로
+  # 끌려가서, 지나간 오류를 되짚기에는 파일이 낫다(에디터로 열거나 검색할 수 있다).
+  # 경로는 실행 디렉터리(run-backend.bat이 cd 하는 backend/) 기준이다.
+  file:
+    name: logs/backend.log
+  logback:
+    rollingpolicy:
+      # 한 파일이 10MB를 넘으면 날짜별로 넘기고, 7일치만 남긴다 —
+      # debug 레벨이라 그냥 두면 디스크가 계속 찬다.
+      max-file-size: 10MB
+      max-history: 7

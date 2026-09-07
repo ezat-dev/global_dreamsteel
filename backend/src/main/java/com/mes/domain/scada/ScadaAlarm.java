@@ -21,7 +21,6 @@ public class ScadaAlarm {
     private String startTime;
     private String endTime;
     private String alarmTagValue;
-
     private String historyId;
     private String tagId;
     private String tagName; //태그 이름
@@ -38,4 +37,11 @@ public class ScadaAlarm {
     private String occurTimeStr;
     private String clearTimeStr;
     private String occurTime;
+    private String folderId;
+    private String plcMsg;
+    private String enabled;
+    private String createdAt;
+    private String updatedAt;
+    private String lampId;
+
 }

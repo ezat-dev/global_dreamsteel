@@ -68,4 +68,9 @@ public class ScadaServiceImpl implements ScadaService {
     public boolean updateUser(ScadaUser scadaUser) {
         return scadaDao.updateUser(scadaUser);
     }
+
+        @Override
+    public List<ScadaAlarm> getAlarmTagList(ScadaAlarm scadaAlarm) {
+        return scadaDao.getAlarmTagList(scadaAlarm);
+    }
 }
