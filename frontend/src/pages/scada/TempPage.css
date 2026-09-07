@@ -21,12 +21,10 @@
 .tz-panel {
   position: relative;
   padding: 15px 8px 8px;
-  /* 참고 HMI의 베이지색 계장 패널 */
-  background: #d5d1c7;
-  border-top: 2px solid #f2eee4;
-  border-left: 2px solid #f2eee4;
-  border-right: 2px solid #8d8574;
-  border-bottom: 2px solid #8d8574;
+  border: 1px solid var(--hmi-light);
+  border-radius: 10px;
+  background: var(--hmi-panel);
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .16);
 }
 
 .tz-title {
@@ -35,9 +33,9 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 1px 22px;
-  background: #d5d1c7;
-  border: 1px solid #8d8574;
-  border-radius: 9px;
+  background: var(--hmi-panel);
+  border: 1px solid var(--hmi-shadow);
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -70,12 +68,11 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  /* 이 화면은 세로 여유가 없다 — 여백을 늘리면 .hmi-body에 스크롤이 생긴다 */
   padding: 4px;
-  background: linear-gradient(180deg, #e6e2d8 0%, #cfcabe 100%);
-  border-top: 1px solid #f6f2e8;
-  border-left: 1px solid #f6f2e8;
-  border-right: 1px solid #9a9280;
-  border-bottom: 1px solid #9a9280;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
+  background: var(--hmi-bg);
 }
 
 /* ===== 우측 세로 열 (경보설정 / PID / 출력 LIMIT) ===== */
@@ -97,11 +94,9 @@
   justify-content: space-evenly;
   gap: 3px;
   padding: 5px 4px;
-  background: #cfcabe;
-  border-top: 1px solid #f2eee4;
-  border-left: 1px solid #f2eee4;
-  border-right: 1px solid #9a9280;
-  border-bottom: 1px solid #9a9280;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
+  background: var(--hmi-bg);
 }
 
 .tz-field {
@@ -161,33 +156,33 @@
   width: 108px;
   flex-shrink: 0;
   padding: 8px 0;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  font-family: inherit;
   font-size: 14px;
-  font-weight: 800;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
-  transition: filter .12s;
+  font-weight: 700;
+  transition: background .12s, border-color .12s;
 }
 
 .tz-mode-btn:hover {
-  filter: brightness(1.06);
+  filter: brightness(.97);
 }
 
 .tz-mode-btn:active {
-  filter: brightness(.94);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, .3);
+  filter: brightness(.93);
 }
 
+/* 걸린 모드만 색이 들어온다 — 수동은 붉은색, 자동은 초록 */
 .tz-mode-btn.manual {
-  border: 1px solid #a33;
-  color: #c00000;
-  background: linear-gradient(180deg, #ffdede 0%, #ffa8a8 55%, #ff8c8c 100%);
+  border: 1px solid #d97873;
+  color: #a3271b;
+  background: #fdeae8;
 }
 
 .tz-mode-btn.auto {
-  border: 1px solid #7f7f7f;
-  color: #103010;
-  background: linear-gradient(180deg, #e2f5e2 0%, #b2e0b2 55%, #90cf90 100%);
+  border: 1px solid #6cb37f;
+  color: #14622b;
+  background: #e4f6e9;
 }
 
 .tz-manual-mv {
@@ -198,11 +193,9 @@
   justify-content: center;
   gap: 2px;
   padding: 3px 5px;
-  background: #cfcabe;
-  border-top: 1px solid #f2eee4;
-  border-left: 1px solid #f2eee4;
-  border-right: 1px solid #9a9280;
-  border-bottom: 1px solid #9a9280;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
+  background: var(--hmi-bg);
 }
 
 .tz-manual-mv-label {
@@ -220,7 +213,7 @@
 
 /* 자동모드일 때 — 라벨까지 흐리게 해서 지금 쓰는 칸이 아님을 알린다 */
 .tz-manual-mv.is-off .tz-manual-mv-label {
-  color: #7b7568;
+  color: var(--hmi-text-faint);
 }
 
 /* ===== 좁은 화면 =====

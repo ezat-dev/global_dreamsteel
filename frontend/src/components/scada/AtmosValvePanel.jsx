@@ -80,11 +80,10 @@ export default function AtmosValvePanel({ data, onChange }) {
         </div>
 
         {/* 자동/수동 표시 — 이 화면에서는 눌러서 바꾸는 것이 아니라 PLC 상태를 비추기만 한다.
-            걸려 있는 쪽만 검게, 나머지는 회색으로 표시할 예정이라 지금은 둘 다 검은 글씨로 둔다
-            (회색 처리는 .at-mode-item.off 클래스만 붙이면 된다). */}
+            글자 칸 자체가 램프이고, 걸려 있는 쪽만 초록으로 켜진다. */}
         <div className="at-mode">
-          <span className="at-mode-item">자동모드</span>
-          <span className="at-mode-item">수동모드</span>
+          <span className={`at-mode-item hmi-lampbox${data.manualMode ? '' : ' is-on'}`}>자동모드</span>
+          <span className={`at-mode-item hmi-lampbox${data.manualMode ? ' is-on' : ''}`}>수동모드</span>
         </div>
 
         {/* 모드가 이 화면의 조작 대상이 아니게 되면서, MANUAL MV도 모드에 따라 흐려지지 않는다.

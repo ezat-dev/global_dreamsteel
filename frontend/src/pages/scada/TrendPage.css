@@ -38,7 +38,7 @@
 /* 빠른 버튼 묶음은 입력칸과 시각적으로 떼어 놓는다 */
 .tr-quick {
   padding-left: 14px;
-  border-left: 1px solid var(--hmi-shadow);
+  border-left: 1px solid var(--hmi-shadow-dark);
 }
 
 .tr-label,
@@ -48,47 +48,44 @@
   color: var(--hmi-text-sub);
 }
 
-/* 솟은 테두리 버튼 — scada.css의 .hmi-pad-key와 같은 방식 */
+/* 공용 .hmi-btn과 같은 방식 — 높이만 조회줄에 맞춰 쓴다 */
 .tr-btn {
   height: 26px;
   padding: 0 14px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
+  background: var(--hmi-panel);
   color: var(--hmi-text);
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
+  transition: background .12s, border-color .12s;
 }
 
 .tr-btn:hover {
-  background: #e8e8e8;
+  background: var(--hmi-panel-dark);
+  border-color: var(--hmi-blue-edge);
 }
 
 .tr-btn:active {
-  border-top-color: var(--hmi-shadow);
-  border-left-color: var(--hmi-shadow);
-  border-right-color: var(--hmi-light);
-  border-bottom-color: var(--hmi-light);
+  background: #dee4ea;
 }
 
 .tr-quick-btn {
   padding: 0 11px;
 }
 
-/* 지금 걸려 있는 구간 — 눌린 것처럼 들어가 보이게 */
+/* 지금 걸려 있는 구간만 액센트로 채운다 */
 .tr-quick-btn.is-on {
-  border-top-color: #14477f;
-  border-left-color: #14477f;
-  border-right-color: #8ecdf5;
-  border-bottom-color: #8ecdf5;
-  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
+  border-color: var(--hmi-blue-edge);
+  background: var(--hmi-blue-edge);
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
+}
+
+.tr-quick-btn.is-on:hover {
+  background: #1a538f;
 }
 
 /* 지금 보고 있는 구간 — 오른쪽 끝에 붙인다 */
@@ -102,9 +99,10 @@
 
 .tr-error {
   padding: 3px 10px;
-  border: 1px solid #b03030;
-  background: #ffe6e6;
-  color: #a01818;
+  border: 1px solid #e0837a;
+  border-radius: 7px;
+  background: #fdeae8;
+  color: #a3271b;
   font-size: 12px;
   font-weight: 700;
 }
@@ -112,13 +110,148 @@
 /* ===== 그래프 ============================================================ */
 
 /* ResponsiveContainer가 height="100%"라 부모가 확정된 높이를 가져야 한다 */
-.tr-chart {
+/* 차트(남는 폭 전부)와 오른쪽 현재값 판(폭 고정)을 가로로 나눈다 */
+.tr-body {
   flex: 1;
   min-height: 0;
-  padding: 6px 4px 2px;
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  display: flex;
+  gap: 6px;
+}
+
+/* 안쪽 여백을 최소로 — Highcharts가 이 칸 크기대로 그리므로 여백이 곧 손실이다 */
+.tr-chart {
+  flex: 1;
+  min-width: 0;
+  padding: 2px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 10px;
+  background: var(--hmi-panel);
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .16);
+}
+
+/* ===== 오른쪽 현재값 판 ==================================================
+   한 줄 = 차트의 한 선. [이름표][그래프 토글][검은 LED 값칸]이 쌓인다.
+   판은 흰 카드이고 줄은 그 안의 파인 칸 — 다른 화면의 패널과 같은 구조다. */
+
+.tr-values {
+  flex: 0 0 286px;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 10px;
+  background: var(--hmi-panel);
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .16);
+}
+
+/* 한 줄 — [이름표][그래프 토글][값]. 앞 두 칸을 고정 폭으로 두어야
+   값 칸이 세로로 줄을 맞춘다. */
+.tr-vrow {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 88px 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  padding: 15px 8px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
+  background: var(--hmi-bg);
+}
+
+.tr-vlabel {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--hmi-text);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 그래프 표시 토글 ── 이 줄의 선을 차트에 그릴지 정한다.
+   조작 대상이라(표시등이 아니라) 버튼이고, 켜지면 손잡이가 오른쪽으로 미끄러진다. */
+.tr-toggle {
+  position: relative;
+  width: 42px;
+  height: 21px;
+  padding: 0;
+  border-radius: 11px;
+  border: 1px solid var(--hmi-shadow-dark);
+  background: var(--hmi-panel-dark);
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+
+/* 그래프를 보일지 정하는 장치다 — 상태 시스템이 아니니 안전색(초록)을 쓰지 않고
+   화면 전반의 액센트인 용춘 파랑을 쓴다. */
+.tr-toggle.is-on {
+  border-color: var(--hmi-blue-edge);
+  background: var(--hmi-blue-edge);
+}
+
+/* 손잡이 */
+.tr-toggle i {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1px solid var(--hmi-shadow-dark);
   background: #ffffff;
+  box-shadow: 0 1px 2px rgba(20, 35, 50, .25);
+  transition: transform .12s, border-color .12s;
+}
+
+.tr-toggle.is-on i {
+  transform: translateX(21px);
+}
+
+/* 검은 LED 칸 — .hmi-led-input과 같은 파인 테두리·검은 바탕.
+   글자색은 줄마다 달라서 TrendPage.jsx가 인라인으로 넣는다. */
+.tr-vbox {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 5px;
+  background: var(--hmi-led-bg);
+}
+
+.tr-vbox em {
+  font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.tr-vbox i {
+  font-size: 12px;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* 좁은 화면에서는 판을 줄여 차트 자리를 남긴다 */
+@media (max-width: 1280px) {
+  .tr-values {
+    flex-basis: 240px;
+  }
+
+  .tr-vrow {
+    grid-template-columns: 74px 38px minmax(0, 1fr);
+  }
+
+  .tr-vlabel {
+    font-size: 12px;
+  }
+
+  .tr-vbox em {
+    font-size: 15px;
+  }
 }

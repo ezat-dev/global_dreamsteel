@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getUserList, updateUser } from '../../api/scada/scadaUserApi';
+import ScreenAuthGrid, { pickScreenAuth } from './ScreenAuthGrid';
 
 /* ===========================================================================
    사용자 정보 수정 모달 — 관리자 전용.
@@ -43,6 +44,11 @@ export default function UserEditModal({ onClose, onSaved }) {
 
   const busy = loading || saving;
 
+  /* 목록의 한 행을 폼 값으로 바꾼다. 권한 8개는 pickScreenAuth를 거치는데,
+     아직 auth_* 컬럼이 내려오지 않는 사용자(예전에 만든 행)도 기본값으로 채워져서
+     격자가 빈 채로 뜨지 않게 하기 위함이다. */
+  const toForm = (row) => ({ ...row, ...pickScreenAuth(row) });
+
   /* 목록을 다시 불러온다. keepId를 주면 저장 후에도 같은 사용자가 선택된 채로
      남는다 — 연달아 고칠 때 매번 다시 찾아 누르지 않아도 된다. */
   const loadList = (keepId) => {
@@ -57,7 +63,7 @@ export default function UserEditModal({ onClose, onSaved }) {
         const keep = keepId != null ? list.find((u) => u.id === keepId) : null;
         if (keep) {
           setSelectedId(keep.id);
-          setForm({ ...keep });
+          setForm(toForm(keep));
         }
       })
       .catch((e) => {
@@ -87,7 +93,7 @@ export default function UserEditModal({ onClose, onSaved }) {
     setSelectedId(row.id);
     // 목록의 행을 그대로 쓰지 않고 복사한다 — 폼에서 고친 값이 목록에 새어들면
     // [수정]을 누르기 전인데도 표가 바뀐 것처럼 보인다.
-    setForm({ ...row });
+    setForm(toForm(row));
     setError('');
   };
 
@@ -95,6 +101,12 @@ export default function UserEditModal({ onClose, onSaved }) {
     setForm((prev) => ({ ...prev, [name]: e.target.value }));
     setError('');
   };
+
+  // 권한 격자는 값(숫자)을 직접 준다 — 이벤트를 거치지 않는다.
+  const setAuth = (field, level) => setForm((prev) => ({ ...prev, [field]: level }));
+
+  // 관리자는 전 화면 제어라 격자를 고를 이유가 없다. 값은 그대로 보이되 잠근다.
+  const isAdminRole = String(form?.userRole ?? '') === '1';
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -121,6 +133,7 @@ export default function UserEditModal({ onClose, onSaved }) {
       userName,
       userRole: form.userRole,
       deleteYn: form.deleteYn,
+      ...pickScreenAuth(form),
     };
 
     setSaving(true);
@@ -264,6 +277,14 @@ export default function UserEditModal({ onClose, onSaved }) {
               </div>
             </div>
 
+            <ScreenAuthGrid
+              idPrefix="ue"
+              value={form}
+              onChange={setAuth}
+              disabled={isAdminRole || busy}
+              note={isAdminRole ? '관리자는 모든 화면을 제어할 수 있습니다.' : undefined}
+            />
+
             {error && <div className="hmi-umodal-error">{error}</div>}
           </div>
         ) : (
@@ -275,7 +296,7 @@ export default function UserEditModal({ onClose, onSaved }) {
         )}
 
         <div className="hmi-umodal-foot">
-          <button type="submit" className="hmi-btn" disabled={busy || !form}>
+          <button type="submit" className="hmi-btn is-primary" disabled={busy || !form}>
             {saving ? '저장 중...' : '수정'}
           </button>
           <button type="button" className="hmi-btn" onClick={onClose} disabled={saving}>

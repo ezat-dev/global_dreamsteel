@@ -50,11 +50,9 @@
 .ct-plate {
   display: block;
   padding: 4px 10px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  background: linear-gradient(180deg, #fbfbfb 0%, var(--hmi-panel) 55%, #c2c2c2 100%);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 6px;
+  background: var(--hmi-panel);
   color: var(--hmi-text);
   font-size: 12px;
   font-weight: 700;
@@ -78,15 +76,15 @@
 /* 사진의 빨간 띠 — 가운데가 밝은 빨강 그라데이션에 검은 글씨 */
 .ct-banner {
   display: block;
-  padding: 6px 8px;
-  border-top: 2px solid #ffb0b0;
-  border-left: 2px solid #ffb0b0;
-  border-right: 2px solid #8e0000;
-  border-bottom: 2px solid #8e0000;
-  background: linear-gradient(180deg, #ff9a9a 0%, #ff2b2b 45%, #d40000 100%);
-  color: #000000;
+  padding: 7px 10px;
+  /* 경보 배너는 연한 칩으로 둠 수 없다 — 채운 빨강을 그대로 유지하고
+     광택 그라디엘트와 베벨만 걷어냈다. */
+  border: 1px solid #b91c1c;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   text-align: center;
   white-space: nowrap;
 }

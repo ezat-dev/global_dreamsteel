@@ -23,11 +23,12 @@ import '../styles/scada.css';
 export default function ScadaLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAdmin, logout } = useAuth();
+  const { user, canView, canControl, logout } = useAuth();
 
   const current = findScadaMenu(location.pathname);
-  // 하단 메뉴바에는 권한이 되는 화면만 깐다(관리자 전용 화면은 사라진다).
-  const menus = filterScadaMenu(isAdmin);
+  // 하단 메뉴바에는 볼 권한이 있는 화면만 깐다(관리자 전용 화면, 권한 0인 화면이 사라진다).
+  const menus = filterScadaMenu(canView);
+  const locked = !canControl(current.key);
 
   const handleLogout = () => {
     if (!window.confirm('로그아웃하시겠습니까?')) return;
@@ -43,6 +44,9 @@ export default function ScadaLayout() {
 
           <div className="hmi-title">
             <span className="hmi-title-text">{current.title}</span>
+            {/* 잠긴 이유를 적어 두지 않으면 현장에서는 "화면이 고장났다"로 읽힌다.
+                화면을 회색으로 덮지 않는 것도 같은 이유다 — 값은 계속 또렷해야 한다. */}
+            {locked && <span className="hmi-readonly-badge">조회 전용</span>}
           </div>
 
           <ScadaClock />
@@ -54,9 +58,18 @@ export default function ScadaLayout() {
           </button>
         </div>
 
-        <div className="hmi-body">
+        {/* 제어 권한이 없으면 화면 전체를 한 번에 잠근다.
+            fieldset[disabled]는 안의 button/input을 브라우저 차원에서 죽여서
+            클릭 이벤트조차 발생하지 않는다(숫자패드도 뜨지 않는다). 화면 9개의
+            조작 요소가 전부 button/input이라 이 한 겹으로 빠짐없이 덮인다 —
+            div에 onClick을 다는 조작이 생기면 여기서 새므로 그때는 방식을 바꿔야 한다.
+
+            div를 새로 끼우지 않고 .hmi-body 자신을 fieldset으로 둔 이유는,
+            .hmi-body > * 선택자가 각 화면의 캔버스를 그리기 때문이다.
+            사이에 한 겹을 넣으면 그 선택자가 fieldset을 잡아 9개 화면이 전부 깨진다. */}
+        <fieldset className="hmi-body" disabled={locked}>
           <Outlet />
-        </div>
+        </fieldset>
 
         {!current.hideMenuBar && (
           <div className="hmi-menu">

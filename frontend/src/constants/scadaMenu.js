@@ -7,25 +7,44 @@
 //
 // adminOnly: 관리자(user_role '1')에게만 보인다. 메뉴에서 감추는 것만으로는
 // 주소를 직접 쳐서 들어갈 수 있어서, router/scadaRoutes.js에도 같은 표시를 달고
-// App.jsx에서 RequireAdmin으로 막는다 — 두 곳을 같이 고쳐야 한다.
+// App.jsx에서 RequireScreen으로 막는다 — 두 곳을 같이 고쳐야 한다.
+//
+// authField: 이 화면의 권한이 담긴 scada_user 컬럼(camelCase). 값은 0 없음 / 1 조회 / 2 제어.
+// 키에서 컬럼명을 유추하지 않고 적어 둔다 — alarmHistory ↔ authAlarmHist처럼 어긋나는
+// 짝이 있어서, 규칙으로 만들면 예외를 기억해야 한다.
+//
+// control: 이 화면에 "조작"이라 부를 것이 있는지. 트렌드·경보이력은 조회 화면이라
+// 1과 2가 같은 뜻이고, 여기에 제어 잠금을 걸면 조회 버튼까지 잠겨 화면이 무용지물이 된다.
+// 권한 편집 UI도 이 표시를 보고 2단계/3단계를 그린다.
 const SCADA_MENU = [
   { key: 'main', label: '메인화면', title: '메인화면', path: '/', hideMenuBar: true },
-  { key: 'drive', label: '구동화면', title: '구동화면', path: '/drive' },
-  { key: 'combustion', label: '연소화면', title: '연소화면', path: '/combustion' },
-  { key: 'temp', label: '온도제어', title: '온도제어', path: '/temp' },
-  { key: 'atmosphere', label: '분위기제어', title: '분위기제어', path: '/atmosphere' },
-  { key: 'cooling', label: '쿨링타워', title: '쿨링타워', path: '/cooling' },
-  { key: 'trend', label: '트랜드', title: '트랜드', path: '/trend' },
-  { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm' },
-  { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory' },
+  { key: 'drive', label: '구동화면', title: '구동화면', path: '/drive', authField: 'authDrive', control: true },
+  { key: 'combustion', label: '연소화면', title: '연소화면', path: '/combustion', authField: 'authCombustion', control: true },
+  { key: 'temp', label: '온도제어', title: '온도제어', path: '/temp', authField: 'authTemp', control: true },
+  { key: 'atmosphere', label: '분위기제어', title: '분위기제어', path: '/atmosphere', authField: 'authAtmosphere', control: true },
+  { key: 'cooling', label: '쿨링타워', title: '쿨링타워', path: '/cooling', authField: 'authCooling', control: true },
+  { key: 'trend', label: '트랜드', title: '트랜드', path: '/trend', authField: 'authTrend' },
+  { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm', authField: 'authAlarm', control: true },
+  { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory', authField: 'authAlarmHist' },
   { key: 'log', label: '로그', title: '로그', path: '/log', adminOnly: true },
 ];
 
 export default SCADA_MENU;
 
-/** 로그인한 사용자에게 보여줄 메뉴만 걸러낸다(하단 메뉴바·메인화면 타일 공용). */
-export function filterScadaMenu(isAdmin) {
-  return isAdmin ? SCADA_MENU : SCADA_MENU.filter((m) => !m.adminOnly);
+/** 권한을 사용자별로 줄 수 있는 화면들 — 권한 편집 격자가 그리는 순서 그대로다. */
+export const AUTH_SCREENS = SCADA_MENU.filter((m) => m.authField);
+
+/** 권한 레벨 — 숫자로 두어 비교를 >= 하나로 끝낸다. */
+export const AUTH_NONE = 0;
+export const AUTH_VIEW = 1;
+export const AUTH_CONTROL = 2;
+
+/**
+ * 로그인한 사용자에게 보여줄 메뉴만 걸러낸다(하단 메뉴바·메인화면 타일 공용).
+ * @param canView AuthContext의 canView(key) — 관리자 여부와 화면별 권한을 함께 본다.
+ */
+export function filterScadaMenu(canView) {
+  return SCADA_MENU.filter((m) => canView(m.key));
 }
 
 /** 현재 pathname에 해당하는 메뉴를 찾는다. 못 찾으면 메인화면으로 본다. */

@@ -23,4 +23,11 @@ public class ScadaUser {
     private String insertDate;
     private String userRole;
     private String deleteYn;
+    private String authCombustion;
+    private String authDrive;
+    private String authAtmosphere;
+    private String authCooling;
+    private String authAlarm;
+    private String authTrend;
+    private String authAlarmHist;
 }

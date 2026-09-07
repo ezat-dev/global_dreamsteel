@@ -41,12 +41,12 @@ const DEVICE_PANELS = [
   {
     key: 'blower', tone: 'blower', title: 'ADDTION BLOWE',
     plate: { left: 4, top: 8, width: 220 },
-    state: { left: 8, top: 70, width: 210 },
+    state: { left: 16, top: 70, width: 170 },
   },
   {
     key: 'gas', tone: 'gas', title: 'ADDTION GAS',
     plate: { left: 4, top: 168, width: 178 },
-    state: { left: 8, top: 228, width: 170 },
+    state: { left: 16, top: 228, width: 170 },
   },
   {
     key: 'gen', tone: 'gen', title: '발 생 기',
@@ -146,22 +146,24 @@ export default function AtmospherePage() {
           <AtmosphereOverview />
 
           <div className="at-overlay">
-            {/* 설비 제목판 + OPEN/CLOSE — 지금 걸린 쪽만 진하게, 반대쪽은 흐리게 */}
+            {/* 설비 제목판 + OPEN/CLOSE — 두 칸 다 램프다.
+                열려 있으면 OPEN이 초록, 닫혀 있으면 CLOSE가 빨강으로 켜진다. */}
             {DEVICE_PANELS.map((d) => (
               <Fragment key={d.key}>
                 <span className={`at-plate at-plate--${d.tone}`} style={d.plate}>
                   {d.title}
                 </span>
                 <span className="at-openclose" style={d.state}>
-                  <em className={devices[d.key] ? 'is-on' : ''}>OPEN</em>
-                  <em className={devices[d.key] ? '' : 'is-on'}>CLOSE</em>
+                  <em className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>OPEN</em>
+                  <em className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>CLOSE</em>
                 </span>
               </Fragment>
             ))}
 
+            {/* 압력 이상·SOL닫힘 — 설명 글씨가 아니라 이상을 알리는 램프다 */}
             {PIPE_LABELS.map((l) => (
               <span
-                className="at-pipe-label"
+                className="at-pipe-label hmi-lampbox is-alarm"
                 key={l.key}
                 style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
               >

@@ -206,7 +206,9 @@ const TRIP_LAMPS = [
    value를 주면 그 부분만 앞에 빨간 숫자로 붙는다(나머지 text는 검은 글씨). */
 const NOTES = [
   // MAIN DRIVE 존(x 609~1136, 아래끝 y 366) 바로 밑
-  { key: 'tempOff', cx: 872, top: 372, value: '####', text: '℃ 이하시 설비 OFF' },
+  /* lamp를 주면 글자 뒤에 빨간 램프 칸이 붙는다 — 이 줄의 "OFF"는 설명이 아니라
+     설비가 실제로 꺼졌음을 알리는 표시등이다. */
+  { key: 'tempOff', cx: 872, top: 372, value: '####', text: '℃ 이하시 설비', lamp: 'OFF' },
   // ent-motor-4(x 332~356, y 360~401) 오른쪽 옆. 모터 세로 가운데에 맞춘다.
   { key: 'stopper', left: 362, top: 372, text: 'STOPPER 하강 감지' },
   // ent-motor-3(x 497~522, y 160~201) 바로 위. 가운데(510)에 맞춘다.
@@ -318,14 +320,14 @@ function DrivePanel({ title, style, data, onChange, svMin, svMax }) {
       <span className="hmi-group-title">{title}</span>
 
       <div className="dr-drive-row">
-        <span className={`dr-onoff${data.on ? ' is-on' : ''}`}>ON</span>
+        <span className={`dr-onoff hmi-lampbox${data.on ? ' is-on' : ''}`}>ON</span>
         <span className="dr-drive-tag">PV</span>
         <LedInput value={data.pv} readOnly color="red" size="sm" unit="mm/Min" title={`${title} PV`} />
       </div>
 
       {/* is-sv를 붙여 SV 입력칸만 연두색으로 물들인다(DrivePage.css의 --dr-sv). */}
       <div className="dr-drive-row is-sv">
-        <span className={`dr-onoff${data.on ? '' : ' is-off'}`}>OFF</span>
+        <span className={`dr-onoff hmi-lampbox${data.on ? '' : ' is-alarm'}`}>OFF</span>
         <span className="dr-drive-tag">SV</span>
         <LedInput
           value={data.sv}
@@ -339,7 +341,12 @@ function DrivePanel({ title, style, data, onChange, svMin, svMax }) {
         />
       </div>
 
-      <div className="dr-drive-foot">구동감지 {data.detect}</div>
+      {/* 구동감지 — 글자 칸 자체가 램프다. 조작이 아니라 PLC 상태를 비춘다. */}
+      <div className="dr-drive-foot">
+        <span className={`dr-detect hmi-lampbox${data.detectOn ? ' is-on' : ''}`}>
+          구동감지 {data.detect}
+        </span>
+      </div>
     </div>
   );
 }
@@ -398,10 +405,12 @@ export default function DrivePage() {
      허용 범위 밖 값이 보이므로 하한으로 맞춰 둔다(EXIT_TIMES의 min/max 참고). */
   const [times, setTimes] = useState({ align: '0', clear: '0', sideConv: '15' });
 
+  /* detectOn은 구동감지 램프의 점등 여부. PLC 값이 붙기 전이라 꺼둔다 —
+     모르는 상태를 켜진 것으로 그리지 않는 쪽이 안전하다. */
   const [drives, setDrives] = useState({
-    entTable: { on: false, pv: '0', sv: '0', detect: '정상' },
-    mainCc: { on: false, pv: '0', sv: '0', detect: '정상' },
-    exitTable: { on: false, pv: '0', sv: '0', detect: '정상' },
+    entTable: { on: false, pv: '0', sv: '0', detect: '정상', detectOn: false },
+    mainCc: { on: false, pv: '0', sv: '0', detect: '정상', detectOn: false },
+    exitTable: { on: false, pv: '0', sv: '0', detect: '정상', detectOn: false },
   });
 
   const handleDriveChange = (key, field, value) => {
@@ -562,6 +571,7 @@ export default function DrivePage() {
               >
                 {n.value && <span className="dr-note-val">{n.value}</span>}
                 {n.text}
+                {n.lamp && <span className="dr-note-lamp hmi-lampbox is-alarm">{n.lamp}</span>}
               </span>
             ))}
           </div>

@@ -5,6 +5,12 @@ import { login as loginApi } from '../../api/scada/scadaAuthApi';
 import ScadaLogo from '../../components/scada/ScadaLogo';
 import '../../styles/scada.css';
 
+/** 회사 홈페이지의 인발 공정 8단계 이미지. public/company/process/ 에 그대로 둔다. */
+const PROCESS_STEPS = Array.from(
+  { length: 8 },
+  (_, i) => `/company/process/in-0${i + 1}.png`,
+);
+
 /**
  * SCADA 로그인 화면.
  * global_dream.user를 보는 /api/scada/login을 호출한다.
@@ -42,6 +48,21 @@ export default function ScadaLoginPage() {
   return (
     <div className="hmi-root">
       <div className="hmi-login">
+        {/* 배경 워터마크. 흰 배경을 날리는 합성은 CSS에서 한다(.hmi-login-watermark).
+            이미지가 아직 없거나 경로가 틀렸을 때 깨진 아이콘이 뜨면 배경이 지저분해지므로,
+            실패한 칸만 감춘다 — flex 칸은 남아서 나머지 간격이 흔들리지 않는다. */}
+        <div className="hmi-login-watermark" aria-hidden="true">
+          {PROCESS_STEPS.map((src) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              draggable="false"
+              onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+            />
+          ))}
+        </div>
+
         <div className="hmi-login-box">
           <ScadaLogo className="hmi-logo--login" />
           <div className="hmi-login-titlebar">로그인</div>

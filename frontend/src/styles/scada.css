@@ -1,8 +1,11 @@
 /* ===========================================================================
    SCADA(HMI) 화면 스타일
    ---------------------------------------------------------------------------
-   현장 HMI 패널을 그대로 옮긴 형태(회색 배경 + 입체 테두리 + 파란 제목바 +
-   하단 메뉴바). 토큰/클래스는 --hmi-*, .hmi-* 로 통일하고, 토큰은 화면 최상위
+   크롬(헤더·하단 메뉴바·로그인)은 짙은 바탕 위의 반투명 유리로, 화면 내용은
+   그 안의 밝은 캔버스(.hmi-body > *)에 담는 층 구조다. 캔버스 안쪽 패널들은
+   아직 기존 --hmi-* 토큰(회색 배경 + 입체 테두리)을 쓴다 — 단계적으로 걷어낸다.
+
+   토큰/클래스는 --hmi-* / --g-* / .hmi-* 로 통일하고, 토큰은 화면 최상위
    래퍼인 .hmi-root에 선언한다(ScadaLayout / ScadaLoginPage가 붙인다).
    =========================================================================== */
 
@@ -13,38 +16,42 @@ html, body, #root {
   margin: 0;
 }
 
+/* .hmi-root가 덮기 전 한 프레임 회색이 번쩍이지 않게 같은 어두운 색으로 둔다 */
 body {
-  background: #d6d6d6;
+  background: #0d1220;
 }
 
 /* ===== 토큰 ============================================================== */
 
 .hmi-root {
-  /* 바탕 */
-  --hmi-bg: #d6d6d6;
-  --hmi-panel: #d9d9d9;
-  --hmi-panel-dark: #c8c8c8;
+  /* 바탕 — 캔버스 안쪽 패널은 흰 카드가 되었다(예전 회색 #d9d9d9) */
+  --hmi-bg: var(--g-canvas);
+  --hmi-panel: #ffffff;
+  --hmi-panel-dark: #eaeef2;
 
-  /* 입체(3D) 테두리 — 윈도우 클래식 패널 느낌 */
-  --hmi-light: #ffffff;
-  --hmi-shadow: #808080;
-  --hmi-shadow-dark: #5a5a5a;
+  /* 예전에는 윈도우 클래식 입체 테두리였다 — 위·왼쪽 흰색(--hmi-light),
+     아래·오른쪽 회색(--hmi-shadow)을 2px씩 둘러 솟아 보이게 하는 방식.
+     9개 화면 수십 곳이 이 두 토큰으로 베벨을 그리고 있어서, 값을 같은 계열의
+     연한 선 색으로 바꾸면 그 베벨이 전부 한 겹 테두리로 평평해진다.
+     화면 파일을 하나도 건드리지 않고 "옛날 느낌"을 걷어내는 지점이다.
 
-  /* 제목바 파랑 */
+     두 값을 같게 두어 방향에 따라 밝기가 갈리지 않게 한다 — 그게 입체감의 원인이었다.
+     캔버스(--g-canvas)와 카드(흰색) 둘 다에서 보이는 밝기여야 한다.
+     --hmi-shadow-dark는 값 칸(검은 LED)·입력칸 테두리라 한 단계 진하게 둔다. */
+  --hmi-light: #c9d3dd;
+  --hmi-shadow: #c9d3dd;
+  --hmi-shadow-dark: #94a2b1;
+
+  /* 액센트 — 율촌 파랑. 캔버스 안에서 색이 붙는 곳은 여기 하나로 모았다
+     (주 버튼, 선택된 날짜·행, 걸린 모드). --hmi-blue-light는 로그인 화면에서만 쓴다. */
   --hmi-blue-edge: #1e5fa8;
-  --hmi-blue-mid: #4b9fe0;
   --hmi-blue-light: #8ecdf5;
 
-  /* 하단 메뉴바 남색 */
-  --hmi-navy: #17386d;
-  --hmi-navy-dark: #0e2549;
-  --hmi-navy-hover: #24559d;
-
-  /* 상태색 */
-  --hmi-lamp-on: #00c800;
-  --hmi-lamp-off: #2e5f2e;
-  --hmi-lamp-warn: #ffb400;
-  --hmi-lamp-alarm: #ff2020;
+  /* 상태색 — 안전 신호. 리뉴얼에서 채운 면으로 바뀌면서 톤을 한 단계 낮췄다.
+     (예전 값: on #00c800 / alarm #ff2020 — 형광에 가까워 새 팔레트에서 튀었다) */
+  --hmi-lamp-on: #15803d;
+  --hmi-lamp-warn: #d97706;
+  --hmi-lamp-alarm: #dc2626;
   --hmi-led-bg: #000000;
   --hmi-led-red: #ff2b2b;
   --hmi-led-yellow: #ffe000;
@@ -53,6 +60,18 @@ body {
   --hmi-text: #101010;
   --hmi-text-sub: #444444;
   --hmi-text-faint: #767676;
+
+  /* 유리 토큰 (리뉴얼) — 크롬은 어둡게 깔고, 화면 내용은 .hmi-body의 밝은 캔버스에 담는다.
+     위의 --hmi-* 토큰은 그 캔버스 안의 패널들이 계속 쓰므로 그대로 남겨 둔다. */
+  --g-ink: #eaf0f8;
+  --g-muted: #9aa8bd;
+  --g-accent: #5eb7ff;
+  --g-accent-ink: #06121f;
+  --g-glass: rgba(255, 255, 255, .07);
+  --g-glass-hi: rgba(255, 255, 255, .12);
+  --g-glass-line: rgba(255, 255, 255, .16);
+  /* 캔버스는 흰 카드가 떠 보일 만큼 내려야 한다 — 흰색에 가까우면 카드 경계가 사라진다 */
+  --g-canvas: #dfe5ec;
 
   --hmi-header-h: 54px;
   --hmi-menu-h: 46px;
@@ -64,8 +83,9 @@ body {
   --hmi-gauge-h: 200px;
 
   height: 100%;
-  background: var(--hmi-bg);
-  color: var(--hmi-text);
+  /* 유리 아래에 비칠 바탕. 왼쪽 위가 밝고 오른쪽 아래로 가라앉는다(로그인 화면과 같다) */
+  background: radial-gradient(120% 90% at 15% 0%, #2b3f63 0%, #131a2a 55%, #0d1220 100%);
+  color: var(--g-ink);
   font-family: '맑은 고딕', 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system,
     BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 13px;
@@ -91,14 +111,15 @@ body {
 
 /* ── 상단: 로고 + 화면 제목 + 로그아웃 ── */
 
+/* 바탕(.hmi-root의 그라디언트)이 그대로 비치게 두고, 안의 요소만 유리로 띄운다 */
 .hmi-header {
   height: var(--hmi-header-h);
   flex-shrink: 0;
   display: flex;
   align-items: stretch;
-  gap: 4px;
-  padding: 3px;
-  background: var(--hmi-bg);
+  gap: 6px;
+  padding: 6px 6px 0;
+  background: none;
 }
 
 /* 로고 자리 — public/logo.png를 넣으면 그 이미지가, 없으면 회사명 텍스트가 나온다.
@@ -111,8 +132,10 @@ body {
   align-items: center;
   justify-content: center;
   padding: 4px 10px;
+  /* 로고 PNG가 흰 배경이라 흰 판으로 남긴다 — 유리 위의 '브랜드 판'이 된다 */
   background: #ffffff;
-  border: 1px solid #9a9a9a;
+  border: none;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -140,35 +163,28 @@ body {
   border-color: #b4b4b4;
 }
 
-/* 화면 제목바 */
+/* 화면 제목 — 이 화면에서 blur가 걸리는 큰 면 중 하나다.
+   blur는 여기와 하단 메뉴바에만 쓴다. 시계·버튼처럼 개수가 늘어나는 요소에
+   걸면 폴링이 붙는 순간 저사양 산업용 PC에서 버벅인다. */
 .hmi-title {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  /* 위쪽 광택 + 가로 방향(가장자리 진하고 가운데 밝은) 그라데이션 두 겹 */
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg,
-      var(--hmi-blue-edge) 0%,
-      var(--hmi-blue-mid) 22%,
-      var(--hmi-blue-light) 50%,
-      var(--hmi-blue-mid) 78%,
-      var(--hmi-blue-edge) 100%);
-  border: 1px solid #14477f;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+  border-radius: 10px;
+  background: var(--g-glass);
+  backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid var(--g-glass-line);
 }
 
 .hmi-title-text {
   font-size: 22px;
-  font-weight: 800;
-  color: #ffffff;
+  font-weight: 700;
+  color: var(--g-ink);
   /* 원본 HMI가 "구 동 화 면"처럼 자간을 벌려 쓰던 것을 CSS로 재현한다 */
   letter-spacing: 10px;
   text-indent: 10px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -182,22 +198,15 @@ body {
   justify-content: center;
   min-width: 208px;
   padding: 0 16px;
-  border-radius: 6px;
-  border: 1px solid #14477f;
+  border-radius: 10px;
+  border: 1px solid var(--g-glass-line);
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.6px;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg,
-      var(--hmi-blue-edge) 0%,
-      var(--hmi-blue-mid) 30%,
-      var(--hmi-blue-light) 50%,
-      var(--hmi-blue-mid) 70%,
-      var(--hmi-blue-edge) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
+  /* 시각은 계속 바뀌는 값이라 액센트색으로 둔다 — 크롬에서 유일하게 색이 붙는 자리 */
+  color: #a5d8ff;
+  /* blur 없이 반투명만 — 위 .hmi-title 주석 참고 */
+  background: var(--g-glass);
 }
 
 /* 우측 상단 로그아웃 */
@@ -211,32 +220,22 @@ body {
   justify-content: center;
   gap: 6px;
   padding: 0 14px;
-  border-radius: 6px;
-  border: 1px solid #14477f;
+  border-radius: 10px;
+  border: 1px solid var(--g-glass-line);
   cursor: pointer;
   font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg,
-      var(--hmi-blue-edge) 0%,
-      var(--hmi-blue-mid) 30%,
-      var(--hmi-blue-light) 50%,
-      var(--hmi-blue-mid) 70%,
-      var(--hmi-blue-edge) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
-  transition: filter .12s;
+  font-weight: 600;
+  color: var(--g-ink);
+  background: var(--g-glass);
+  transition: background .12s;
 }
 
 .hmi-logout:hover {
-  filter: brightness(1.1);
+  background: var(--g-glass-hi);
 }
 
 .hmi-logout:active {
-  filter: brightness(.92);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .35);
+  background: rgba(0, 0, 0, .18);
 }
 
 /* "로그아웃" 글자는 줄바꿈·축소 없이 그대로 — 폭이 고정이라 여기가 접히면 보기 나쁘다 */
@@ -258,23 +257,70 @@ body {
 
 /* ── 본문 ── */
 
+/* 본문은 <fieldset>이다 — 제어 권한이 없을 때 disabled 하나로 안의 조작을 전부 막는다
+   (ScadaLayout 참고). fieldset의 기본 모양과 min-inline-size를 지워야 평범한 div처럼 눕는다.
+   min-width: 0을 빼면 fieldset이 내용의 min-content보다 좁아지지 않아서,
+   화면이 좁을 때 flex 부모를 밀어내며 가로 스크롤이 생긴다. */
 .hmi-body {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   overflow: auto;
+  margin: 0;
   padding: 6px;
+  border: 0;
+}
+
+/* 잠긴 화면의 조작 요소 — 색을 죽이지는 않는다. 현장에서 값을 읽는 것이 먼저이고,
+   회색으로 덮으면 정상 화면인지 고장인지 구분이 안 된다. 커서로만 알린다
+   (왜 안 눌리는지는 제목바의 조회 전용 배지가 설명한다). */
+.hmi-body[disabled] button,
+.hmi-body[disabled] input {
+  cursor: not-allowed;
+}
+
+/* 제목 옆 '조회 전용' 배지 */
+.hmi-readonly-badge {
+  margin-left: 14px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 119, 6, .55);
+  background: rgba(217, 119, 6, .18);
+  color: #fcd9a1;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+/* 각 화면을 밝은 캔버스에 담는다 — 작화 그림이 밝은 회색이라 어두운 크롬 위에
+   그대로 놓으면 대비가 세고, 캔버스 안쪽 패널들도 아직 회색 계열이기 때문이다.
+   유리 아래 놓인 도면처럼 보이는 층 구조가 만들어진다.
+
+   메인화면만 뺀다 — 작화 없이 타일만 있어서 어두운 바탕에 유리 타일이 낫다. */
+.hmi-body > *:not(.hmi-mainmenu) {
+  border-radius: 12px;
+  border: 1px solid var(--g-glass-line);
+  background: var(--g-canvas);
+  /* 캔버스 안은 다시 어두운 글자다(크롬은 .hmi-root에서 밝은 글자로 두었다) */
+  color: var(--hmi-text);
 }
 
 /* ── 하단 메뉴바 ── */
 
+/* 제목바와 함께 blur가 걸리는 큰 면. 안의 항목들은 반투명만 쓴다(개수가 9개다). */
 .hmi-menu {
   height: var(--hmi-menu-h);
   flex-shrink: 0;
   display: flex;
   align-items: stretch;
-  gap: 2px;
-  padding: 2px;
-  background: var(--hmi-navy-dark);
+  gap: 4px;
+  margin: 6px;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--g-glass-line);
+  background: var(--g-glass);
+  backdrop-filter: blur(12px) saturate(120%);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -283,69 +329,57 @@ body {
   display: none;
 }
 
+/* 평소에는 글자만 — 지금 보고 있는 화면 하나만 채운 액센트로 켠다.
+   전부 채워 두면 어디에 있는지가 안 읽힌다. */
 .hmi-menu-item {
   flex: 1 1 0;
   min-width: 92px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #0b1e3c;
-  border-radius: 3px;
-  background: linear-gradient(180deg, #2a5595 0%, var(--hmi-navy) 55%, #102b56 100%);
-  color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--g-muted);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 1px;
   white-space: nowrap;
   cursor: pointer;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
   transition: background .12s, color .12s;
 }
 
 .hmi-menu-item:hover {
-  background: linear-gradient(180deg, #3c6cb4 0%, var(--hmi-navy-hover) 55%, #1a3f78 100%);
+  background: var(--g-glass-hi);
+  color: var(--g-ink);
 }
 
 .hmi-menu-item.active {
-  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
-  color: #ffffff;
-  border-color: #14477f;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+  background: var(--g-accent);
+  color: var(--g-accent-ink);
+  border-color: transparent;
+  font-weight: 700;
 }
 
 .hmi-menu-item:active {
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, .45);
+  filter: brightness(.94);
 }
 
 /* ===== 화면 안에서 쓰는 HMI 부품 ========================================= */
 
-/* 입체 테두리 유틸 — 튀어나온(outset) / 들어간(inset) 두 종류 */
-.hmi-out {
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  background: var(--hmi-panel);
-}
-
-.hmi-in {
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
-  background: var(--hmi-panel);
-}
+/* (입체 테두리 유틸 .hmi-out / .hmi-in 이 여기 있었는데, 어느 화면도 쓰지 않아
+   리뉴얼 때 지웠다. 면을 나누는 일은 아래 .hmi-group과 각 화면의 카드가 맡는다.) */
 
 /* 그룹박스 — 제목이 위쪽에 작은 라벨로 붙는 패널 */
 .hmi-group {
   position: relative;
   padding: 16px 12px 12px;
   margin-top: 11px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
+  border: 1px solid var(--hmi-light);
+  border-radius: 10px;
   background: var(--hmi-panel);
+  /* 캔버스에서 한 겹 떠 보이게 — 선만으로는 카드가 바탕에 붙어 보인다 */
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .16);
 }
 
 .hmi-group-title {
@@ -364,6 +398,46 @@ body {
 }
 
 /* 램프 */
+/* ===== 램프 칸 (.hmi-lampbox) ============================================
+   글자 칸 자체가 램프다 — 왼쪽에 점을 따로 두지 않는다(그건 아래 .hmi-lamp다).
+   꺼지면 회색으로 남고, 켜지면 색이 들어온다:
+     .is-on     초록 — 정상·운전·열림
+     .is-alarm  빨강 — 이상·정지·닫힘
+
+   크기(padding·font-size)와 배치는 화면마다 달라서 쓰는 쪽에서 덮는다.
+   .cb-lamp / .at-lamp / .dr-onoff / .dr-detect / .dr-note-lamp 가 각자 갖고 있던
+   같은 규칙을 여기로 모았다 — 램프 모양을 바꿀 일이 생기면 이 블록만 고친다. */
+.hmi-lampbox {
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--hmi-shadow);
+  background: var(--hmi-panel-dark);
+  color: var(--hmi-text-faint);
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 800;
+  text-align: center;
+  /* 존 램프처럼 "연소\nON" 두 줄로 오는 경우가 있다 */
+  white-space: pre-line;
+  line-height: 1.15;
+}
+
+/* 켜진 램프는 채운 색을 그대로 쓴다 — 안전 신호라 반투명·연한 색으로 두지 않는다 */
+.hmi-lampbox.is-on {
+  background: #15803d;
+  border-color: #15803d;
+  color: #ffffff;
+}
+
+.hmi-lampbox.is-alarm {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+/* ===== 점 + 글자 램프 (.hmi-lamp) =======================================
+   조건 목록처럼 줄마다 점을 찍는 형태. 위 .hmi-lampbox와는 다른 부품이다. */
+
 .hmi-lamp {
   display: inline-flex;
   align-items: center;
@@ -379,24 +453,23 @@ body {
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: var(--hmi-lamp-off);
-  border: 1px solid rgba(0, 0, 0, .45);
-  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .35);
+  background: var(--hmi-panel-dark);
+  border: 1px solid var(--hmi-shadow-dark);
 }
 
 .hmi-lamp.on .hmi-lamp-dot {
-  background: var(--hmi-lamp-on);
-  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .6), 0 0 6px rgba(0, 200, 0, .8);
+  background: #15803d;
+  border-color: #15803d;
 }
 
 .hmi-lamp.warn .hmi-lamp-dot {
-  background: var(--hmi-lamp-warn);
-  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .6), 0 0 6px rgba(255, 180, 0, .8);
+  background: #d97706;
+  border-color: #d97706;
 }
 
 .hmi-lamp.alarm .hmi-lamp-dot {
-  background: var(--hmi-lamp-alarm);
-  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, .5), 0 0 7px rgba(255, 32, 32, .9);
+  background: #dc2626;
+  border-color: #dc2626;
   animation: hmi-blink .8s steps(1, end) infinite;
 }
 
@@ -412,10 +485,8 @@ body {
   min-width: 62px;
   padding: 2px 7px;
   background: var(--hmi-led-bg);
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 5px;
   font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
   font-size: 14px;
   font-weight: 700;
@@ -449,11 +520,11 @@ body {
   min-width: 0;
   width: 100%;
   padding: 2px 6px;
+  /* 검은 LED 바탕은 그대로 둔다 — 수치가 가장 잘 읽히는 형태이고,
+     어두운 크롬과도 같은 언어에 속한다. 파인 테두리만 한 겹 선으로 바꿨다. */
   background: var(--hmi-led-bg);
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 5px;
   font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
   font-weight: 700;
   letter-spacing: 1px;
@@ -461,8 +532,11 @@ body {
   outline: none;
 }
 
+/* 포컨스·호버·편집 표시를 칸 안의 inset 선에서 밖의 링으로 옮겼다 —
+   검은 바팝 안에 선을 그으면 숫자와 얽힌다. */
 .hmi-led-input:focus {
-  box-shadow: inset 0 0 0 1px #ffffff;
+  border-color: var(--hmi-blue-edge);
+  box-shadow: 0 0 0 3px rgba(30, 95, 168, .22);
 }
 
 /* PLC 읽기 전용 칸 — 계장 표시기처럼 보이되 클릭·포커스로 반응하지 않는다 */
@@ -490,12 +564,14 @@ body {
 
 .hmi-led-input:not(.is-readonly):not(.is-disabled):hover {
   background: #141414;
-  box-shadow: inset 0 0 0 1px #4d6a8a;
+  border-color: var(--hmi-blue-edge);
 }
 
 /* 숫자패드가 열려 있는 칸 — 패드가 어느 값을 고치는 중인지 한눈에 보이게 테두리를 준다 */
+/* 지금 숫자패드가 열려 있는 칸 */
 .hmi-led-input.is-editing {
-  box-shadow: inset 0 0 0 2px var(--hmi-blue-light);
+  border-color: var(--hmi-blue-light);
+  box-shadow: 0 0 0 3px rgba(142, 205, 245, .3);
 }
 
 /* ===== 숫자 입력 패드 ===== */
@@ -514,29 +590,23 @@ body {
   width: 216px;
   padding: 8px;
   background: var(--hmi-panel);
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  box-shadow: 0 10px 26px -8px rgba(0, 0, 0, .6);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px -12px rgba(10, 20, 35, .55);
 }
 
 .hmi-pad-title {
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   padding: 4px 6px;
-  border-radius: 3px;
-  border: 1px solid #14477f;
   font-size: 11.5px;
-  font-weight: 800;
+  font-weight: 700;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .35) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg, var(--hmi-blue-edge) 0%, var(--hmi-blue-light) 50%, var(--hmi-blue-edge) 100%);
+  /* 항목 이름이니 채운 제목바가 아니라 조용한 라벨로 둔다 —
+     이 창의 주인공은 아래 표시창이다. */
+  color: var(--hmi-text-sub);
 }
 
 .hmi-pad-display {
@@ -544,12 +614,10 @@ body {
   align-items: baseline;
   justify-content: flex-end;
   gap: 5px;
-  padding: 5px 9px;
+  padding: 7px 10px;
   background: var(--hmi-led-bg);
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
 }
 
 .hmi-pad-value {
@@ -579,7 +647,7 @@ body {
 }
 
 .hmi-pad-hint.error {
-  color: #c00000;
+  color: #a3271b;
 }
 
 .hmi-pad-keys {
@@ -596,15 +664,16 @@ body {
 }
 
 .hmi-pad-key {
-  padding: 7px 0;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
+  padding: 8px 0;
+  border: 1px solid var(--hmi-light);
+  border-radius: 7px;
+  background: var(--hmi-bg);
+  color: var(--hmi-text);
+  font-family: inherit;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
+  transition: background .1s, border-color .1s;
 }
 
 .hmi-pad-key.wide {
@@ -612,14 +681,12 @@ body {
 }
 
 .hmi-pad-key:hover {
-  background: #e8e8e8;
+  background: var(--hmi-panel-dark);
+  border-color: var(--hmi-shadow-dark);
 }
 
 .hmi-pad-key:active {
-  border-top-color: var(--hmi-shadow);
-  border-left-color: var(--hmi-shadow);
-  border-right-color: var(--hmi-light);
-  border-bottom-color: var(--hmi-light);
+  background: #d5dce3;
 }
 
 .hmi-pad-key:disabled {
@@ -637,40 +704,44 @@ body {
 
 .hmi-pad-cancel,
 .hmi-pad-ok {
-  padding: 8px 0;
-  border-radius: 3px;
+  padding: 9px 0;
+  border-radius: 8px;
+  font-family: inherit;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 1.5px;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+  transition: background .12s, border-color .12s;
 }
 
 .hmi-pad-cancel {
-  border: 1px solid #8d8574;
-  color: #2a2a2a;
-  background: linear-gradient(180deg, #f2f2f2 0%, #d2d2d2 100%);
+  border: 1px solid var(--hmi-shadow-dark);
+  color: var(--hmi-text);
+  background: var(--hmi-panel);
 }
 
+.hmi-pad-cancel:hover {
+  background: var(--hmi-panel-dark);
+}
+
+/* 이 창에서 유이하게 채운 버튼 — 무엇을 눌러야 하는지가 바로 밝힌다 */
 .hmi-pad-ok {
-  border: 1px solid #14477f;
+  border: 1px solid var(--hmi-blue-edge);
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
+  background: var(--hmi-blue-edge);
 }
 
 .hmi-pad-cancel:hover,
-.hmi-pad-ok:hover {
-  filter: brightness(1.06);
+.hmi-pad-ok:hover:not(:disabled) {
+  background: #1a538f;
 }
 
+/* 범위를 벗어나거나 벼 있으면 잠긴다 */
 .hmi-pad-ok:disabled {
-  filter: none;
   cursor: not-allowed;
-  color: #8fa3b8;
-  text-shadow: none;
-  background: linear-gradient(180deg, #d0d6dc 0%, #b3bcc6 100%);
-  border-color: #9aa4ae;
+  color: var(--hmi-text-faint);
+  background: var(--hmi-panel-dark);
+  border-color: var(--hmi-light);
 }
 
 .hmi-led-input.led-md { font-size: 14px; }
@@ -698,17 +769,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, .35);
+  border-radius: 6px;
+  border: 1px solid transparent;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
 }
 
-.hmi-gauge-head.head-red { background: linear-gradient(180deg, #ff7a7a 0%, #e01414 55%, #a80000 100%); }
-.hmi-gauge-head.head-green { background: linear-gradient(180deg, #7ce87c 0%, #16b616 55%, #0a7c0a 100%); }
-.hmi-gauge-head.head-blue { background: linear-gradient(180deg, #86bdf7 0%, #2f6fd6 55%, #14479c 100%); }
+.hmi-gauge-head.head-red { background: #dc2626; }
+.hmi-gauge-head.head-green { background: #15803d; }
+.hmi-gauge-head.head-blue { background: #1e5fa8; }
 
 .hmi-gauge-body {
   display: flex;
@@ -737,10 +807,8 @@ body {
   min-width: 16px;
   max-width: 30px;
   background: #ffffff;
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 5px;
   overflow: hidden;
 }
 
@@ -753,9 +821,9 @@ body {
   transition: height .18s ease-out;
 }
 
-.hmi-gauge-fill.fill-red { background: linear-gradient(90deg, #ff4d4d, #c00000); }
-.hmi-gauge-fill.fill-green { background: linear-gradient(90deg, #35d635, #0a8c0a); }
-.hmi-gauge-fill.fill-blue { background: linear-gradient(90deg, #5aa0ef, #1a4fae); }
+.hmi-gauge-fill.fill-red { background: #dc2626; }
+.hmi-gauge-fill.fill-green { background: #15803d; }
+.hmi-gauge-fill.fill-blue { background: #2a7fd0; }
 
 /* 눈금선 — 라벨과 같은 개수/간격으로 얹는다 */
 .hmi-gauge-marks {
@@ -769,38 +837,59 @@ body {
 
 .hmi-gauge-marks span {
   height: 1px;
-  background: rgba(0, 0, 0, .35);
+  background: rgba(20, 35, 50, .18);
 }
 
 /* 조작 버튼 */
 .hmi-btn {
   padding: 6px 14px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
   background: var(--hmi-panel);
   color: var(--hmi-text);
+  font-family: inherit;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  transition: background .12s, border-color .12s;
 }
 
-.hmi-btn:hover {
-  background: #e2e2e2;
+.hmi-btn:hover:not(:disabled) {
+  background: var(--hmi-panel-dark);
+  border-color: var(--hmi-blue-edge);
 }
 
-.hmi-btn:active {
-  border-top-color: var(--hmi-shadow);
-  border-left-color: var(--hmi-shadow);
-  border-right-color: var(--hmi-light);
-  border-bottom-color: var(--hmi-light);
+.hmi-btn:active:not(:disabled) {
+  background: #dee4ea;
 }
 
 .hmi-btn:disabled {
   color: var(--hmi-text-faint);
   cursor: not-allowed;
+}
+
+/* 한 묶음에서 지금 눌러야 하는 버튼 하나만 이걸 붙인다 —
+   다 흰 버튼이면 무엇을 눌러야 하는지가 안 보이기 마럵이다. */
+.hmi-btn.is-primary {
+  border-color: var(--hmi-blue-edge);
+  background: var(--hmi-blue-edge);
+  color: #ffffff;
+}
+
+.hmi-btn.is-primary:hover:not(:disabled) {
+  background: #1a538f;
+  border-color: #1a538f;
+}
+
+.hmi-btn.is-primary:active:not(:disabled) {
+  background: #17497e;
+}
+
+.hmi-btn.is-primary:disabled {
+  border-color: var(--hmi-light);
+  background: var(--hmi-panel-dark);
+  color: var(--hmi-text-faint);
 }
 
 /* ===== Tabulator HMI 테마 =====
@@ -809,70 +898,68 @@ body {
    가로 배치하는데 flex로 바꾸면 셀이 세로로 쌓인다. */
 
 .hmi-table-wrap .tabulator {
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
-  border-radius: 0;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
   background: #ffffff;
   font-size: 12.5px;
 }
 
 .hmi-table-wrap .tabulator-header {
-  background: var(--hmi-panel);
-  border-bottom: 1px solid var(--hmi-shadow);
+  background: var(--hmi-panel-dark);
+  border-bottom: 1px solid var(--hmi-light);
 }
 
+/* 열 구분은 연한 세로선 하나로 둠다 — 칸마다 테를 두르면 가득해 보이기 쉬다 */
 .hmi-table-wrap .tabulator-col {
-  background: var(--hmi-panel);
-  border-right: 1px solid var(--hmi-shadow);
+  background: transparent;
+  border-right: 1px solid var(--hmi-light);
 }
 
 .hmi-table-wrap .tabulator-col-title {
   font-size: 12.5px;
   font-weight: 700;
-  color: var(--hmi-text);
+  color: var(--hmi-text-sub);
 }
 
 .hmi-table-wrap .tabulator-col.tabulator-sortable:hover {
-  background: #e6e6e6;
+  background: #dde4ea;
 }
 
 .hmi-table-wrap .tabulator-row {
-  border-bottom: 1px solid #d8d8d8;
+  border-bottom: 1px solid #eef1f4;
 }
 
 .hmi-table-wrap .tabulator-row.tabulator-row-even {
-  background: #f5f5f5;
+  background: #f7f9fb;
 }
 
 .hmi-table-wrap .tabulator-row:hover {
-  background: #d8e8fb !important;
+  background: #e4eefb !important;
 }
 
 .hmi-table-wrap .tabulator-row .tabulator-cell {
   padding: 5px 9px;
-  border-right: 1px solid #e6e6e6;
+  border-right: 1px solid #f0f3f6;
 }
 
 .hmi-table-wrap .tabulator-footer {
-  background: var(--hmi-panel);
-  border-top: 1px solid var(--hmi-shadow);
+  background: var(--hmi-panel-dark);
+  border-top: 1px solid var(--hmi-light);
   padding: 4px 8px;
 }
 
 .hmi-table-wrap .tabulator-footer .tabulator-page {
-  border: 1px solid var(--hmi-shadow);
-  border-radius: 3px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 6px;
   font-weight: 700;
   color: var(--hmi-text);
-  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
+  background: var(--hmi-panel);
 }
 
 .hmi-table-wrap .tabulator-footer .tabulator-page.active {
   color: #ffffff;
-  border-color: #14477f;
-  background: linear-gradient(180deg, #8ecdf5 0%, var(--hmi-blue-mid) 55%, #1e5fa8 100%);
+  border-color: var(--hmi-blue-edge);
+  background: var(--hmi-blue-edge);
 }
 
 .hmi-table-wrap .tabulator-footer .tabulator-page:disabled {
@@ -884,28 +971,27 @@ body {
   display: inline-block;
   min-width: 42px;
   padding: 1px 8px;
-  border-radius: 3px;
+  border-radius: 999px;
   font-size: 11.5px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .hmi-table-wrap .ht-badge.on {
   color: #ffffff;
-  background: #d02020;
+  background: #dc2626;
 }
 
 .hmi-table-wrap .ht-badge.off {
-  color: #454545;
-  background: #d5d5d5;
+  color: var(--hmi-text-sub);
+  background: var(--hmi-panel-dark);
 }
 
 /* 표 */
+/* Tabulator를 쓰지 않는 짧은 표의 껍데기 */
 .hmi-table-wrap {
   overflow: auto;
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
   background: #ffffff;
 }
 
@@ -954,70 +1040,133 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
+  /* 아랫 여백을 크게 둔다 — 배경 생산 라인이 깔릴 자리이고,
+     그리드가 그 위로 겹치지 않아야 둘 다 읽힌다. */
+  padding: 16px 16px 120px;
   /* 관리자 버튼 묶음(.hmi-admintools)을 우측 상단에 띄우는 기준.
      absolute로 빼 두면 가운데 정렬된 버튼판의 위치가 흔들리지 않는다. */
   position: relative;
 }
 
+/* 배경 생산 라인 — 타일 아랫 마지막에 깔린다.
+   pointer-events를 꺼 두지 않으면 보이지도 않는 그림이 타일 클릭을 가로챈다.
+   연함은 타일 글자가 이기는 선에서 잡았다 — 더 진하면 배경이 주인공이 된다. */
+.hmi-home-art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  color: var(--g-ink);
+  opacity: .09;
+}
+
+.hmi-home-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 그리드는 배경 위에 뜬다 */
 .hmi-mainmenu-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   /* 참고 HMI가 1920 화면에서 버튼 폭 ≈385px, 열 간격 ≈185px로 넓게 벌려 쓰던 비율에 맞춘다 */
-  gap: 46px 130px;
+  /* 타일에 그림이 들어가면서 칸이 커졌으니 사이를 좁힌다 —
+     간격이 넓으면 타일 아홉 개가 한 덩어리로 안 보이고 흩어진다. */
+  gap: 20px 22px;
   width: 100%;
-  max-width: 1560px;
+  max-width: 1280px;
 }
 
+/* 메인화면은 캔버스를 쓰지 않고 어두운 바탕에 유리 타일을 올린다(작화가 없다).
+   타일이 9개라 blur는 걸지 않고 반투명만 쓴다. */
+/* 그림(ScreenArt) 아래에 이름이 오는 세로 쓸기 */
 .hmi-mainmenu-tile {
-  height: 78px;
-  border-radius: 10px;
-  border: 1px solid #3f8fd4;
+  min-height: 158px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 22px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--g-glass-line);
   cursor: pointer;
-  font-size: 28px;
-  font-weight: 800;
+  color: var(--g-ink);
+  background: var(--g-glass);
+  transition: background .12s, border-color .12s, transform .05s;
+}
+
+/* 설비 선화 — 색은 currentColor로 토일 글자색을 따른다 */
+.hmi-tile-art {
+  display: block;
+  width: 62px;
+  height: 62px;
+  flex: none;
+  /* 이름보다 한 단계 연하게 — 그림이 이름을 이기면 산만해진다 */
+  opacity: .78;
+  transition: opacity .12s, color .12s;
+}
+
+.hmi-tile-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hmi-tile-label {
+  font-size: 24px;
+  font-weight: 600;
   /* 참고 HMI가 "구 동 화 면"처럼 자간을 벌려 쓰던 것을 맞춘다 */
-  letter-spacing: 7px;
-  text-indent: 7px;
-  color: #ffffff;
-  text-shadow: 0 2px 3px rgba(0, 0, 0, .35);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .46) 0%, rgba(255, 255, 255, .06) 46%, rgba(0, 0, 0, .10) 100%),
-    linear-gradient(180deg, #7fc0f7 0%, #56a5ee 55%, #3f8fd4 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .7),
-    0 3px 6px -2px rgba(16, 40, 80, .45);
-  transition: filter .12s, box-shadow .12s, transform .05s;
+  letter-spacing: 6px;
+  text-indent: 6px;
+  white-space: nowrap;
 }
 
 .hmi-mainmenu-tile:hover {
-  filter: brightness(1.08);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .8),
-    0 5px 10px -2px rgba(16, 40, 80, .5);
+  background: var(--g-glass-hi);
+  border-color: rgba(94, 183, 255, .55);
+}
+
+/* 그림이 액센트로 밝아진다 — 지금 가리킨 토일이 어딘지 바로 보이게 */
+.hmi-mainmenu-tile:hover .hmi-tile-art {
+  opacity: 1;
+  color: var(--g-accent);
 }
 
 .hmi-mainmenu-tile:active {
   transform: translateY(1px);
-  filter: brightness(.94);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .3);
+  background: rgba(0, 0, 0, .18);
 }
 
 @media (max-width: 1500px) {
   .hmi-mainmenu-grid {
-    gap: 34px 70px;
+    gap: 14px 16px;
   }
 }
 
+/* 좁아지면 타일을 낮추고 그림·글자를 같이 줄인다 */
 @media (max-width: 1100px) {
   .hmi-mainmenu-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px 32px;
+    gap: 12px 14px;
   }
 
   .hmi-mainmenu-tile {
-    height: 62px;
-    font-size: 21px;
+    min-height: 100px;
+    gap: 9px;
+    padding: 14px 10px;
+  }
+
+  .hmi-tile-art {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hmi-tile-label {
+    font-size: 19px;
     letter-spacing: 4px;
     text-indent: 4px;
   }
@@ -1079,70 +1228,58 @@ body {
   gap: 6px;
   padding: 0 14px;
   white-space: nowrap;
-  border-radius: 6px;
-  border: 1px solid #14477f;
+  border-radius: 10px;
+  border: 1px solid var(--g-glass-line);
   cursor: pointer;
   font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg,
-      var(--hmi-blue-edge) 0%,
-      var(--hmi-blue-mid) 30%,
-      var(--hmi-blue-light) 50%,
-      var(--hmi-blue-mid) 70%,
-      var(--hmi-blue-edge) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45);
-  transition: filter .12s;
+  font-weight: 600;
+  color: var(--g-ink);
+  background: var(--g-glass);
+  transition: background .12s, border-color .12s;
 }
 
 .hmi-adminbtn:hover {
-  filter: brightness(1.1);
+  background: var(--g-glass-hi);
+  border-color: rgba(94, 183, 255, .55);
 }
 
 .hmi-adminbtn:active {
-  filter: brightness(.92);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .35);
+  background: rgba(0, 0, 0, .18);
 }
 
 /* 뒤 화면을 덮는 막 — NumPad(.hmi-pad-scrim)와 같은 z-index 층에 둔다. */
+/* 화면별 권한 격자가 붙으면서 모달이 길어졌다. align-items: center로 가운데에 두면
+   창보다 큰 모달은 위아래가 잘리고 스크롤로도 닿지 못한다(넘친 쪽이 flex 시작선
+   바깥으로 밀려나기 때문이다). overflow: auto + 자식의 margin: auto 조합은
+   같은 가운데 정렬이면서 넘칠 때는 스크롤이 정상적으로 닿는다. */
 .hmi-umodal-scrim {
   position: fixed;
   inset: 0;
   z-index: 1500;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: auto;
+  padding: 20px;
   background: rgba(0, 0, 0, .45);
 }
 
 .hmi-umodal {
+  margin: auto;
   width: 360px;
-  padding: 8px;
+  padding: 16px;
   background: var(--hmi-panel);
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  box-shadow: 0 10px 26px -8px rgba(0, 0, 0, .6);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px -14px rgba(10, 20, 35, .6);
 }
 
 /* 제목바 — .hmi-pad-title과 같은 파란 띠를 조금 크게 */
 .hmi-umodal-title {
-  margin-bottom: 8px;
-  padding: 5px 8px;
-  border-radius: 3px;
-  border: 1px solid #14477f;
-  font-size: 13px;
-  font-weight: 800;
-  text-align: center;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .35) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg, var(--hmi-blue-edge) 0%, var(--hmi-blue-light) 50%, var(--hmi-blue-edge) 100%);
+  margin-bottom: 14px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--hmi-light);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--hmi-text);
 }
 
 /* 목록이 함께 들어가는 모달(사용자 정보 수정)은 더 넓게 */
@@ -1155,11 +1292,9 @@ body {
 .hmi-ulist {
   max-height: 190px;
   overflow-y: auto;
-  margin-bottom: 8px;
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  margin-bottom: 12px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
   background: #ffffff;
 }
 
@@ -1175,8 +1310,8 @@ body {
   top: 0;
   z-index: 1;
   padding: 4px 6px;
-  border-bottom: 1px solid var(--hmi-shadow);
-  background: var(--hmi-panel);
+  border-bottom: 1px solid var(--hmi-light);
+  background: var(--hmi-panel-dark);
   color: var(--hmi-text-sub);
   font-weight: 700;
   text-align: center;
@@ -1184,7 +1319,7 @@ body {
 
 .hmi-ulist td {
   padding: 4px 6px;
-  border-bottom: 1px solid #e2e2e2;
+  border-bottom: 1px solid #eef1f4;
   color: var(--hmi-text);
   text-align: center;
 }
@@ -1194,11 +1329,11 @@ body {
 }
 
 .hmi-ulist tbody tr:hover {
-  background: #eef4fb;
+  background: #e4eefb;
 }
 
 .hmi-ulist tbody tr.is-selected td {
-  background: var(--hmi-navy);
+  background: var(--hmi-blue-edge);
   color: #ffffff;
   font-weight: 700;
 }
@@ -1259,13 +1394,12 @@ body {
 
 /* 파인 테두리(위·왼쪽 어둡게) — .ah-date, .hmi-led-input과 같은 방식 */
 .hmi-umodal-input {
-  height: 26px;
-  padding: 0 6px;
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
   background: #ffffff;
+  transition: border-color .12s, box-shadow .12s;
   color: var(--hmi-text);
   font-family: inherit;
   font-size: 12.5px;
@@ -1276,7 +1410,8 @@ body {
 }
 
 .hmi-umodal-input:focus {
-  box-shadow: inset 0 0 0 1px var(--hmi-blue-edge);
+  border-color: var(--hmi-blue-edge);
+  box-shadow: 0 0 0 3px rgba(30, 95, 168, .16);
 }
 
 .hmi-umodal-roles {
@@ -1296,15 +1431,131 @@ body {
 
 .hmi-umodal-roles input {
   cursor: pointer;
-  accent-color: var(--hmi-navy);
+  accent-color: var(--hmi-blue-edge);
+}
+
+/* ── 화면별 권한 격자 ──
+   화면 이름 한 칸 + 없음/조회/제어 세 칸. 조회 전용 화면은 '제어' 자리를 빈칸으로
+   남기므로(ScreenAuthGrid 참고) 세 칸을 등분으로 두어 줄마다 열이 어긋나지 않게 한다. */
+.hmi-authgrid {
+  margin-top: 4px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.hmi-authgrid-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--hmi-light);
+  background: var(--hmi-panel-dark);
+}
+
+.hmi-authgrid-caption {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--hmi-text);
+}
+
+/* 8줄을 하나씩 누르는 일이 잦아서 둔 일괄 지정 */
+.hmi-authgrid-presets {
+  display: flex;
+  gap: 4px;
+}
+
+.hmi-authgrid-preset {
+  padding: 3px 7px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 6px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--hmi-text-sub);
+  cursor: pointer;
+}
+
+.hmi-authgrid-preset:hover:not(:disabled) {
+  border-color: var(--hmi-blue-edge);
+  color: var(--hmi-blue-edge);
+}
+
+.hmi-authgrid-preset:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.hmi-authgrid-note {
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--hmi-light);
+  background: #f1f6fc;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--hmi-blue-edge);
+}
+
+.hmi-authgrid-row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 4px 9px;
+}
+
+.hmi-authgrid-row + .hmi-authgrid-row {
+  border-top: 1px solid #eef2f6;
+}
+
+.hmi-authgrid-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--hmi-text);
+}
+
+.hmi-authgrid-opts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.hmi-authgrid-opt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text);
+  cursor: pointer;
+}
+
+.hmi-authgrid-opt input {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--hmi-blue-edge);
+}
+
+/* 관리자를 고르면 격자 전체가 잠긴다. 잠긴 것을 라벨 색으로도 알려야 하는데,
+   :has()는 이 현장 PC의 크롬 버전을 장담할 수 없어서 클래스를 위에서 내려 준다. */
+.hmi-authgrid.is-disabled .hmi-authgrid-opt {
+  color: var(--hmi-text-faint);
+  cursor: default;
+}
+
+.hmi-authgrid-opt input:disabled {
+  cursor: not-allowed;
 }
 
 /* 등록 실패·입력 오류 안내 — .ah-error와 같은 톤 */
 .hmi-umodal-error {
-  padding: 4px 8px;
-  border: 1px solid #b03030;
-  background: #ffe6e6;
-  color: #a01818;
+  padding: 7px 10px;
+  border: 1px solid #e0837a;
+  border-radius: 7px;
+  background: #fdeae8;
+  color: #a3271b;
   font-size: 12px;
   font-weight: 700;
 }
@@ -1313,134 +1564,280 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hmi-light);
 }
 
-/* ===== 로그인 화면 ======================================================== */
+/* ===== 로그인 화면 — 글래스 콘솔 (리뉴얼 1단계) ===========================
+
+   짙은 청색 그라디언트 위에 반투명 서리 유리 카드를 띄운다.
+
+   두 가지 규칙을 지킨다:
+   1) blur는 큰 면에만 — 여기서는 카드 하나뿐이다. 램프·값 칸처럼 개수가 많은
+      요소에 backdrop-filter를 걸면 폴링이 붙는 순간 산업용 PC에서 버벅인다.
+   2) 읽어야 하는 것은 불투명하게 — 입력칸 글자와 오류 안내는 반투명 위에
+      얹지 않는다. HMI에서 대비는 취향이 아니라 안전이다.
+
+   토큰을 .hmi-login에만 걸어 두었다. 2단계(공용 크롬)에서 .hmi-root로 올린다. */
 
 .hmi-login {
+  /* 유리 토큰 */
+  --g-ink: #eaf0f8;
+  --g-muted: #9aa8bd;
+  --g-accent: #5eb7ff;
+  --g-accent-ink: #06121f;
+  --g-glass: rgba(255, 255, 255, .07);
+  --g-glass-line: rgba(255, 255, 255, .16);
+  --g-field: #16203a;
+  --g-field-line: rgba(255, 255, 255, .14);
+
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  color: var(--g-ink);
+  position: relative;
+  overflow: hidden;
+  /* 워터마크가 mix-blend-mode로 합성되므로, 합성 대상을 이 화면 안으로 가둔다.
+     없으면 바깥 스택 문맥의 배경까지 끌어들여 색이 엉킨다. */
+  isolation: isolate;
+
+  /* 설비 그림을 넣어 봤지만 아이콘 투가 나서 도면이 아니라 낙서로 읽혔다.
+     대신 계장 도면의 모눈만 남긴다 — 형태가 없으니 유치해질 여지가 없고,
+     빈 그라디언트에 결이 생겨 카드가 놓일 자리가 잡힌다.
+
+     겹 순서(위에서 아래로): 가는 모눈 → 굵은 모눈 → 바탕 그라디언트.
+     선을 rgba로 두어 아래 그라디언트 색이 그대로 배어 나오게 한다. */
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(0, 0, 0, .06)),
-    var(--hmi-bg);
+    linear-gradient(rgba(255, 255, 255, .028) 1px, transparent 1px) 0 0 / 100% 32px,
+    linear-gradient(90deg, rgba(255, 255, 255, .028) 1px, transparent 1px) 0 0 / 32px 100%,
+    linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px) 0 0 / 100% 160px,
+    linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px) 0 0 / 160px 100%,
+    radial-gradient(120% 90% at 15% 0%, #2b3f63 0%, #131a2a 55%, #0d1220 100%);
 }
 
-.hmi-login-box {
-  width: 100%;
-  max-width: 380px;
-  padding: 3px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  background: var(--hmi-panel);
-  box-shadow: 0 12px 34px -10px rgba(0, 0, 0, .5);
-}
-
-.hmi-login-titlebar {
-  height: 42px;
+/* ===== 로그인 배경 워터마크 — 회사 홈페이지의 인발 공정 8단계 ==============
+   홈페이지 이미지는 밝은 회색 배경 위의 무채색 렌더라, 남색 위에 그대로 얹으면
+   밝은 사각형 8개가 뜬다. 그래서 반전 후 screen으로 합성한다:
+     흰 배경 → 검정 → screen에서 사라지고,
+     어두운 외곽선 → 흰 선 → 옅게 남는다.
+   결과가 배경 모눈과 같은 청사진 선화라, 위에 얹은 그림이 아니라 배경의 일부로 읽힌다. */
+.hmi-login-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #14477f;
-  border-radius: 4px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg,
-      var(--hmi-blue-edge) 0%,
-      var(--hmi-blue-mid) 25%,
-      var(--hmi-blue-light) 50%,
-      var(--hmi-blue-mid) 75%,
-      var(--hmi-blue-edge) 100%);
-  color: #ffffff;
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 6px;
-  text-indent: 6px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
+  gap: clamp(6px, 1.5vw, 32px);
+  padding: 0 clamp(10px, 3vw, 64px);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  /* contrast를 함께 올린다. opacity만 키우면 렌더의 중간 회색까지 같이 떠올라
+     선이 굵어지는 대신 전체가 뿌옇게 밝아진다. */
+  filter: grayscale(1) invert(1) contrast(1.35);
+  opacity: .50;
+}
+
+/* flex-basis 0 + grow 1로 8칸을 정확히 등분한다. 이미지 원본 비율은 contain이 지킨다.
+   폭을 이미지가 정하게 두면 8장이 화면을 넘겨서 양끝이 잘린다. */
+.hmi-login-watermark img {
+  flex: 1 1 0;
+  min-width: 0;
+  height: clamp(64px, 19vh, 190px);
+  object-fit: contain;
+}
+
+/* 세로가 짧으면 카드와 겹쳐서 글자가 읽히지 않는다 — 배경보다 로그인이 먼저다. */
+@media (max-height: 520px) {
+  .hmi-login-watermark {
+    display: none;
+  }
+}
+
+/* 모눈이 화면 끝까지 곧게 가면 종이처럼 딱딱해서, 네 귀퉁이를 어둡게 눌러 준다 */
+.hmi-login::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(75% 60% at 50% 45%, transparent 0%, rgba(6, 10, 18, .55) 100%);
+}
+
+/* 카드 — 이 화면에서 blur가 걸리는 유일한 요소다.
+   ::after 비네트는 부모의 마지막 자식처럼 그려지므로, 층을 올려두지 않으면
+   카드 위에도 어둡게 덮인다. */
+.hmi-login-box {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 380px;
+  padding: 14px 14px 16px;
+  border: 1px solid var(--g-glass-line);
+  border-radius: 14px;
+  background: var(--g-glass);
+  backdrop-filter: blur(12px) saturate(120%);
+  box-shadow: 0 18px 44px -16px rgba(0, 0, 0, .65);
+}
+
+/* 로고는 흰 바탕이 있어야 읽히므로 유리 안의 '브랜드 판'으로 남긴다 */
+.hmi-logo--login {
+  width: 100%;
+  height: 60px;
+  padding: 9px 16px;
+  margin-bottom: 16px;
+  border: none;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+/* 파란 제목바를 빼고 조용한 머리글로 — 유리 위에서는 채운 색 띠가 층 구조를 깨뜨린다 */
+.hmi-login-titlebar {
+  height: auto;
+  display: block;
+  margin-bottom: 14px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--g-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-indent: 0;
+  text-shadow: none;
 }
 
 .hmi-login-body {
-  padding: 22px 22px 18px;
+  padding: 0;
 }
 
+/* 라벨을 칸 위로 올린다 — 좌우 배치는 라벨 폭(74px)이 카드 안을 좁게 만든다 */
 .hmi-login-field {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
   margin-bottom: 12px;
 }
 
 .hmi-login-field label {
-  width: 74px;
+  width: auto;
   flex-shrink: 0;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--g-muted);
 }
 
+/* 입력칸은 불투명하다 — 뒤 그라디언트가 비치면 글자 대비가 위치에 따라 흔들린다 */
 .hmi-login-field input {
-  flex: 1;
+  flex: none;
   min-width: 0;
-  padding: 7px 9px;
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
-  background: #ffffff;
+  padding: 9px 11px;
+  border: 1px solid var(--g-field-line);
+  border-radius: 9px;
+  background: var(--g-field);
+  color: var(--g-ink);
+  font-family: inherit;
   font-size: 14px;
   outline: none;
+  /* .hmi-root가 화면 전체에 user-select: none을 걸어둬서 여기만 다시 켠다 */
+  user-select: text;
 }
 
 .hmi-login-field input:focus {
-  background: #fffde8;
+  border-color: var(--g-accent);
+  box-shadow: 0 0 0 3px rgba(94, 183, 255, .22);
 }
 
+/* 브라우저 자동완성이 칸을 흰색으로 덮어 글자가 사라지는 것을 막는다 */
+.hmi-login-field input:-webkit-autofill,
+.hmi-login-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--g-ink);
+  -webkit-box-shadow: 0 0 0 1000px var(--g-field) inset;
+  caret-color: var(--g-ink);
+}
+
+/* 오류는 반투명으로 두지 않는다 — 실패 사유를 못 읽으면 로그인을 못 한다 */
 .hmi-login-error {
   margin-bottom: 12px;
-  padding: 7px 10px;
-  border: 1px solid #b03030;
-  background: #ffe6e6;
-  color: #a01818;
+  padding: 8px 11px;
+  border: 1px solid #e0655a;
+  border-radius: 9px;
+  background: #48201d;
+  color: #ffd4cf;
   font-size: 12px;
   font-weight: 600;
 }
 
+/* .hmi-btn의 입체 테두리를 이 화면에서만 덮는다 */
 .hmi-login-submit {
   width: 100%;
-  padding: 10px;
-  font-size: 15px;
-  letter-spacing: 3px;
+  margin-top: 4px;
+  padding: 11px;
+  border: none;
+  border-radius: 9px;
+  background: var(--g-accent);
+  color: var(--g-accent-ink);
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  transition: filter .12s;
+}
+
+.hmi-login-submit:hover:not(:disabled) {
+  background: var(--g-accent);
+  filter: brightness(1.08);
+}
+
+.hmi-login-submit:active:not(:disabled) {
+  border: none;
+  filter: brightness(.94);
+}
+
+.hmi-login-submit:disabled {
+  background: rgba(255, 255, 255, .14);
+  color: var(--g-muted);
 }
 
 .hmi-login-foot {
   margin-top: 14px;
   text-align: center;
-  font-size: 11.5px;
-  color: var(--hmi-text-faint);
+  font-size: 11px;
+  color: var(--g-muted);
 }
 
 /* ===== 스크롤바 ========================================================== */
 
+/* 손잡이만 보이는 얇은 스크롤바. 예전에는 15px 폭에 입체 테두리 손잡이였다.
+   투명 테두리 + background-clip으로 손잡이 주위에 여백을 만들어 알약 모양이 된다. */
 .hmi-root ::-webkit-scrollbar {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
 }
 
 .hmi-root ::-webkit-scrollbar-track {
-  background: #efefef;
-  border: 1px solid #cfcfcf;
+  background: transparent;
 }
 
 .hmi-root ::-webkit-scrollbar-thumb {
-  background: var(--hmi-panel);
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
+  background: var(--hmi-shadow-dark);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 8px;
+}
+
+.hmi-root ::-webkit-scrollbar-thumb:hover {
+  background: var(--hmi-text-sub);
+  background-clip: content-box;
+}
+
+/* 크롬(어두운 바탕) 쪽에서는 손잡이도 밝은 쪽으로 뒤집는다 */
+.hmi-mainmenu::-webkit-scrollbar-thumb,
+.hmi-menu::-webkit-scrollbar-thumb {
+  background: var(--g-glass-line);
+  background-clip: content-box;
 }
 
 /* ===== 좁은 화면 ========================================================= */

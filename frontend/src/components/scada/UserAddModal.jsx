@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { insertUser } from '../../api/scada/scadaUserApi';
+import ScreenAuthGrid, { defaultScreenAuth, pickScreenAuth } from './ScreenAuthGrid';
 
 /* ===========================================================================
    사용자 추가 모달 — scada_user 1행을 만든다.
@@ -18,7 +19,10 @@ const ROLES = [
   { value: '1', label: '관리자' },
 ];
 
-const EMPTY = { userId: '', userPassword: '', passwordConfirm: '', userName: '', userRole: '2' };
+const EMPTY = {
+  userId: '', userPassword: '', passwordConfirm: '', userName: '', userRole: '2',
+  ...defaultScreenAuth(),
+};
 
 /**
  * @param onClose  닫기(취소·성공 후 모두 이걸로 닫는다)
@@ -43,6 +47,12 @@ export default function UserAddModal({ onClose, onCreated }) {
     setError('');
   };
 
+  // 권한 격자는 값(숫자)을 직접 준다 — 이벤트를 거치지 않는다.
+  const setAuth = (field, level) => setForm((prev) => ({ ...prev, [field]: level }));
+
+  // 관리자는 전 화면 제어라 격자를 고를 이유가 없다. 값은 그대로 보이되 잠근다.
+  const isAdminRole = form.userRole === '1';
+
   /* 보내기 전에 걸러낸다 — 서버도 검증하겠지만, 왕복 없이 바로 알려주는 게 낫다.
      아이디는 로그인에 쓰는 값이라 공백을 털어내고, 비밀번호는 앞뒤 공백도 의도일
      수 있으므로 그대로 보낸다. */
@@ -66,11 +76,14 @@ export default function UserAddModal({ onClose, onCreated }) {
       return;
     }
 
+    /* pickScreenAuth로 권한 8개만 걸러 담는다 — 폼에만 있는 passwordConfirm 같은 값이
+       섞여 나가지 않고, 화면이 감당 못 하는 레벨(조회 화면의 제어)도 여기서 잘린다. */
     const payload = {
       userId: form.userId.trim(),
       userPassword: form.userPassword,
       userName: form.userName.trim(),
       userRole: form.userRole,
+      ...pickScreenAuth(form),
     };
 
     setSubmitting(true);
@@ -170,12 +183,20 @@ export default function UserAddModal({ onClose, onCreated }) {
             </div>
           </div>
 
+          <ScreenAuthGrid
+            idPrefix="ua"
+            value={form}
+            onChange={setAuth}
+            disabled={isAdminRole || submitting}
+            note={isAdminRole ? '관리자는 모든 화면을 제어할 수 있습니다.' : undefined}
+          />
+
           {error && <div className="hmi-umodal-error">{error}</div>}
         </div>
 
         <div className="hmi-umodal-foot">
           {/* 등록 중에는 둘 다 막는다 — 같은 사용자를 두 번 넣거나, 결과를 못 보고 닫는 일 방지 */}
-          <button type="submit" className="hmi-btn" disabled={submitting}>
+          <button type="submit" className="hmi-btn is-primary" disabled={submitting}>
             {submitting ? '등록 중...' : '등록'}
           </button>
           <button

@@ -91,9 +91,16 @@ export default function AlarmPage() {
 
   return (
     <div className="al-page">
-      <div className="al-grid">{cells}</div>
+      <div className="al-grid">
+        {cells}
 
-      <div className="al-actions">
+        {/* 마지막 한 줄 — 앞 8칸은 빈 박스, 오른쪽 두 칸이 조작 버튼이다.
+            격자 밖에 따로 두면 그 줄만 높이가 달라지므로 같은 격자 안에 넣는다
+            (grid-auto-rows: 1fr이 11개 줄을 같은 높이로 맞춘다).
+            빈 칸을 실제로 그리기 때문에 좁은 화면에서 열 수가 줄어도 버튼은 줄 끝에 남는다. */}
+        {Array.from({ length: COLUMNS.length - 2 }, (_, i) => (
+          <div key={`action-empty-${i}`} className="al-cell is-empty" />
+        ))}
         <button type="button" className="al-action">ALARM RESET</button>
         <button type="button" className="al-action">HORN STOP</button>
       </div>

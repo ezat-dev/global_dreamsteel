@@ -69,7 +69,15 @@
             user_password = #{userPassword},
             user_name = #{userName},
             user_role = #{userRole},
-            delete_yn = #{deleteYn}
+            delete_yn = #{deleteYn},
+            auth_drive = #{authDrive},
+            auth_combustion = #{authCombustion},
+            auth_temp = #{authTemp},
+            auth_atmosphere = #{authAtmosphere},
+            auth_cooling = #{authCooling},
+            auth_alarm = #{authAlarm},
+            auth_trend = #{authTrend},
+            auth_alarm_hist = #{authAlarmHist}
         WHERE id = #{id}
     </update>
 

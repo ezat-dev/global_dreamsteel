@@ -63,18 +63,21 @@ export default function ZoneBurnerModal({ zone, burners, onClose }) {
             return (
               <div className="cb-zmodal-row" key={b.no}>
                 <span className="cb-zmodal-name">{`${zone}-${b.no} ZONE(${b.side})`}</span>
+                {/* 두 칸 다 램프다(연소화면 본판과 같은 .hmi-lampbox).
+                    타고 있으면 ON이 초록, 꺼져 있으면 OFF가 빨강으로 켜진다. */}
                 <span className="cb-onoff cb-zmodal-state">
-                  <b className={on ? 'is-on' : ''}>연소 ON</b>
-                  <b className={on ? '' : 'is-on'}>연소 OFF</b>
+                  <b className={`hmi-lampbox${on ? ' is-on' : ''}`}>연소 ON</b>
+                  <b className={`hmi-lampbox${on ? '' : ' is-alarm'}`}>연소 OFF</b>
                 </span>
               </div>
             );
           })}
 
-          {/* 존 단위 퍼지 — 위 4줄과 달리 조작이라 버튼이다 */}
-          <div className="cb-zmodal-row cb-zmodal-row--purge">
+          {/* 존 단위 퍼지 — 위 4줄과 달리 조작이라 버튼이다.
+              PLC 쓰기 API가 없어 아직 disabled고, 연동되면 disabled만 풀면 된다. */}
+          <div className="cb-zmodal-row">
             <span className="cb-zmodal-name">{`${zone}ZONE PURGE`}</span>
-            <button type="button" className="cb-action-btn" disabled>PURGE 시작</button>
+            <button type="button" className="cb-zmodal-purge" disabled>PURGE 시작</button>
           </div>
         </div>
       </div>

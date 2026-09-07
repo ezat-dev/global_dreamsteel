@@ -35,17 +35,16 @@
   color: var(--hmi-text-sub);
 }
 
-/* 입력 칸은 파인 테두리(위·왼쪽 어둡게), 버튼은 솟은 테두리(위·왼쪽 밝게) —
-   scada.css의 .hmi-led-input / .hmi-pad-key와 같은 방식이다. */
+/* 한 겹 선 + 라운드, 포커스는 링으로 알린다 — scada.css의 .hmi-umodal-input과 같다.
+   이 테마는 트렌드·로그 화면도 같이 쓴다(세 화면 모두 calendarClassName: 'ah-cal'). */
 .ah-date {
   width: 170px;
   height: 26px;
   padding: 0 5px;
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
   background: #ffffff;
+  transition: border-color .12s, box-shadow .12s;
   color: var(--hmi-text);
   font-family: inherit;
   font-size: 12.5px;
@@ -57,7 +56,8 @@
 }
 
 .ah-date:focus {
-  box-shadow: inset 0 0 0 1px var(--hmi-blue-edge);
+  border-color: var(--hmi-blue-edge);
+  box-shadow: 0 0 0 3px rgba(30, 95, 168, .16);
 }
 
 /* DatePicker가 input을 wrapper 두 겹으로 감싸는데, 기본값이 inline-block이라
@@ -76,8 +76,8 @@
 
 .ah-filter .react-datepicker__close-icon::after {
   padding: 0;
-  border-radius: 0;
-  background: var(--hmi-shadow);
+  border-radius: 50%;
+  background: var(--hmi-shadow-dark);
   color: #ffffff;
   font-size: 14px;
   line-height: 15px;
@@ -86,10 +86,10 @@
 }
 
 .ah-filter .react-datepicker__close-icon:hover::after {
-  background: var(--hmi-lamp-alarm);
+  background: #dc2626;
 }
 
-/* ===== 달력 팝업 — 라이브러리 기본 테마를 HMI 패널 톤으로 덮어쓴다 ==========
+/* ===== 달력 팝업 — 라이브러리 기본 테마를 프로젝트 톤으로 덮어쓴다 ==========
    선택자에 .ah-cal(calendarClassName)을 붙여 이 화면 밖으로는 안 새게 한다.
    기본 CSS는 AlarmHistPage.jsx에서 이 파일보다 먼저 import한다. */
 
@@ -104,13 +104,11 @@
 }
 
 .ah-cal.react-datepicker {
-  border-radius: 0;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
+  border-radius: 12px;
+  border: 1px solid var(--hmi-shadow-dark);
   background: var(--hmi-panel);
-  box-shadow: 0 10px 26px -8px rgba(0, 0, 0, .6);
+  box-shadow: 0 16px 40px -12px rgba(10, 20, 35, .5);
+  overflow: hidden;
   font-family: inherit;
   font-size: 12px;
   color: var(--hmi-text);
@@ -119,28 +117,26 @@
 /* 월 이름 줄 + 요일 줄 — .hmi-pad-title과 같은 파란 제목바 */
 .ah-cal .react-datepicker__header {
   border-radius: 0;
-  border-bottom: 1px solid var(--hmi-shadow);
-  background: var(--hmi-panel);
-  padding-top: 6px;
+  border-bottom: 1px solid var(--hmi-light);
+  background: var(--hmi-panel-dark);
+  padding-top: 8px;
 }
 
+/* 파란 그라디언트 띠를 걷어냈다 — 달력의 주인공은 날짜 칸이지 제목이 아니다 */
 .ah-cal .react-datepicker__current-month,
 .ah-cal .react-datepicker-time__header {
-  margin: 0 4px 5px;
-  padding: 3px 6px;
-  border: 1px solid #14477f;
-  color: #ffffff;
-  font-size: 11.5px;
-  font-weight: 800;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .35) 0%, rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, .14) 100%),
-    linear-gradient(90deg, var(--hmi-blue-edge) 0%, var(--hmi-blue-light) 50%, var(--hmi-blue-edge) 100%);
+  margin: 0 4px 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--hmi-text);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* ===== 연·월 드롭다운 =====================================================
    showYearDropdown / showMonthDropdown이 제목바 아래에 붙이는 select 두 개.
-   기본 스타일이 흰 네모라 파란 제목바 위에서 튀어서, 파인 테두리로 눌러 앉힌다. */
+   기본 스타일이 헐렁하게 틀어져서 다른 입력칸과 같은 한 겹 선으로 맞춰 둔다. */
 
 .ah-cal .react-datepicker__header__dropdown {
   display: flex;
@@ -166,12 +162,9 @@
 
 .ah-cal .react-datepicker__month-select,
 .ah-cal .react-datepicker__year-select {
-  padding: 1px 2px;
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
-  border-radius: 0;
+  padding: 2px 4px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 6px;
   background: #ffffff;
   color: var(--hmi-text);
   font-family: inherit;
@@ -202,15 +195,15 @@
 
 .ah-cal .react-datepicker__day {
   width: 26px;
-  line-height: 22px;
+  line-height: 24px;
   margin: 1px;
-  border-radius: 0;
+  border-radius: 7px;
   color: var(--hmi-text);
   font-variant-numeric: tabular-nums;
 }
 
 .ah-cal .react-datepicker__day:hover {
-  border-radius: 0;
+  border-radius: 7px;
   background: var(--hmi-panel-dark);
 }
 
@@ -220,21 +213,21 @@
 
 /* 오늘 날짜는 테두리로만 표시해서 '선택됨'과 헷갈리지 않게 */
 .ah-cal .react-datepicker__day--today {
-  font-weight: 800;
-  box-shadow: inset 0 0 0 1px var(--hmi-shadow);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--hmi-shadow-dark);
 }
 
 .ah-cal .react-datepicker__day--selected,
 .ah-cal .react-datepicker__day--keyboard-selected {
-  border-radius: 0;
-  background: var(--hmi-navy);
+  border-radius: 7px;
+  background: var(--hmi-blue-edge);
   color: #ffffff;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 /* minDate/maxDate 밖이라 못 고르는 날 */
 .ah-cal .react-datepicker__day--disabled {
-  color: #b0b0b0;
+  color: var(--hmi-shadow-dark);
 }
 
 .ah-cal .react-datepicker__day--disabled:hover {
@@ -246,8 +239,9 @@
   top: 8px;
 }
 
+/* 제목바가 흰 바탕이 되었으니 화살표도 진한 색으로 바꾼다 */
 .ah-cal .react-datepicker__navigation-icon::before {
-  border-color: #ffffff;
+  border-color: var(--hmi-text-sub);
   border-width: 2px 2px 0 0;
   width: 7px;
   height: 7px;
@@ -257,8 +251,8 @@
 
 .ah-cal .react-datepicker__time-container,
 .ah-cal .react-datepicker__time-container .react-datepicker__time-box {
-  width: 82px;
-  border-left-color: var(--hmi-shadow);
+  width: 86px;
+  border-left-color: var(--hmi-light);
 }
 
 .ah-cal .react-datepicker__time-container .react-datepicker__time {
@@ -275,41 +269,39 @@
 }
 
 .ah-cal .react-datepicker__time-list-item--selected {
-  background: var(--hmi-navy) !important;
+  background: var(--hmi-blue-edge) !important;
   color: #ffffff !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
 }
 
+/* 이 줄에서 지금 눌러야 하는 버튼이라 채운다(.hmi-btn.is-primary와 같은 방식) */
 .ah-btn {
   height: 26px;
   padding: 0 16px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
-  background: linear-gradient(180deg, #f0f0f0 0%, var(--hmi-panel) 100%);
-  color: var(--hmi-text);
+  border: 1px solid var(--hmi-blue-edge);
+  border-radius: 7px;
+  background: var(--hmi-blue-edge);
+  color: #ffffff;
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
+  transition: background .12s;
 }
 
-.ah-btn:hover {
-  background: #e8e8e8;
+.ah-btn:hover:not(:disabled) {
+  background: #1a538f;
 }
 
-.ah-btn:active {
-  border-top-color: var(--hmi-shadow);
-  border-left-color: var(--hmi-shadow);
-  border-right-color: var(--hmi-light);
-  border-bottom-color: var(--hmi-light);
+.ah-btn:active:not(:disabled) {
+  background: #17497e;
 }
 
 /* 조회 중에는 같은 조건으로 두 번 보내지 못하게 막아 둔다 */
 .ah-btn:disabled {
-  color: var(--hmi-text-faint);
+  border-color: var(--hmi-light);
   background: var(--hmi-panel-dark);
+  color: var(--hmi-text-faint);
   cursor: not-allowed;
 }
 
@@ -323,9 +315,10 @@
 /* 조회 실패 안내 — 표가 비어 있는 이유를 알 수 있게 */
 .ah-error {
   padding: 3px 10px;
-  border: 1px solid #b03030;
-  background: #ffe6e6;
-  color: #a01818;
+  border: 1px solid #e0837a;
+  border-radius: 7px;
+  background: #fdeae8;
+  color: #a3271b;
   font-size: 12px;
   font-weight: 700;
 }

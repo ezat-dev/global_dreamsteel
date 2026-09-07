@@ -6,12 +6,14 @@
    작화 쪽 클래스(.combustion, .pipe*, .for-*, .rev-*, .zon-box*)는 건드리지 않는다.
    =========================================================================== */
 
+/* 여백·간격을 최소로 둔다 — 여기서 아낀 세로가 그대로 그림 높이로 간다
+   (.cb-stage가 남는 세로를 전부 차지하고, 그 높이로 배율이 정해진다). */
 .cb-page {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px;
+  gap: 3px;
+  padding: 2px;
   /* 그림을 줄여 넣는 화면이라 스크롤이 생기면 안 된다. */
   overflow: hidden;
 }
@@ -45,7 +47,9 @@
 .cb-zonebar {
   flex-shrink: 0;
   position: relative;
-  height: 104px;
+  /* 안쪽 .cb-burn이 [이름표 / 연소 램프 2줄 / 개별연소 버튼]을 세로로 쌓는데,
+     이보다 낮추면 램프가 눌린다. */
+  height: 106px;
 }
 
 /* 그림과 오버레이를 함께 내리는 껍데기. 작화에 y가 음수인 조각(pipe135, y -39~0)이
@@ -78,40 +82,39 @@
 
 /* ===== 설비 제목판 ====================================================== */
 
+/* 설비 이름표 — 광택 띠에서 납작한 칩으로 바꿨다.
+   색이 뜻을 지고 있어(가스=노랑, 공기=파랑) 색조는 남기고 채도만 낮췄다. */
 .cb-plate {
   position: absolute;
   display: block;
-  padding: 3px 8px;
-  border: 2px solid #ffffff;
-  color: #ffffff;
+  padding: 3px 9px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 6px;
+  background: var(--hmi-panel);
+  color: var(--hmi-text);
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   font-style: normal;
   text-align: center;
   white-space: nowrap;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
 }
 
+/* 가스 계열 — 작화의 노란 배관과 짝이 맞는다 */
 .cb-plate--gas {
-  background: linear-gradient(180deg, #ffd24d 0%, #ffb400 50%, #e08e00 100%);
-  color: #101010;
-  text-shadow: none;
+  border-color: #d9a521;
+  background: #fdf1cf;
 }
 
+/* 공기·블로워 계열 */
 .cb-plate--blue {
-  background: linear-gradient(180deg, #8ecdf5 0%, #4b9fe0 55%, #1e5fa8 100%);
+  border-color: #6ba3d8;
+  background: #dcebfa;
 }
 
-/* 존 이름표·개별연소 이름표 — 회색 금속판 */
+/* 존 이름표·개별연소 이름표 */
 .cb-plate--zone {
   position: relative;
-  border-color: var(--hmi-light);
-  border-right-color: var(--hmi-shadow);
-  border-bottom-color: var(--hmi-shadow);
-  background: linear-gradient(180deg, #fbfbfb 0%, var(--hmi-panel) 55%, #c2c2c2 100%);
-  color: var(--hmi-text);
   font-size: 14px;
-  text-shadow: none;
 }
 
 /* .cb-overlay > * 가 absolute를 걸어주는 자리에 놓이는 이름표만 다시 absolute */
@@ -121,17 +124,11 @@
 
 .cb-plate--action {
   position: relative;
-  border-color: var(--hmi-light);
-  border-right-color: var(--hmi-shadow);
-  border-bottom-color: var(--hmi-shadow);
-  background: linear-gradient(180deg, #fbfbfb 0%, var(--hmi-panel) 55%, #c2c2c2 100%);
-  color: var(--hmi-text);
-  text-shadow: none;
 }
 
-/* ===== ON/OFF · OPEN/CLOSE 상태 글씨 ==================================== */
+/* ===== ON/OFF · OPEN/CLOSE 짝 ========================================== */
 
-/* 조작 버튼이 아니라 PLC 상태 표시다. 걸린 쪽만 진하게 남기고 반대쪽은 죽인다. */
+/* 조작 버튼이 아니라 PLC 상태 표시다. 두 칸이 폭을 반씩 나눠 갖는다. */
 .cb-onoff {
   position: absolute;
   display: flex;
@@ -148,27 +145,26 @@
   flex-direction: column;
   gap: 4px;
   padding: 4px 0 6px;
-  background: linear-gradient(180deg, #dcefff 0%, #b7dcff 100%);
-  border: 1px solid #7fb6e8;
+  /* 위쪽 테두리가 없어(제목판에 붙는다) 아래 두 각만 둥글게 */
+  border-radius: 0 0 6px 6px;
+  background: #dcebfa;
+  border: 1px solid #6ba3d8;
   border-top: none;
 }
 
+/* 두 램프가 칸을 반씩 나눠 갖는다(사진처럼 좌우 폭이 같다) */
 .cb-onoff b {
-  color: rgba(70, 70, 70, .4);
-  text-align: center;
-  line-height: 1.15;
-}
-
-.cb-onoff b.is-on {
-  color: #101010;
+  flex: 1;
+  min-width: 0;
 }
 
 /* ===== 배관 상태 글씨 =================================================== */
 
+/* 배관 부속 상태 — 글씨가 아니라 램프다(.hmi-lampbox를 같이 붙인다).
+   배관 사이 좁은 자리에 끼어 있어 .hmi-lampbox 기본 여백보다 바짝 좁힌다. */
 .cb-pipe-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--hmi-text);
+  padding: 1px 4px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
@@ -214,10 +210,8 @@
   flex: 1;
   min-width: 0;
   padding: 2px 4px;
-  border-top: 2px solid var(--hmi-shadow-dark);
-  border-left: 2px solid var(--hmi-shadow-dark);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
+  border-radius: 5px;
+  border: 1px solid var(--hmi-shadow-dark);
   font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
   font-size: 14px;
   font-weight: 700;
@@ -226,12 +220,15 @@
   color: #101010;
 }
 
+/* PV는 주황, SV는 파랑 — 색조는 남기고 광택만 걷어냈다 */
 .cb-val.is-pv {
-  background: linear-gradient(180deg, #ffb35c 0%, #ff8c00 100%);
+  border-color: #d97706;
+  background: #fde9c8;
 }
 
 .cb-val.is-sv {
-  background: linear-gradient(180deg, #7cc3ff 0%, #2a8fe0 100%);
+  border-color: #2a7fd0;
+  background: #d8eafc;
 }
 
 /* SV는 표시칸이 아니라 입력 부품(LedInput)이다. 기본 LED 모양(검은 바탕 + 빨간 숫자)을
@@ -244,12 +241,8 @@
 .cb-val-row .hmi-led-input {
   width: 100%;
   padding: 2px 4px;
-  border-width: 2px;
-  border-top-color: var(--hmi-shadow-dark);
-  border-left-color: var(--hmi-shadow-dark);
-  border-right-color: var(--hmi-light);
-  border-bottom-color: var(--hmi-light);
-  background: linear-gradient(180deg, #7cc3ff 0%, #2a8fe0 100%);
+  border-color: #2a7fd0;
+  background: #d8eafc;
   color: #101010;
   font-size: 14px;
   letter-spacing: 0;
@@ -274,6 +267,7 @@
 /* 존 하나의 개별연소 판. left(%)와 width는 CombustionPage.jsx가 인라인으로 넣는다. */
 .cb-burn {
   position: absolute;
+  border-radius: 8px;
   top: 0;
   bottom: 0;
   transform: translateX(-50%);
@@ -283,11 +277,9 @@
   justify-content: space-between;
   gap: 4px;
   padding: 4px 5px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
+  border: 1px solid var(--hmi-light);
   background: var(--hmi-panel);
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .16);
 }
 
 /* 판 안의 ON/OFF는 흐름 배치라 absolute를 풀어준다 */
@@ -339,21 +331,22 @@
 
 .cb-zmodal {
   width: 470px;
-  border: 2px solid #e08a2a;
-  background: linear-gradient(180deg, #f6e0cb 0%, #fdf7f2 45%, #f6ddc6 100%);
-  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, .6);
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 14px;
+  background: var(--hmi-panel);
+  box-shadow: 0 20px 50px -14px rgba(10, 20, 35, .6);
+  overflow: hidden;
 }
 
 .cb-zmodal-title {
   position: relative;
   padding: 9px 40px;
-  border-bottom: 1px solid #d98420;
-  background: linear-gradient(180deg, #ffc861 0%, #ff9f1c 55%, #f08a00 100%);
-  color: #ffffff;
-  font-size: 22px;
-  font-weight: 800;
+  border-bottom: 1px solid var(--hmi-light);
+  background: var(--hmi-panel-dark);
+  color: var(--hmi-text);
+  font-size: 20px;
+  font-weight: 700;
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
 }
 
 .cb-zmodal-close {
@@ -363,9 +356,10 @@
   transform: translateY(-50%);
   width: 26px;
   height: 26px;
-  border: 1px solid #d98420;
-  background: rgba(255, 255, 255, .25);
-  color: #ffffff;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
+  background: var(--hmi-panel);
+  color: var(--hmi-text-sub);
   font-family: inherit;
   font-size: 14px;
   font-weight: 800;
@@ -373,7 +367,9 @@
 }
 
 .cb-zmodal-close:hover {
-  background: rgba(255, 255, 255, .45);
+  background: #f0d4d0;
+  border-color: #c0392b;
+  color: #a3271b;
 }
 
 .cb-zmodal-body {
@@ -400,32 +396,39 @@
 /* .cb-onoff의 absolute를 풀고 이 줄 안에서 흐르게 한다 */
 .cb-zmodal-state {
   position: relative;
-  justify-content: space-around;
+  gap: 8px;
+}
+
+/* 본판의 램프보다 크게 — 여기는 조작 화면이라 손가락으로 눌러 확인하는 자리다 */
+.cb-zmodal-state .hmi-lampbox {
+  padding: 14px 6px;
+  border-radius: 4px;
   font-size: 15px;
 }
 
-/* 퍼지 줄은 위 4줄과 성격이 달라(조작) 선으로 나눈다 */
-.cb-zmodal-row--purge {
-  margin-top: 10px;
-  padding-top: 18px;
-  border-top: 1px solid #e3c9ad;
-  justify-items: center;
-}
-
-/* 원본 작화처럼 진한 글씨로 둔다(.cb-action-btn 기본은 흐린 회색).
-   지금은 PLC 쓰기 API가 없어 disabled 상태이고, 연동되면 disabled만 풀면 된다. */
-.cb-zmodal-row--purge .cb-action-btn {
-  padding: 5px 18px;
-  color: #101010;
+/* PURGE 시작 — 사진처럼 두 램프 칸을 합친 폭의 빨간 버튼 */
+.cb-zmodal-purge {
+  width: 100%;
+  padding: 14px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, .4);
+  background: #dc2626;
+  color: #ffffff;
+  font-family: inherit;
   font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: not-allowed;
 }
 
 /* ===== 무대 밖 하단 — 경보 목록 + 조작판 =============================== */
 
 /* 낮게 잡을수록 위 무대가 넓어져 그림이 커진다 — 배율을 묶는 건 가로가 아니라 높이다 */
+/* 조작판(제목판 + 램프 한 줄)이 들어가는 최소 높이.
+   낮게 잡을수록 위 무대가 커진다 — 배율을 묶는 건 가로가 아니라 세로다. */
 .cb-bottom {
   flex-shrink: 0;
-  height: 96px;
+  height: 88px;
   display: flex;
   align-items: stretch;
   gap: 8px;
@@ -434,14 +437,13 @@
 /* 경보 목록 — Tabulator에 height="100%"를 주려면 부모가 확정된 높이를 가져야 하는데,
    .cb-bottom 이 height를 못박고 있어서 여기서는 늘어나기만 하면 된다. */
 .cb-alarm {
+  border-radius: 8px;
+  overflow: hidden;
   flex: 0 0 560px;
   min-width: 0;
   position: relative;
-  border-top: 2px solid var(--hmi-shadow);
-  border-left: 2px solid var(--hmi-shadow);
-  border-right: 2px solid var(--hmi-light);
-  border-bottom: 2px solid var(--hmi-light);
-  background: #ffffff;
+  border: 1px solid var(--hmi-light);
+  background: var(--hmi-panel);
 }
 
 .cb-alarm .hmi-table-wrap,
@@ -465,6 +467,7 @@
 }
 
 .cb-action {
+  border-radius: 8px;
   flex: 1;
   min-width: 0;
   display: flex;
@@ -473,11 +476,9 @@
   justify-content: center;
   gap: 8px;
   padding: 8px 10px;
-  border-top: 2px solid var(--hmi-light);
-  border-left: 2px solid var(--hmi-light);
-  border-right: 2px solid var(--hmi-shadow);
-  border-bottom: 2px solid var(--hmi-shadow);
+  border: 1px solid var(--hmi-light);
   background: var(--hmi-panel);
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .16);
 }
 
 .cb-action .cb-plate--action {
@@ -485,22 +486,43 @@
   max-width: 260px;
 }
 
+/* 램프를 키운 뒤에도 좁은 화면에서 삐져나오지 않게 줄바꿈을 허용한다
+   (ALL PURGE는 항목이 4개라 폭을 가장 많이 쓴다). */
 .cb-action-row {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
   width: 100%;
 }
 
-/* 아직 PLC에 쓰지 않는 버튼 — 사진처럼 흐리게 두어 조작 대상이 아님을 보인다 */
+/* 하단 조작판의 상태 램프(실화·이상·PURGE 단계) — .hmi-lampbox를 같이 붙인다.
+   여기는 화면 맨 아래 넓은 판이라 배관 램프보다 크게 잡는다. */
+.cb-action-lamp {
+  padding: 7px 12px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* 램프·버튼이 판의 남는 폭을 나눠 갖는다 — 항목이 2개인 판(실화/이상)은 크게,
+   4개인 판(ALL PURGE)은 그만큼 좁게 자동으로 잡힌다.
+   고정 크기로 두면 2개짜리 판에 빈 자리가 남는다. */
+.cb-action-row > .cb-action-lamp,
+.cb-action-row > .cb-action-btn {
+  flex: 1 1 auto;
+}
+
+/* RESET만 조작 버튼이다 — 사진처럼 노란 바탕. PLC 쓰기 API가 없어 아직 disabled고,
+   연동되면 disabled만 풀면 된다. */
 .cb-action-btn {
-  padding: 2px 6px;
-  border: none;
-  background: transparent;
-  color: var(--hmi-text-faint);
+  padding: 7px 14px;
+  border-radius: 3px;
+  border: 1px solid #d9a521;
+  background: #fdf1cf;
+  color: #6b4f06;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 800;
   white-space: nowrap;
   cursor: not-allowed;

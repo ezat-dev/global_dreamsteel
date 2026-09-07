@@ -31,12 +31,17 @@ import './CombustionPage.css';
      훨씬 크게 나온다(처음에 2101로 잘못 쟀다). 네 꼭짓점을 변환해서 재야 한다. */
 const DRAW_W = 1279;   // 그림이 실제로 그려지는 폭 (0 ~ 1279)
 const STAGE_W = 1285;  // 얹는 것이 전부 그림 안에 들어와서 그림 폭 그대로 쓴다
-const STAGE_H = 469;   // 그림 아래끝
 
-/* 그림에 y가 음수인 조각이 하나 있다(pipe135, y -39~0). 그대로 두면 위가 잘리므로
-   그림과 오버레이를 통째로 이만큼 내린다. 덕분에 아래 좌표는 전부 작화 원본 기준
-   그대로 쓸 수 있다(작화의 y 0 = 오버레이의 y 0). */
-const DRAW_SHIFT = 39;
+/* 그림 아래끝. 작화 조각 대부분이 transform-origin: 0 0 에 rotate(-180deg)라
+   CSS의 top이 아래쪽 끝이고 실제 자리는 top-height ~ top 이다. 그래서 top만 봐도
+   (469), top+height로 봐도(532) 둘 다 틀리고, 회전을 반영해 재면 475다.
+   짧게 잡으면 아래가 잘리고, 길게 잡으면 그만큼 아래에 빈 띠가 생긴다. */
+const STAGE_H = 475;
+
+/* 예전에는 y가 음수인 조각(pipe135) 때문에 그림 전체를 39px 내려야 했다.
+   지금 작화 CSS에는 음수 top이 하나도 없어서(최소 0) 내릴 필요가 없다 —
+   0이 아니면 그만큼 위쪽에 빈 띠가 생기고 그림은 그만큼 눌린다. */
+const DRAW_SHIFT = 0;
 
 // 무대는 그림만 담는다(개별연소 판은 무대 밖 .cb-zonebar).
 const STAGE_TOTAL_H = DRAW_SHIFT + STAGE_H;
@@ -58,14 +63,18 @@ const STAGE_TOTAL_H = DRAW_SHIFT + STAGE_H;
 const ZONES = [1, 2, 3, 4, 5, 6, 7];
 
 const TOP_CX0 = 199;   // 상단 1존 중심
-const BOT_CX0 = 267;   // 하단 맨 왼쪽 중심
+/* 하단 개도 박스도 상단과 같은 x에 있다(199, 346, … 1081).
+   전에 267로 잡혀 있던 건 잘못 잰 값이다 — rev-* 조각은 transform-origin: 0 0 에
+   rotate(-180deg)가 걸려 있어서, CSS의 left(1115)가 오른쪽 끝이고 실제 가운데는
+   left - width/2 (1081)다. 그래서 글씨가 박스 오른쪽으로 68px(=박스 폭) 밀려 있었다. */
+const BOT_CX0 = TOP_CX0;
 const ZONE_STEP = 147;
 
 const topCx = (n) => TOP_CX0 + (n - 1) * ZONE_STEP;
 const botCx = (n) => BOT_CX0 + (n - 1) * ZONE_STEP;
 
-const PER_TOP = 96;    // 상단 개도 글씨 top (박스 y 92~121 안쪽)
-const PER_BOT = 470;   // 하단 개도 글씨 top (박스 y 466~496 안쪽)
+const PER_TOP = 96;    // 상단 개도 글씨 top (박스 y 91~121 안쪽)
+const PER_BOT = 442;   // 하단 개도 글씨 top (박스 y 437~467 안쪽 — 회전 반영 후 실제 자리)
 
 // 존 박스(y 191~369) 안에서 이름표·PV·SV가 놓이는 높이
 const ZONE_TITLE_TOP = 215;
@@ -78,11 +87,8 @@ const ZONE_BOX_W = 128;   // 존 하나가 쓰는 폭(간격 147보다 좁게 �
 const ZONE_SV_MIN = 0;
 const ZONE_SV_MAX = 1000;
 
-/* 그림 아래(y 469~) — 존 이름표와 개별연소 판.
-   하단 개도 글씨(PER_BOT 470)가 그림 아래끝과 겹치므로 이름표는 그보다 아래에서 시작한다. */
-const NAME_TOP = 490;
-const BURN_TOP = 518;
-const BURN_H = 90;
+/* (존 이름표·개별연소 판의 좌표 상수가 여기 있었는데, 그 판들이 무대 밖 .cb-zonebar로
+   빠지면서 쓰이지 않게 되어 지웠다. 지금 위치는 CombustionPage.css의 .cb-zonebar가 잡는다.) */
 
 /* 상단·우측 설비 패널. plate는 제목 띠, state는 그 아래 두 글자가 놓이는 자리다. */
 const DEVICE_PANELS = [
@@ -111,12 +117,13 @@ const DEVICE_PANELS = [
   },
 ];
 
-/* 배관 부속 아래에 붙는 상태 글씨. cx는 그 부속이 그려지는 가운데 x다. */
+/* 배관 부속 아래에 붙는 상태 램프. cx는 그 부속이 그려지는 가운데 x다.
+   tone은 켜진 색 — 'on' 초록(정상), 'alarm' 빨강(이상·닫힘). */
 const PIPE_LABELS = [
-  { key: 'gasPre', cx: 273, top: 44, text: '압력 정상' },
-  { key: 'gasSol', cx: 332, top: 44, text: 'SOL닫힘' },
+  { key: 'gasPre', cx: 273, top: 44, text: '압력 정상', tone: 'on' },
+  { key: 'gasSol', cx: 332, top: 44, text: 'SOL닫힘', tone: 'alarm' },
   // 블로워 압력계(blower-pre, x 920~957 / y 4~43) 바로 아래
-  { key: 'blowPre', cx: 938, top: 48, text: '압력 이상' },
+  { key: 'blowPre', cx: 938, top: 48, text: '압력 이상', tone: 'alarm' },
 ];
 
 /* 좌측 하단 경보 목록 — 경보이력·구동화면과 같은 API(getAlarmList)를 그대로 쓴다.
@@ -138,11 +145,30 @@ const ALARM_COLUMNS = [
 /* 낮은 칸이라 페이지 넘김 줄이 자리를 너무 먹는다. 대신 세로 스크롤로 본다. */
 const ALARM_OPTIONS = { pagination: false };
 
-// 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지
+/* 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지.
+   RESET만 누르는 버튼(btn)이고 나머지는 PLC 상태를 비추는 램프(lamp)다.
+   램프의 tone은 켜졌을 때의 색이고, 지금은 PLC가 없어 전부 꺼진 회색으로 나온다. */
 const ACTION_PANELS = [
-  { key: 'misfire', title: '실화 ALARM', items: ['실화', 'RESET'] },
-  { key: 'burner', title: 'BURNER ALARM', items: ['이상', 'RESET'] },
-  { key: 'purge', title: 'ALL PURGE', items: ['ON', 'PURGE 준비', 'PURGE 중', 'PURGE 완료'] },
+  {
+    key: 'misfire',
+    title: '실화 ALARM',
+    items: [{ text: '실화', tone: 'alarm' }, { text: 'RESET', kind: 'btn' }],
+  },
+  {
+    key: 'burner',
+    title: 'BURNER ALARM',
+    items: [{ text: '이상', tone: 'alarm' }, { text: 'RESET', kind: 'btn' }],
+  },
+  {
+    key: 'purge',
+    title: 'ALL PURGE',
+    items: [
+      { text: 'ON', tone: 'on' },
+      { text: 'PURGE 준비', tone: 'on' },
+      { text: 'PURGE 중', tone: 'on' },
+      { text: 'PURGE 완료', tone: 'on' },
+    ],
+  },
 ];
 
 export default function CombustionPage() {
@@ -214,16 +240,17 @@ export default function CombustionPage() {
             {DEVICE_PANELS.map((d) => (
               <span className="cb-dev" key={d.key}>
                 <em className={`cb-plate cb-plate--${d.tone}`} style={d.plate}>{d.title}</em>
+                {/* 두 칸 다 램프다. 걸린 쪽만 켜진다 — on쪽은 초록, off쪽은 빨강. */}
                 <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
-                  <b className={devices[d.key] ? 'is-on' : ''}>{d.on}</b>
-                  <b className={devices[d.key] ? '' : 'is-on'}>{d.off}</b>
+                  <b className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>{d.on}</b>
+                  <b className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>{d.off}</b>
                 </em>
               </span>
             ))}
 
             {PIPE_LABELS.map((l) => (
               <span
-                className="cb-pipe-label"
+                className={`cb-pipe-label hmi-lampbox is-${l.tone}`}
                 key={l.key}
                 style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
               >
@@ -303,9 +330,11 @@ export default function CombustionPage() {
             style={{ left: `${(topCx(n) / STAGE_W) * 100}%`, width: ZONE_STEP * scale.x * 0.94 }}
           >
             <span className="cb-plate cb-plate--zone">{`NO.${n}ZONE`}</span>
+            {/* 사진처럼 "연소"와 "ON/OFF"를 두 줄로 — 칸이 좁아 한 줄로는 안 들어간다
+                (.hmi-lampbox에 white-space: pre-line이 걸려 있어 \n이 줄바꿈이 된다). */}
             <span className="cb-onoff">
-              <b className={zoneBurn[n - 1] ? 'is-on' : ''}>연소 ON</b>
-              <b className={zoneBurn[n - 1] ? '' : 'is-on'}>연소 OFF</b>
+              <b className={`hmi-lampbox${zoneBurn[n - 1] ? ' is-on' : ''}`}>{'연소\nON'}</b>
+              <b className={`hmi-lampbox${zoneBurn[n - 1] ? '' : ' is-alarm'}`}>{'연소\nOFF'}</b>
             </span>
             {/* 이름표지만 누르면 그 존의 버너 4개 운전창이 열린다 */}
             <button
@@ -330,9 +359,17 @@ export default function CombustionPage() {
           <div className="cb-action" key={p.key}>
             <span className="cb-plate cb-plate--action">{p.title}</span>
             <div className="cb-action-row">
-              {p.items.map((it) => (
-                <button type="button" className="cb-action-btn" key={it} disabled>{it}</button>
-              ))}
+              {p.items.map((it) => (it.kind === 'btn'
+                ? (
+                  <button type="button" className="cb-action-btn" key={it.text} disabled>
+                    {it.text}
+                  </button>
+                )
+                : (
+                  /* 램프는 눌리는 것이 아니라 상태 표시라 button이 아닌 span이다.
+                     지금은 PLC 값이 없어 꺼진 상태(회색)로만 나온다. */
+                  <span className="cb-action-lamp hmi-lampbox" key={it.text}>{it.text}</span>
+                )))}
             </div>
           </div>
         ))}
