@@ -30,4 +30,5 @@ public class ScadaUser {
     private String authAlarm;
     private String authTrend;
     private String authAlarmHist;
+    private String authTemp;
 }

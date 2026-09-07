@@ -11,7 +11,9 @@
          판단하는 데 쓴다. -->
     <select id="getUser" parameterType="com.mes.domain.scada.ScadaUser"
             resultType="com.mes.domain.scada.ScadaUser">
-        SELECT id, user_id, user_name, user_role
+        SELECT id, user_id, user_name, user_role,
+        auth_drive, auth_combustion, auth_temp, auth_atmosphere,
+       auth_cooling, auth_alarm, auth_trend, auth_alarm_hist
         FROM scada_user
         WHERE user_id = #{userId}
           AND user_password = #{userPassword}
@@ -34,8 +36,15 @@
 
     <!-- 사용자 추가. delete_yn은 DEFAULT 'N'이라 적지 않는다. -->
     <insert id="insertUser" parameterType="com.mes.domain.scada.ScadaUser">
-        INSERT INTO scada_user (user_id, user_password, user_name, user_role)
-        VALUES (#{userId}, #{userPassword}, #{userName}, #{userRole})
+        INSERT INTO scada_user (
+    user_id, user_password, user_name, user_role,
+    auth_drive, auth_combustion, auth_temp, auth_atmosphere,
+    auth_cooling, auth_alarm, auth_trend, auth_alarm_hist
+    ) VALUES (
+    #{userId}, #{userPassword}, #{userName}, #{userRole},
+    #{authDrive}, #{authCombustion}, #{authTemp}, #{authAtmosphere},
+    #{authCooling}, #{authAlarm}, #{authTrend}, #{authAlarmHist}
+    )
     </insert>
 
     <select id="getId" parameterType="com.mes.domain.scada.ScadaUser"
@@ -55,7 +64,7 @@
          전원의 평문 비밀번호를 받아볼 수 있다는 뜻이기도 하다. -->
     <select id="getUserList" parameterType="com.mes.domain.scada.ScadaUser"
             resultType="com.mes.domain.scada.ScadaUser">
-        SELECT id, user_id, user_password, user_name, user_role, delete_yn
+        SELECT *
         FROM scada_user
         ORDER BY id
     </select>
