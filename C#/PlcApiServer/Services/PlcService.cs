@@ -69,9 +69,8 @@ public partial class PlcService
         return true;
     }
 
-    // 영구 연결 (재사용) — LS/Modbus 는 이 TCP 연결을 계속 붙들고 재사용한다.
-    // (Mitsubishi는 카드의 동시접속 슬롯 제약 때문에 이 필드를 쓰지 않고 매 요청마다 새로 연결한다.
-    //  PlcService.Mitsubishi.cs의 MitsubishiRequestAsync 참고)
+    // 영구 연결 (재사용) — LS/Modbus/Mitsubishi 전부 이 TCP 연결을 계속 붙들고 재사용한다
+    // (연결/재연결 정책은 WithConnectionAsync/EnsureConnectedAsync 참고).
     private TcpClient?     _tcp;
     private NetworkStream? _ns;
 
@@ -258,17 +257,25 @@ public partial class PlcService
     //                         - 네트워크 오류 → 연결 버리고 1회 재시도
     //                         - 프로토콜 오류 → 연결 버리고 즉시 예외 전파
     //                           (스트림에 쓰레기 데이터가 남을 수 있으므로)
-    //  이 두 메서드는 LS/Modbus 구현(PlcService.Ls.cs / PlcService.Modbus.cs)이 공통으로 사용한다.
-    //  Mitsubishi는 카드 슬롯 제약 때문에 별도의 단기 연결 방식(MitsubishiRequestAsync)을 쓴다.
+    //  이 두 메서드는 LS/Modbus/Mitsubishi 구현이 전부 공통으로 사용한다 (Mitsubishi도 과거엔
+    //  카드 슬롯 제약 때문에 매 요청마다 새로 연결하는 별도 방식을 썼지만, 2초 주기 폴링에서
+    //  연결을 계속 새로 맺고 끊는 것 자체가 오히려 카드에 부담을 줘서 응답 중간에 연결이 끊기는
+    //  문제가 있었다 — 그래서 지금은 LS/Modbus와 동일하게 연결을 재사용하고, 문제가 생겼을 때만
+    //  끊고 재연결하는 쪽으로 통일했다. 아래 서킷브레이커가 카드 슬롯 고갈을 막아주는 안전장치다.)
     // ========================================================================
 
-    // 최근에 이 PLC로 연결 시도가 실패한 시각 — 쿨다운(3초) 이내면 재접속을 아예 시도하지 않는다.
-    // (LS/Modbus는 청크마다 EnsureConnectedAsync를 다시 호출하는데, 죽은 PLC라면 청크 수만큼
-    //  매번 3초 connect 타임아웃을 새로 겪게 된다 — 예: 청크 5개면 15초. 이 필드로 "방금 실패했다"를
-    //  기억해두면 같은 사이클 안의 나머지 청크는 즉시 실패 처리되어 최초 1회(~3초)로 비용이 고정된다.
-    //  EnsureConnectedAsync는 항상 WithConnectionAsync의 _lock 안에서만 호출되므로 별도 동기화 불필요.)
-    private static readonly TimeSpan ConnectFailCooldown = TimeSpan.FromSeconds(3);
-    private DateTime? _lastConnectFailAt;
+    // ── 실패 집계 + 서킷브레이커 ────────────────────────────────────────────
+    // 실패(연결 실패든, 연결은 됐지만 응답을 못 받은 경우든) 직후엔 3초 쿨다운으로 재시도를 미룬다
+    // (청크가 여러 개라도 최초 1회만 타임아웃을 겪게 하기 위함 — 기존과 동일).
+    // 근데 그 3초 쿨다운 사이클로도 연속 10번(=대략 30~40초) 계속 실패하면, PLC나 카드 쪽에
+    // 뭔가 더 근본적인 문제가 있다고 보고 쿨다운을 30초로 늘린다 — 짧은 간격으로 계속 연결을
+    // 새로 맺으려는 시도 자체가 미쓰비시 카드의 접속 슬롯을 좀비 상태로 쌓이게 할 수 있어서,
+    // 그런 상황에서는 오히려 덜 자주 두드리는 쪽이 안전하다. 한 번이라도 성공하면 즉시 원상복귀.
+    private static readonly TimeSpan ConnectFailCooldown    = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan CircuitBreakerCooldown = TimeSpan.FromSeconds(30);
+    private const int CircuitBreakerThreshold = 10;
+    private DateTime? _lastFailureAt;
+    private int _consecutiveFailures;
 
     private async Task<NetworkStream> EnsureConnectedAsync()
     {
@@ -276,26 +283,29 @@ public partial class PlcService
         if (_tcp is { Connected: true } && _ns != null)
             return _ns;
 
-        if (_lastConnectFailAt.HasValue && (DateTime.UtcNow - _lastConnectFailAt.Value) < ConnectFailCooldown)
-            throw new TimeoutException($"최근 연결 실패 — 쿨다운 중이라 재시도 생략 ({Label} {PlcIp}:{PlcPort})");
-
         _tcp?.Dispose();
         _tcp = new TcpClient { ReceiveTimeout = 5000, SendTimeout = 5000 };
-        try
-        {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-            await _tcp.ConnectAsync(PlcIp, PlcPort, cts.Token);
-        }
-        catch
-        {
-            _lastConnectFailAt = DateTime.UtcNow;
-            throw;
-        }
-        _lastConnectFailAt = null;
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        await _tcp.ConnectAsync(PlcIp, PlcPort, cts.Token);   // 실패하면 그대로 던짐 — 집계는 WithConnectionAsync가 담당
         // TCP Keepalive: 10s 유휴 후 감지 시작 → 스테일 소켓 조기 탐지
         _tcp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
         _ns = _tcp.GetStream();
         return _ns;
+    }
+
+    // 방금 진짜로 시도했다가 실패한 경우에만 호출한다 (쿨다운 때문에 시도 자체를 건너뛴 경우는
+    // 호출하면 안 됨 — 그러면 _lastFailureAt이 매번 "지금"으로 갱신되어 쿨다운이 영원히 안 끝난다).
+    private void RecordFailure()
+    {
+        _lastFailureAt = DateTime.UtcNow;
+        _consecutiveFailures++;
+    }
+
+    private void RecordSuccess()
+    {
+        LastSuccessAt = DateTime.UtcNow;
+        _lastFailureAt = null;
+        _consecutiveFailures = 0;
     }
 
     private void DisposeConnection()
@@ -313,14 +323,16 @@ public partial class PlcService
 
     /// <summary>
     /// 락을 잡고, TCP 연결을 확보한 뒤 action(실제 패킷 송수신 로직)을 실행한다.
-    /// 실패 시 처리 순서:
+    /// timeoutMs: action의 응답 대기 한도 (LS/Modbus는 영구연결 기준 10s, Mitsubishi는 4s로 호출).
+    /// 처리 순서:
+    ///   0) 최근 실패 이후 쿨다운(평소 3초, 연속 10회 넘으면 30초) 안이면 연결 시도 자체를 생략.
     ///   1차 시도 실패 → 네트워크 오류(SocketException/IOException/ObjectDisposedException)면
     ///                    연결을 버리고 50ms 대기 후 2차(재연결) 시도.
     ///                    프로토콜 오류(그 외 예외)면 연결을 버리고 즉시 예외를 던진다
     ///                    (스트림에 이전 요청의 쓰레기 응답이 남아있을 수 있어 재사용하면 위험하기 때문).
     ///   2차 시도도 실패 → 그대로 예외를 전파한다 (더 이상 재시도하지 않음).
     /// </summary>
-    private async Task<T> WithConnectionAsync<T>(Func<NetworkStream, Task<T>> action)
+    private async Task<T> WithConnectionAsync<T>(Func<NetworkStream, Task<T>> action, int timeoutMs = ModbusReadTimeoutMs)
     {
         // 락 획득 타임아웃: 이전 요청이 걸려 있어도 LockWaitTimeoutMs 후 포기
         bool acquired = await _lock.WaitAsync(LockWaitTimeoutMs);
@@ -332,22 +344,34 @@ public partial class PlcService
 
         try
         {
+            // 최근 실패 쿨다운 중이면 연결조차 시도하지 않고 즉시 실패 처리한다.
+            // (읽기만 검사하고 _lastFailureAt/_consecutiveFailures는 여기서 건드리지 않는다 —
+            //  건드리면 매 폴링마다 "방금 실패함"으로 계속 갱신되어 쿨다운이 영영 안 끝난다.)
+            if (_lastFailureAt.HasValue)
+            {
+                var cooldown = _consecutiveFailures >= CircuitBreakerThreshold ? CircuitBreakerCooldown : ConnectFailCooldown;
+                var elapsed = DateTime.UtcNow - _lastFailureAt.Value;
+                if (elapsed < cooldown)
+                    throw new TimeoutException(
+                        $"최근 연결 실패 — 쿨다운 중이라 재시도 생략 ({Label} {PlcIp}:{PlcPort}, 연속실패 {_consecutiveFailures}회)");
+            }
+
             // 1차 시도 (기존 연결)
             try
             {
                 var ns = await EnsureConnectedAsync();
-                using var cts = new CancellationTokenSource(ModbusReadTimeoutMs);
+                using var cts = new CancellationTokenSource(timeoutMs);
                 var task = action(ns);
-                var done  = await Task.WhenAny(task, Task.Delay(ModbusReadTimeoutMs, cts.Token));
+                var done  = await Task.WhenAny(task, Task.Delay(timeoutMs, cts.Token));
                 if (done != task)
                 {
                     DisposeConnection();
-                    ScFileLogger.Write("COMM", $"응답 타임아웃 {Label}({PlcIp}:{PlcPort}) — {ModbusReadTimeoutMs}ms 초과, 재연결 시도");
-                    throw new TimeoutException($"PLC 응답 타임아웃 ({ModbusReadTimeoutMs}ms)");
+                    ScFileLogger.Write("COMM", $"응답 타임아웃 {Label}({PlcIp}:{PlcPort}) — {timeoutMs}ms 초과, 재연결 시도");
+                    throw new TimeoutException($"PLC 응답 타임아웃 ({timeoutMs}ms)");
                 }
                 cts.Cancel();
                 var result = await task;
-                LastSuccessAt = DateTime.UtcNow;
+                RecordSuccess();
                 return result;
             }
             catch (Exception ex) when (ex is System.Net.Sockets.SocketException
@@ -361,6 +385,7 @@ public partial class PlcService
             catch
             {
                 DisposeConnection();   // 프로토콜/타임아웃 오류 → 스트림 오염 방지 후 전파
+                RecordFailure();
                 throw;
             }
 
@@ -369,18 +394,18 @@ public partial class PlcService
             try
             {
                 var ns2 = await EnsureConnectedAsync();
-                using var cts2 = new CancellationTokenSource(ModbusReadTimeoutMs);
+                using var cts2 = new CancellationTokenSource(timeoutMs);
                 var task2 = action(ns2);
-                var done2  = await Task.WhenAny(task2, Task.Delay(ModbusReadTimeoutMs, cts2.Token));
+                var done2  = await Task.WhenAny(task2, Task.Delay(timeoutMs, cts2.Token));
                 if (done2 != task2)
                 {
                     DisposeConnection();
-                    ScFileLogger.Write("COMM", $"응답 타임아웃 재시도 {Label}({PlcIp}:{PlcPort}) — {ModbusReadTimeoutMs}ms 초과");
-                    throw new TimeoutException($"PLC 응답 타임아웃 재시도 ({ModbusReadTimeoutMs}ms)");
+                    ScFileLogger.Write("COMM", $"응답 타임아웃 재시도 {Label}({PlcIp}:{PlcPort}) — {timeoutMs}ms 초과");
+                    throw new TimeoutException($"PLC 응답 타임아웃 재시도 ({timeoutMs}ms)");
                 }
                 cts2.Cancel();
                 var result2 = await task2;
-                LastSuccessAt = DateTime.UtcNow;
+                RecordSuccess();
                 return result2;
             }
             catch (Exception ex2)
@@ -388,6 +413,7 @@ public partial class PlcService
                 if (ex2 is not TimeoutException)
                     ScFileLogger.Write("COMM", $"통신 실패 재시도 {Label}({PlcIp}:{PlcPort}) — {ex2.GetType().Name}: {ex2.Message}");
                 DisposeConnection();   // 2차 실패도 소켓 정리 — dead socket 잔류 방지
+                RecordFailure();
                 throw;
             }
         }

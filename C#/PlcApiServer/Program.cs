@@ -48,6 +48,7 @@
 // ============================================================================
 
 using System.Collections.Concurrent;
+using MySqlConnector;
 using PlcApiServer.Services;
 using PlcApiServer.Repositories;
 using PlcApiServer.Models;
@@ -58,6 +59,10 @@ var builder = WebApplication.CreateBuilder(args);
 // CORS 전체 허용 — 프론트엔드(JSP 등 다른 포트/도메인)에서 5050으로 자유롭게 호출 가능하게 함
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
+// JSON 들여쓰기 — 브라우저에서 직접 열어봐도(수동 테스트) 한 줄로 뭉쳐 나오지 않고 보기 좋게 나오도록.
+// AJAX로 fetch/axios가 파싱하는 건 들여쓰기 여부와 무관해서 실제 프론트 소비에는 영향 없다.
+builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.WriteIndented = true);
 
 // DI 컨테이너에 싱글톤으로 등록 — 요청마다 새로 만들지 않고 앱 생명주기 동안 인스턴스 1개 공유
 builder.Services.AddSingleton<PlcRegistry>();     // 기본(default) PLC 1대의 설정 + 접근 창구
@@ -432,19 +437,238 @@ app.MapGet("/api/plc/writeBit/{id}", async (string id, int address, string value
     catch (Exception ex) { return Results.Ok(new { success = false, error = ex.Message }); }
 });
 
-// GET /api/foldertag/values
+// GET /api/foldertag/values[?folderId=4]
 //   folders_tags(폴더 태그)의 최신값을 즉시 반환한다. PLC 통신 없이 응답 — 값은
 //   LiveTagMonitorService가 백그라운드에서 이미 폴링해 메모리(FolderTagValues)에 들고 있는
-//   것을 그대로 꺼내주는 것뿐이다. tagId(=folders_tags.id) → raw 값(int, 통신 실패 시 null)
-//   맵으로 응답하고, BIT/WORD 해석(0이 아니면 ON 등)은 호출하는 쪽(Java/JSP)이 담당한다.
-app.MapGet("/api/foldertag/values", (LiveTagMonitorService monitor) =>
+//   것을 그대로 꺼내주는 것뿐이다.
+//   folderId를 주면 그 폴더의 태그만 DB에서 조회해 name/address와 함께 묶어서 돌려준다 —
+//   원래 sample_pro(Java)가 이 값을 가져다 name/address를 붙여 프록시해주던 걸, 프론트가
+//   Java를 거치지 않고 여기(C#, 5050) 로 직접 AJAX 호출하도록 그 조립을 이쪽으로 옮긴 것이다.
+//   CORS는 전체 허용(위 AddCors)이라 어느 프론트 origin에서 호출해도 문제없다.
+//   folderId 생략 시엔 기존처럼 tagId(=folders_tags.id) → raw 값 맵 전체를 그대로 준다.
+app.MapGet("/api/foldertag/values", async (int? folderId, LiveTagMonitorService monitor, PlcRepository repo) =>
 {
-    return Results.Ok(new
+    if (folderId is null)
     {
-        success = true,
-        lastPollAt = monitor.LastPollAt,
-        values = monitor.FolderTagValues
+        return Results.Ok(new
+        {
+            success = true,
+            lastPollAt = monitor.LastPollAt,
+            values = monitor.FolderTagValues
+        });
+    }
+
+    var rows = new List<(string Name, string Address, int? Value)>();
+    using (var conn = new MySqlConnection(repo.ConnectionString))
+    {
+        await conn.OpenAsync();
+        using var cmd = new MySqlCommand(
+            "SELECT id, name, address FROM folders_tags WHERE folder_id = @folderId AND enabled = 1 ORDER BY id", conn);
+        cmd.Parameters.AddWithValue("@folderId", folderId.Value);
+        using var rd = await cmd.ExecuteReaderAsync();
+        while (await rd.ReadAsync())
+        {
+            int id = rd.GetInt32(0);
+            string name = rd.IsDBNull(1) ? "" : rd.GetString(1);
+            string address = rd.IsDBNull(2) ? "" : rd.GetString(2);
+            monitor.FolderTagValues.TryGetValue(id, out var value);
+            rows.Add((name, address, value));
+        }
+    }
+
+    // 태그가 100개씩 나오는 경우 System.Text.Json의 WriteIndented(전부 완전히 펼침)로는
+    // 한 태그가 세 줄씩 차지해서 눈으로 훑기 힘들다 — 그래서 이 엔드포인트만 태그 한 개당
+    // 한 줄로 직접 문자열을 조립한다(바깥 틀은 들여쓰기 유지). JsonSerializer.Serialize(string)로
+    // name/address 안의 따옴표 등은 그대로 안전하게 이스케이프된다.
+    var sb = new System.Text.StringBuilder();
+    sb.Append("{\n");
+    sb.Append("  \"success\": true,\n");
+    sb.Append($"  \"folderId\": {folderId.Value},\n");
+    sb.Append("  \"lastPollAt\": ")
+      .Append(monitor.LastPollAt is { } t ? $"\"{t:o}\"" : "null")
+      .Append(",\n");
+    sb.Append("  \"tags\": [\n");
+    for (int i = 0; i < rows.Count; i++)
+    {
+        var (name, address, value) = rows[i];
+        sb.Append("    { \"name\": ").Append(System.Text.Json.JsonSerializer.Serialize(name))
+          .Append(", \"address\": ").Append(System.Text.Json.JsonSerializer.Serialize(address))
+          .Append(", \"value\": ").Append(value.HasValue ? value.Value.ToString() : "null")
+          .Append(" }")
+          .Append(i < rows.Count - 1 ? ",\n" : "\n");
+    }
+    sb.Append("  ]\n}");
+
+    return Results.Text(sb.ToString(), "application/json", System.Text.Encoding.UTF8);
+});
+
+// ============================================================================
+// [B-1] folders_tags 이름/주소 기반 조회·쓰기 — 전부 URL(GET)만으로 쓸 수 있게 열어둔다.
+// ============================================================================
+//   위 /api/foldertag/values가 "폴더 단위"였다면, 이 아래 4개는 "태그 이름" 또는
+//   "PLC+주소"로 직접 찾아 쓰는 경로다. 흐름은 전부 동일하다:
+//     folders_tags에서 이름/주소로 행을 찾는다(id, folder_id, address, plc_id, type)
+//       → plc_id로 tb_plc(ip/port/plc_type)를 조회한다(PlcRepository.GetByIdAsync)
+//       → PlcServiceCache.GetOrCreate로 그 PLC 전용 연결을 얻는다
+//       → 읽기는 LiveTagMonitorService.FolderTagValues(메모리 캐시, PLC 통신 없음)에서 즉시 꺼내고,
+//         쓰기는 실제로 PLC에 값을 내보낸다(PLC 통신 있음 — 되돌릴 수 없는 동작이니 호출 시 주의).
+//   이름(name)은 폴더 안에서만 유일(UNIQUE ux_tag_name(folder_id,name))하고 전체로는 유일하지
+//   않을 수 있다 — 여러 폴더에 같은 이름이 있으면 조회는 전부 배열로 돌려주고, 쓰기는 몇 개인지
+//   알려주고 folderId를 더 달라고 거부한다(잘못된 태그에 실수로 쓰는 사고를 막기 위함).
+//   주소(address)도 마찬가지로 PLC마다 같은 문자열("D42" 등)이 다른 의미라 plcId를 같이 주는
+//   걸 권장한다 — 안 주면 그 주소를 쓰는 모든 PLC의 태그를 다 찾아서 보여준다(조회는 여러 개
+//   보여줘도 안전하지만, 쓰기는 plcId 없이 주소만으로는 받지 않는다 — 아래 write/by-address 참고).
+
+// 태그 한 행 조회용 공통 헬퍼 — by-name/by-address 둘 다 재사용.
+static async Task<List<(int Id, int FolderId, string Name, string Address, string PlcId)>> FindFolderTagsAsync(
+    string connStr, string whereClause, Dictionary<string, object> parameters)
+{
+    var list = new List<(int, int, string, string, string)>();
+    using var conn = new MySqlConnection(connStr);
+    await conn.OpenAsync();
+    using var cmd = new MySqlCommand(
+        $"SELECT id, folder_id, name, address, plc_id FROM folders_tags WHERE enabled = 1 AND {whereClause}", conn);
+    foreach (var (k, v) in parameters) cmd.Parameters.AddWithValue(k, v);
+    using var rd = await cmd.ExecuteReaderAsync();
+    while (await rd.ReadAsync())
+    {
+        list.Add((
+            rd.GetInt32(0), rd.GetInt32(1), rd.GetString(2),
+            rd.IsDBNull(3) ? "" : rd.GetString(3),
+            rd.IsDBNull(4) ? "" : rd.GetString(4)
+        ));
+    }
+    return list;
+}
+
+// GET /api/foldertag/value/by-name?name=TEST42
+//   이름으로 태그를 찾아 현재값을 즉시 반환(PLC 통신 없음, 캐시에서 바로 꺼냄).
+//   같은 이름이 여러 폴더에 있으면 전부 배열로 돌려준다 — 여기서는 조회만 하니 여러 개 나와도
+//   위험하지 않아서 막지 않는다(막는 건 쓰기 쪽에서만).
+app.MapGet("/api/foldertag/value/by-name", async (string name, LiveTagMonitorService monitor, PlcRepository repo) =>
+{
+    var found = await FindFolderTagsAsync(repo.ConnectionString, "name = @name", new() { ["@name"] = name });
+    var tags = found.Select(t =>
+    {
+        monitor.FolderTagValues.TryGetValue(t.Id, out var value);
+        return new { t.Id, t.FolderId, t.Name, t.Address, t.PlcId, value };
     });
+    return Results.Ok(new { success = true, count = found.Count, tags });
+});
+
+// GET /api/foldertag/value/by-address?address=D42&plcId=MST_MITSUBISHI  (plcId는 생략 가능)
+//   같은 "D42"라도 PLC마다 다른 실제 번지라서 plcId를 같이 주는 걸 권장 — 생략하면 그 주소
+//   문자열을 쓰는 모든 PLC의 태그를 다 찾아서 보여준다.
+app.MapGet("/api/foldertag/value/by-address", async (string address, string? plcId, LiveTagMonitorService monitor, PlcRepository repo) =>
+{
+    string where = "address = @address" + (string.IsNullOrWhiteSpace(plcId) ? "" : " AND plc_id = @plcId");
+    var parms = new Dictionary<string, object> { ["@address"] = address };
+    if (!string.IsNullOrWhiteSpace(plcId)) parms["@plcId"] = plcId;
+
+    var found = await FindFolderTagsAsync(repo.ConnectionString, where, parms);
+    var tags = found.Select(t =>
+    {
+        monitor.FolderTagValues.TryGetValue(t.Id, out var value);
+        return new { t.Id, t.FolderId, t.Name, t.Address, t.PlcId, value };
+    });
+    return Results.Ok(new { success = true, count = found.Count, tags });
+});
+
+// GET /api/foldertag/write/by-name?name=TEST42&value=123&folderId=4  (folderId는 동명이인 있을 때만 필요)
+//   이름 → folders_tags에서 plc_id/address/type 조회 → tb_plc에서 접속정보 조회 → 실제 PLC에 값을 쓴다.
+//   실제로 설비에 영향을 주는 동작이니, 이름이 여러 폴더에 걸쳐 있어 태그를 하나로 특정할 수
+//   없으면 후보 목록만 보여주고 실제 쓰기는 거부한다(엉뚱한 태그에 잘못 쓰는 사고 방지).
+app.MapGet("/api/foldertag/write/by-name", async (string name, int value, int? folderId, PlcRepository repo, PlcServiceCache cache) =>
+{
+    string where = "name = @name" + (folderId.HasValue ? " AND folder_id = @folderId" : "");
+    var parms = new Dictionary<string, object> { ["@name"] = name };
+    if (folderId.HasValue) parms["@folderId"] = folderId.Value;
+
+    var found = await FindFolderTagsAsync(repo.ConnectionString, where, parms);
+
+    if (found.Count == 0)
+        return Results.Ok(new { success = false, error = $"태그를 찾을 수 없음: name='{name}'" + (folderId.HasValue ? $", folderId={folderId}" : "") });
+    if (found.Count > 1)
+        return Results.Ok(new
+        {
+            success = false,
+            error = $"이름 '{name}'이 {found.Count}개 폴더에 걸쳐 있어 특정할 수 없음 — folderId를 같이 지정하세요.",
+            candidates = found.Select(t => new { t.Id, t.FolderId, t.Address, t.PlcId })
+        });
+
+    var tag = found[0];
+    if (string.IsNullOrWhiteSpace(tag.PlcId))
+        return Results.Ok(new { success = false, error = $"태그 '{name}'에 plc_id가 설정되어 있지 않음" });
+
+    var cfg = await repo.GetByIdAsync(tag.PlcId);
+    if (cfg == null)
+        return Results.Ok(new { success = false, error = $"tb_plc에 '{tag.PlcId}'가 없음" });
+
+    var parsed = LiveTagMonitorService.ParseAddressFull(tag.Address);
+    if (parsed == null)
+        return Results.Ok(new { success = false, error = $"주소 형식을 해석할 수 없음: '{tag.Address}'" });
+
+    try
+    {
+        var svc = cache.GetOrCreate(cfg);
+        // folders_tags.type 컬럼은 안 본다 — 실제 폴링(PlcService.ReadWordsBatchAsync의
+        // IsMitsubishiBitDevice)도 이 컬럼이 아니라 디바이스 문자로 워드/비트를 가르기 때문에,
+        // 여기서도 똑같이 디바이스 문자(M/L/X/Y/B/S=비트, D/W/R=워드)만 기준으로 삼는다 —
+        // type 컬럼이 실수로 잘못 입력돼 있어도 엉뚱한 방식으로 쓰지 않도록.
+        bool isBit = "MLXYBS".Contains(parsed.Value.Device, StringComparison.OrdinalIgnoreCase);
+
+        if (isBit)
+            await svc.WriteBitAsync(parsed.Value.Addr, value != 0, parsed.Value.Device);
+        else
+            await svc.WriteWordAsync(parsed.Value.Addr, value, parsed.Value.Device);
+
+        return Results.Ok(new { success = true, name, plcId = tag.PlcId, address = tag.Address, type = isBit ? "BIT" : "WORD", value });
+    }
+    catch (Exception ex) { return Results.Ok(new { success = false, error = ex.Message }); }
+});
+
+// GET /api/foldertag/write/by-address?plcId=MST_MITSUBISHI&address=D42&value=123&device=D
+//   folders_tags를 아예 거치지 않고 plc_id+주소만으로 직접 쓴다 — 그 주소가 태그로 등록돼
+//   있는지와 무관하게 동작한다(device 생략 시 address 접두문자로 추정, 그것도 없으면 "D").
+//   태그 이름이 아니라 "이 PLC의 이 번지"를 확실히 알고 있을 때 쓰는 경로.
+app.MapGet("/api/foldertag/write/by-address", async (string plcId, string address, int value, string? device, PlcRepository repo, PlcServiceCache cache) =>
+{
+    var cfg = await repo.GetByIdAsync(plcId);
+    if (cfg == null) return Results.Ok(new { success = false, error = $"tb_plc에 '{plcId}'가 없음" });
+
+    var parsed = LiveTagMonitorService.ParseAddressFull(address);
+    if (parsed == null) return Results.Ok(new { success = false, error = $"주소 형식을 해석할 수 없음: '{address}'" });
+
+    string dev = !string.IsNullOrWhiteSpace(device) ? device! : parsed.Value.Device;
+    bool isBit = "MLXYBS".Contains(dev, StringComparison.OrdinalIgnoreCase);
+
+    try
+    {
+        var svc = cache.GetOrCreate(cfg);
+        if (isBit)
+            await svc.WriteBitAsync(parsed.Value.Addr, value != 0, dev);
+        else
+            await svc.WriteWordAsync(parsed.Value.Addr, value, dev);
+
+        return Results.Ok(new { success = true, plcId, address, device = dev, type = isBit ? "BIT" : "WORD", value });
+    }
+    catch (Exception ex) { return Results.Ok(new { success = false, error = ex.Message }); }
+});
+
+// GET /api/plc/write/{id}?address=&value=&device=  (id 지정 PLC, URL만으로 워드 쓰기)
+//   위 POST(/api/plc/write/{id})와 동작은 동일 — writeBit/{id}에 이미 있던 GET 짝(423번 줄
+//   부근)을 워드 쓰기에도 똑같이 열어준 것. body 없이 주소창/AJAX GET으로 바로 테스트 가능.
+app.MapGet("/api/plc/write/{id}", async (string id, int address, int value, string? device, PlcRepository repo, PlcServiceCache cache) =>
+{
+    var cfg = await repo.GetByIdAsync(id);
+    if (cfg == null) return Results.Ok(new { success = false, error = $"PLC '{id}' not found" });
+    try
+    {
+        var svc = cache.GetOrCreate(cfg);
+        await svc.WriteWordAsync(address, value, device ?? "D");
+        return Results.Ok(new { success = true });
+    }
+    catch (Exception ex) { return Results.Ok(new { success = false, error = ex.Message }); }
 });
 
 // ============================================================================

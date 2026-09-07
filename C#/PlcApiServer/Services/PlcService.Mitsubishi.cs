@@ -11,22 +11,24 @@
 //     WriteBitAsync (PlcService.cs) → PlcType이 "MITSUBISHI"이면 이 파일의 메서드 호출
 //     → device 문자열(D/W/R/M/L/X/Y/B 등)을 GetMitsubishiDeviceCode로 실제 디바이스 코드(byte)로
 //       변환하고, IsMitsubishiBitDevice로 워드/비트 여부를 판단해 알맞은 메서드로 분기
-//     → MitsubishiRequestAsync (이 파일 전용 연결 헬퍼)가 새 TCP 연결을 맺고
-//       BuildMcReadPacket/BuildMcWritePacket/BuildMcBitReadPacket/BuildMcBitWritePacket으로
-//       조립한 패킷을 전송
+//     → PlcService.cs의 공용 WithConnectionAsync가 연결을 확보하고 BuildMcReadPacket/
+//       BuildMcWritePacket/BuildMcBitReadPacket/BuildMcBitWritePacket으로 조립한 패킷을 전송
 //     → PLC 응답을 ReadFullAsync(PlcService.cs)로 읽고 워드/비트 값을 파싱해 반환
 //     → 결과가 그대로 PlcService.cs → Program.cs로 돌아가 JSON 응답이 된다.
 //   ※ 여기서 DB(MariaDB)는 전혀 관여하지 않는다. 순수하게 TCP 바이트 스트림 조립/파싱만 한다.
 //   ※ 워드 읽기/쓰기는 D/W/R 아무 디바이스나 가능하고, 비트 읽기/쓰기는 M/L/X/Y/B(+S)가 가능하다.
 //     타이머(T)는 접점/코일/현재값 중 무엇을 쓸지 아직 정해지지 않아 매핑에서 제외돼 있다.
 //
-// [LS/Modbus와 다른 점 — 연결 방식]
-//   LS/Modbus는 PlcService.cs의 WithConnectionAsync로 TCP 연결을 계속 재사용하지만,
-//   Mitsubishi Ethernet 카드(QJ71E71 등)는 동시 접속 슬롯이 8~16개로 제한되어 있어서
-//   영구 연결을 재사용하다 오류가 나면 좀비 슬롯이 쌓여 카드 자체를 재부팅해야 하는 상황이 생긴다.
-//   그래서 이 파일은 별도의 MitsubishiRequestAsync를 통해 "매 요청마다 연결 → 요청 → 응답 → 즉시 해제"
-//   방식을 쓴다 (락은 PlcService.cs의 공용 _lock을 그대로 같이 쓴다 — LS/Modbus와 동시에 같은
-//   PLC를 두 번 건드리지 않도록).
+// [LS/Modbus와 같은 연결 방식으로 통일 — 예전엔 매 요청마다 새로 연결했었음]
+//   Mitsubishi Ethernet 카드(QJ71E71 등)는 동시 접속 슬롯이 8~16개로 제한돼 있어서, 예전엔
+//   그 슬롯을 낭비하지 않으려고 "매 요청마다 연결 → 요청 → 응답 → 즉시 해제" 방식을 따로 썼다.
+//   근데 실제로는 그 반대 문제가 생겼다 — 2초 폴링 주기로 계속 새 연결을 맺고 끊다 보니, 이전
+//   연결이 카드에서 완전히 정리되기 전에 다음 연결 요청이 들어가는 경우가 있었고, 그러면 카드가
+//   응답을 보내다 말고 연결을 끊어버렸다(PLC 연결 종료). 그래서 지금은 LS/Modbus와 똑같이
+//   PlcService.cs의 WithConnectionAsync로 연결을 계속 재사용하고, 문제가 생겼을 때만 끊고
+//   재연결한다. 다만 이 카드의 슬롯 제약은 여전히 유효해서, WithConnectionAsync의 서킷브레이커
+//   (연속 10회 실패하면 재시도 간격을 3초 → 30초로 늘림)가 짧은 간격으로 계속 재연결을 시도해서
+//   슬롯을 좀비 상태로 쌓는 것을 막아주는 안전장치 역할을 한다.
 // ============================================================================
 
 using System.Net.Sockets;
@@ -45,58 +47,10 @@ public partial class PlcService
             : MitsubishiReadWordsAsync(start, count, deviceCode);
     }
 
-    // ── Mitsubishi 전용 단기 연결 헬퍼 ─────────────────────────────────────────
-    // Mitsubishi Ethernet 카드(QJ71E71 등)는 동시 접속 슬롯이 8~16개로 제한됨.
-    // 영구 연결을 재사용하면 오류 시 좀비 슬롯이 누적되어 카드 초기화가 필요해짐.
-    // 매 요청마다 연결→요청→응답→즉시해제 방식으로 슬롯 누적을 방지함.
-    private async Task<T> MitsubishiRequestAsync<T>(Func<NetworkStream, Task<T>> action)
-    {
-        // PlcService.cs의 공용 락 — LS/Modbus 쪽 통신과 겹치지 않도록 이 PLC 인스턴스 전체를 직렬화
-        bool acquired = await _lock.WaitAsync(LockWaitTimeoutMs);
-        if (!acquired)
-        {
-            ScFileLogger.Write("COMM", $"락 타임아웃 {Label}({PlcIp}:{PlcPort}) Mitsubishi — {LockWaitTimeoutMs}ms 초과");
-            throw new TimeoutException($"PLC 락 획득 타임아웃 ({LockWaitTimeoutMs}ms)");
-        }
-
-        using var tcp = new TcpClient();   // 매 요청마다 새로 생성 (영구 연결 아님)
-        try
-        {
-            using var connCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            await tcp.ConnectAsync(PlcIp, PlcPort, connCts.Token);
-            var ns = tcp.GetStream();
-
-            using var cts = new CancellationTokenSource(MitsubishiReadTimeoutMs);
-            var task = action(ns);
-            var done = await Task.WhenAny(task, Task.Delay(MitsubishiReadTimeoutMs, cts.Token));
-            if (done != task)
-            {
-                ScFileLogger.Write("COMM", $"응답 타임아웃 {Label}({PlcIp}:{PlcPort}) Mitsubishi — {MitsubishiReadTimeoutMs}ms 초과");
-                throw new TimeoutException($"Mitsubishi PLC 응답 타임아웃 ({MitsubishiReadTimeoutMs}ms)");
-            }
-            cts.Cancel();
-            var result = await task;
-            LastSuccessAt = DateTime.UtcNow;
-            return result;
-        }
-        catch (Exception ex) when (ex is not TimeoutException)
-        {
-            TryLogReconnect($"통신 오류 {Label}({PlcIp}:{PlcPort}) Mitsubishi — {ex.GetType().Name}: {ex.Message}");
-            throw;
-        }
-        finally
-        {
-            // RST로 즉시 종료 → FIN 핸드셰이크 불필요, Mitsubishi 카드 즉시 슬롯 해제
-            try { tcp.Client?.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, new LingerOption(true, 0)); } catch { }
-            tcp.Close();
-            _lock.Release();
-        }
-    }
-
     //  미쓰비시 Q시리즈 — 워드 읽기 (MC Protocol 3E Binary, 서브커맨드 0x0000)
     private async Task<ushort[]> MitsubishiReadWordsAsync(int startD, int count, byte deviceCode = 0xA8)
     {
-        return await MitsubishiRequestAsync(ns => ReadWordsOverConnectionAsync(ns, startD, count, deviceCode));
+        return await WithConnectionAsync(ns => ReadWordsOverConnectionAsync(ns, startD, count, deviceCode), MitsubishiReadTimeoutMs);
     }
 
     //  이미 열려 있는 연결(ns) 위에서 워드 읽기 1회 수행. MitsubishiReadWordsAsync(단발)와
@@ -130,21 +84,62 @@ public partial class PlcService
         return result.ToArray();
     }
 
+    //  MC Protocol 3E는 한 번의 요청으로 읽을 수 있는 점수(워드/비트 개수)에 상한이 있다 — 정확한
+    //  값은 기종/네트워크 모듈 설정마다 달라 매뉴얼에 안 나오는 경우도 많은데, 실제로 이 PLC한테
+    //  100점을 요청하니 "0xC056(요구 데이터 길이 오류)"로 거부당하고 80점은 성공하는 걸 확인했다.
+    //  정확한 상한(80~99 사이)을 더 좁히는 대신, 확인된 성공 지점(80)보다 여유 있게 낮춰서 64점
+    //  단위로 쪼갠다 — 폴더 태그처럼 한 폴더에 태그가 많이 몰리면(예: 100개) 한 청크로 뭉쳐서
+    //  이 상한을 넘기기 쉽기 때문에, 상위(LiveTagMonitorService)의 청크 크기(ChunkSize 설정)와
+    //  무관하게 여기서 한 번 더 강제로 쪼갠다.
+    private const int MitsubishiMaxPointsPerRequest = 64;
+
+    private static List<(int Start, int Count)> SplitForMitsubishiLimit(List<(int Start, int Count)> ranges)
+    {
+        var result = new List<(int, int)>();
+        foreach (var (start, count) in ranges)
+        {
+            int remaining = count;
+            int s = start;
+            while (remaining > 0)
+            {
+                int take = Math.Min(remaining, MitsubishiMaxPointsPerRequest);
+                result.Add((s, take));
+                s += take;
+                remaining -= take;
+            }
+        }
+        return result;
+    }
+
     //  여러 (start,count) 구간을 "TCP 연결 1개"로 순서대로 읽어 하나의 값 맵(주소→값)으로 합친다.
     //  AlarmMonitorService/TempMonitorService가 한 폴링 주기에서 같은 PLC를 여러 청크로 나눠 읽을 때,
     //  청크마다 새 연결을 맺으면(기존 방식) FX5UC처럼 내장 이더넷 포트의 동시 접속 슬롯이 적은 PLC에서
     //  연결이 자주 끊기는 문제가 있었다 — 이 메서드로 청크 수만큼의 연결을 1개로 줄인다.
     //  구간 하나가 실패해도(예외) 나머지 구간은 계속 진행한다(기존 per-chunk try/catch와 동일한 내성).
+    //  타임아웃(WithConnectionAsync)은 구간 개수에 비례해서 늘려준다 — 태그가 계속 늘어서 한 배치
+    //  안의 구간 수가 많아지면 고정 4초로는 다 못 끝내고 타임아웃이 날 수 있기 때문(구간 1개=기존과
+    //  동일한 4초, 구간이 늘 때마다 1초씩 여유 추가). 연결 실패로 재시도가 걸리면 1차 시도에서 이미
+    //  성공한 구간은 2차 시도 때 다시 읽지 않는다(아래 foreach의 Enumerable.Range 스킵 체크).
     private async Task<Dictionary<int, int>> MitsubishiReadWordsBatchAsync(
         List<(int Start, int Count)> ranges, byte deviceCode, bool isBitDevice,
         Action<int, int, Exception>? onRangeError = null)
     {
         var result = new Dictionary<int, int>();
+        var safeRanges = SplitForMitsubishiLimit(ranges);
 
-        await MitsubishiRequestAsync<bool>(async ns =>
+        // WithConnectionAsync는 실패하면 이 action 전체를 처음부터 다시 실행한다(연결 재시도).
+        // result는 이 메서드 바깥(재시도 전체에 걸쳐)에서 살아있으니, 1차 시도에서 이미 성공한
+        // 구간은 2차 시도에서 다시 PLC에 물어보지 않고 건너뛴다 — 구간 3개 중 3번째만 실패해도
+        // 재시도 때 1~2번까지 또 읽는 낭비를 없앤다.
+        int effectiveTimeoutMs = MitsubishiReadTimeoutMs + Math.Max(0, safeRanges.Count - 1) * 1000;
+
+        await WithConnectionAsync<bool>(async ns =>
         {
-            foreach (var (start, count) in ranges)
+            foreach (var (start, count) in safeRanges)
             {
+                if (Enumerable.Range(start, count).All(a => result.ContainsKey(a)))
+                    continue;   // 이전 시도에서 이미 다 읽은 구간
+
                 try
                 {
                     ushort[] values = isBitDevice
@@ -153,14 +148,22 @@ public partial class PlcService
                     for (int i = 0; i < values.Length; i++)
                         result[start + i] = values[i];
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is IOException or System.Net.Sockets.SocketException or ObjectDisposedException)
                 {
                     onRangeError?.Invoke(start, count, ex);
-                    throw;   // 연결 자체가 끊긴 경우(IOException) 이후 구간도 이 연결로는 못 읽으므로 상위(MitsubishiRequestAsync)의 재연결/로그 처리로 넘긴다
+                    throw;   // 연결(스트림) 자체가 끊긴 경우 — 이후 구간도 이 연결로는 못 읽으므로 상위(WithConnectionAsync)의 재연결/로그 처리로 넘긴다
+                }
+                catch (Exception ex)
+                {
+                    // PLC가 명시적으로 거부 응답(에러코드)을 보낸 경우 — 요청/응답을 끝까지 정상적으로
+                    // 주고받았으므로 스트림 자체는 깨끗하다. 존재하지 않는 번지 하나 때문에 같은 배치의
+                    // 나머지 정상 구간(예: D1~D100)까지 통째로 버리지 않도록, 이 구간만 건너뛰고 같은
+                    // 연결로 계속 읽는다.
+                    onRangeError?.Invoke(start, count, ex);
                 }
             }
             return true;
-        });
+        }, effectiveTimeoutMs);
 
         return result;
     }
@@ -169,7 +172,7 @@ public partial class PlcService
     //  deviceCode 기본값 0xA8(D) — 기존 호출부(파라미터 생략)와 호환되도록 유지.
     private async Task MitsubishiWriteWordAsync(int dAddress, int value, byte deviceCode = 0xA8)
     {
-        await MitsubishiRequestAsync<bool>(async ns =>
+        await WithConnectionAsync<bool>(async ns =>
         {
             byte[] packet = BuildMcWritePacket(dAddress, (ushort)value, deviceCode);
             await ns.WriteAsync(packet);
@@ -181,14 +184,14 @@ public partial class PlcService
             if (endCode != 0)
                 throw new Exception($"미쓰비시 WRITE 에러코드: 0x{endCode:X4}");
             return true;
-        });
+        }, MitsubishiReadTimeoutMs);
     }
 
     //  미쓰비시 Q시리즈 — 비트 쓰기 (MC Protocol 3E Binary, 서브커맨드 0x0001)
     //  1점만 쓰므로 니블 데이터 1바이트에서 상위 니블만 사용 (읽기 쪽 파싱 규칙과 대칭).
     private async Task MitsubishiWriteBitAsync(int address, byte deviceCode, bool value)
     {
-        await MitsubishiRequestAsync<bool>(async ns =>
+        await WithConnectionAsync<bool>(async ns =>
         {
             byte[] packet = BuildMcBitWritePacket(address, deviceCode, value);
             await ns.WriteAsync(packet);
@@ -200,7 +203,7 @@ public partial class PlcService
             if (endCode != 0)
                 throw new Exception($"미쓰비시 BIT WRITE 에러코드: 0x{endCode:X4}");
             return true;
-        });
+        }, MitsubishiReadTimeoutMs);
     }
 
     //  미쓰비시 Q시리즈 — 비트 읽기 (bool[] 버전)
@@ -219,7 +222,7 @@ public partial class PlcService
     //  반환값: ushort[] 각 요소가 0(OFF) 또는 1(ON) → treatNonZeroAsOn 로직과 호환
     private async Task<ushort[]> MitsubishiReadBitsAsWordsAsync(int start, int count, byte deviceCode)
     {
-        return await MitsubishiRequestAsync(ns => ReadBitsOverConnectionAsync(ns, start, count, deviceCode));
+        return await WithConnectionAsync(ns => ReadBitsOverConnectionAsync(ns, start, count, deviceCode), MitsubishiReadTimeoutMs);
     }
 
     //  이미 열려 있는 연결(ns) 위에서 비트 읽기 1회 수행 — ReadWordsOverConnectionAsync의 비트 버전.
@@ -260,18 +263,13 @@ public partial class PlcService
         return result;
     }
 
-    //  X/Y 디바이스는 PLC 화면/사용자 입력상 8진수 번지(8,9 없음, 예: X7 다음이 X10)를 쓰지만,
-    //  MC Protocol 바이너리 프레임에는 그 8진수 라벨을 실제 값으로 환산한 정수를 넣어야 한다.
-    //  예: X20(8진 라벨) = 8진수 20 = 10진수 16(0x10) → 프레임에는 16을 넣는다.
-    //  근거: MELSEC iQ-F FX5 User's Manual(Ethernet Communication) 11.2 CGI Object —
-    //  "When specifying a device name in octal such as X or Y, specify the device name in
-    //   hexadecimal. (Example: When specifying X20, specify X10 in CGI.)"
-    //  M/L/B/D/W/R 등 다른 디바이스는 원래부터 10진수라 변환이 필요 없다.
-    private static int ResolveMitsubishiAddress(int address, byte deviceCode)
-    {
-        if (deviceCode != 0x9C && deviceCode != 0x9D) return address;   // X=0x9C, Y=0x9D 만 8진수
-        return Convert.ToInt32(address.ToString(), 8);
-    }
+    //  예전엔 X/Y(입출력) 디바이스를 "PLC 화면 표기는 8진수" 관례로 보고 여기서 8진수→10진수
+    //  변환을 했었다(X20(8진 라벨)→10진수 16 등, MELSEC FX5 매뉴얼 CGI Object 규칙 근거).
+    //  근데 실제 태그 주소가 X04A/Y15A처럼 8진수엔 없는 문자(8,9,A~F)를 쓰는 16진수 블록으로
+    //  들어오게 되면서, LiveTagMonitorService.ParseAddressFull 쪽에서 X/Y 주소 문자열을 아예
+    //  16진수로 직접 해석해 "프레임에 넣을 최종 값"까지 이미 확정해서 넘겨주도록 바꿨다 —
+    //  그래서 여기서는 X/Y도 더 이상 손댈 게 없어 다른 디바이스와 동일하게 그대로 통과시킨다.
+    private static int ResolveMitsubishiAddress(int address, byte deviceCode) => address;
 
     //  미쓰비시 패킷 빌더 — 워드 읽기 (서브커맨드 0x0000)
     private static byte[] BuildMcReadPacket(int startD, int count, byte deviceCode = 0xA8)
