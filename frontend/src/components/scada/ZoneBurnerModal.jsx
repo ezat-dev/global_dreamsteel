@@ -7,9 +7,13 @@ import { TAG_ON, TAG_UNKNOWN, tagState } from '../../api/scada/foldertagApi';
    한 존에 버너가 4개 있고, 앞의 둘이 좌측·뒤의 둘이 우측이다(원본 작화 031_1ZONE연소).
 
    버튼이 9개다 — 버너 4개 × (연소 ON / 연소 OFF) + 존 PURGE 1개.
-   버튼마다 태그가 두 개씩 붙는다:
-     _cmd    누르면 1을 쓴다(momentary — PLC가 처리하고 스스로 내린다)
-     _state  지금 걸려 있는지. 이 값이 버튼을 진하게 할지 결정한다
+   버튼마다 태그가 두 개씩 붙는다(알람화면의 alarm_1000 ↔ alarm_1000_lamp와 같은 규칙):
+     _cmd        누르면 1을 쓴다(momentary — PLC가 처리하고 스스로 내린다)
+     _cmd_lamp   지금 걸려 있는지. 이 값이 버튼을 진하게 할지 결정한다
+
+   설비에는 존별로 버너가 8/8/8/7/7/7/8개 있지만(엑셀·알람 태그·folders_tags 모두 일치)
+   이 모달은 원본 작화대로 4개만 조작한다 — 나머지 버너는 이 창에서 켜고 끌 수 없다.
+   개수를 늘릴 일이 생기면 아래 BURNERS만 고치면 된다.
 
    누른 즉시 색을 바꾸지 않는다. 명령을 보내고, _state가 올라오는 다음 폴링에서
    바뀐다 — 인터록으로 PLC가 거부하면 색이 안 바뀌는 게 정확한 표시다.
@@ -24,9 +28,12 @@ const BURNERS = [
   { no: 4, side: '우' },
 ];
 
-/** 태그 이름 규칙 — folders_tags.name과 반드시 같아야 한다. */
-export const burnerTag = (zone, no, action, kind) => `cb_z${zone}_b${no}_${action}_${kind}`;
-export const purgeTag = (zone, kind) => `cb_z${zone}_purge_${kind}`;
+/* 태그 이름 규칙 — ez_scada.folders_tags.name과 반드시 같아야 한다.
+   명령 태그 이름 뒤에 '_lamp'를 붙인 것이 그 버튼의 상태 태그다.
+   예: cb_z1_b1_on_cmd(M380) ↔ cb_z1_b1_on_cmd_lamp(M680) */
+export const burnerCmd = (zone, no, action) => `cb_z${zone}_b${no}_${action}_cmd`;
+export const purgeCmd = (zone) => `cb_z${zone}_purge_cmd`;
+export const lampOf = (cmdName) => `${cmdName}_lamp`;
 
 /**
  * @param zone    존 번호(1~7)
@@ -45,12 +52,12 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  /* 상태 태그 하나를 버튼 클래스로 바꾼다.
-     값을 한 번도 못 받았거나 그 태그만 못 읽었으면 '모름'으로 둔다 —
+  /* 명령 태그 이름을 받아 그 버튼의 램프 상태를 클래스로 바꾼다.
+     값을 한 번도 못 받았거나 그 램프만 못 읽었으면 '모름'으로 둔다 —
      꺼진 것으로 그리면 실제로 타고 있는 버너를 꺼져 있다고 보여주게 된다. */
-  const stateClass = (stateName, onClassName) => {
+  const lampClass = (cmdName, onClassName) => {
     if (!values) return ' is-unknown';
-    const st = tagState(values[stateName]);
+    const st = tagState(values[lampOf(cmdName)]);
     if (st === TAG_UNKNOWN) return ' is-unknown';
     return st === TAG_ON ? onClassName : '';
   };
@@ -79,10 +86,8 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
 
         <div className="cb-zmodal-body">
           {BURNERS.map((b) => {
-            const onCmd = burnerTag(zone, b.no, 'on', 'cmd');
-            const offCmd = burnerTag(zone, b.no, 'off', 'cmd');
-            const onState = burnerTag(zone, b.no, 'on', 'state');
-            const offState = burnerTag(zone, b.no, 'off', 'state');
+            const onCmd = burnerCmd(zone, b.no, 'on');    // cb_z1_b1_on_cmd
+            const offCmd = burnerCmd(zone, b.no, 'off');  // cb_z1_b1_off_cmd
 
             return (
               <div className="cb-zmodal-row" key={b.no}>
@@ -93,19 +98,21 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
                 <span className="cb-onoff cb-zmodal-state">
                   <button
                     type="button"
-                    className={`hmi-lampbox${stateClass(onState, ' is-on')}`}
+                    className={`hmi-lampbox${lampClass(onCmd, ' is-on')}`}
                     onClick={() => onWrite(onCmd, 1)}
                     disabled={Boolean(busyTag)}
-                    title={onCmd}
+                    data-tag={onCmd}
+                    title={`${onCmd} / 램프 ${lampOf(onCmd)}`}
                   >
                     연소 ON
                   </button>
                   <button
                     type="button"
-                    className={`hmi-lampbox${stateClass(offState, ' is-alarm')}`}
+                    className={`hmi-lampbox${lampClass(offCmd, ' is-alarm')}`}
                     onClick={() => onWrite(offCmd, 1)}
                     disabled={Boolean(busyTag)}
-                    title={offCmd}
+                    data-tag={offCmd}
+                    title={`${offCmd} / 램프 ${lampOf(offCmd)}`}
                   >
                     연소 OFF
                   </button>
@@ -114,15 +121,18 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
             );
           })}
 
-          {/* 존 단위 퍼지 — 위 8개와 같은 규칙(명령 + 상태)이지만 버튼 모양이 다르다 */}
+          {/* 존 단위 퍼지 — 위 8개와 같은 규칙(_cmd + _cmd_lamp)이지만 버튼 모양이 다르다.
+              folders_tags에 아직 purge 태그가 없어서 지금 누르면 "태그를 찾을 수 없음"이
+              뜬다(화면 아래 안내로 보인다). 태그를 넣으면 코드 수정 없이 동작한다. */}
           <div className="cb-zmodal-row">
             <span className="cb-zmodal-name">{`${zone}ZONE PURGE`}</span>
             <button
               type="button"
-              className={`cb-zmodal-purge${stateClass(purgeTag(zone, 'state'), ' is-on')}`}
-              onClick={() => onWrite(purgeTag(zone, 'cmd'), 1)}
+              className={`cb-zmodal-purge${lampClass(purgeCmd(zone), ' is-on')}`}
+              onClick={() => onWrite(purgeCmd(zone), 1)}
               disabled={Boolean(busyTag)}
-              title={purgeTag(zone, 'cmd')}
+              data-tag={purgeCmd(zone)}
+              title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))}`}
             >
               PURGE 시작
             </button>
