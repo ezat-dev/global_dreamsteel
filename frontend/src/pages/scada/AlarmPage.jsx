@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { getAlarmLampValues, getAlarmTagList } from '../../api/scada/alarmTagApi';
+import { getAlarmLampValues, getAlarmTagList, lampNameOf } from '../../api/scada/alarmTagApi';
 import './AlarmPage.css';
 
 /* ===========================================================================
@@ -10,9 +10,9 @@ import './AlarmPage.css';
    알람 이름을 화면에 적어 두지 않는다 — 200개가 DB에 있고 PLC가 기준이므로,
    여기서 다시 적으면 둘이 어긋나는 순간 엉뚱한 이름이 켜진다.
 
-   값 응답은 folders_tags.id를 키로 오므로, 목록에 같이 담겨 오는 lampId로 찾는다.
-   id를 이 파일에 적어 두지 않는 것이 요점이다 — 적어 두면 DB를 다시 만들거나
-   태그를 지웠다 넣는 순간 램프가 조용히 엉뚱한 칸에 붙는다.
+   값은 램프 태그 이름(alarm_1000 → alarm_1000_lamp)으로 찾는다. folders_tags.id로
+   찾지 않는 것이 요점이다 — id는 auto increment라 DB를 다시 만들거나 태그를 지웠다
+   넣으면 바뀌고, 그러면 램프가 조용히 엉뚱한 칸에 붙는다. 이름은 바뀌지 않는다.
 
    한 화면에 10×10=100칸이 최대라 100개씩 나눠 상단 페이지 버튼으로 넘긴다.
    페이지 수는 태그 수에서 계산하므로, 태그가 늘어도 이 파일은 손댈 필요가 없다.
@@ -85,13 +85,11 @@ export default function AlarmPage() {
 
     const tick = () => {
       getAlarmLampValues()
-        .then((res) => {
+        .then(({ values: next, lastPollAt }) => {
           if (!alive) return;
-          /* C#을 직접 부르면 res가 { success, lastPollAt, values }이고,
-             나중에 자바를 경유하게 되면 res.data가 그 객체가 된다 — 둘 다 받는다. */
-          const body = res?.data ?? res ?? {};
-          setValues(body.values ?? body);
-          setPolledAt(body.lastPollAt ?? null);
+          // api가 { 램프이름: 값 } 으로 정리해서 준다(C# 응답은 배열이다)
+          setValues(next);
+          setPolledAt(lastPollAt);
           setValueError('');
           setLastOk(new Date());
         })
@@ -124,7 +122,7 @@ export default function AlarmPage() {
   }, [tags, page]);
 
   const activeCount = useMemo(
-    () => (values ? tags.filter((t) => lampState(values[t.lampId]) === ON).length : 0),
+    () => (values ? tags.filter((t) => lampState(values[lampNameOf(t.tagName)]) === ON).length : 0),
     [tags, values],
   );
 
@@ -209,16 +207,16 @@ export default function AlarmPage() {
           /* 값을 한 번도 못 받았으면 상태를 판정하지 않는다 —
              통신 전인데 전부 '정상'으로 보이면 알람이 없는 것으로 오해한다.
 
-             lampId가 없는 알람(짝이 되는 램프 태그가 없는 경우)도 '모름'이다.
-             values[undefined]는 항상 undefined라서 lampState가 UNKNOWN을 돌려준다. */
-          const state = values ? lampState(values[tag.lampId]) : null;
+             짝이 되는 램프 태그가 없거나 비활성(enabled=0)이면 응답에 아예 없으므로
+             undefined가 되고, lampState가 UNKNOWN(점선)을 돌려준다. */
+          const lampName = lampNameOf(tag.tagName);
+          const state = values ? lampState(values[lampName]) : null;
 
           return (
             <div
               key={tag.tagName}
               className={`al-cell${state === ON ? ' on' : ''}${state === UNKNOWN ? ' is-unknown' : ''}`}
-              title={`${tag.tagName} / ${tag.address}`
-                + (tag.lampId ? ` / 램프 #${tag.lampId}` : ' / 램프 태그 없음')}
+              title={`${tag.tagName} / ${tag.address} / 램프 ${lampName}`}
             >
               {tag.alarmMsg || tag.tagName}
             </div>

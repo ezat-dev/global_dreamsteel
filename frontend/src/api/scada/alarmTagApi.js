@@ -11,27 +11,45 @@ import plcApiInstance from '../plcApiInstance';
    서로 다른 서버를 보므로 인스턴스도 둘이다(정의는 자바 8081, 값은 C# 5050).
    =========================================================================== */
 
+/** ez_scada.folders.id — 폴더 이름 '알람페이지_램프'. 알람화면 램프 200개가 이 폴더에 있다. */
+const ALARM_LAMP_FOLDER_ID = 6;
+
+/** 램프 태그 이름 규칙: tb_alarm_tag.tag_name + 이 접미사 (alarm_1000 → alarm_1000_lamp) */
+const LAMP_SUFFIX = '_lamp';
+
+/** 알람 정의의 tagName으로 짝이 되는 램프 태그 이름을 만든다. */
+export function lampNameOf(tagName) {
+  return `${tagName}${LAMP_SUFFIX}`;
+}
+
 /**
  * 알람 정의 목록 — tag_id(=주소) 순서로 내려온다. 이 순서가 곧 화면 격자 순서다.
- * 각 행: tagName, address, alarmMsg, level, lampId
- *
- * lampId는 짝이 되는 램프 태그(folders_tags)의 id다. 값 응답이 이 id를 키로 오기 때문에
- * 목록을 받을 때 같이 받아 둔다 — 화면에 숫자를 적어 두면 DB를 다시 만드는 순간
- * 램프가 엉뚱한 칸에 붙는다.
+ * 각 행: tagName, address, alarmMsg, level
  */
 export function getAlarmTagList() {
   return axiosInstance.get('/api/scada/getAlarmTagList').then((res) => res.data);
 }
 
 /**
- * 램프 실시간값 — C#(PlcApiServer)을 직접 호출한다. 자바를 거치지 않는다.
- *   { success, lastPollAt, values: { "<folders_tags.id>": 0|1|null } }
+ * 램프 실시간값 — C#의 /api/foldertag/values?folderId=6 을 직접 호출한다.
  *
- * 자바 응답과 달리 ApiResponse로 감싸여 있지 않아서 res.data가 곧 이 객체다.
- * 키가 이름이 아니라 folders_tags.id라서, 목록에 실려 온 lampId로 찾는다.
+ * folderId를 주면 C#이 그 폴더 태그만 골라 이름·주소까지 붙여서 배열로 준다:
+ *   { success, folderId, lastPollAt, tags: [{ name, address, value }, ...] }
+ * folderId를 빼면 folders_tags.id를 키로 한 값 맵 전체가 오는데, 그러면 id를
+ * 알아야 해서 화면이 DB의 auto increment 값에 묶인다. 이름으로 찾는 쪽을 쓴다.
  *
- * C#은 읽기 실패한 태그를 null로 주므로, null은 "꺼짐"이 아니라 "모름"이다.
+ * 여기서 배열을 { 이름: 값 } 으로 바꿔 돌려준다 — 화면은 응답 형태를 몰라도 되고,
+ * 200개를 매 렌더마다 find로 훑지 않아도 된다.
+ *
+ * value는 읽기 실패 시 null이다. null은 "꺼짐"이 아니라 "모름"이다.
  */
 export function getAlarmLampValues() {
-  return plcApiInstance.get('/api/foldertag/values').then((res) => res.data);
+  return plcApiInstance
+    .get('/api/foldertag/values', { params: { folderId: ALARM_LAMP_FOLDER_ID } })
+    .then((res) => {
+      const body = res.data ?? {};
+      const values = {};
+      (body.tags ?? []).forEach((t) => { values[t.name] = t.value; });
+      return { lastPollAt: body.lastPollAt ?? null, values };
+    });
 }

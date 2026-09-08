@@ -4,7 +4,9 @@ import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
+import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
+import { writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -61,6 +63,11 @@ const STAGE_TOTAL_H = DRAW_SHIFT + STAGE_H;
      왼쪽부터 1존으로 표시하므로, PLC 연동 때 어느 쪽이 맞는지 확인이 필요하다.
    ------------------------------------------------------------------------- */
 const ZONES = [1, 2, 3, 4, 5, 6, 7];
+
+/* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id.
+   DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 값이 안 오는
+   형태로 조용히 실패하니(태그 0개 응답), 값이 전부 '모름'으로 나오면 여기를 먼저 본다. */
+const CB_FOLDER_ID = 7;
 
 const TOP_CX0 = 199;   // 상단 1존 중심
 /* 하단 개도 박스도 상단과 같은 x에 있다(199, 346, … 1081).
@@ -186,6 +193,24 @@ export default function CombustionPage() {
   /* 개별연소 모달을 띄운 존 번호. null이면 닫힘.
      존마다 창을 따로 두지 않고 번호만 바꿔 끼운다 — 내용이 존 번호로만 갈린다. */
   const [burnerZone, setBurnerZone] = useState(null);
+
+  /* PLC 태그 값 — 이 화면이 한 번만 폴링해서 모달까지 같이 쓴다.
+     모달이 따로 폴링하면 창을 열 때마다 요청이 하나 더 붙는다. */
+  const { values: tagValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
+
+  /* 쓰기 진행 중인 태그 이름 — 응답 오기 전에 또 누르는 것을 막는다.
+     설비 명령이라 같은 명령이 두 번 나가는 상황을 만들지 않는 편이 낫다. */
+  const [busyTag, setBusyTag] = useState('');
+  const [writeError, setWriteError] = useState('');
+
+  const handleWrite = (name, value) => {
+    setBusyTag(name);
+    setWriteError('');
+
+    return writeTag(CB_FOLDER_ID, name, value)
+      .catch((e) => setWriteError(`${name} — ${e.message}`))
+      .finally(() => setBusyTag(''));
+  };
 
   /* 존별 SV — 작업자가 넣는 설정값이라 화면에서 바꿀 수 있다
      (PV는 PLC가 주는 현재값이라 표시만 한다). */
@@ -376,7 +401,19 @@ export default function CombustionPage() {
       </div>
 
       {burnerZone !== null && (
-        <ZoneBurnerModal zone={burnerZone} onClose={() => setBurnerZone(null)} />
+        <ZoneBurnerModal
+          zone={burnerZone}
+          values={tagValues}
+          onWrite={handleWrite}
+          busyTag={busyTag}
+          onClose={() => setBurnerZone(null)}
+        />
+      )}
+
+      {/* 쓰기 실패·값 수신 실패 안내. 화면 아래에 떠서 작화를 가리지 않는다 —
+          버튼을 눌렀는데 아무 반응이 없을 때 이유를 알 수 있어야 한다. */}
+      {(writeError || tagValueError) && (
+        <div className="cb-toast">{writeError || tagValueError}</div>
       )}
     </div>
   );

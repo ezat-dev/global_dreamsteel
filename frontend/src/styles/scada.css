@@ -435,6 +435,16 @@ body {
   color: #ffffff;
 }
 
+/* 값을 못 받은 램프 — 꺼진 것과 반드시 구분해야 한다.
+   못 읽은 램프를 회색(꺼짐)으로 그리면 실제로 돌고 있는 설비를 멈춘 것으로 보게 되고,
+   빨갛게 그리면 오보가 된다. 점선으로 "지금 상태를 모른다"를 표시한다. */
+.hmi-lampbox.is-unknown {
+  border-style: dashed;
+  border-color: var(--hmi-shadow-dark);
+  background: var(--hmi-panel-dark);
+  color: var(--hmi-text-faint);
+}
+
 /* ===== 점 + 글자 램프 (.hmi-lamp) =======================================
    조건 목록처럼 줄마다 점을 찍는 형태. 위 .hmi-lampbox와는 다른 부품이다. */
 
