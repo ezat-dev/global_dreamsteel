@@ -204,7 +204,7 @@
 .cb-onoff > button.is-armed,
 .cb-zmodal-state > button.is-armed,
 .cb-zmodal-purge.is-armed {
-  outline: 2px solid #fbbf24;
+  outline: 2px solid var(--g-accent);
   outline-offset: -2px;
 }
 
@@ -218,7 +218,9 @@
   bottom: 0;
   height: 4px;
   width: 0;
-  background: #fbbf24;
+  /* 파랑(액센트)을 쓴다. 초록·주황·빨강은 이 프로젝트에서 안전 상태를 뜻하므로
+     진행 표시에 쓰면 경고로 오독된다. 밝은 쪽이라 회색·초록·빨강 배경 위에서 다 보인다. */
+  background: var(--g-accent);
   pointer-events: none;
   animation-name: cb-hold-fill;
   animation-timing-function: linear;
