@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CombustionOverview from '../../components/scada/CombustionOverview';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
@@ -205,23 +205,65 @@ export default function CombustionPage() {
      모달이 따로 폴링하면 창을 열 때마다 요청이 하나 더 붙는다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
 
-  /* 쓰기 진행 중인 태그 이름 — 응답 오기 전에 또 누르는 것을 막는다.
-     설비 명령이라 같은 명령이 두 번 나가는 상황을 만들지 않는 편이 낫다. */
-  const [busyTag, setBusyTag] = useState('');
   const [writeError, setWriteError] = useState('');
+  // 지금 누르고 있는 태그 — 눌린 모양을 그리는 데만 쓴다(비활성화에는 쓰지 않는다)
+  const [heldTag, setHeldTag] = useState('');
+
+  /* 누르고 있는 태그를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면
+     첫 렌더의 값에 갇히고, 뗌을 놓치면 비트가 1로 남는다. */
+  const heldRef = useRef(null);
+  /* 쓰기 순서를 지키기 위한 사슬. 1과 0을 각각 따로 보내면 짧게 눌렀을 때 0이 먼저
+     도착해서 비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
+  const chainRef = useRef(Promise.resolve());
 
   /** 명령 태그의 램프 상태 → 클래스. 켜졌을 때 무슨 색인지, 몇일 때 켜지는지는 부르는 쪽이 정한다. */
   const lampClass = (cmdName, onClassName, litWhen) =>
     lampClassOf(tagValues, cmdName, onClassName, litWhen);
 
-  const handleWrite = (name, value) => {
-    setBusyTag(name);
+  /* 싸이몬의 Bit_Momentary와 같은 동작 — 누르는 순간 1, 떼는 순간 0.
+     클릭(1만 쓰고 끝)이 아니라 누르고 있는 동안만 명령이 걸려 있어야 한다. */
+  const handlePress = (name) => {
+    if (heldRef.current) return;   // 두 개를 동시에 누르는 상황은 만들지 않는다
+    heldRef.current = name;
+    setHeldTag(name);
     setWriteError('');
 
-    return writeTag(CB_FOLDER_ID, name, value)
-      .catch((e) => setWriteError(`${name} — ${e.message}`))
-      .finally(() => setBusyTag(''));
+    chainRef.current = writeTag(CB_FOLDER_ID, name, 1)
+      .catch((e) => setWriteError(`${name} — ${e.message}`));
   };
+
+  const handleRelease = () => {
+    const name = heldRef.current;
+    if (!name) return;
+    heldRef.current = null;
+    setHeldTag('');
+
+    /* 1이 실패했어도 0은 보낸다 — 나갔는지 안 나갔는지 모르는 상태로 두는 것보다
+       확실히 내리는 쪽이 안전하다. */
+    chainRef.current = chainRef.current
+      .then(() => writeTag(CB_FOLDER_ID, name, 0))
+      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
+  };
+
+  /* 뗌을 버튼이 아니라 window에서 받는다.
+     손가락이 버튼 밖으로 나가서 떼도, 창이 포커스를 잃어도(탭 전환·알림창·화면보호기)
+     반드시 0이 나가게 하려는 것이다. 버튼의 onPointerUp만 믿으면 그런 경우에 비트가
+     1로 남는다 — 설비 명령에서는 그게 사고다.
+     핸들러가 ref와 setState만 건드려서 렌더마다 새로 걸 필요가 없다. */
+  useEffect(() => {
+    const release = () => handleRelease();
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    window.addEventListener('blur', release);
+
+    return () => {
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointercancel', release);
+      window.removeEventListener('blur', release);
+      release();   // 화면을 떠날 때 누르고 있던 것이 있으면 내린다
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* 존별 SV — 작업자가 넣는 설정값이라 화면에서 바꿀 수 있다
      (PV는 PLC가 주는 현재값이라 표시만 한다). */
@@ -282,11 +324,14 @@ export default function CombustionPage() {
                 <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
                   {d.onCmd ? (
                     <>
+                      {/* momentary — 누르는 순간 1, 떼는 순간 0. 뗌은 window가 받는다.
+                          disabled를 걸지 않는 이유: 비활성 요소는 뗌 이벤트를 못 받아서
+                          비트가 1로 남는다. */}
                       <button
                         type="button"
-                        className={`hmi-lampbox${lampClass(d.onCmd, ' is-on', d.onLitWhen)}`}
-                        onClick={() => handleWrite(d.onCmd, 1)}
-                        disabled={Boolean(busyTag)}
+                        className={`hmi-lampbox${lampClass(d.onCmd, ' is-on', d.onLitWhen)}`
+                          + (heldTag === d.onCmd ? ' is-held' : '')}
+                        onPointerDown={() => handlePress(d.onCmd)}
                         data-tag={d.onCmd}
                         title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)}`}
                       >
@@ -294,9 +339,9 @@ export default function CombustionPage() {
                       </button>
                       <button
                         type="button"
-                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm', d.offLitWhen)}`}
-                        onClick={() => handleWrite(d.offCmd, 1)}
-                        disabled={Boolean(busyTag)}
+                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm', d.offLitWhen)}`
+                          + (heldTag === d.offCmd ? ' is-held' : '')}
+                        onPointerDown={() => handlePress(d.offCmd)}
                         data-tag={d.offCmd}
                         title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)}`}
                       >
@@ -445,8 +490,8 @@ export default function CombustionPage() {
         <ZoneBurnerModal
           zone={burnerZone}
           values={tagValues}
-          onWrite={handleWrite}
-          busyTag={busyTag}
+          onPress={handlePress}
+          heldTag={heldTag}
           onClose={() => setBurnerZone(null)}
         />
       )}

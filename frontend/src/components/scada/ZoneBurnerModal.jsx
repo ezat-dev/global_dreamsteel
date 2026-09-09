@@ -8,16 +8,21 @@ import { lampClassOf, lampOf } from '../../api/scada/foldertagApi';
 
    버튼이 9개다 — 버너 4개 × (연소 ON / 연소 OFF) + 존 PURGE 1개.
    버튼마다 태그가 두 개씩 붙는다(알람화면의 alarm_1000 ↔ alarm_1000_lamp와 같은 규칙):
-     _cmd        누르면 1을 쓴다(momentary — PLC가 처리하고 스스로 내린다)
+     _cmd        누르는 동안 1, 떼면 0 (싸이몬의 Bit_Momentary와 같다)
      _cmd_lamp   지금 걸려 있는지. 이 값이 버튼을 진하게 할지 결정한다
+
+   momentary라서 onClick이 아니라 onPointerDown으로 누름만 받고, 뗌은 화면(CombustionPage)이
+   window에서 받는다 — 손가락이 버튼 밖에서 떨어져도 0이 반드시 나가야 하기 때문이다.
+   같은 이유로 버튼에 disabled를 걸지 않는다(비활성 요소는 뗌 이벤트를 못 받는다).
 
    설비에는 존별로 버너가 8/8/8/7/7/7/8개 있지만(엑셀·알람 태그·folders_tags 모두 일치)
    이 모달은 원본 작화대로 4개만 조작한다 — 나머지 버너는 이 창에서 켜고 끌 수 없다.
    개수를 늘릴 일이 생기면 아래 BURNERS만 고치면 된다.
 
-   누른 즉시 색을 바꾸지 않는다. 명령을 보내고, _state가 올라오는 다음 폴링에서
+   누른 즉시 램프 색을 바꾸지 않는다. 명령을 보내고, _cmd_lamp가 올라오는 다음 폴링에서
    바뀐다 — 인터록으로 PLC가 거부하면 색이 안 바뀌는 게 정확한 표시다.
    낙관적으로 켜면 설비는 안 움직이는데 화면만 켜진 상태가 된다.
+   (누르고 있다는 것 자체는 is-held로 따로 표시한다 — 그건 PLC 상태 주장이 아니라 입력 반응이다.)
    =========================================================================== */
 
 // 버너 번호 → 좌/우. 원본 작화의 배치(1·2번이 좌, 3·4번이 우)를 그대로 따른다.
@@ -37,11 +42,11 @@ export const purgeCmd = (zone) => `cb_z${zone}_purge_cmd`;
 /**
  * @param zone    존 번호(1~7)
  * @param values  useFolderTagValues의 값 맵. null이면 아직 못 받은 상태
- * @param onWrite (tagName, value) => Promise — 실제 쓰기
- * @param busyTag 지금 쓰기 중인 태그 이름(중복 클릭 방지용). 없으면 ''
+ * @param onPress (tagName) => void — 누름. 뗌(0 쓰기)은 화면이 window에서 받는다
+ * @param heldTag 지금 누르고 있는 태그 이름. 눌린 모양을 그리는 데만 쓴다
  * @param onClose 닫기
  */
-export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', onClose }) {
+export default function ZoneBurnerModal({ zone, values, onPress, heldTag = '', onClose }) {
   // ESC로 닫기
   useEffect(() => {
     const onKey = (e) => {
@@ -89,9 +94,9 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
                 <span className="cb-onoff cb-zmodal-state">
                   <button
                     type="button"
-                    className={`hmi-lampbox${lampClass(onCmd, ' is-on')}`}
-                    onClick={() => onWrite(onCmd, 1)}
-                    disabled={Boolean(busyTag)}
+                    className={`hmi-lampbox${lampClass(onCmd, ' is-on')}`
+                      + (heldTag === onCmd ? ' is-held' : '')}
+                    onPointerDown={() => onPress(onCmd)}
                     data-tag={onCmd}
                     title={`${onCmd} / 램프 ${lampOf(onCmd)}`}
                   >
@@ -99,9 +104,9 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
                   </button>
                   <button
                     type="button"
-                    className={`hmi-lampbox${lampClass(offCmd, ' is-alarm')}`}
-                    onClick={() => onWrite(offCmd, 1)}
-                    disabled={Boolean(busyTag)}
+                    className={`hmi-lampbox${lampClass(offCmd, ' is-alarm')}`
+                      + (heldTag === offCmd ? ' is-held' : '')}
+                    onPointerDown={() => onPress(offCmd)}
                     data-tag={offCmd}
                     title={`${offCmd} / 램프 ${lampOf(offCmd)}`}
                   >
@@ -119,9 +124,9 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
             <span className="cb-zmodal-name">{`${zone}ZONE PURGE`}</span>
             <button
               type="button"
-              className={`cb-zmodal-purge${lampClass(purgeCmd(zone), ' is-on')}`}
-              onClick={() => onWrite(purgeCmd(zone), 1)}
-              disabled={Boolean(busyTag)}
+              className={`cb-zmodal-purge${lampClass(purgeCmd(zone), ' is-on')}`
+                + (heldTag === purgeCmd(zone) ? ' is-held' : '')}
+              onPointerDown={() => onPress(purgeCmd(zone))}
               data-tag={purgeCmd(zone)}
               title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))}`}
             >
