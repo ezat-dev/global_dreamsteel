@@ -6,7 +6,7 @@ import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { writeTag } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -97,7 +97,11 @@ const ZONE_SV_MAX = 1000;
 /* (존 이름표·개별연소 판의 좌표 상수가 여기 있었는데, 그 판들이 무대 밖 .cb-zonebar로
    빠지면서 쓰이지 않게 되어 지웠다. 지금 위치는 CombustionPage.css의 .cb-zonebar가 잡는다.) */
 
-/* 상단·우측 설비 패널. plate는 제목 띠, state는 그 아래 두 글자가 놓이는 자리다. */
+/* 상단·우측 설비 패널. plate는 제목 띠, state는 그 아래 두 글자가 놓이는 자리다.
+
+   onCmd/offCmd가 있으면 두 칸이 조작 버튼이 되고(누르면 그 태그에 1), 램프는
+   명령 이름 + '_lamp'를 읽는다. 없으면 예전처럼 표시 전용 램프로 남는다 —
+   태그가 준비된 설비만 하나씩 살릴 수 있게 이렇게 갈라 두었다. */
 const DEVICE_PANELS = [
   {
     key: 'mainGas', tone: 'gas', title: 'MAIN GAS',
@@ -105,6 +109,8 @@ const DEVICE_PANELS = [
     // 제목판(25~215) 아래 가운데에 오도록. left를 키우면 오른쪽으로 쏠린다.
     state: { left: 15, top: 40, width: 210 },
     on: 'OPEN', off: 'CLOSE',
+    onCmd: 'main_gas_open_cmd',   // M320 / 램프 M620
+    offCmd: 'main_gas_close_cmd', // M321 / 램프 M621
   },
   /* 연소 BLOWER는 작화가 깔아둔 파란 패널 바탕(main-blower2, x 1038~1279 / y 0~64)
      위에 그대로 얹는다. main-blower1.png는 블로워 그림이 아니라 이 패널의 배경이다. */
@@ -203,6 +209,9 @@ export default function CombustionPage() {
   const [busyTag, setBusyTag] = useState('');
   const [writeError, setWriteError] = useState('');
 
+  /** 명령 태그의 램프 상태 → 클래스. 켜졌을 때 무슨 색인지는 부르는 쪽이 정한다. */
+  const lampClass = (cmdName, onClassName) => lampClassOf(tagValues, cmdName, onClassName);
+
   const handleWrite = (name, value) => {
     setBusyTag(name);
     setWriteError('');
@@ -265,10 +274,40 @@ export default function CombustionPage() {
             {DEVICE_PANELS.map((d) => (
               <span className="cb-dev" key={d.key}>
                 <em className={`cb-plate cb-plate--${d.tone}`} style={d.plate}>{d.title}</em>
-                {/* 두 칸 다 램프다. 걸린 쪽만 켜진다 — on쪽은 초록, off쪽은 빨강. */}
+
+                {/* 두 칸 다 램프다. 걸린 쪽만 켜진다 — on쪽은 초록, off쪽은 빨강.
+                    명령 태그가 있는 설비는 그 램프가 버튼도 겸한다(모양은 같다). */}
                 <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
-                  <b className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>{d.on}</b>
-                  <b className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>{d.off}</b>
+                  {d.onCmd ? (
+                    <>
+                      <button
+                        type="button"
+                        className={`hmi-lampbox${lampClass(d.onCmd, ' is-on')}`}
+                        onClick={() => handleWrite(d.onCmd, 1)}
+                        disabled={Boolean(busyTag)}
+                        data-tag={d.onCmd}
+                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)}`}
+                      >
+                        {d.on}
+                      </button>
+                      <button
+                        type="button"
+                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm')}`}
+                        onClick={() => handleWrite(d.offCmd, 1)}
+                        disabled={Boolean(busyTag)}
+                        data-tag={d.offCmd}
+                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)}`}
+                      >
+                        {d.off}
+                      </button>
+                    </>
+                  ) : (
+                    /* 아직 태그가 없는 설비(연소 BLOWER·버너 쿨링) — 더미값 표시 전용 */
+                    <>
+                      <b className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>{d.on}</b>
+                      <b className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>{d.off}</b>
+                    </>
+                  )}
                 </em>
               </span>
             ))}

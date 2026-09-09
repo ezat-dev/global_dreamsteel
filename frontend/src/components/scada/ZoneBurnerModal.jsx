@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { TAG_ON, TAG_UNKNOWN, tagState } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf } from '../../api/scada/foldertagApi';
 
 /* ===========================================================================
    존 개별연소 모달 — 연소화면에서 "N ZONE 개별연소" 이름표를 누르면 열린다.
@@ -28,12 +28,11 @@ const BURNERS = [
   { no: 4, side: '우' },
 ];
 
-/* 태그 이름 규칙 — ez_scada.folders_tags.name과 반드시 같아야 한다.
-   명령 태그 이름 뒤에 '_lamp'를 붙인 것이 그 버튼의 상태 태그다.
-   예: cb_z1_b1_on_cmd(M380) ↔ cb_z1_b1_on_cmd_lamp(M680) */
+/* 명령 태그 이름 — ez_scada.folders_tags.name과 반드시 같아야 한다.
+   램프 이름은 여기에 '_lamp'를 붙인 것이고, 그 규칙은 foldertagApi의 lampOf가 갖고 있다
+   (프로젝트 전체가 같은 규칙을 쓰므로 화면별로 다시 정의하지 않는다). */
 export const burnerCmd = (zone, no, action) => `cb_z${zone}_b${no}_${action}_cmd`;
 export const purgeCmd = (zone) => `cb_z${zone}_purge_cmd`;
-export const lampOf = (cmdName) => `${cmdName}_lamp`;
 
 /**
  * @param zone    존 번호(1~7)
@@ -52,15 +51,7 @@ export default function ZoneBurnerModal({ zone, values, onWrite, busyTag = '', o
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  /* 명령 태그 이름을 받아 그 버튼의 램프 상태를 클래스로 바꾼다.
-     값을 한 번도 못 받았거나 그 램프만 못 읽었으면 '모름'으로 둔다 —
-     꺼진 것으로 그리면 실제로 타고 있는 버너를 꺼져 있다고 보여주게 된다. */
-  const lampClass = (cmdName, onClassName) => {
-    if (!values) return ' is-unknown';
-    const st = tagState(values[lampOf(cmdName)]);
-    if (st === TAG_UNKNOWN) return ' is-unknown';
-    return st === TAG_ON ? onClassName : '';
-  };
+  const lampClass = (cmdName, onClassName) => lampClassOf(values, cmdName, onClassName);
 
   return (
     /* 막을 클릭해도 닫히게 한다. 단 패널 안쪽 클릭이 타고 올라와 닫는 일이 없도록

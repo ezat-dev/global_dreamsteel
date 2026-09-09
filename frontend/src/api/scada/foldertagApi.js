@@ -27,6 +27,36 @@ export function tagState(raw) {
 }
 
 /**
+ * 태그 이름 규칙 — 명령 태그 이름 뒤에 '_lamp'를 붙인 것이 그 버튼의 램프 태그다.
+ *   main_gas_open_cmd(M320)   ↔ main_gas_open_cmd_lamp(M620)
+ *   cb_z1_b1_on_cmd(M380)     ↔ cb_z1_b1_on_cmd_lamp(M680)
+ *
+ * 프로젝트 전체가 이 규칙 하나를 쓴다(알람화면의 alarm_1000 ↔ alarm_1000_lamp도 같다).
+ * 화면마다 규칙이 갈리면 여기서 분기해야 하므로, 태그를 넣을 때 이 형태로 맞춘다.
+ */
+export function lampOf(cmdName) {
+  return `${cmdName}_lamp`;
+}
+
+/**
+ * 명령 태그의 램프 상태를 클래스 문자열로 바꾼다. 켜진 램프에 붙일 클래스를 받는다 —
+ * 같은 1이라도 화면마다 뜻이 달라서(운전 중이면 초록, 정지 중이면 빨강) 색은 호출부가 정한다.
+ *
+ * 값을 한 번도 못 받았거나 그 램프만 못 읽었으면 '모름'으로 둔다. 꺼진 것으로 그리면
+ * 실제로 돌고 있는 설비를 멈춘 것으로 보여주게 된다.
+ *
+ * @param values 폴링으로 받은 { 태그이름: 값 } 맵. null이면 아직 못 받은 상태
+ * @param cmdName 명령 태그 이름(램프 이름은 여기서 만든다)
+ * @param onClassName 램프가 켜졌을 때 붙일 클래스(' is-on' / ' is-alarm')
+ */
+export function lampClassOf(values, cmdName, onClassName) {
+  if (!values) return ' is-unknown';
+  const st = tagState(values[lampOf(cmdName)]);
+  if (st === TAG_UNKNOWN) return ' is-unknown';
+  return st === TAG_ON ? onClassName : '';
+}
+
+/**
  * 한 폴더의 태그 값 전체 — { lastPollAt, values: { 태그이름: 값 } }
  *
  * C#은 배열로 준다:
