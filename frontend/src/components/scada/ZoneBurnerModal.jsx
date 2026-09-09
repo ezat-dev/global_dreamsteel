@@ -42,11 +42,16 @@ export const purgeCmd = (zone) => `cb_z${zone}_purge_cmd`;
 /**
  * @param zone    존 번호(1~7)
  * @param values  useFolderTagValues의 값 맵. null이면 아직 못 받은 상태
- * @param onPress (tagName) => void — 누름. 뗌(0 쓰기)은 화면이 window에서 받는다
- * @param heldTag 지금 누르고 있는 태그 이름. 눌린 모양을 그리는 데만 쓴다
+ * @param onPress (tagName) => void — 누름. 대기시간을 채웠을 때의 1 쓰기와
+ *                뗌의 0 쓰기는 모두 화면(CombustionPage)이 맡는다
+ * @param heldTag 지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
+ * @param armedTag 대기시간을 채워 1이 나간 태그
+ * @param holdMs  눌러야 하는 시간(ms). 진행 바 애니메이션 길이와 같은 값이어야 한다
  * @param onClose 닫기
  */
-export default function ZoneBurnerModal({ zone, values, onPress, heldTag = '', onClose }) {
+export default function ZoneBurnerModal({
+  zone, values, onPress, heldTag = '', armedTag = '', holdMs = 2000, onClose,
+}) {
   // ESC로 닫기
   useEffect(() => {
     const onKey = (e) => {
@@ -95,22 +100,30 @@ export default function ZoneBurnerModal({ zone, values, onPress, heldTag = '', o
                   <button
                     type="button"
                     className={`hmi-lampbox${lampClass(onCmd, ' is-on')}`
-                      + (heldTag === onCmd ? ' is-held' : '')}
+                      + (heldTag === onCmd ? ' is-held' : '')
+                      + (armedTag === onCmd ? ' is-armed' : '')}
                     onPointerDown={() => onPress(onCmd)}
                     data-tag={onCmd}
-                    title={`${onCmd} / 램프 ${lampOf(onCmd)}`}
+                    title={`${onCmd} / 램프 ${lampOf(onCmd)} — 2초 누르면 전송`}
                   >
                     연소 ON
+                    {heldTag === onCmd && (
+                      <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
+                    )}
                   </button>
                   <button
                     type="button"
                     className={`hmi-lampbox${lampClass(offCmd, ' is-alarm')}`
-                      + (heldTag === offCmd ? ' is-held' : '')}
+                      + (heldTag === offCmd ? ' is-held' : '')
+                      + (armedTag === offCmd ? ' is-armed' : '')}
                     onPointerDown={() => onPress(offCmd)}
                     data-tag={offCmd}
-                    title={`${offCmd} / 램프 ${lampOf(offCmd)}`}
+                    title={`${offCmd} / 램프 ${lampOf(offCmd)} — 2초 누르면 전송`}
                   >
                     연소 OFF
+                    {heldTag === offCmd && (
+                      <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
+                    )}
                   </button>
                 </span>
               </div>
@@ -125,12 +138,16 @@ export default function ZoneBurnerModal({ zone, values, onPress, heldTag = '', o
             <button
               type="button"
               className={`cb-zmodal-purge${lampClass(purgeCmd(zone), ' is-on')}`
-                + (heldTag === purgeCmd(zone) ? ' is-held' : '')}
+                + (heldTag === purgeCmd(zone) ? ' is-held' : '')
+                + (armedTag === purgeCmd(zone) ? ' is-armed' : '')}
               onPointerDown={() => onPress(purgeCmd(zone))}
               data-tag={purgeCmd(zone)}
-              title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))}`}
+              title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))} — 2초 누르면 전송`}
             >
               PURGE 시작
+              {heldTag === purgeCmd(zone) && (
+                <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
+              )}
             </button>
           </div>
         </div>

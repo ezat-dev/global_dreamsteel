@@ -69,6 +69,12 @@ const ZONES = [1, 2, 3, 4, 5, 6, 7];
    형태로 조용히 실패하니(태그 0개 응답), 값이 전부 '모름'으로 나오면 여기를 먼저 본다. */
 const CB_FOLDER_ID = 7;
 
+/* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다.
+   설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 2초를 채우는 동안
+   버튼에 진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
+   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적어 두면 어긋난다). */
+const HOLD_MS = 2000;
+
 const TOP_CX0 = 199;   // 상단 1존 중심
 /* 하단 개도 박스도 상단과 같은 x에 있다(199, 346, … 1081).
    전에 267로 잡혀 있던 건 잘못 잰 값이다 — rev-* 조각은 transform-origin: 0 0 에
@@ -206,30 +212,40 @@ export default function CombustionPage() {
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
 
   const [writeError, setWriteError] = useState('');
-  // 지금 누르고 있는 태그 — 눌린 모양을 그리는 데만 쓴다(비활성화에는 쓰지 않는다)
+  // 지금 누르고 있는 태그 — 진행 바를 그리는 데 쓴다(비활성화에는 쓰지 않는다)
   const [heldTag, setHeldTag] = useState('');
+  // 2초를 채워서 실제로 1이 나간 태그
+  const [armedTag, setArmedTag] = useState('');
 
-  /* 누르고 있는 태그를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면
-     첫 렌더의 값에 갇히고, 뗌을 놓치면 비트가 1로 남는다. */
+  /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
+     값에 갇히고, 뗌을 놓치면 비트가 1로 남는다. */
   const heldRef = useRef(null);
-  /* 쓰기 순서를 지키기 위한 사슬. 1과 0을 각각 따로 보내면 짧게 눌렀을 때 0이 먼저
-     도착해서 비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
+  const armedRef = useRef(false);
+  const holdTimerRef = useRef(null);
+  /* 쓰기 순서를 지키기 위한 사슬. 1과 0을 각각 따로 보내면 0이 먼저 도착해서
+     비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
   const chainRef = useRef(Promise.resolve());
 
   /** 명령 태그의 램프 상태 → 클래스. 켜졌을 때 무슨 색인지, 몇일 때 켜지는지는 부르는 쪽이 정한다. */
   const lampClass = (cmdName, onClassName, litWhen) =>
     lampClassOf(tagValues, cmdName, onClassName, litWhen);
 
-  /* 싸이몬의 Bit_Momentary와 같은 동작 — 누르는 순간 1, 떼는 순간 0.
-     클릭(1만 쓰고 끝)이 아니라 누르고 있는 동안만 명령이 걸려 있어야 한다. */
+  /* 누르는 순간에는 아무것도 보내지 않는다 — HOLD_MS를 채워야 1이 나간다.
+     그 뒤로는 싸이몬의 Bit_Momentary와 같다(떼면 0). */
   const handlePress = (name) => {
     if (heldRef.current) return;   // 두 개를 동시에 누르는 상황은 만들지 않는다
     heldRef.current = name;
+    armedRef.current = false;
     setHeldTag(name);
+    setArmedTag('');
     setWriteError('');
 
-    chainRef.current = writeTag(CB_FOLDER_ID, name, 1)
-      .catch((e) => setWriteError(`${name} — ${e.message}`));
+    holdTimerRef.current = setTimeout(() => {
+      armedRef.current = true;
+      setArmedTag(name);
+      chainRef.current = writeTag(CB_FOLDER_ID, name, 1)
+        .catch((e) => setWriteError(`${name} — ${e.message}`));
+    }, HOLD_MS);
   };
 
   const handleRelease = () => {
@@ -237,6 +253,14 @@ export default function CombustionPage() {
     if (!name) return;
     heldRef.current = null;
     setHeldTag('');
+    setArmedTag('');
+
+    clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+
+    // 2초를 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
+    if (!armedRef.current) return;
+    armedRef.current = false;
 
     /* 1이 실패했어도 0은 보낸다 — 나갔는지 안 나갔는지 모르는 상태로 두는 것보다
        확실히 내리는 쪽이 안전하다. */
@@ -324,28 +348,36 @@ export default function CombustionPage() {
                 <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
                   {d.onCmd ? (
                     <>
-                      {/* momentary — 누르는 순간 1, 떼는 순간 0. 뗌은 window가 받는다.
+                      {/* 2초 누르면 1, 떼면 0. 뗌은 window가 받는다.
                           disabled를 걸지 않는 이유: 비활성 요소는 뗌 이벤트를 못 받아서
                           비트가 1로 남는다. */}
                       <button
                         type="button"
                         className={`hmi-lampbox${lampClass(d.onCmd, ' is-on', d.onLitWhen)}`
-                          + (heldTag === d.onCmd ? ' is-held' : '')}
+                          + (heldTag === d.onCmd ? ' is-held' : '')
+                          + (armedTag === d.onCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.onCmd)}
                         data-tag={d.onCmd}
-                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)}`}
+                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)} — 2초 누르면 전송`}
                       >
                         {d.on}
+                        {heldTag === d.onCmd && (
+                          <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                        )}
                       </button>
                       <button
                         type="button"
                         className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm', d.offLitWhen)}`
-                          + (heldTag === d.offCmd ? ' is-held' : '')}
+                          + (heldTag === d.offCmd ? ' is-held' : '')
+                          + (armedTag === d.offCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.offCmd)}
                         data-tag={d.offCmd}
-                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)}`}
+                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)} — 2초 누르면 전송`}
                       >
                         {d.off}
+                        {heldTag === d.offCmd && (
+                          <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                        )}
                       </button>
                     </>
                   ) : (
@@ -492,6 +524,8 @@ export default function CombustionPage() {
           values={tagValues}
           onPress={handlePress}
           heldTag={heldTag}
+          armedTag={armedTag}
+          holdMs={HOLD_MS}
           onClose={() => setBurnerZone(null)}
         />
       )}

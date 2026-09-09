@@ -183,13 +183,50 @@
   -webkit-touch-callout: none;
 }
 
+/* 진행 바를 안쪽 아래에 붙이기 위한 기준. overflow로 모서리 밖으로 안 넘치게 한다. */
+.cb-onoff > button,
+.cb-zmodal-state > button,
+.cb-zmodal-purge {
+  position: relative;
+  overflow: hidden;
+}
+
 /* 누르고 있는 동안의 표시. 램프 색(PLC 상태)과 별개로 "지금 누르고 있다"만 알린다 —
    눌렀는데 아무 반응이 없으면 눌린 건지 알 수 없다. */
 .cb-onoff > button.is-held,
 .cb-zmodal-state > button.is-held,
 .cb-zmodal-purge.is-held {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45);
-  transform: translateY(1px);
+}
+
+/* 대기시간을 채워 명령이 실제로 나간 상태 — 테두리를 밝게 해서 "지금 걸려 있다"를 알린다.
+   램프(PLC가 주는 값)와는 별개다. 램프가 안 켜지면 PLC가 거부한 것이다. */
+.cb-onoff > button.is-armed,
+.cb-zmodal-state > button.is-armed,
+.cb-zmodal-purge.is-armed {
+  outline: 2px solid #fbbf24;
+  outline-offset: -2px;
+}
+
+/* ===== 누름 진행 바 =====================================================
+   누르는 순간 이 요소가 새로 생기고(조건부 렌더) 애니메이션이 처음부터 돈다 —
+   클래스만 토글하면 같은 버튼을 연달아 누를 때 애니메이션이 다시 시작되지 않는다.
+   길이(animationDuration)는 JS의 HOLD_MS를 inline style로 받는다. */
+.cb-hold-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: 0;
+  background: #fbbf24;
+  pointer-events: none;
+  animation-name: cb-hold-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes cb-hold-fill {
+  to { width: 100%; }
 }
 
 /* ===== 배관 상태 글씨 =================================================== */
