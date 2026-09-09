@@ -6,7 +6,7 @@ import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
+import { TAG_OFF, lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -109,8 +109,9 @@ const DEVICE_PANELS = [
     // 제목판(25~215) 아래 가운데에 오도록. left를 키우면 오른쪽으로 쏠린다.
     state: { left: 15, top: 40, width: 210 },
     on: 'OPEN', off: 'CLOSE',
-    onCmd: 'main_gas_open_cmd',   // M320 / 램프 M620
-    offCmd: 'main_gas_close_cmd', // M321 / 램프 M621
+    onCmd: 'main_gas_open_cmd',   // M320 / 램프 M620 — 1이면 초록
+    offCmd: 'main_gas_close_cmd', // M321 / 램프 M621 — 0이면 빨강(논리가 반대다)
+    offLitWhen: TAG_OFF,
   },
   /* 연소 BLOWER는 작화가 깔아둔 파란 패널 바탕(main-blower2, x 1038~1279 / y 0~64)
      위에 그대로 얹는다. main-blower1.png는 블로워 그림이 아니라 이 패널의 배경이다. */
@@ -209,8 +210,9 @@ export default function CombustionPage() {
   const [busyTag, setBusyTag] = useState('');
   const [writeError, setWriteError] = useState('');
 
-  /** 명령 태그의 램프 상태 → 클래스. 켜졌을 때 무슨 색인지는 부르는 쪽이 정한다. */
-  const lampClass = (cmdName, onClassName) => lampClassOf(tagValues, cmdName, onClassName);
+  /** 명령 태그의 램프 상태 → 클래스. 켜졌을 때 무슨 색인지, 몇일 때 켜지는지는 부르는 쪽이 정한다. */
+  const lampClass = (cmdName, onClassName, litWhen) =>
+    lampClassOf(tagValues, cmdName, onClassName, litWhen);
 
   const handleWrite = (name, value) => {
     setBusyTag(name);
@@ -282,7 +284,7 @@ export default function CombustionPage() {
                     <>
                       <button
                         type="button"
-                        className={`hmi-lampbox${lampClass(d.onCmd, ' is-on')}`}
+                        className={`hmi-lampbox${lampClass(d.onCmd, ' is-on', d.onLitWhen)}`}
                         onClick={() => handleWrite(d.onCmd, 1)}
                         disabled={Boolean(busyTag)}
                         data-tag={d.onCmd}
@@ -292,7 +294,7 @@ export default function CombustionPage() {
                       </button>
                       <button
                         type="button"
-                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm')}`}
+                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm', d.offLitWhen)}`}
                         onClick={() => handleWrite(d.offCmd, 1)}
                         disabled={Boolean(busyTag)}
                         data-tag={d.offCmd}

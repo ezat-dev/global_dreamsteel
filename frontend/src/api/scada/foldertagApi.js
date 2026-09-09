@@ -45,15 +45,20 @@ export function lampOf(cmdName) {
  * 값을 한 번도 못 받았거나 그 램프만 못 읽었으면 '모름'으로 둔다. 꺼진 것으로 그리면
  * 실제로 돌고 있는 설비를 멈춘 것으로 보여주게 된다.
  *
+ * litWhen으로 "몇일 때 켜지는지"를 뒤집을 수 있다. 대부분 1일 때 켜지지만
+ * 0일 때 켜지는 램프가 실제로 있다(MAIN GAS CLOSE) — PLC가 그렇게 주는 것이라
+ * 화면에서 맞춰야 한다. 이걸 태그 이름 규칙으로는 표현할 수 없어서 화면이 지정한다.
+ *
  * @param values 폴링으로 받은 { 태그이름: 값 } 맵. null이면 아직 못 받은 상태
  * @param cmdName 명령 태그 이름(램프 이름은 여기서 만든다)
  * @param onClassName 램프가 켜졌을 때 붙일 클래스(' is-on' / ' is-alarm')
+ * @param litWhen TAG_ON(기본, 값이 1일 때 켜짐) 또는 TAG_OFF(값이 0일 때 켜짐)
  */
-export function lampClassOf(values, cmdName, onClassName) {
+export function lampClassOf(values, cmdName, onClassName, litWhen = TAG_ON) {
   if (!values) return ' is-unknown';
   const st = tagState(values[lampOf(cmdName)]);
   if (st === TAG_UNKNOWN) return ' is-unknown';
-  return st === TAG_ON ? onClassName : '';
+  return st === litWhen ? onClassName : '';
 }
 
 /**
