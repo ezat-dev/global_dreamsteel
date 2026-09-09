@@ -23,14 +23,14 @@ const RANGE = {
 /**
  * ZONE 1개짜리 온도제어 패널. 값은 전부 PLC 태그에서 온다(자동/수동 버튼만 아직 더미).
  *
- *   PV       tc_zN_pv         D101   읽기 전용
- *   SV       tc_zN_sv         D100   읽기 — Working SV(제어기가 지금 실제로 쓰는 목표값)
- *            tc_zN_sv_cmd     R100   쓰기 — 작업자가 넣는 목표값
- *   MV       tc_zN_mv         D102   읽기 전용
- *   PID      tc_zN_pid_p/i/d  R101~103  읽기+쓰기(한 레지스터)
- *   MANUAL   tc_zN_manual_mv  R104      읽기+쓰기
- *   출력제한 tc_zN_range_hi/lo R105~106 읽기+쓰기
- *   경보기준 tc_zN_alarm_hh/h/l/ll R110~113 읽기+쓰기
+ *   PV       tic_zN_pv         D101   읽기 전용
+ *   SV       tic_zN_sv         D100   읽기 — Working SV(제어기가 지금 실제로 쓰는 목표값)
+ *            tic_zN_sv_cmd     R100   쓰기 — 작업자가 넣는 목표값
+ *   MV       tic_zN_mv         D102   읽기 전용
+ *   PID      tic_zN_pid_p/i/d  R101~103  읽기+쓰기(한 레지스터)
+ *   MANUAL   tic_zN_manual_mv  R104      읽기+쓰기
+ *   출력제한 tic_zN_range_hi/lo R105~106 읽기+쓰기
+ *   경보기준 tic_zN_alarm_hh/h/l/ll R110~113 읽기+쓰기
  *
  * SV만 읽는 곳과 쓰는 곳이 다르다. PLC 설계가 그렇다 — 램프 프로그램이 돌면 930을
  * 넣어도 Working SV는 850→880→910으로 서서히 올라간다. 그래서 칸에는 D100(실제 적용 중)을
@@ -44,7 +44,9 @@ const RANGE = {
  * @param onChange (field, value) => void — 더미 칸 전용
  */
 export default function TempZonePanel({ zoneNo, zone, values, onWrite, onChange }) {
-  const tag = (suffix) => `tc_z${zoneNo}_${suffix}`;
+  /* 접두사 tic_ = TIC(Temperature Indicating Controller). PLC 주소표가 쓰는 표기와 같다
+     ("TIC Temperature PV", "TIC PID (P) SV"). tc_로 쓰면 이 분야에서 써모커플로 읽힌다. */
+  const tag = (suffix) => `tic_z${zoneNo}_${suffix}`;
   const raw = (suffix) => values?.[tag(suffix)];
 
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다.
