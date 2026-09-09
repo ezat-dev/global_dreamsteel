@@ -533,7 +533,7 @@ export default function CombustionPage() {
       {/* 쓰기 실패·값 수신 실패 안내. 화면 아래에 떠서 작화를 가리지 않는다 —
           버튼을 눌렀는데 아무 반응이 없을 때 이유를 알 수 있어야 한다. */}
       {(writeError || tagValueError) && (
-        <div className="cb-toast">{writeError || tagValueError}</div>
+        <div className="hmi-toast">{writeError || tagValueError}</div>
       )}
     </div>
   );
