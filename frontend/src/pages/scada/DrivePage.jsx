@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import DriveOverview from '../../components/scada/DriveOverview';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
+import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
+import { writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './driveOverview.css';
 import './DrivePage.css';
@@ -74,10 +76,21 @@ const ZONE_STEP = 75.5;
 const ZONE_W = 75;
 const ZONES = [1, 2, 3, 4, 5, 6, 7];
 
-/* 존 속도 설정(SV) 허용 범위 — 7개 존이 모두 같다.
+/* 존 SV 허용 범위 — 7개 존이 모두 같다. 온도(0~1000℃)라 온도제어 화면과 같은 값이다.
    숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
 const ZONE_SV_MIN = 0;
 const ZONE_SV_MAX = 1000;
+
+/* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '구동화면').
+   DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
+   조용히 실패하니, 값이 전부 '---'로 나오면 여기를 먼저 본다. */
+const DR_FOLDER_ID = 9;
+
+/* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
+   같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
+   복제한 것이다. PLC 왕복은 늘지 않는다(C# 폴러가 주소를 Distinct로 묶어 읽는다).
+   주소가 바뀌면 두 폴더를 함께 고쳐야 한다는 점만 주의. */
+const zoneTag = (n, suffix) => `tic_z${n}_${suffix}`;
 
 /* DOOR 오른쪽과 COOLING CHAMBER TABLE DRIVE의 PV 칸.
    셋을 한 목록으로 묶어 같은 top을 쓰게 한다 — 따로 두면 높이가 어긋난다.
@@ -417,12 +430,26 @@ export default function DrivePage() {
     setDrives((prev) => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
   };
 
-  /* 존별 SV — 작업자가 넣는 설정값이라 화면에서 바꿀 수 있다(PV는 PLC가 주는 값이라 표시만).
-     PLC 연동 전이라 초기값은 0으로 둔다. */
-  const [zoneSv, setZoneSv] = useState(() => ZONES.map(() => '0'));
+  /* 존 PV/SV 실시간값. 나머지 칸(구동부 3개, 램프, TIME 설정 등)은 아직 더미다. */
+  const { values: tagValues, error: tagValueError } = useFolderTagValues(DR_FOLDER_ID);
+  const [writeError, setWriteError] = useState('');
 
-  const handleZoneSv = (idx, value) => {
-    setZoneSv((prev) => prev.map((v, i) => (i === idx ? value : v)));
+  /* 값을 못 받았으면 0이 아니라 '---'로 보여준다.
+     읽지 못한 온도를 0으로 그리면 노가 식은 것으로 오해한다. */
+  const zoneText = (n, suffix) => {
+    const v = tagValues?.[zoneTag(n, suffix)];
+    return v == null || v === '' ? '---' : String(v);
+  };
+
+  /* 표시는 Working SV(D100), 입력은 R100으로 나간다 — 온도제어 화면과 같은 규칙이다.
+     램프 프로그램이 돌면 930을 넣어도 표시는 850→880→910으로 따라 올라간다. */
+  const handleZoneSv = (n, value) => {
+    const num = Math.round(Number(value));
+    if (!Number.isFinite(num)) return;
+
+    setWriteError('');
+    writeTag(DR_FOLDER_ID, zoneTag(n, 'sv_cmd'), num)
+      .catch((e) => setWriteError(`${zoneTag(n, 'sv_cmd')} — ${e.message}`));
   };
 
   return (
@@ -514,16 +541,18 @@ export default function DrivePage() {
               >
                 {/* 사진의 표기는 ZONE1이 아니라 1ZONE이다. */}
                 <div className="dr-zone-title">{`${n}ZONE`}</div>
-                <ValueBox label="PV" />
+                <ValueBox label="PV" value={zoneText(n, 'pv')} />
 
-                {/* SV는 설정값이라 눌러서 숫자패드로 넣는다. 글자색은 DrivePage.css의 --dr-sv. */}
+                {/* SV는 설정값이라 눌러서 숫자패드로 넣는다. 글자색은 DrivePage.css의 --dr-sv.
+                    표시는 tic_zN_sv(D100, 실제 적용 중인 목표값), 입력은 tic_zN_sv_cmd(R100). */}
                 <div className="dr-vbox">
                   <span className="dr-vbox-label">SV</span>
                   <LedInput
-                    value={zoneSv[n - 1]}
-                    onChange={(v) => handleZoneSv(n - 1, v)}
+                    value={zoneText(n, 'sv')}
+                    onChange={(v) => handleZoneSv(n, v)}
                     size="sm"
-                    label={`${n}ZONE 속도 설정`}
+                    label={`${n}ZONE 설정온도`}
+                    title={`표시 ${zoneTag(n, 'sv')} / 입력 ${zoneTag(n, 'sv_cmd')}`}
                     min={ZONE_SV_MIN}
                     max={ZONE_SV_MAX}
                   />
@@ -589,6 +618,11 @@ export default function DrivePage() {
           <LampList key={b.key} lamps={b.lamps} className="dr-board" />
         ))}
       </div>
+
+      {/* 쓰기 실패·값 수신 실패 안내. SV를 넣었는데 아무 반응이 없을 때 이유가 보여야 한다. */}
+      {(writeError || tagValueError) && (
+        <div className="hmi-toast">{writeError || tagValueError}</div>
+      )}
     </div>
   );
 }
