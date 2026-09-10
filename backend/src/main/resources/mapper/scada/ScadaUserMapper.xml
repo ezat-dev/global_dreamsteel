@@ -90,4 +90,12 @@
         WHERE id = #{id}
     </update>
 
+    <insert id="insertLog" parameterType="com.mes.domain.scada.ScadaUser">
+        INSERT INTO scada_log (
+    user_id, user_name, address, send_value
+    ) VALUES (
+    #{userId}, #{userName}, #{address}, #{sendValue}
+    )
+    </insert>
+
 </mapper>

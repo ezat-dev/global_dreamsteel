@@ -52,7 +52,8 @@ public class ScadaController {
     @PostMapping("/login")
     public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param, HttpSession session) {
         ScadaUser data = scadaService.getUser(param);
-        session.setAttribute("loginUserId", data.getId());
+        session.setAttribute("loginId", data.getId());
+        session.setAttribute("loginUserId", data.getUserId());
         session.setAttribute("loginUserName", data.getUserName());
         session.setAttribute("loginUserRole", data.getUserRole());
         return ApiResponse.success(data);
@@ -115,5 +116,38 @@ public class ScadaController {
     @GetMapping("/getAlarmTagList")
     public ApiResponse<List<ScadaAlarm>> getAlarmTagList(@ModelAttribute ScadaAlarm scadaAlarm) {
         return ApiResponse.success(scadaService.getAlarmTagList(scadaAlarm));
+    }
+
+    /**
+     * 태그에 값 쓰기 + 제어 로그 기록.
+     *
+     * <p>
+     * 프론트엔드는 값 <b>읽기</b>는 C#(PlcApiServer)을 직접 호출하지만 <b>쓰기</b>는 여기를
+     * 거친다 — C#은 로그인한 사용자가 누군지 모르기 때문이다(세션은 여기 있다). 누가 무엇을
+     * 바꿨는지 scada_log에 남겨야 하므로, 사용자를 아는 쪽이 쓰기를 수행하고 그 자리에서
+     * 기록한다. 프론트가 쓰고 나서 따로 로그 요청을 보내는 방식이면, 쓰기는 나갔는데 로그
+     * 요청이 실패하는 경우에 기록이 비어 버린다.
+     * </p>
+     *
+     * <p>
+     * 여기서는 세션의 사용자를 param에 담는 일만 한다. C# 호출과 로그 기록은
+     * {@link ScadaService#writeTag}가 한 덩어리로 처리한다 — 컨트롤러에서 두 번 나눠
+     * 부르면 다른 화면이 쓰기를 호출할 때 그 순서를 또 적어야 하고, 한 곳에서 빼먹으면
+     * 로그가 조용히 안 남는다.
+     * </p>
+     *
+     * @param scadaUser folderId, tagName, sendValue, writeLog
+     *                  (writeLog=false는 momentary 버튼을 뗄 때 나가는 0 — 사람이 한 조작이
+     *                   아니라 누름의 자동 해제라서 기록하지 않는다)
+     */
+    //태그에 값 쓰기
+    @PostMapping("/writeTag")
+    public ResponseEntity<ApiResponse<Boolean>> writeTag(@RequestBody ScadaUser scadaUser,
+                                                         HttpSession session) {
+        /* 로그에 남길 사람. 세션에만 있는 값이라 여기서 담아 넘긴다 —
+           프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다. */
+        scadaUser.setUserId((String) session.getAttribute("loginUserId"));
+        scadaUser.setUserName((String) session.getAttribute("loginUserName"));
+        return ResponseEntity.ok(ApiResponse.success(scadaService.writeTag(scadaUser)));
     }
 }

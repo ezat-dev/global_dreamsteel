@@ -31,4 +31,7 @@ public class ScadaUser {
     private String authTrend;
     private String authAlarmHist;
     private String authTemp;
+    private String folderId;
+    private String tagName;
+    private Boolean writeLog;
 }

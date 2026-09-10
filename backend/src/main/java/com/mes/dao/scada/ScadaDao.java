@@ -52,11 +52,11 @@ public class ScadaDao {
         return true;
     }
 
-        public ScadaUser getId(ScadaUser scadaUser) {
+    public ScadaUser getId(ScadaUser scadaUser) {
         return sqlSession.selectOne("ScadaUserMapper.getId", scadaUser);
     }
 
-        public List<ScadaUser> getUserList(ScadaUser scadaUser) {
+    public List<ScadaUser> getUserList(ScadaUser scadaUser) {
         return sqlSession.selectList("ScadaUserMapper.getUserList", scadaUser);
     }
 
@@ -70,5 +70,13 @@ public class ScadaDao {
 
     public List<ScadaAlarm> getAlarmTagList(ScadaAlarm scadaAlarm) {
         return sqlSession.selectList("ScadaAlarmMapper.getAlarmTagList", scadaAlarm);
+    }
+
+    public boolean insertLog(ScadaUser scadaUser) {
+        int result = sqlSession.insert("ScadaUserMapper.insertLog", scadaUser);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
     }
 }

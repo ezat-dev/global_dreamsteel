@@ -263,9 +263,11 @@ export default function CombustionPage() {
     armedRef.current = false;
 
     /* 1이 실패했어도 0은 보낸다 — 나갔는지 안 나갔는지 모르는 상태로 두는 것보다
-       확실히 내리는 쪽이 안전하다. */
+       확실히 내리는 쪽이 안전하다.
+       log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. 기록하면
+       버튼 한 번에 로그가 두 줄씩 쌓여서 "누가 무엇을 눌렀나"가 안 보인다. */
     chainRef.current = chainRef.current
-      .then(() => writeTag(CB_FOLDER_ID, name, 0))
+      .then(() => writeTag(CB_FOLDER_ID, name, 0, false))
       .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
   };
 

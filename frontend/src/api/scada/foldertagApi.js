@@ -1,10 +1,17 @@
+import axiosInstance from '../axiosInstance';
 import plcApiInstance from '../plcApiInstance';
 
 /* ===========================================================================
-   folders_tags 태그 읽기·쓰기 — C#(PlcApiServer)을 직접 호출한다.
+   folders_tags 태그 읽기·쓰기. 두 경로가 다르다.
 
-   읽기는 C#이 백그라운드로 폴링해 메모리에 들고 있는 값을 꺼내오는 것이라
-   자주 불러도 PLC 왕복이 늘지 않는다. 쓰기는 실제로 PLC에 값을 내보낸다.
+   읽기 — C#(5050)을 직접 부른다. C#이 백그라운드로 폴링해 메모리에 들고 있는 값을
+          꺼내오는 것이라 1초마다 불러도 PLC 왕복이 늘지 않는다.
+
+   쓰기 — 자바(8081)를 거친다. C#으로 바로 보내면 더 짧지만, C#은 로그인한 사용자가
+          누군지 모른다(세션은 자바에 있다). 누가 무엇을 바꿨는지 scada_log에 남겨야
+          하므로, 사용자를 아는 자바가 쓰기를 수행하고 그 자리에서 기록한다.
+          프론트가 쓰고 나서 따로 로그 요청을 보내는 방식이면, 쓰기는 나갔는데
+          로그 요청이 실패하는 경우에 기록이 비어 버린다.
    =========================================================================== */
 
 /** 램프/값 상태 — C#은 읽기 실패나 아직 안 읽은 태그를 null로 준다. */
@@ -84,7 +91,7 @@ export function getFolderTagValues(folderId) {
 }
 
 /**
- * 태그에 값 쓰기 — 실제로 PLC에 나간다.
+ * 태그에 값 쓰기 — 자바를 거쳐 실제로 PLC에 나가고, scada_log에 기록된다.
  *
  * 비트/워드는 C#이 주소의 디바이스 문자로 가른다(M/L/X/Y/B/S=비트, D/W/R=워드).
  * folders_tags.type 컬럼은 보지 않으므로 여기서도 신경 쓸 필요가 없다.
@@ -93,15 +100,23 @@ export function getFolderTagValues(folderId) {
  * (folder_id, name)), 여러 폴더에 같은 이름이 있으면 C#이 "특정할 수 없음"으로
  * 거부한다. 엉뚱한 설비에 쓰는 사고를 막는 장치다.
  *
- * 주의: 실패도 HTTP 200 + success:false 로 온다(C#이 그렇게 응답한다).
- * 그래서 axios의 catch가 잡지 못하므로 여기서 success를 보고 직접 예외를 던진다.
+ * @param log false면 기록하지 않는다. momentary 버튼을 뗄 때 나가는 0이 그렇다 —
+ *            사람이 한 조작이 아니라 누름의 자동 해제라서, 기록하면 버튼 한 번에
+ *            로그가 두 줄씩 쌓여 읽기 어려워진다.
  */
-export function writeTag(folderId, name, value) {
-  return plcApiInstance
-    .get('/api/foldertag/write/by-name', { params: { folderId, name, value } })
+export function writeTag(folderId, name, value, log = true) {
+  /* 필드명이 자바 ScadaUser의 것이다 — sendValue와 address는 곧 scada_log의 컬럼이라,
+     서비스가 C# 응답의 address만 채워 넣고 그대로 INSERT할 수 있다. */
+  return axiosInstance
+    .post('/api/scada/writeTag', {
+      folderId,
+      tagName: name,
+      sendValue: String(value),
+      writeLog: log,
+    })
     .then((res) => {
       const body = res.data ?? {};
-      if (!body.success) throw new Error(body.error || 'PLC 쓰기에 실패했습니다.');
+      if (!body.success) throw new Error(body.message || 'PLC 쓰기에 실패했습니다.');
       return body;
     });
 }
