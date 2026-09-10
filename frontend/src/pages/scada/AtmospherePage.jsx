@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import AtmosphereOverview from '../../components/scada/AtmosphereOverview';
 import AtmosConditionPanel from '../../components/scada/AtmosConditionPanel';
 import AtmosValvePanel from '../../components/scada/AtmosValvePanel';
+import useFolderTagValues from '../../components/scada/useFolderTagValues';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
 import './AtmospherePage.css';
@@ -75,6 +76,11 @@ const FURNACE_PLATE = { left: 1277, top: 592, width: 190, text: '로내 투입' 
 // 로 위에 얹는 O2 센서 표시부
 const O2_PANEL = { left: 940, top: 620, titleWidth: 135, valueWidth: 100 };
 
+/* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '분위기제어').
+   DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
+   조용히 실패하니, 값이 '---'로 나오면 여기를 먼저 본다. */
+const AT_FOLDER_ID = 10;
+
 // 자동모드 전환 조건 — 순서와 문구는 현장 HMI 화면 그대로.
 // on은 PLC 상태라 지금은 전부 꺼짐으로 두고, 연동 때 폴링 값으로 채운다.
 const CONDITIONS = [
@@ -103,6 +109,17 @@ export default function AtmospherePage() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  /* PLC 태그 값. 지금 붙어 있는 것은 O2 SENSOR(o2_pv, D241) 하나뿐이고,
+     나머지 칸(조건 램프·밸브 패널)은 아직 더미다. */
+  const { values: tagValues, error: tagValueError } = useFolderTagValues(AT_FOLDER_ID);
+
+  /* 값을 못 받았으면 0이 아니라 '---'로 보여준다 — 읽지 못한 값을 0으로 그리면
+     실제로 0인 것과 구분되지 않는다. */
+  const o2Text = (() => {
+    const v = tagValues?.o2_pv;
+    return v == null || v === '' ? '---' : String(v);
+  })();
 
   const [conditions] = useState(() => CONDITIONS.map((c) => ({ ...c, on: false })));
 
@@ -180,7 +197,14 @@ export default function AtmospherePage() {
               <em className="at-plate at-plate--o2" style={{ width: O2_PANEL.titleWidth }}>
                 O2 SENSOR
               </em>
-              <em className="at-val" style={{ width: O2_PANEL.valueWidth }}>####</em>
+              <em
+                className="at-val"
+                style={{ width: O2_PANEL.valueWidth }}
+                data-tag="o2_pv"
+                title="O2 SENSOR — 읽기 전용 / o2_pv (D241)"
+              >
+                {o2Text}
+              </em>
               <em className="at-o2-unit">mmV</em>
             </span>
 
@@ -194,6 +218,9 @@ export default function AtmospherePage() {
           </div>
         </div>
       </div>
+
+      {/* 값 수신 실패 안내 — O2 값이 '---'로 굳어 있을 때 이유가 보여야 한다 */}
+      {tagValueError && <div className="hmi-toast">{tagValueError}</div>}
     </div>
   );
 }
