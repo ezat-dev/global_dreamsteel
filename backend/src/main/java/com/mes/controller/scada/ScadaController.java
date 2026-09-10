@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mes.common.exception.BusinessException;
+import com.mes.common.exception.ErrorCode;
 import com.mes.common.response.ApiResponse;
 import com.mes.domain.scada.ScadaAlarm;
 import com.mes.domain.scada.ScadaUser;
@@ -52,10 +54,10 @@ public class ScadaController {
     @PostMapping("/login")
     public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param, HttpSession session) {
         ScadaUser data = scadaService.getUser(param);
-        session.setAttribute("loginId", data.getId());
-        session.setAttribute("loginUserId", data.getUserId());
-        session.setAttribute("loginUserName", data.getUserName());
-        session.setAttribute("loginUserRole", data.getUserRole());
+        session.setAttribute("loginId", data.getId());  //pk
+        session.setAttribute("loginUserId", data.getUserId());  //로그인 아이디
+        session.setAttribute("loginUserName", data.getUserName());  //로그인 이름
+        session.setAttribute("loginUserRole", data.getUserRole());  //로그인 권한
         return ApiResponse.success(data);
     }
 
@@ -146,7 +148,21 @@ public class ScadaController {
                                                          HttpSession session) {
         /* 로그에 남길 사람. 세션에만 있는 값이라 여기서 담아 넘긴다 —
            프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다. */
-        scadaUser.setUserId((String) session.getAttribute("loginUserId"));
+        String userId = (String) session.getAttribute("loginUserId");
+
+        /* 세션이 없으면 PLC에 값을 보내기 전에 막는다.
+           안 막으면 순서가 이렇게 된다: user_id가 null인 채로 C#에 값을 쓰고,
+           그 뒤 scada_log INSERT가 NOT NULL 위반으로 실패한다 —
+           설비는 이미 움직였는데 기록은 없고, 화면에는 원인과 무관한
+           "이미 존재하거나 참조 중인 데이터입니다"가 뜬다.
+
+           로그인 유지 시간을 따로 정하지 않아서 세션이 끊기는 경우는 드물지만
+           (톰캣 기본 30분, 백엔드 재시작), 조작 기록이 비는 것보다는 거부가 낫다. */
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "로그인이 필요합니다. 다시 로그인해주세요.");
+        }
+
+        scadaUser.setUserId(userId);
         scadaUser.setUserName((String) session.getAttribute("loginUserName"));
         return ResponseEntity.ok(ApiResponse.success(scadaService.writeTag(scadaUser)));
     }

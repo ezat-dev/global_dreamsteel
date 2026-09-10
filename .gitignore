@@ -2,6 +2,12 @@
 Thumbs.db
 *.log
 
+# 로그 폴더 통째로 무시한다. *.log만 두면 logback이 회전시킨 파일
+# (backend.log.2026-09-08.0.gz)이 안 걸려서, 서버 PC에서 그 파일이 생긴 뒤
+# git pull이 "untracked working tree files would be overwritten"으로 멈춘다.
+logs/
+*.log.*
+
 # VS Code Java Upgrade 확장이 세션 중 자동 생성하는 폴더(프로젝트와 무관)
 .github/modernize/
 
