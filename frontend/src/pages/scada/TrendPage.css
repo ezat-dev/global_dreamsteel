@@ -157,19 +157,22 @@
    찌그러진다. 그 지점부터는 .tr-values의 overflow-y로 스크롤이 생긴다. */
 .tr-vrow {
   flex: 1;
-  min-height: 44px;
+  min-height: 50px;
   display: grid;
-  grid-template-columns: 88px 42px minmax(0, 1fr);
+  /* 가운데 열은 토글 폭(52px)과 같아야 한다 — 토글을 키우면 이 값도 같이 올린다.
+     이름표 열은 예전에 88px이었는데, 예열대·냉각대(1) 줄을 뺀 뒤로 가장 긴 이름이
+     'O2 (PV)'라 그만큼 필요 없다. 줄인 폭은 값 칸으로 넘겨서 판 전체 폭은 그대로 둔다. */
+  grid-template-columns: 68px 52px minmax(0, 1fr);
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
+  gap: 8px;
+  padding: 6px 9px;
   border: 1px solid var(--hmi-light);
   border-radius: 8px;
   background: var(--hmi-bg);
 }
 
 .tr-vlabel {
-  font-size: 13.5px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--hmi-text);
   text-align: center;
@@ -182,10 +185,10 @@
    조작 대상이라(표시등이 아니라) 버튼이고, 켜지면 손잡이가 오른쪽으로 미끄러진다. */
 .tr-toggle {
   position: relative;
-  width: 42px;
-  height: 21px;
+  width: 52px;
+  height: 26px;
   padding: 0;
-  border-radius: 11px;
+  border-radius: 13px;
   border: 1px solid var(--hmi-shadow-dark);
   background: var(--hmi-panel-dark);
   cursor: pointer;
@@ -199,13 +202,14 @@
   background: var(--hmi-blue-edge);
 }
 
-/* 손잡이 */
+/* 손잡이. 크기·이동거리가 토글 크기에 묶여 있다 —
+   손잡이 = 높이 - 테두리·여백 4px, 이동거리 = 폭 - 손잡이 - 4px. */
 .tr-toggle i {
   position: absolute;
   top: 1px;
   left: 1px;
-  width: 17px;
-  height: 17px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 1px solid var(--hmi-shadow-dark);
   background: #ffffff;
@@ -214,7 +218,7 @@
 }
 
 .tr-toggle.is-on i {
-  transform: translateX(21px);
+  transform: translateX(26px);
 }
 
 /* 검은 LED 칸 — .hmi-led-input과 같은 파인 테두리·검은 바탕.
@@ -223,8 +227,8 @@
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
-  gap: 5px;
-  padding: 3px 8px;
+  gap: 6px;
+  padding: 5px 9px;
   border: 1px solid var(--hmi-shadow-dark);
   border-radius: 5px;
   background: var(--hmi-led-bg);
@@ -232,30 +236,51 @@
 
 .tr-vbox em {
   font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 700;
   font-style: normal;
   font-variant-numeric: tabular-nums;
 }
 
 .tr-vbox i {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   font-style: normal;
 }
 
-/* 좁은 화면에서는 판을 줄여 차트 자리를 남긴다 */
+/* 좁은 화면에서는 판을 줄여 차트 자리를 남긴다.
+   토글은 손으로 누르는 것이라 여기서도 44px 아래로는 줄이지 않는다. */
 @media (max-width: 1280px) {
   .tr-values {
     flex-basis: 240px;
   }
 
   .tr-vrow {
-    grid-template-columns: 74px 38px minmax(0, 1fr);
+    grid-template-columns: 60px 44px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .tr-toggle {
+    width: 44px;
+    height: 22px;
+    border-radius: 11px;
+  }
+
+  .tr-toggle i {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tr-toggle.is-on i {
+    transform: translateX(22px);
+  }
+
+  .tr-vbox em {
+    font-size: 18px;
   }
 
   .tr-vlabel {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .tr-vbox em {

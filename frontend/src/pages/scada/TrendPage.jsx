@@ -41,7 +41,7 @@ const VALUE_ROWS = [
   { key: 'zone5Pv', label: '5ZONE', color: '#ff00e0', unit: '℃' },
   { key: 'zone6Pv', label: '6ZONE', color: '#9933ff', unit: '℃' },
   { key: 'zone7Pv', label: '7ZONE', color: '#c8a2ff', unit: '℃' },
-  { key: 'o2Pv', label: 'O2 (PV)', color: '#ff1a1a', unit: 'mmV' },
+  { key: 'o2Pv', label: 'O2', color: '#ff1a1a', unit: 'mmV' },
 ];
 
 // 빠른 조회 버튼 — 지금부터 N시간 전까지
