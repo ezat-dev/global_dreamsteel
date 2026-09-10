@@ -17,20 +17,6 @@
         ORDER BY occur_time_str DESC
     </select>
 
-        <select id="getTrendList" parameterType="com.mes.domain.scada.ScadaAlarm"
-            resultType="com.mes.domain.scada.ScadaAlarm">
-        SELECT * FROM ez_scada.tb_temp_snapshot
-        <!-- 발생시각 범위. 한쪽만 채워 보내면 그쪽 경계만 걸리고, 둘 다 비면 전체를 조회한다. -->
-        <where>
-            <if test="startTime != null and startTime != ''">
-                AND record_time &gt;= #{startTime}
-            </if>
-            <if test="endTime != null and endTime != ''">
-                AND record_time &lt;= #{endTime}
-            </if>
-        </where>
-    </select>
-
     <select id="getAlarmTagList" parameterType="com.mes.domain.scada.ScadaAlarm"
             resultType="com.mes.domain.scada.ScadaAlarm">
             SELECT a.tag_name, a.address, a.alarm_msg, a.level,

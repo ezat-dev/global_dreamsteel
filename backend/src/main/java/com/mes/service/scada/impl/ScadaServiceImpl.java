@@ -13,6 +13,7 @@ import com.mes.common.exception.BusinessException;
 import com.mes.common.exception.ErrorCode;
 import com.mes.dao.scada.ScadaDao;
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 import com.mes.service.scada.ScadaService;
 
@@ -52,8 +53,8 @@ public class ScadaServiceImpl implements ScadaService {
     }
 
     @Override
-    public List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm) {
-        return scadaDao.getTrendList(scadaAlarm);
+    public List<ScadaTrend> getTrend(ScadaTrend scadaTrend) {
+        return scadaDao.getTrend(scadaTrend);
     }
 
     @Override

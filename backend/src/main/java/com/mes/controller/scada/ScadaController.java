@@ -16,6 +16,7 @@ import com.mes.common.exception.BusinessException;
 import com.mes.common.exception.ErrorCode;
 import com.mes.common.response.ApiResponse;
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 import com.mes.service.scada.ScadaService;
 
@@ -81,9 +82,9 @@ public class ScadaController {
     }
 
     // 트렌드 조회
-    @GetMapping("/getTrendList")
-    public ApiResponse<List<ScadaAlarm>> getTrendList(@ModelAttribute ScadaAlarm scadaAlarm) {
-        return ApiResponse.success(scadaService.getTrendList(scadaAlarm));
+    @GetMapping("/getTrend")
+    public ApiResponse<List<ScadaTrend>> getTrend(@ModelAttribute ScadaTrend scadaTrend) {
+        return ApiResponse.success(scadaService.getTrend(scadaTrend));
     }
 
     // 로그 리스트 조회

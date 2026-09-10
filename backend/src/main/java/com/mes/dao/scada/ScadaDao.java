@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 
 /**
@@ -36,8 +37,8 @@ public class ScadaDao {
         return sqlSession.selectList("ScadaAlarmMapper.getAlarmList", scadaAlarm);
     }
 
-    public List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm) {
-        return sqlSession.selectList("ScadaAlarmMapper.getTrendList", scadaAlarm);
+    public List<ScadaTrend> getTrend(ScadaTrend scadaTrend) {
+        return sqlSession.selectList("ScadaTrendMapper.getTrend", scadaTrend);
     }
 
     public List<ScadaAlarm> getLogList(ScadaAlarm scadaAlarm) {

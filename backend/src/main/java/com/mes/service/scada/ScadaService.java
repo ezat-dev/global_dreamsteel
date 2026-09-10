@@ -3,6 +3,7 @@ package com.mes.service.scada;
 import java.util.List;
 
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 
 /**
@@ -21,7 +22,7 @@ public interface ScadaService {
 
     List<ScadaAlarm> getAlarmList(ScadaAlarm scadaAlarm);
 
-    List<ScadaAlarm> getTrendList(ScadaAlarm scadaAlarm);
+    List<ScadaTrend> getTrend(ScadaTrend scadaTrend);
 
     List<ScadaAlarm> getLogList(ScadaAlarm scadaAlarm);
 

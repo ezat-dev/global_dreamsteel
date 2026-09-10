@@ -5,43 +5,43 @@ import { format, subHours } from 'date-fns';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import 'react-datepicker/dist/react-datepicker.css';
+import { getTrend } from '../../api/scada/trendApi';
 import './TrendPage.css';
 
 /* ===========================================================================
    트랜드 — 온도 태그의 시계열 추이
 
-   지금은 화면만이다. 값은 아래 makeDummySeries가 만들어내는 가짜 데이터고,
-   DB(ez_scada.tb_temp_snapshot) 조회는 아직 붙이지 않았다.
-
-   붙일 때는 getTrendList(startTime, endTime)를 부르고 rows를 그대로 <LineChart data>에
-   넘기면 된다. 컬럼 이름이 곧 dataKey라서(SERIES의 key = tb_temp_tag.col_name) 변환이
-   필요 없다. 다만 스냅샷 테이블은 컬럼이 태그 등록에 따라 늘어나므로, 백엔드 반환을
-   List<Map<String,Object>>로 받아야 한다(ScadaAlarm 같은 고정 POJO로는 못 담는다).
+   ez_scada.tb_temp_snapshot을 조회한다. 실시간 값(다른 화면의 1초 폴링)과 경로가 다르다 —
+   C#의 TempMonitorService가 30초마다 PLC를 읽어 스냅샷 한 행씩 DB에 적재하고,
+   이 화면은 그 이력을 자바를 거쳐 받는다.
    =========================================================================== */
 
 registerLocale('ko', ko);
 
 const TIME_FORMAT = 'yyyy-MM-dd HH:mm';
 
+/* 조회 파라미터로 보낼 형식. DB의 record_time이 datetime이라 이 형태로 비교된다. */
+const QUERY_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+
 /* 오른쪽 판의 한 줄 = 차트의 한 선. 목록이 하나뿐이라 판의 이름·색과 그래프의
    이름·색이 어긋날 수 없고, 줄의 토글이 곧 그 선의 표시 여부가 된다.
 
-   key는 tb_temp_snapshot의 컬럼명(= tb_temp_tag.col_name)이 될 자리다. 지금은 가짜
-   데이터를 만드는 이름일 뿐이고, DB를 붙일 때 실제 컬럼명으로 바꾸면 된다.
+   key는 서버 응답의 필드명이다(tb_temp_snapshot의 컬럼 zone1_pv → zone1Pv).
    color는 참고 화면의 LED 색을 따른다. O2만 단위가 mmV이고 나머지는 ℃다
-   (단위가 다르면 y축도 갈라진다 — 아래 chartOptions의 yAxis 참고). */
+   (단위가 다르면 y축도 갈라진다 — 아래 chartOptions의 yAxis 참고).
+
+   참고 화면에는 예열대·냉각대(1)·냉각대(2)도 있었는데, 이 설비에는 해당 PLC 태그가
+   없어서 뺐다. 태그가 생기면 tb_temp_tag에 넣고(C#이 스냅샷 컬럼을 자동 추가한다)
+   여기에 줄을 추가하면 된다. */
 const VALUE_ROWS = [
-  { key: 'zone1', label: '1ZONE', color: '#ff8fa3', unit: '℃' },
-  { key: 'zone2', label: '2ZONE', color: '#ffe000', unit: '℃' },
-  { key: 'zone3', label: '3ZONE', color: '#ff8c00', unit: '℃' },
-  { key: 'zone4', label: '4ZONE', color: '#ff1a1a', unit: '℃' },
-  { key: 'zone5', label: '5ZONE', color: '#ff00e0', unit: '℃' },
-  { key: 'zone6', label: '6ZONE', color: '#9933ff', unit: '℃' },
-  { key: 'zone7', label: '7ZONE', color: '#c8a2ff', unit: '℃' },
-  { key: 'preheat', label: '예 열 대', color: '#ff77c8', unit: '℃' },
-  { key: 'cool1', label: '냉 각 대 (1)', color: '#ff9ec4', unit: '℃' },
-  { key: 'cool2', label: '냉 각 대 (2)', color: '#9a9a1e', unit: '℃' },
-  { key: 'o2', label: 'O2 (PV)', color: '#ff1a1a', unit: 'mmV' },
+  { key: 'zone1Pv', label: '1ZONE', color: '#ff8fa3', unit: '℃' },
+  { key: 'zone2Pv', label: '2ZONE', color: '#ffe000', unit: '℃' },
+  { key: 'zone3Pv', label: '3ZONE', color: '#ff8c00', unit: '℃' },
+  { key: 'zone4Pv', label: '4ZONE', color: '#ff1a1a', unit: '℃' },
+  { key: 'zone5Pv', label: '5ZONE', color: '#ff00e0', unit: '℃' },
+  { key: 'zone6Pv', label: '6ZONE', color: '#9933ff', unit: '℃' },
+  { key: 'zone7Pv', label: '7ZONE', color: '#c8a2ff', unit: '℃' },
+  { key: 'o2Pv', label: 'O2 (PV)', color: '#ff1a1a', unit: 'mmV' },
 ];
 
 // 빠른 조회 버튼 — 지금부터 N시간 전까지
@@ -50,27 +50,39 @@ const QUICK_HOURS = [1, 3, 6, 12, 24];
 const DEFAULT_HOURS = 24;
 
 /* mmV 값은 ℃와 자릿수가 달라서 한 축에 같이 그리면 한쪽이 납작해진다.
-   단위별로 y축을 나누고, 이 표로 어느 축에 붙일지 정한다. */
-const AXIS_BY_UNIT = { '℃': 0, mmV: 1 };
+   단위별로 y축을 나누고, 이 표로 어느 축에 붙일지 정한다.
+   0번이 왼쪽(mmV = O2), 1번이 오른쪽(℃ = 존 온도)이다. */
+const AXIS_BY_UNIT = { mmV: 0, '℃': 1 };
 
-/* 가짜 시계열. 실제 적재 주기는 30초지만 24시간이면 2880점이라 화면에 과하다.
-   구간을 200등분해서 선 모양만 보이게 한다(연동하면 통째로 사라질 코드다). */
-function makeDummySeries(start, end) {
-  const POINTS = 200;
-  const span = end.getTime() - start.getTime();
-  if (span <= 0) return [];
+/* y축 범위를 계기 범위로 고정한다. Highcharts에 맡기면 값의 최소·최대에 맞춰 축이
+   늘었다 줄었다 하는데, 그러면 같은 온도가 조회 구간마다 다른 높이에 그려져서
+   눈으로 비교가 안 된다. 계기판처럼 눈금이 항상 같은 자리에 있어야 한다. */
+const AXIS_RANGE = {
+  mmV: { min: 0, max: 1500 },   // O2 (왼쪽)
+  '℃': { min: 0, max: 1000 },   // 1~7존 온도 (오른쪽)
+};
 
-  return Array.from({ length: POINTS + 1 }, (_, i) => {
-    const t = new Date(start.getTime() + (span * i) / POINTS);
-    const row = { t: t.getTime() };
-    VALUE_ROWS.forEach((r, si) => {
-      // mmV는 온도와 자릿수가 달라야 두 축이 갈린 게 보인다
-      const base = r.unit === 'mmV' ? 600 : 200 + si * 80;
-      const swing = r.unit === 'mmV' ? 60 : 45;
-      row[r.key] = Math.round(base + Math.sin(i / 12 + si) * swing + Math.sin(i / 3.5 + si) * 8);
-    });
-    return row;
+/* 서버 응답 한 행을 차트가 먹는 형태로 바꾼다.
+   Highcharts는 x에 숫자 타임스탬프를 원하고, 값도 숫자여야 한다 —
+   자바가 record_time을 문자열로, DOUBLE 값을 문자열로 주기 때문에 여기서 바꾼다.
+
+   시각 문자열은 두 가지 형태로 올 수 있다:
+     '2026-09-10 15:56:30'            (SQL에서 DATE_FORMAT 한 경우)
+     '2026-09-10T15:56:30.000+00:00'  (datetime을 그대로 준 경우)
+   앞의 형태는 공백을 T로 바꿔야 브라우저가 로컬 시각으로 파싱한다. */
+function toChartRow(row) {
+  const raw = String(row.recordTime ?? '');
+  const t = new Date(raw.includes('T') ? raw : raw.replace(' ', 'T')).getTime();
+  if (!Number.isFinite(t)) return null;
+
+  const out = { t };
+  VALUE_ROWS.forEach((r) => {
+    const v = row[r.key];
+    // 값이 없으면 null로 둔다 — 0으로 그리면 그 시각에 온도가 0이었던 것처럼 보인다
+    const n = v == null || v === '' ? null : Number(v);
+    out[r.key] = Number.isFinite(n) ? n : null;
   });
+  return out;
 }
 
 export default function TrendPage() {
@@ -116,7 +128,39 @@ export default function TrendPage() {
     end: new Date(),
   }));
 
-  const rows = useMemo(() => makeDummySeries(range.start, range.end), [range]);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  /** 우측 판에 띄울 값 — 조회 구간의 마지막 스냅샷. 없으면 undefined. */
+  const lastRow = rows.length ? rows[rows.length - 1] : undefined;
+
+  /* 조회한 구간이 바뀔 때만 서버에 묻는다. 날짜 입력칸을 만지는 것으로는 안 나간다 —
+     range는 조회 버튼을 눌러야 바뀌기 때문이다(입력값 start/end와 분리해 둔 이유). */
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+
+    getTrend({
+      startTime: format(range.start, QUERY_FORMAT),
+      endTime: format(range.end, QUERY_FORMAT),
+    })
+      .then((res) => {
+        if (!alive) return;
+        // 시각을 못 읽은 행은 버린다(toChartRow가 null을 준다) — 차트가 깨지는 것보다 낫다
+        setRows((res.data ?? []).map(toChartRow).filter(Boolean));
+        setError('');
+      })
+      .catch((e) => {
+        if (!alive) return;
+        setRows([]);
+        setError(e.response?.data?.message ?? '트랜드를 불러오지 못했습니다.');
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => { alive = false; };
+  }, [range]);
 
   const search = (s, e) => {
     if (!s || !e) {
@@ -201,13 +245,19 @@ export default function TrendPage() {
        O2(mmV)를 온도와 같은 축에 그리면 자릿수가 달라 한쪽이 납작해진다. */
     yAxis: [
       {
-        title: { text: '℃', style: { fontSize: '11px', color: '#555555' } },
+        // 0번 = 왼쪽 — O2(mmV) 0~1500
+        title: { text: 'mmV', style: { fontSize: '11px', color: '#555555' } },
+        min: AXIS_RANGE.mmV.min,
+        max: AXIS_RANGE.mmV.max,
         gridLineColor: '#c8c8c8',
         gridLineDashStyle: 'Dash',
         labels: { style: { fontSize: '11px', color: '#555555' } },
       },
       {
-        title: { text: 'mmV', style: { fontSize: '11px', color: '#555555' } },
+        // 1번 = 오른쪽 — 존 온도(℃) 0~1000
+        title: { text: '℃', style: { fontSize: '11px', color: '#555555' } },
+        min: AXIS_RANGE['℃'].min,
+        max: AXIS_RANGE['℃'].max,
         opposite: true,
         // 오른쪽 축 눈금선까지 그리면 왼쪽 것과 겹쳐 지저분해진다
         gridLineWidth: 0,
@@ -306,8 +356,14 @@ export default function TrendPage() {
 
         {error && <span className="tr-error">{error}</span>}
 
+        {/* 조회한 구간과 상태. 24시간이면 2880점이라 응답이 바로 오지 않을 수 있어,
+            기다리는 중인지 / 구간에 데이터가 없는지를 구분해서 알린다 —
+            빈 차트만 보이면 조회가 느린 건지 값이 없는 건지 알 수 없다. */}
         <span className="tr-range">
           {`${format(range.start, TIME_FORMAT)} ~ ${format(range.end, TIME_FORMAT)}`}
+          {loading && ' · 조회 중...'}
+          {!loading && !error && rows.length === 0 && ' · 이 구간에 데이터가 없습니다'}
+          {!loading && rows.length > 0 && ` · ${rows.length}점`}
         </span>
       </div>
 
@@ -323,11 +379,15 @@ export default function TrendPage() {
           />
         </div>
 
-        {/* 현재값 판 + 그래프 표시 토글. 값은 PLC가 붙으면 채운다(지금은 전부 0).
+        {/* 조회 구간의 마지막 값 + 그래프 표시 토글.
+            "지금 값"이 아니라 "조회한 구간의 끝 값"이다 — 이 화면은 이력을 보는 곳이고,
+            과거 구간을 조회했을 때 현재값을 띄우면 차트와 숫자가 어긋난다.
             토글이 곧 차트 범례 역할이라 그래프 쪽 범례는 꺼 두었다. */}
         <div className="tr-values">
           {VALUE_ROWS.map((r) => {
             const on = !hidden[r.key];
+            const v = lastRow?.[r.key];
+            const text = v == null ? '---' : String(v);
             return (
               <div className="tr-vrow" key={r.key}>
                 <span className="tr-vlabel">{r.label}</span>
@@ -344,7 +404,7 @@ export default function TrendPage() {
                 </button>
 
                 <span className="tr-vbox">
-                  <em style={{ color: r.color }}>0</em>
+                  <em style={{ color: r.color }}>{text}</em>
                   <i style={{ color: r.color }}>{r.unit}</i>
                 </span>
               </div>
