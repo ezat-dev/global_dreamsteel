@@ -278,34 +278,29 @@
   color: var(--hmi-text);
 }
 
-/* 사진의 PV(주황) / SV(파랑) 값칸 — 표시 전용이라 입력 부품을 쓰지 않는다 */
+/* 존 PV 값칸 — 표시 전용이라 입력 부품을 쓰지 않는다.
+   원본 작화는 PV를 연주황, SV를 연파랑 박스로 그렸는데 검은 LED로 바꿨다.
+   이 칸이 보는 값(D101/D100)을 온도제어·구동화면도 똑같이 보여주기 때문에,
+   모양이 다르면 같은 값인데 다른 것처럼 읽힌다. 세 화면의 부품을 하나로 맞췄다. */
 .cb-val {
   flex: 1;
   min-width: 0;
   padding: 2px 4px;
-  border-radius: 5px;
+  /* 테두리·모서리를 .hmi-led-input과 같은 값으로 둔다 — PV와 SV가 위아래로 나란히
+     붙어 있어서, 하나만 각지거나 테두리 색이 다르면 바로 티가 난다. */
   border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 5px;
+  background: var(--hmi-led-bg);
   font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
   font-size: 14px;
   font-weight: 700;
   font-style: normal;
   text-align: center;
-  color: #101010;
+  color: var(--hmi-led-red);
 }
 
-/* PV는 주황, SV는 파랑 — 색조는 남기고 광택만 걷어냈다 */
-.cb-val.is-pv {
-  border-color: #d97706;
-  background: #fde9c8;
-}
-
-.cb-val.is-sv {
-  border-color: #2a7fd0;
-  background: #d8eafc;
-}
-
-/* SV는 표시칸이 아니라 입력 부품(LedInput)이다. 기본 LED 모양(검은 바탕 + 빨간 숫자)을
-   사진의 파란 박스로 덮어쓴다. 단위(℃)는 박스 안에 넣으려고 숨기고 값에 붙여 쓴다. */
+/* SV는 표시칸이 아니라 입력 부품(LedInput)이다. 기본 LED 모양을 그대로 쓰고
+   폭·글자 크기만 이 화면에 맞춘다(색은 온도제어·구동화면의 SV와 같은 초록). */
 .cb-val-row .hmi-led-row {
   flex: 1;
   min-width: 0;
@@ -314,12 +309,10 @@
 .cb-val-row .hmi-led-input {
   width: 100%;
   padding: 2px 4px;
-  border-color: #2a7fd0;
-  background: #d8eafc;
-  color: #101010;
   font-size: 14px;
   letter-spacing: 0;
   text-align: center;
+  color: var(--hmi-led-green);
 }
 
 /* 박스 밖 단위 글씨 — PV는 .cb-unit, SV(LedInput)는 .hmi-led-unit 으로 나오지만

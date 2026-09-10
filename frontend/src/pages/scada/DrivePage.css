@@ -286,12 +286,15 @@
   color: var(--hmi-text-sub);
 }
 
-/* 검은 바탕 표시칸. 표시 전용이라 입력 부품(LedInput)을 쓰지 않는다. */
+/* 검은 바탕 표시칸. 표시 전용이라 입력 부품(LedInput)을 쓰지 않는다.
+   테두리·모서리는 .hmi-led-input과 같은 값이다 — 존 칸은 PV(이 칸)와 SV(LedInput)가
+   위아래로 붙어 있어서, 하나만 각지거나 테두리 색이 다르면 바로 티가 난다. */
 .dr-val {
   width: 100%;
   min-width: 40px;
   padding: 0 3px;
-  border: 1px solid #000000;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 5px;
   background: var(--hmi-led-bg);
   font-family: 'Consolas', 'D2Coding', 'Courier New', monospace;
   font-size: 11px;
@@ -316,6 +319,9 @@
   width: 100%;
 }
 
+/* 색은 온도제어 화면의 SV와 같은 --hmi-led-green을 쓴다. 두 화면이 같은 PLC
+   레지스터(D100/R100)를 보고 있어서, 색이 다르면 다른 값처럼 보인다.
+   (원래는 연두 --dr-sv였는데, 그건 구동부 속도 SV·시간 설정 칸에만 남겨 둔다.) */
 .dr-zone .hmi-led-input {
   width: 100%;
   border-width: 1px;
@@ -323,7 +329,7 @@
   font-size: 11px;
   letter-spacing: .5px;
   text-align: center;
-  color: var(--dr-sv);
+  color: var(--hmi-led-green);
 }
 
 /* DOOR 이름만 담는 칸. PV는 PV_BOXES가 따로 배치한다(쿨링챔버 PV와 높이를 맞추려고). */

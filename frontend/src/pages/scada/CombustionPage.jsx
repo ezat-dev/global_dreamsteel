@@ -291,12 +291,24 @@ export default function CombustionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* 존별 SV — 작업자가 넣는 설정값이라 화면에서 바꿀 수 있다
-     (PV는 PLC가 주는 현재값이라 표시만 한다). */
-  const [zoneSv, setZoneSv] = useState(() => ZONES.map(() => '0'));
+  /* 존 PV/SV — 온도제어·구동화면과 같은 PLC 주소를 본다(D101/D100/R100).
+     세 화면이 같은 값을 보므로 한 곳에서 SV를 바꾸면 나머지에도 1초 안에 반영된다.
+     값을 못 받았으면 0이 아니라 '---'로 둔다 — 읽지 못한 온도를 0으로 그리면
+     노가 식은 것으로 오해한다. */
+  const zoneText = (n, suffix) => {
+    const v = tagValues?.[`tic_z${n}_${suffix}`];
+    return v == null || v === '' ? '---' : String(v);
+  };
 
-  const handleZoneSv = (idx, value) => {
-    setZoneSv((prev) => prev.map((v, i) => (i === idx ? value : v)));
+  /* 표시는 tic_zN_sv(D100, 실제 적용 중인 목표값), 입력은 tic_zN_sv_cmd(R100).
+     램프 프로그램이 돌면 930을 넣어도 표시는 850→880→910으로 따라 올라간다. */
+  const handleZoneSv = (n, value) => {
+    const num = Math.round(Number(value));
+    if (!Number.isFinite(num)) return;
+
+    setWriteError('');
+    writeTag(CB_FOLDER_ID, `tic_z${n}_sv_cmd`, num)
+      .catch((e) => setWriteError(`tic_z${n}_sv_cmd — ${e.message}`));
   };
 
   /* 좌측 하단 경보 목록. 조회 조건 없이 전부 받는다 — 범위 지정은 경보이력 화면 몫이다.
@@ -433,7 +445,7 @@ export default function CombustionPage() {
               >
                 <b>PV</b>
                 {/* 단위는 박스 밖에 — 아래 SV(LedInput)가 단위를 밖에 그려서 높이를 맞춘다 */}
-                <em className="cb-val is-pv">####</em>
+                <em className="cb-val is-pv" data-tag={`tic_z${n}_pv`}>{zoneText(n, 'pv')}</em>
                 <em className="cb-unit">℃</em>
               </span>
             ))}
@@ -446,11 +458,12 @@ export default function CombustionPage() {
                 <b>SV</b>
                 {/* 눌러서 숫자패드로 넣는다. 파란 박스 모양은 CombustionPage.css가 덮어쓴다. */}
                 <LedInput
-                  value={zoneSv[n - 1]}
-                  onChange={(v) => handleZoneSv(n - 1, v)}
+                  value={zoneText(n, 'sv')}
+                  onChange={(v) => handleZoneSv(n, v)}
                   size="sm"
                   unit="℃"
                   label={`${n}ZONE 설정온도`}
+                  title={`표시 tic_z${n}_sv / 입력 tic_z${n}_sv_cmd`}
                   min={ZONE_SV_MIN}
                   max={ZONE_SV_MAX}
                 />
