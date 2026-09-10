@@ -156,10 +156,11 @@ public class ScadaController {
            설비는 이미 움직였는데 기록은 없고, 화면에는 원인과 무관한
            "이미 존재하거나 참조 중인 데이터입니다"가 뜬다.
 
-           로그인 유지 시간을 따로 정하지 않아서 세션이 끊기는 경우는 드물지만
-           (톰캣 기본 30분, 백엔드 재시작), 조작 기록이 비는 것보다는 거부가 낫다. */
+           application.yml에서 만료를 없애고(timeout: -1) 정상 종료 시 복원되게 해뒀지만
+           (persistent: true), 강제 종료나 첫 기동에는 세션이 없다.
+           조작 기록이 비는 것보다는 거부가 낫다. */
         if (userId == null) {
-            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "로그인이 필요합니다. 다시 로그인해주세요.");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
 
         scadaUser.setUserId(userId);

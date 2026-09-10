@@ -1,7 +1,9 @@
 import { createContext, useContext, useState } from 'react';
 import SCADA_MENU, { AUTH_CONTROL, AUTH_NONE, AUTH_VIEW } from '../constants/scadaMenu';
 
-const STORAGE_KEY = 'scada_user';
+/* 로그인 정보를 담아 두는 키. axiosInstance의 세션 만료 처리도 같은 키를 지워야 해서
+   내보낸다 — 두 곳에 문자열을 적어 두면 한쪽만 고쳐서 어긋난다. */
+export const STORAGE_KEY = 'scada_user';
 const MENU_BY_KEY = new Map(SCADA_MENU.map((m) => [m.key, m]));
 const AuthContext = createContext(null);
 
