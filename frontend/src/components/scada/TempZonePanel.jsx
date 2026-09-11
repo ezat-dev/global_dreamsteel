@@ -1,4 +1,5 @@
 import { BarGauge, LedInput } from './HmiParts';
+import { TAG_ON, TAG_UNKNOWN, lampOf, tagState } from '../../api/scada/foldertagApi';
 
 const TEMP_TICKS = [1000, 800, 600, 400, 200, 0];
 const MV_TICKS = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0];
@@ -37,13 +38,21 @@ const RANGE = {
  * 보여주고 입력은 R100으로 보낸다. R100을 되돌려 보여주면 PLC가 어디까지 왔는지 알 수 없다.
  * 나머지 R 항목은 한 레지스터를 읽고 쓰므로 태그가 하나뿐이고, 그래서 이름에 _cmd가 없다.
  *
+ * 자동/수동 모드는 momentary 비트다:
+ *   tic_zN_mode_cmd       M330~  누르는 동안 1, 떼면 0 (전환 요청)
+ *   tic_zN_mode_cmd_lamp  M630~  0 → 자동(초록), 1 → 수동(빨강)
+ * 램프가 0일 때 자동인 점을 주의 — 보통과 반대다(PLC가 그렇게 준다).
+ *
  * @param zoneNo 존 번호(1~7). 태그 이름을 이걸로 조립한다
- * @param zone   아직 태그가 없는 칸 { manualMode }
  * @param values 폴링으로 받은 { 태그이름: 값 }. null이면 아직 못 받은 상태
- * @param onWrite (tagName, number) => Promise
- * @param onChange (field, value) => void — 더미 칸 전용
+ * @param onWrite (tagName, number) => Promise — 숫자 쓰기(숫자패드)
+ * @param onModePress (tagName) => void — 모드 버튼 누름. 뗌은 화면이 window에서 받는다
+ * @param heldTag 지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
+ * @param holdMs 눌러야 하는 시간(ms). 진행 바 애니메이션 길이와 같은 값이어야 한다
  */
-export default function TempZonePanel({ zoneNo, zone, values, onWrite, onChange }) {
+export default function TempZonePanel({
+  zoneNo, values, onWrite, onModePress, heldTag = '', holdMs = 1000,
+}) {
   /* 접두사 tic_ = TIC(Temperature Indicating Controller). PLC 주소표가 쓰는 표기와 같다
      ("TIC Temperature PV", "TIC PID (P) SV"). tc_로 쓰면 이 분야에서 써모커플로 읽힌다. */
   const tag = (suffix) => `tic_z${zoneNo}_${suffix}`;
@@ -73,6 +82,16 @@ export default function TempZonePanel({ zoneNo, zone, values, onWrite, onChange 
     label: `${zoneNo}ZONE ${label}`,
     ...RANGE[suffix],
   });
+
+  /* 자동/수동 모드. 램프가 1이면 수동, 0이면 자동이다 — 다른 램프와 반대라
+     tagState 결과를 그대로 "켜짐=정상"으로 읽으면 안 된다.
+     못 읽었으면 null로 두고 '---'을 보여준다: 어느 모드인지 모르는데 초록으로
+     그려 놓으면 자동으로 돌고 있다고 오해한다. */
+  const modeCmd = tag('mode_cmd');
+  const modeLamp = tagState(values?.[lampOf(modeCmd)]);
+  const manualMode = modeLamp === TAG_UNKNOWN ? null : modeLamp === TAG_ON;
+  const modeText = manualMode === null ? '---' : manualMode ? '수동모드' : '자동모드';
+  const modeClass = manualMode === null ? 'is-unknown' : manualMode ? 'manual' : 'auto';
 
   return (
     <div className="tz-panel">
@@ -110,29 +129,40 @@ export default function TempZonePanel({ zoneNo, zone, values, onWrite, onChange 
           </div>
         </div>
 
-        {/* 하단 — 수동/자동 모드 토글 + 수동 출력량.
+        {/* 하단 — 수동/자동 모드 버튼 + 수동 출력량.
             버튼은 "지금 어느 모드인지"를 보여준다(빨강=수동, 초록=자동).
             자동모드에서는 PID가 출력을 정하므로 수동 출력량은 손대지 못하게 잠근다.
 
-            모드 버튼만 아직 태그가 없어서 화면 안의 값으로 돈다 — 그래서 잠금 판정도
-            PLC 상태가 아니라 화면 상태를 본다. 태그가 붙으면 그 값으로 바꿔야 한다. */}
+            누르면 바로 나가지 않고 holdMs만큼 눌러야 전환 요청(1)이 나간다 —
+            지나가다 스친 것으로 제어 모드가 바뀌면 안 된다. 뗌은 화면(TempPage)이
+            window에서 받으므로 여기서는 누름만 알린다.
+            disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아
+            비트가 1로 남는다. */}
         <div className="tz-foot">
           <button
             type="button"
-            className={`tz-mode-btn ${zone.manualMode ? 'manual' : 'auto'}`}
-            onClick={() => onChange('manualMode', !zone.manualMode)}
-            title={zone.manualMode ? '누르면 자동모드로 전환' : '누르면 수동모드로 전환'}
+            className={`tz-mode-btn ${modeClass}${heldTag === modeCmd ? ' is-held' : ''}`}
+            onPointerDown={() => onModePress(modeCmd)}
+            data-tag={modeCmd}
+            title={`모드 전환 ${modeCmd} / 램프 ${lampOf(modeCmd)}`
+              + ` — ${holdMs / 1000}초 누르면 전송 (램프 0=자동, 1=수동)`}
           >
-            {zone.manualMode ? '수동모드' : '자동모드'}
+            {modeText}
+            {heldTag === modeCmd && (
+              <span className="tz-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
+            )}
           </button>
 
-          <div className={`tz-manual-mv${zone.manualMode ? '' : ' is-off'}`}>
+          {/* 잠금은 램프(PLC가 실제로 어느 모드인지)를 따른다.
+              모드를 못 읽었으면 열어 둔다 — 수동일 수도 있는데 잠가 버리면
+              정작 필요할 때 손을 못 댄다. */}
+          <div className={`tz-manual-mv${manualMode === false ? ' is-off' : ''}`}>
             <div className="tz-manual-mv-label">수동 출력량(MV)</div>
             <LedInput
               {...rwProps('manual_mv', '수동 출력량 (MV)')}
               color="green"
               unit="%"
-              disabled={!zone.manualMode}
+              disabled={manualMode === false}
             />
           </div>
         </div>
