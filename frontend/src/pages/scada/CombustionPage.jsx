@@ -6,7 +6,7 @@ import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { TAG_OFF, lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -115,9 +115,10 @@ const DEVICE_PANELS = [
     // 제목판(25~215) 아래 가운데에 오도록. left를 키우면 오른쪽으로 쏠린다.
     state: { left: 15, top: 40, width: 210 },
     on: 'OPEN', off: 'CLOSE',
+    /* OPEN/CLOSE 램프가 따로 있다 — 두 칸이 서로를 보고 그리지 않고 각자 1일 때 켜진다.
+       둘 다 0이면 둘 다 꺼진 채로 둔다(동작 중이거나 어느 쪽도 아닌 상태). */
     onCmd: 'main_gas_open_cmd',   // M320 / 램프 M620 — 1이면 초록
-    offCmd: 'main_gas_close_cmd', // M321 / 램프 M621 — 0이면 빨강(논리가 반대다)
-    offLitWhen: TAG_OFF,
+    offCmd: 'main_gas_close_cmd', // M321 / 램프 M621 — 1이면 빨강
   },
   /* 연소 BLOWER는 작화가 깔아둔 파란 패널 바탕(main-blower2, x 1038~1279 / y 0~64)
      위에 그대로 얹는다. main-blower1.png는 블로워 그림이 아니라 이 패널의 배경이다. */

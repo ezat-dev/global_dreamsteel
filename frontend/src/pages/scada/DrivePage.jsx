@@ -4,7 +4,7 @@ import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { writeTag } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './driveOverview.css';
 import './DrivePage.css';
@@ -63,11 +63,12 @@ const LABELS = [
 // 빈 띠(그림 위쪽 y 10~145)에 떠 있는 드라이브 조작 박스 3개.
 /* svMin/svMax는 구동부마다 다른 속도 설정 허용 범위(mm/Min).
    숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
+/* unit은 ON/OFF 태그 이름의 앞부분이다(charge_on_cmd 등) — driveCmd() 참고. */
 const DRIVE_PANELS = [
-  { key: 'entTable', title: '입구 TABLE DRIVE', left: 350, top: 12, svMin: 0, svMax: 2610 },
-  { key: 'mainCc', title: 'MAIN/CC DRIVE', left: 700, top: 12, svMin: 0, svMax: 2610 },
+  { key: 'entTable', unit: 'charge', title: '입구 TABLE DRIVE', left: 350, top: 12, svMin: 0, svMax: 2610 },
+  { key: 'mainCc', unit: 'maincc', title: 'MAIN/CC DRIVE', left: 700, top: 12, svMin: 0, svMax: 2610 },
   // 출구 컨베이어(x 1353~1723) 위에 오도록. 폭이 250이라 left는 1473을 넘기면 안 된다.
-  { key: 'exitTable', title: '출구 TABLE DRIVE', left: 1050, top: 12, svMin: 0, svMax: 4110 },
+  { key: 'exitTable', unit: 'discharge', title: '출구 TABLE DRIVE', left: 1050, top: 12, svMin: 0, svMax: 4110 },
 ];
 
 // MAIN DRIVE 존 — 작화 존 이미지 위에 PV/SV를 그대로 얹는다(존 폭 75.5px 간격).
@@ -85,6 +86,21 @@ const ZONE_SV_MAX = 1000;
    DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
    조용히 실패하니, 값이 전부 '---'로 나오면 여기를 먼저 본다. */
 const DR_FOLDER_ID = 9;
+
+/* 구동부 ON/OFF 버튼을 이만큼 누르고 있어야 명령이 나간다(온도제어 모드 버튼과 같은 1초.
+   연소는 2초다). 컨베이어가 스치듯 눌린 것으로 돌거나 멈추면 안 되니 시간을 둔다.
+   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
+const DRIVE_HOLD_MS = 2000;
+
+/* 구동부 ON/OFF 태그. 화면 이름은 입구/출구지만 태그는 현장 용어인 장입/배출을 쓴다.
+     charge    M300 ON / M301 OFF   램프 M600 / M601   입구 TABLE DRIVE
+     maincc    M302 / M303          램프 M602 / M603   MAIN/CC DRIVE
+     discharge M304 / M305          램프 M604 / M605   출구 TABLE DRIVE
+   램프 이름은 lampOf()가 cmd + '_lamp'로 조립하므로 DB에도 그 이름 그대로 있어야 한다.
+   ON/OFF 각각 램프가 따로 있어서(M600·M601) 두 칸이 서로를 보고 그리지 않는다 —
+   둘 다 0이면 둘 다 꺼진 채로 둔다. 구동부가 어느 쪽도 아닌 상태(기동 중·고장)를
+   있는 대로 보여주는 게 맞다. 연소화면 MAIN GAS의 OPEN/CLOSE도 같은 구조다. */
+const driveCmd = (unit, action) => `${unit}_${action}_cmd`;
 
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
    같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
@@ -326,21 +342,60 @@ function LampList({ title, lamps, className = '' }) {
   );
 }
 
-/** ON/OFF 표시 + PV/SV(mm/Min) + 구동감지 한 벌. 그림 위에 떠 있는 박스. */
-function DrivePanel({ title, style, data, onChange, svMin, svMax }) {
+/** ON/OFF 조작 + PV/SV(mm/Min) + 구동감지 한 벌. 그림 위에 떠 있는 박스.
+ *
+ * ON/OFF는 누르는 버튼이면서 동시에 램프다 — 눌러서 기동/정지시키고, 색은 PLC가
+ * 주는 램프 값(charge_on_cmd_lamp 등)으로 켜진다. 누른 것과 실제로 돈 것은 다르므로
+ * 색을 화면이 먼저 바꾸지 않는다. PLC가 거부하면 색이 안 바뀌고, 그게 정보다.
+ *
+ * @param unit 태그 이름 앞부분 (charge / maincc / discharge)
+ * @param values 폴링으로 받은 { 태그이름: 값 }
+ * @param onPress (tagName) => void — 누름. 뗌은 화면이 window에서 받는다
+ * @param heldTag 지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
+ * @param holdMs 눌러야 하는 시간(ms)
+ */
+function DrivePanel({
+  title, unit, style, data, values, onChange, svMin, svMax,
+  onPress, heldTag = '', holdMs = 1000,
+}) {
+  /* ON/OFF 버튼 한 개 분량의 속성. 두 버튼이 켜지는 색만 다르고 나머지는 같다.
+     disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아 비트가 1로 남는다. */
+  const btn = (action, onClassName) => {
+    const cmd = driveCmd(unit, action);
+    return {
+      type: 'button',
+      className: `dr-onoff hmi-lampbox${lampClassOf(values, cmd, onClassName)}`
+        + (heldTag === cmd ? ' is-held' : ''),
+      onPointerDown: () => onPress(cmd),
+      'data-tag': cmd,
+      title: `${title} ${action.toUpperCase()} — ${holdMs / 1000}초 누르면 전송`
+        + ` / ${cmd} / 램프 ${lampOf(cmd)}`,
+      children: (
+        <>
+          {action.toUpperCase()}
+          {heldTag === cmd && (
+            <span className="dr-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
+          )}
+        </>
+      ),
+    };
+  };
+
   return (
     <div className="hmi-group dr-drive" style={style}>
       <span className="hmi-group-title">{title}</span>
 
       <div className="dr-drive-row">
-        <span className={`dr-onoff hmi-lampbox${data.on ? ' is-on' : ''}`}>ON</span>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <button {...btn('on', ' is-on')} />
         <span className="dr-drive-tag">PV</span>
         <LedInput value={data.pv} readOnly color="red" size="sm" unit="mm/Min" title={`${title} PV`} />
       </div>
 
       {/* is-sv를 붙여 SV 입력칸만 연두색으로 물들인다(DrivePage.css의 --dr-sv). */}
       <div className="dr-drive-row is-sv">
-        <span className={`dr-onoff hmi-lampbox${data.on ? '' : ' is-alarm'}`}>OFF</span>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <button {...btn('off', ' is-alarm')} />
         <span className="dr-drive-tag">SV</span>
         <LedInput
           value={data.sv}
@@ -420,10 +475,12 @@ export default function DrivePage() {
 
   /* detectOn은 구동감지 램프의 점등 여부. PLC 값이 붙기 전이라 꺼둔다 —
      모르는 상태를 켜진 것으로 그리지 않는 쪽이 안전하다. */
+  /* 아직 태그가 없는 칸만 남은 더미다. ON/OFF는 램프 태그로 넘어가서 여기서 빠졌다
+     (그래서 on 항목이 없다) — PV/SV/구동감지 태그가 오면 이 state는 통째로 사라진다. */
   const [drives, setDrives] = useState({
-    entTable: { on: false, pv: '0', sv: '0', detect: '정상', detectOn: false },
-    mainCc: { on: false, pv: '0', sv: '0', detect: '정상', detectOn: false },
-    exitTable: { on: false, pv: '0', sv: '0', detect: '정상', detectOn: false },
+    entTable: { pv: '0', sv: '0', detect: '정상', detectOn: false },
+    mainCc: { pv: '0', sv: '0', detect: '정상', detectOn: false },
+    exitTable: { pv: '0', sv: '0', detect: '정상', detectOn: false },
   });
 
   const handleDriveChange = (key, field, value) => {
@@ -451,6 +508,76 @@ export default function DrivePage() {
     writeTag(DR_FOLDER_ID, zoneTag(n, 'sv_cmd'), num)
       .catch((e) => setWriteError(`${zoneTag(n, 'sv_cmd')} — ${e.message}`));
   };
+
+  /* ── 구동부 ON/OFF (momentary) ────────────────────────────────────────
+     누르고 DRIVE_HOLD_MS를 채우면 1, 떼면 0. PLC가 그 순간을 받아 기동/정지하고
+     결과는 램프 태그로 돌아온다. */
+
+  // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
+  const [heldTag, setHeldTag] = useState('');
+
+  /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
+     값에 갇히고, 뗌을 놓치면 비트가 1로 남는다. */
+  const heldRef = useRef(null);
+  const armedRef = useRef(false);
+  const holdTimerRef = useRef(null);
+  /* 쓰기 순서를 지키기 위한 사슬. 1과 0을 따로 보내면 짧게 눌렀을 때 0이 먼저
+     도착해서 비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
+  const chainRef = useRef(Promise.resolve());
+
+  const handleDrivePress = (name) => {
+    if (heldRef.current) return;   // ON과 OFF를 동시에 누르는 상황은 만들지 않는다
+    heldRef.current = name;
+    armedRef.current = false;
+    setHeldTag(name);
+    setWriteError('');
+
+    holdTimerRef.current = setTimeout(() => {
+      armedRef.current = true;
+      chainRef.current = writeTag(DR_FOLDER_ID, name, 1)
+        .catch((e) => setWriteError(`${name} — ${e.message}`));
+    }, DRIVE_HOLD_MS);
+  };
+
+  const handleDriveRelease = () => {
+    const name = heldRef.current;
+    if (!name) return;
+    heldRef.current = null;
+    setHeldTag('');
+
+    clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+
+    // 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
+    if (!armedRef.current) return;
+    armedRef.current = false;
+
+    /* 1이 실패했어도 0은 보낸다 — 나갔는지 모르는 상태로 두는 것보다 확실히 내리는
+       쪽이 안전하다. log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
+    chainRef.current = chainRef.current
+      .then(() => writeTag(DR_FOLDER_ID, name, 0, false))
+      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
+  };
+
+  /* 뗌을 버튼이 아니라 window에서 받는다.
+     손가락이 버튼 밖으로 나가서 떼도, 창이 포커스를 잃어도(탭 전환·알림창) 반드시
+     0이 나가게 하려는 것이다. 버튼의 onPointerUp만 믿으면 그런 경우에 비트가 1로
+     남고, PLC는 기동/정지 명령이 계속 걸려 있는 상태가 된다.
+     핸들러가 ref와 setState만 건드려서 렌더마다 새로 걸 필요가 없다. */
+  useEffect(() => {
+    const release = () => handleDriveRelease();
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    window.addEventListener('blur', release);
+
+    return () => {
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointercancel', release);
+      window.removeEventListener('blur', release);
+      release();   // 화면을 떠날 때 누르고 있던 것이 있으면 내린다
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="dr-page">
@@ -524,9 +651,14 @@ export default function DrivePage() {
               <DrivePanel
                 key={p.key}
                 title={p.title}
+                unit={p.unit}
                 style={{ left: p.left, top: p.top }}
                 data={drives[p.key]}
+                values={tagValues}
                 onChange={(field, v) => handleDriveChange(p.key, field, v)}
+                onPress={handleDrivePress}
+                heldTag={heldTag}
+                holdMs={DRIVE_HOLD_MS}
                 svMin={p.svMin}
                 svMax={p.svMax}
               />

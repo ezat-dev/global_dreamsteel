@@ -15,7 +15,7 @@ const TC_FOLDER_ID = 8;
    momentary 비트라 누르는 동안 1, 떼면 0이다(싸이몬과 같다).
    스치듯 눌린 것으로 제어 모드가 바뀌면 안 되니 시간을 둔다.
    CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
-const MODE_HOLD_MS = 1000;
+const MODE_HOLD_MS = 2000;
 
 // 존 번호만 있으면 된다 — 값·모드가 전부 PLC 태그에서 오므로 화면이 들고 있을 상태가 없다.
 const ZONES = Array.from({ length: ZONE_COUNT }, (_, i) => i + 1);
