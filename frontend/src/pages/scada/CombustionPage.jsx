@@ -127,6 +127,10 @@ const DEVICE_PANELS = [
     plate: { left: 1052, top: 3, width: 214 },
     state: { left: 1052, top: 36, width: 214 },
     on: 'ON', off: 'OFF',
+    /* MAIN GAS와 같은 구조 — ON/OFF 램프가 따로 있고 각자 1일 때 켜진다.
+       이름이 cb_z1_b1_on_cmd(버너 "연소 ON")와 헷갈리지 않게 blower_로 뒀다. */
+    onCmd: 'blower_on_cmd',   // M310 / 램프 M610 — 1이면 초록
+    offCmd: 'blower_off_cmd', // M311 / 램프 M611 — 1이면 빨강
   },
   /* 버너 쿨링은 바탕이 없어서 CSS로 그린다. 사진처럼 연소 BLOWER 아래에 두되,
      7존 개도(for-7-zone-per, x 1047~1115 / y 91~120)를 가리지 않게 오른쪽으로 민다. */
