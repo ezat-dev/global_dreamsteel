@@ -87,8 +87,9 @@ const ZONE_SV_MAX = 1000;
    조용히 실패하니, 값이 전부 '---'로 나오면 여기를 먼저 본다. */
 const DR_FOLDER_ID = 9;
 
-/* 구동부 ON/OFF 버튼을 이만큼 누르고 있어야 명령이 나간다(온도제어 모드 버튼과 같은 1초.
-   연소는 2초다). 컨베이어가 스치듯 눌린 것으로 돌거나 멈추면 안 되니 시간을 둔다.
+/* 구동부 ON/OFF 버튼을 이만큼 누르고 있어야 명령이 나간다.
+   컨베이어가 스치듯 눌린 것으로 돌거나 멈추면 안 되니 시간을 둔다.
+   연소·온도제어의 누름 버튼도 같은 2초다 — 화면마다 다르면 손이 헷갈린다.
    CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
 const DRIVE_HOLD_MS = 2000;
 
@@ -356,7 +357,7 @@ function LampList({ title, lamps, className = '' }) {
  */
 function DrivePanel({
   title, unit, style, data, values, onChange, svMin, svMax,
-  onPress, heldTag = '', holdMs = 1000,
+  onPress, heldTag = '', holdMs = 2000,
 }) {
   /* ON/OFF 버튼 한 개 분량의 속성. 두 버튼이 켜지는 색만 다르고 나머지는 같다.
      disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아 비트가 1로 남는다. */

@@ -51,7 +51,7 @@ const RANGE = {
  * @param holdMs 눌러야 하는 시간(ms). 진행 바 애니메이션 길이와 같은 값이어야 한다
  */
 export default function TempZonePanel({
-  zoneNo, values, onWrite, onModePress, heldTag = '', holdMs = 1000,
+  zoneNo, values, onWrite, onModePress, heldTag = '', holdMs = 2000,
 }) {
   /* 접두사 tic_ = TIC(Temperature Indicating Controller). PLC 주소표가 쓰는 표기와 같다
      ("TIC Temperature PV", "TIC PID (P) SV"). tc_로 쓰면 이 분야에서 써모커플로 읽힌다. */

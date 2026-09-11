@@ -104,7 +104,7 @@ export default function ZoneBurnerModal({
                       + (armedTag === onCmd ? ' is-armed' : '')}
                     onPointerDown={() => onPress(onCmd)}
                     data-tag={onCmd}
-                    title={`${onCmd} / 램프 ${lampOf(onCmd)} — 2초 누르면 전송`}
+                    title={`${onCmd} / 램프 ${lampOf(onCmd)} — ${holdMs / 1000}초 누르면 전송`}
                   >
                     연소 ON
                     {heldTag === onCmd && (
@@ -118,7 +118,7 @@ export default function ZoneBurnerModal({
                       + (armedTag === offCmd ? ' is-armed' : '')}
                     onPointerDown={() => onPress(offCmd)}
                     data-tag={offCmd}
-                    title={`${offCmd} / 램프 ${lampOf(offCmd)} — 2초 누르면 전송`}
+                    title={`${offCmd} / 램프 ${lampOf(offCmd)} — ${holdMs / 1000}초 누르면 전송`}
                   >
                     연소 OFF
                     {heldTag === offCmd && (
@@ -142,7 +142,7 @@ export default function ZoneBurnerModal({
                 + (armedTag === purgeCmd(zone) ? ' is-armed' : '')}
               onPointerDown={() => onPress(purgeCmd(zone))}
               data-tag={purgeCmd(zone)}
-              title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))} — 2초 누르면 전송`}
+              title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))} — ${holdMs / 1000}초 누르면 전송`}
             >
               PURGE 시작
               {heldTag === purgeCmd(zone) && (

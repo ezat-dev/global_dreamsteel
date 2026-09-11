@@ -70,7 +70,7 @@ const ZONES = [1, 2, 3, 4, 5, 6, 7];
 const CB_FOLDER_ID = 7;
 
 /* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다.
-   설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 2초를 채우는 동안
+   설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 이 시간을 채우는 동안
    버튼에 진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
    CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적어 두면 어긋난다). */
 const HOLD_MS = 2000;
@@ -215,7 +215,7 @@ export default function CombustionPage() {
   const [writeError, setWriteError] = useState('');
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데 쓴다(비활성화에는 쓰지 않는다)
   const [heldTag, setHeldTag] = useState('');
-  // 2초를 채워서 실제로 1이 나간 태그
+  // 누름 시간을 채워서 실제로 1이 나간 태그
   const [armedTag, setArmedTag] = useState('');
 
   /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
@@ -259,7 +259,7 @@ export default function CombustionPage() {
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
 
-    // 2초를 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
+    // 누름 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;
     armedRef.current = false;
 
@@ -363,7 +363,7 @@ export default function CombustionPage() {
                 <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
                   {d.onCmd ? (
                     <>
-                      {/* 2초 누르면 1, 떼면 0. 뗌은 window가 받는다.
+                      {/* HOLD_MS만큼 누르면 1, 떼면 0. 뗌은 window가 받는다.
                           disabled를 걸지 않는 이유: 비활성 요소는 뗌 이벤트를 못 받아서
                           비트가 1로 남는다. */}
                       <button
@@ -373,7 +373,7 @@ export default function CombustionPage() {
                           + (armedTag === d.onCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.onCmd)}
                         data-tag={d.onCmd}
-                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)} — 2초 누르면 전송`}
+                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
                       >
                         {d.on}
                         {heldTag === d.onCmd && (
@@ -387,7 +387,7 @@ export default function CombustionPage() {
                           + (armedTag === d.offCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.offCmd)}
                         data-tag={d.offCmd}
-                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)} — 2초 누르면 전송`}
+                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
                       >
                         {d.off}
                         {heldTag === d.offCmd && (
