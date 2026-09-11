@@ -221,8 +221,8 @@
   flex-shrink: 0;
   padding: 2px 0;
   font-size: 12px;
-  font-family: inherit;
-  font-weight: 700;
+  /* font-family·font-weight는 .hmi-lampbox가 정한다(글꼴 상속, 800).
+     여기서 덮으면 버튼이 됐다는 이유만으로 글씨가 얇아진다. */
   cursor: pointer;
   /* 길게 누르는 버튼이다. 터치 화면에서 길게 누르면 뜨는 글자 선택·확대는
      누름을 끊어 먹으므로 막는다. */

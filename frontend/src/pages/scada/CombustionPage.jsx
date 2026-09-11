@@ -136,8 +136,8 @@ const DEVICE_PANELS = [
      7존 개도(for-7-zone-per, x 1047~1115 / y 91~120)를 가리지 않게 오른쪽으로 민다. */
   {
     key: 'burnerCool', tone: 'blue', title: '버너 쿨링',
-    plate: { left: 1128, top: 78, width: 150 },
-    state: { left: 1128, top: 111, width: 150 },
+    plate: { left: 1160, top: 78, width: 120 },
+    state: { left: 1160, top: 100, width: 120 },
     on: 'ON', off: 'OFF', stacked: true,
   },
 ];

@@ -134,11 +134,64 @@
 
 /* 칸을 꽉 채우지 않는다(flex: 1 금지) — 제목판 폭을 반씩 나눠 가지면 사진보다 넓어진다.
    min-width로 OPEN(4자)과 CLOSE(5자)의 폭만 맞춰 두고, 남는 자리는 여백으로 둔다. */
-.at-openclose em {
+/* 태그가 없는 설비는 표시 전용이라 em, 명령 태그가 있으면 button이다 — 둘 다 잡는다.
+   모양이 같아야 화면에서 어느 쪽인지 티가 안 난다. */
+.at-openclose em,
+.at-openclose button {
   flex: none;
   min-width: 80px;
   padding: 4px 8px;
   white-space: nowrap;
+}
+
+/* 조작 램프 — 모양은 표시용과 같고 누를 수 있게만 한다.
+   position/overflow는 안에 들어가는 누름 진행 바 때문에 필요하다.
+
+   touch-action: none — 현장 터치 패널에서 손가락을 누른 채 조금이라도 움직이면
+   브라우저가 스크롤로 가로채고 pointercancel이 떠서 명령이 끊긴다. 그걸 막는다.
+   user-select도 같은 이유로 끈다 — 길게 누르는 게 정상 조작이라, 글자가 선택되거나
+   롱프레스 메뉴가 뜨면 조작이 방해된다. */
+.at-openclose button {
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
+.at-openclose button:hover {
+  filter: brightness(.97);
+}
+
+/* 누르고 있는 동안 — 눌렀는데 아무 표시가 없으면 눌린 건지 알 수 없다.
+   램프 색(PLC 상태)과 별개로 "지금 누르고 있다"만 알린다. */
+.at-openclose button.is-held {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .4);
+}
+
+/* 누름 진행 바. 누르는 순간 요소가 새로 생기므로(조건부 렌더) 연달아 눌러도
+   애니메이션이 처음부터 돈다 — 클래스만 토글하면 다시 시작되지 않는다.
+   길이는 AtmospherePage.jsx의 AT_HOLD_MS를 inline style로 받는다. */
+.at-hold-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: 0;
+  /* 파랑(액센트) — 초록·주황·빨강은 이 프로젝트에서 설비 상태를 뜻하므로
+     진행 표시에 쓰면 램프 색과 헷갈린다. */
+  background: var(--g-accent);
+  pointer-events: none;
+  animation-name: at-hold-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes at-hold-fill {
+  to { width: 100%; }
 }
 
 /* ===== 배관 상태 ========================================================= */
@@ -302,14 +355,33 @@
   background: var(--hmi-bg);
 }
 
-/* 글자 칸 자체가 램프다(.hmi-lampbox를 같이 붙인다) — 걸린 모드만 초록으로 켜진다.
-   그리드 칸을 꽉 채우면 사진보다 넓어지므로, 가운데 세우고 최소폭만 준다. */
+/* 글자 칸 자체가 램프이면서 버튼이다(.hmi-lampbox를 같이 붙인다) — 걸린 모드만
+   초록으로 켜진다. 그리드 칸을 꽉 채우면 사진보다 넓어지므로, 가운데 세우고 최소폭만 준다.
+
+   position/overflow는 안에 들어가는 누름 진행 바 때문에 필요하다.
+   touch-action: none — 현장 터치 패널에서 손가락을 누른 채 조금이라도 움직이면
+   브라우저가 스크롤로 가로채고 pointercancel이 떠서 누름이 끊긴다. */
 .at-mode-item {
+  position: relative;
+  overflow: hidden;
   justify-self: center;
   min-width: 145px;
   padding: 7px 0;
   font-size: 14px;
+  /* font-family·font-weight는 .hmi-lampbox가 정한다(글꼴 상속, 800).
+     여기서 inherit로 덮으면 버튼이 그 두 값을 잃어 글씨가 얇아진다. */
+  cursor: pointer;
   user-select: none;
+  touch-action: none;
+}
+
+.at-mode-item:hover {
+  filter: brightness(.97);
+}
+
+/* 누르고 있는 동안 — 램프 색(PLC 상태)과 별개로 "지금 누르고 있다"만 알린다 */
+.at-mode-item.is-held {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .4);
 }
 
 /* ===== MANUAL MV ===== */
@@ -340,6 +412,12 @@
   letter-spacing: .5px;
   white-space: nowrap;
   color: var(--hmi-text);
+}
+
+/* 자동모드일 때 — 라벨까지 흐리게 해서 지금 쓰는 칸이 아님을 알린다
+   (온도제어 화면의 .tz-manual-mv.is-off와 같은 처리) */
+.at-manual.is-off .at-manual-label {
+  color: var(--hmi-text-faint);
 }
 
 /* 위 .at-reftemp와 같은 이유로 flex: 1을 뺀다 */

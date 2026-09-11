@@ -3,6 +3,7 @@ import AtmosphereOverview from '../../components/scada/AtmosphereOverview';
 import AtmosConditionPanel from '../../components/scada/AtmosConditionPanel';
 import AtmosValvePanel from '../../components/scada/AtmosValvePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
+import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
 import './AtmospherePage.css';
@@ -35,21 +36,34 @@ const SLOTS = {
   cond: { left: 40, top: 460, width: 420, height: 275 },
 };
 
-/* 설비 위에 얹는 제목판과 OPEN/CLOSE 표시.
+/* 설비 위에 얹는 제목판과 OPEN/CLOSE 칸.
    plate는 제목 띠, state는 그 아래 OPEN/CLOSE 두 글자가 놓이는 자리다.
-   tone은 사진의 색 — 블로워는 회색, 가스는 주황, 발생기는 남보라. */
+   tone은 사진의 색 — 블로워는 회색, 가스는 주황, 발생기는 남보라.
+
+   onCmd/offCmd가 있으면 두 칸이 조작 버튼이 되고, 램프는 명령 이름 + '_lamp'를 읽는다.
+   없으면 표시 전용 램프로 남는다 — 태그가 준비된 설비만 하나씩 살릴 수 있게 갈라 두었다.
+   두 태그는 한 쌍으로 움직인다: OPEN을 누르면 open=1 / close=0 이 같이 나간다.
+
+   태그 이름의 add_는 ADDTION(첨가)이다. 이 화면엔 GAS OPEN/CLOSE가 두 벌
+   있어서(왼쪽 위 ADDTION GAS, 오른쪽 발생기) 그냥 gas_로 두면 구분이 안 된다.
+   작화에 BLOWE로 적혀 있지만 조건 문구가 ADDTION AIR BLOWER라서 태그는 air로 간다. */
 const DEVICE_PANELS = [
   {
     key: 'blower', tone: 'blower', title: 'ADDTION BLOWE',
     plate: { left: 4, top: 8, width: 220 },
     state: { left: 16, top: 70, width: 170 },
+    onCmd: 'add_air_open_cmd',    // M324 / 램프 M624 — 1이면 초록
+    offCmd: 'add_air_close_cmd',  // M325 / 램프 M625 — 1이면 빨강
   },
   {
     key: 'gas', tone: 'gas', title: 'ADDTION GAS',
     plate: { left: 4, top: 168, width: 178 },
     state: { left: 16, top: 228, width: 170 },
+    onCmd: 'add_gas_open_cmd',    // M322 / 램프 M622
+    offCmd: 'add_gas_close_cmd',  // M323 / 램프 M623
   },
   {
+    // 발생기는 아직 태그가 없어서 표시 전용이다. 오면 gen_gas_open_cmd로 넣는다.
     key: 'gen', tone: 'gen', title: '발 생 기',
     plate: { left: 1500, top: 100, width: 172 },
     state: { left: 1495, top: 158, width: 182 },
@@ -80,6 +94,12 @@ const O2_PANEL = { left: 940, top: 620, titleWidth: 135, valueWidth: 100 };
    DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
    조용히 실패하니, 값이 '---'로 나오면 여기를 먼저 본다. */
 const AT_FOLDER_ID = 10;
+
+/* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다(다른 화면과 같은 2초).
+   설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 채우는 동안 버튼에
+   진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
+   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
+const AT_HOLD_MS = 2000;
 
 // 자동모드 전환 조건 — 순서와 문구는 현장 HMI 화면 그대로.
 // on은 PLC 상태라 지금은 전부 꺼짐으로 두고, 연동 때 폴링 값으로 채운다.
@@ -123,9 +143,82 @@ export default function AtmospherePage() {
 
   const [conditions] = useState(() => CONDITIONS.map((c) => ({ ...c, on: false })));
 
-  /* 각 설비가 열렸는지. PLC 상태라 지금은 사진과 같은 조합으로 고정해 둔다
-     (블로워·가스는 닫힘, 발생기는 열림). 연동 때 폴링 값으로 바꾼다. */
-  const [devices] = useState({ blower: false, gas: false, gen: true });
+  /* 아직 태그가 없는 설비(발생기)의 OPEN/CLOSE 색. 사진처럼 열림으로 고정해 둔다.
+     ADDTION 블로워·가스는 램프 태그로 넘어가서 여기서 빠졌다. */
+  const [devices] = useState({ gen: true });
+
+  /* ── ADDTION 블로워·가스 OPEN/CLOSE ───────────────────────────────────
+     모멘터리가 아니다. AT_HOLD_MS를 채우면 누른 쪽 태그에 1, 반대쪽 태그에 0을 주고
+     그대로 남는다(래치). 떼는 것은 아무 값도 보내지 않는다 — 손을 떼면 밸브가 원래대로
+     돌아가 버리면 안 되니까. OPEN과 CLOSE는 서로 반대라 둘이 동시에 1이 될 수 없다.
+
+     개별연소 모달의 버너 버튼(누르는 동안만 1)과는 다른 방식이다. 그쪽은 PLC가 0을
+     되돌려 주지만, 여기는 화면이 두 태그를 직접 맞춰 줘야 한다. */
+
+  const [writeError, setWriteError] = useState('');
+
+  // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
+  const [heldTag, setHeldTag] = useState('');
+
+  /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
+     값에 갇혀서 타이머를 못 지운다. */
+  const heldRef = useRef(null);
+  const holdTimerRef = useRef(null);
+
+  /* 누름 시간을 채웠을 때 실제로 나가는 쓰기.
+     반대쪽을 먼저 0으로 내리고 그 다음 누른 쪽을 1로 올린다. 순서가 중요하다 —
+     1을 먼저 보내면 그 사이 OPEN과 CLOSE가 같이 1인 순간이 생기고, PLC가 그 순간을
+     읽으면 열라는 명령과 닫으라는 명령을 동시에 받는다.
+
+     0도 로그를 남긴다. 모멘터리 버튼의 0은 누름이 끝나서 자동으로 내려가는 것이라
+     기록하지 않지만, 여기 0은 사람이 누른 결과로 PLC에 실제로 쓴 값이다.
+     scada_log는 태그 값이 언제 무엇으로 바뀌었는지를 보는 곳이라 빠지면 안 된다. */
+  const sendPair = (selfCmd, otherCmd) => writeTag(AT_FOLDER_ID, otherCmd, 0)
+    .then(() => writeTag(AT_FOLDER_ID, selfCmd, 1))
+    .catch((e) => setWriteError(`${selfCmd} — ${e.message}`));
+
+  const handlePress = (selfCmd, otherCmd) => {
+    if (heldRef.current) return;   // OPEN과 CLOSE를 동시에 누르는 상황은 만들지 않는다
+    heldRef.current = selfCmd;
+    setHeldTag(selfCmd);
+    setWriteError('');
+
+    holdTimerRef.current = setTimeout(() => {
+      holdTimerRef.current = null;
+      sendPair(selfCmd, otherCmd);
+    }, AT_HOLD_MS);
+  };
+
+  /* 뗌은 값을 보내지 않는다. 시간을 채우기 전에 뗐을 때 예약된 쓰기를 취소하는 것이
+     전부다(그래서 이름이 cancel이다). 채운 뒤에 떼면 이미 나갔으므로 할 일이 없다. */
+  const handleRelease = () => {
+    if (!heldRef.current) return;
+    heldRef.current = null;
+    setHeldTag('');
+
+    clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+  };
+
+  /* 뗌을 버튼이 아니라 window에서 받는다.
+     손가락이 버튼 밖으로 나가서 떼도, 창이 포커스를 잃어도(탭 전환·알림창) 진행 바가
+     계속 차 있다가 명령이 나가 버리면 안 된다. 버튼의 onPointerUp만 믿으면 그런
+     경우에 취소가 안 된다.
+     핸들러가 ref와 setState만 건드려서 렌더마다 새로 걸 필요가 없다. */
+  useEffect(() => {
+    const release = () => handleRelease();
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    window.addEventListener('blur', release);
+
+    return () => {
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointercancel', release);
+      window.removeEventListener('blur', release);
+      release();   // 화면을 떠날 때 예약된 쓰기가 있으면 취소한다
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [valve, setValve] = useState({
     pv: '0',
@@ -137,7 +230,6 @@ export default function AtmospherePage() {
     refTemp: '800',
     refTempReached: false,
     manualMv: '0',
-    manualMode: true,
   });
 
   const handleValveChange = (field, value) => {
@@ -163,16 +255,49 @@ export default function AtmospherePage() {
           <AtmosphereOverview />
 
           <div className="at-overlay">
-            {/* 설비 제목판 + OPEN/CLOSE — 두 칸 다 램프다.
-                열려 있으면 OPEN이 초록, 닫혀 있으면 CLOSE가 빨강으로 켜진다. */}
+            {/* 설비 제목판 + OPEN/CLOSE — 두 칸 다 램프다. OPEN은 초록, CLOSE는 빨강으로
+                켜지고, 각자 자기 램프 태그만 본다(서로를 보고 그리지 않는다). 둘 다 0이면
+                둘 다 꺼진 채로 둔다 — 동작 중이거나 어느 쪽도 아닌 상태를 그대로 보여준다.
+                명령 태그가 있는 설비는 그 램프가 버튼도 겸한다(모양은 같다). */}
             {DEVICE_PANELS.map((d) => (
               <Fragment key={d.key}>
                 <span className={`at-plate at-plate--${d.tone}`} style={d.plate}>
                   {d.title}
                 </span>
                 <span className="at-openclose" style={d.state}>
-                  <em className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>OPEN</em>
-                  <em className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>CLOSE</em>
+                  {d.onCmd ? (
+                    /* other = 반대쪽 버튼의 태그. 누를 때 이쪽에 1, 반대쪽에 0을 준다. */
+                    [
+                      { cmd: d.onCmd, other: d.offCmd, text: 'OPEN', onClassName: ' is-on' },
+                      { cmd: d.offCmd, other: d.onCmd, text: 'CLOSE', onClassName: ' is-alarm' },
+                    ].map((b) => (
+                      /* disabled를 걸지 않는다 — 비활성 요소는 뗌 이벤트를 못 받아서
+                         시간을 채우기 전에 떼도 취소가 안 된다. */
+                      <button
+                        type="button"
+                        key={b.cmd}
+                        className={`hmi-lampbox${lampClassOf(tagValues, b.cmd, b.onClassName)}`
+                          + (heldTag === b.cmd ? ' is-held' : '')}
+                        onPointerDown={() => handlePress(b.cmd, b.other)}
+                        data-tag={b.cmd}
+                        title={`${AT_HOLD_MS / 1000}초 누르면 ${b.other}=0, ${b.cmd}=1`
+                          + ` / 램프 ${lampOf(b.cmd)}`}
+                      >
+                        {b.text}
+                        {heldTag === b.cmd && (
+                          <span
+                            className="at-hold-bar"
+                            style={{ animationDuration: `${AT_HOLD_MS}ms` }}
+                          />
+                        )}
+                      </button>
+                    ))
+                  ) : (
+                    <>
+                      <em className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>OPEN</em>
+                      <em className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>CLOSE</em>
+                    </>
+                  )}
                 </span>
               </Fragment>
             ))}
@@ -209,7 +334,16 @@ export default function AtmospherePage() {
             </span>
 
             <div className="at-slot" style={SLOTS.valve}>
-              <AtmosValvePanel data={valve} onChange={handleValveChange} />
+              {/* 자동/수동 모드는 위 OPEN/CLOSE와 같은 래치 버튼이라 누름 처리를
+                  그대로 넘긴다(handlePress). 나머지 칸은 아직 더미다. */}
+              <AtmosValvePanel
+                data={valve}
+                onChange={handleValveChange}
+                values={tagValues}
+                onPress={handlePress}
+                heldTag={heldTag}
+                holdMs={AT_HOLD_MS}
+              />
             </div>
 
             <div className="at-slot" style={SLOTS.cond}>
@@ -219,8 +353,11 @@ export default function AtmospherePage() {
         </div>
       </div>
 
-      {/* 값 수신 실패 안내 — O2 값이 '---'로 굳어 있을 때 이유가 보여야 한다 */}
-      {tagValueError && <div className="hmi-toast">{tagValueError}</div>}
+      {/* 값 수신 실패·쓰기 실패 안내 — 값이 '---'로 굳거나 버튼을 눌렀는데 아무 일도
+          없을 때 이유가 보여야 한다. 쓰기 실패를 먼저 띄운다(방금 한 조작이라서). */}
+      {(writeError || tagValueError) && (
+        <div className="hmi-toast">{writeError || tagValueError}</div>
+      )}
     </div>
   );
 }
