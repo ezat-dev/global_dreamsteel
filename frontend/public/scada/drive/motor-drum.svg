@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="3 2.7 25 30.6" width="25" height="30.6">
+  <!-- 통 모터(위에서 비스듬히 본 것). 원본 exit-motor-30.png(31x37)의 픽셀 배치를 옮긴 것.
+       11개 모터 중 2자리에 쓴다 — ent-motor-2 / exit-motor-3.
+       (exit-motor-3은 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다.)
+
+       viewBox는 원본의 내용 영역에 맞추고 칸(27x33)의 비율에 맞췄다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 윗 덮개 x 7~24, y 3~9    위 플랜지 x 3~28, y 9~13
+                  드럼   x 5~26, y 13~24   아래 플랜지 x 3~28, y 24~28
+                  받침   x 6~24, y 29~33 -->
+  <defs>
+    <!-- 드럼을 옆에서 본 음영: 좌우가 어둡고 가운데가 밝다 -->
+    <linearGradient id="drum" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#146414"/>
+      <stop offset=".2" stop-color="#0dc30d"/>
+      <stop offset=".46" stop-color="#3bff3b"/>
+      <stop offset=".78" stop-color="#0db80d"/>
+      <stop offset="1" stop-color="#125c12"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#127012"/>
+      <stop offset=".45" stop-color="#22e022"/>
+      <stop offset="1" stop-color="#115811"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#0f4f0f" stroke-width=".8" stroke-linejoin="round">
+    <!-- 윗 덮개 -->
+    <path d="M7.4 9.4 C7.4 5 10.6 3.2 15.5 3.2 C20.4 3.2 23.6 5 23.6 9.4 Z" fill="url(#drum)"/>
+    <!-- 위 플랜지 -->
+    <rect x="3.4" y="9.2" width="24.2" height="4" rx=".8" fill="url(#band)"/>
+    <!-- 드럼 -->
+    <rect x="5.2" y="13" width="20.6" height="11.2" fill="url(#drum)"/>
+    <!-- 아래 플랜지 -->
+    <rect x="3.4" y="24" width="24.2" height="4.2" rx=".8" fill="url(#band)"/>
+    <!-- 받침 -->
+    <path d="M6.4 28.4 H24.6 C24.2 31.6 21.4 32.9 15.5 32.9 C9.6 32.9 6.8 31.6 6.4 28.4 Z"
+          fill="url(#band)"/>
+  </g>
+
+  <!-- 드럼 냉각핀. 선만 얹어 질감을 낸다 — 작은 크기라 홈을 파면 뭉개진다. -->
+  <g stroke="#0f5a0f" stroke-width=".7" opacity=".7">
+    <path d="M8.4 13.4 V23.8 M11.2 13.4 V23.8 M14 13.4 V23.8
+             M17 13.4 V23.8 M19.8 13.4 V23.8 M22.6 13.4 V23.8"/>
+  </g>
+
+  <!-- 오른쪽 단자함 -->
+  <rect x="24.4" y="16.2" width="3.2" height="4.2" rx=".6"
+        fill="#0aa80a" stroke="#0f4f0f" stroke-width=".7"/>
+</svg>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1 0.8 19.9 37" width="19.9" height="37">
+  <!-- 아래 방향 화살표. 원본 ent-down-10.png(21x39)의 픽셀 배치를 옮긴 것.
+       8자리에 쓴다 — ent-down-1~4, exit-down-1~4.
+       (exit-down-*는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다.)
+
+       위 화살표를 180도 돌린 것과 같은 그림이지만 파일을 따로 둔다. 돌려 쓰려면
+       작화 CSS에 rotate를 넣어야 하는데, 그 CSS는 작화에서 다시 뽑으면 덮어써진다.
+       src만 바꾸는 쪽이 안전하다.
+
+       viewBox는 원본의 내용 영역에 가로 여백을 조금 더해 칸(21x39)의 비율에 맞췄다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 자루 x 6.2~15.4, y 1~18.6
+                  머리 밑변 x 2.2~19.6, y 18.6   꼭짓점 (10.5, 37.4) -->
+  <defs>
+    <!-- 위 화살표와 반대로 왼쪽이 어둡고 오른쪽이 밝다. 180도 돌린 그림이라
+         명암도 같이 뒤집힌 것이다 — 원본이 그렇게 되어 있다. -->
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0c5a0d"/>
+      <stop offset=".38" stop-color="#117512"/>
+      <stop offset=".72" stop-color="#2b8a2c"/>
+      <stop offset="1" stop-color="#6aa96b"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M10.5 37.4 L2.2 18.6 L6.2 18.6 L6.2 1 L15.4 1 L15.4 18.6 L19.6 18.6 Z"
+        fill="url(#g)" stroke="#0a4f0b" stroke-width=".6" stroke-linejoin="round"/>
+</svg>

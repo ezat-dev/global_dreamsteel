@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1.5 1.8 23 37.7" width="23" height="37.7">
+  <!-- 세로 기어드 모터(위에 기어박스, 아래에 핀 달린 구동부). 원본 ent-motor-30.png(25x41).
+       11개 모터 중 1자리에 쓴다 — ent-motor-3.
+
+       viewBox는 원본의 내용 영역에 맞추고 칸(25x41)의 비율에 맞췄다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 윗 캡 x 9~18, y 2~4     기어박스 x 5~21, y 4~11
+                  몸통  x 6~21, y 11~22   핀 구동부 x 2~23, y 25~34
+                  아래 축 x 13~16, y 35~40 -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#146414"/>
+      <stop offset=".2" stop-color="#0dc30d"/>
+      <stop offset=".46" stop-color="#3bff3b"/>
+      <stop offset=".78" stop-color="#0db80d"/>
+      <stop offset="1" stop-color="#125c12"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#127012"/>
+      <stop offset=".45" stop-color="#22e022"/>
+      <stop offset="1" stop-color="#115811"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#0f4f0f" stroke-width=".8" stroke-linejoin="round">
+    <!-- 윗 캡 -->
+    <rect x="8.8" y="2.2" width="9" height="2.6" rx=".5" fill="url(#band)"/>
+    <!-- 기어박스 -->
+    <rect x="5.2" y="4.6" width="15.8" height="6.6" rx="1" fill="url(#body)"/>
+    <!-- 몸통 -->
+    <rect x="6" y="11.2" width="15" height="11" rx="1" fill="url(#body)"/>
+    <!-- 몸통과 구동부 사이 밴드 -->
+    <rect x="5.4" y="22" width="16.2" height="3.4" rx=".7" fill="url(#band)"/>
+
+    <!-- 핀 달린 구동부. 왼쪽으로 브래킷이 튀어나온다 -->
+    <path d="M2.2 26.4 H21.8 V32.4 H2.2 Z" fill="url(#body)"/>
+    <path d="M1.8 25.6 H4.6 V33.2 H1.8 Z" fill="url(#band)"/>
+    <rect x="2.4" y="32.2" width="19" height="2.4" rx=".6" fill="url(#band)"/>
+
+    <!-- 아래 출력축 -->
+    <rect x="12.8" y="34.4" width="3" height="4.8" rx=".5" fill="url(#band)"/>
+  </g>
+
+  <!-- 구동부 냉각핀(세로 줄)과 몸통 명판.
+       선만 얹어 질감을 낸다 — 작은 크기라 홈을 파면 뭉개진다. -->
+  <g stroke="#0f5a0f" stroke-width=".7" opacity=".72">
+    <path d="M5.6 26.8 V32 M8.2 26.8 V32 M10.8 26.8 V32
+             M13.4 26.8 V32 M16 26.8 V32 M18.6 26.8 V32"/>
+  </g>
+  <rect x="11.2" y="14.4" width="4.6" height="4.6" rx=".8"
+        fill="#0aa80a" stroke="#0f4f0f" stroke-width=".7"/>
+</svg>

@@ -231,6 +231,22 @@ const TRIP_LAMPS = [
   { key: 'exit', cx: 1415, text: '출구 TABLE DRIVE\nCONVEYOR 회전감지' },
 ];
 
+/* 입구 롤러 줄 맨 끝의 제품 감지 자리.
+
+   작화에는 롤러 12개(x 80~446) 오른쪽에 롤러가 하나 더 있고 그 옆에 상태표시등과
+   '제품 감지' 글씨가 있는데, 내보낸 그림(DriveOverview)에는 빠져 있다. 그래서 여기
+   덧씌우는 층에서 채운다. 나중에 작화를 다시 뽑아 롤러가 들어오면 이 ROLLER만 지우면
+   된다(램프와 글씨는 태그를 받아야 하므로 어차피 여기 남는다).
+
+   좌표는 작화 화면을 보고 어림잡은 값이다. 롤러 줄은 y 215, 18x138로 다 같으므로
+   높이·크기는 옆 롤러와 맞췄고, x만 마지막 롤러(446)와 DOOR(494) 사이에 두었다.
+
+   램프는 그 롤러(~473)와 DOOR(494~) 사이 빈 자리의 가운데에 세우고 글씨를 그 아래
+   붙인다. 사이가 21px뿐이라 글씨가 양옆으로 넘치는데, 덧씌우는 층이라 잘리지 않고
+   그림 위에 얹힌다. 글씨를 작게(10px) 둔 것도 그래서다. */
+const END_ROLLER = { left: 455, top: 215, width: 18, height: 138 };
+const PRODUCT_LAMP = { cx: 483, top: 265 };
+
 /* 그림 위에 얹는 짧은 문구들.
    cx를 주면 그 x가 글자의 가운데가 되고, left를 주면 그 x가 왼쪽 끝이 된다.
    value를 주면 그 부분만 앞에 빨간 숫자로 붙는다(나머지 text는 검은 글씨). */
@@ -708,6 +724,20 @@ export default function DrivePage() {
                 <ValueBox label="PV" />
               </div>
             ))}
+
+            {/* 입구 롤러 줄 맨 끝 롤러 — 작화에서 빠져 나온 것을 여기서 채운다.
+                그림과 같은 좌표계라 배율이 바뀌어도 옆 롤러와 어긋나지 않는다. */}
+            <img className="dr-end-roller" src="/scada/drive/roller.svg" alt="" style={END_ROLLER} />
+
+            {/* 제품감지 — 위 롤러와 DOOR 사이에 표시등을 세우고 글씨를 그 아래 붙인다.
+                태그가 오면 회전감지 램프들처럼 hmi-lamp에 on/alarm 클래스만 붙이면 된다. */}
+            <span
+              className="hmi-lamp dr-product-lamp"
+              style={{ left: PRODUCT_LAMP.cx, top: PRODUCT_LAMP.top }}
+            >
+              <span className="hmi-lamp-dot" />
+              <em>제품감지</em>
+            </span>
 
             {/* 회전감지 램프 — 짝이 되는 모터 바로 아래. 그림과 같은 좌표계라
                 배율이 바뀌어도 모터와 어긋나지 않는다. */}

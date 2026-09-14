@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.2 2.5 17.6 135" width="17.6" height="135">
+  <!-- 컨베이어 롤러. 원본 ent-conv-10.png(18x138)의 픽셀 배치를 옮긴 것.
+       18자리에 쓴다 — ent-conv-1~12, exit-conv-1~6.
+       (exit-conv-*는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다. 명암이 가운데에서
+        조금 오른쪽에 있어 뒤집으면 왼쪽으로 가는데, 폭이 18px이라 티가 나지 않는다.)
+
+       viewBox는 원본의 내용 영역에 맞추고 칸(18x138)의 비율에 맞췄다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 위 축 x 5~12.5, y 3~11    몸통 x 0.5~17.3, y 10.5~128.5
+                  아래 축 x 5~13, y 128~137
+
+       명암은 원본 가로 단면(y=70)의 밝기를 그대로 옮겼다. 양 끝이 검고 가운데보다
+       조금 오른쪽(58%)이 가장 밝다 — 쇠 롤러가 빛을 받는 모습이다. -->
+  <defs>
+    <linearGradient id="barrel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0a0a0a"/>
+      <stop offset=".08" stop-color="#1b1b1b"/>
+      <stop offset=".22" stop-color="#575757"/>
+      <stop offset=".38" stop-color="#939393"/>
+      <stop offset=".5" stop-color="#cfcfcf"/>
+      <stop offset=".58" stop-color="#f3f3f3"/>
+      <stop offset=".7" stop-color="#b7b7b7"/>
+      <stop offset=".84" stop-color="#7b7b7b"/>
+      <stop offset=".94" stop-color="#3a3a3a"/>
+      <stop offset="1" stop-color="#0c0c0c"/>
+    </linearGradient>
+    <!-- 축은 몸통보다 어둡다 -->
+    <linearGradient id="shaft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#141414"/>
+      <stop offset=".3" stop-color="#5e5e5e"/>
+      <stop offset=".56" stop-color="#a8a8a8"/>
+      <stop offset=".8" stop-color="#565656"/>
+      <stop offset="1" stop-color="#111111"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 위·아래 축 (몸통보다 먼저 그려 아래로 깔린다) -->
+  <rect x="5" y="2.8" width="7.6" height="10" fill="url(#shaft)"/>
+  <rect x="5" y="126" width="7.9" height="11.2" fill="url(#shaft)"/>
+
+  <!-- 몸통 -->
+  <rect x="0.5" y="10.4" width="16.9" height="118.2" fill="url(#barrel)"/>
+</svg>

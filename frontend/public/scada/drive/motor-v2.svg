@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 29.3 50" width="29.3" height="50">
+  <!-- 세로 모터 + 감속기. 원본 main-motor-10.png(35x56)의 픽셀 배치를 옮긴 것.
+       11개 모터 중 4자리에 쓴다 — ent-motor-4 / main-motor-1 / main-motor-2 / exit-motor-5.
+       (main-motor-1·2는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다.)
+
+       viewBox는 원본의 내용 영역에 맞추고 칸(24x41)의 비율에 맞췄다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 위 축 x 13~17, y 3~7     팬 커버 x 7~24, y 8~12
+                  냉각핀 x 3~30, y 12~21   (오른쪽으로 팔이 뻗는다)
+                  중간 밴드 x 6~26, y 21~26  몸통 x 7~25, y 26~41
+                  아래 밴드 x 6~26, y 41~48  받침 x 9~24, y 48~52 -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#146414"/>
+      <stop offset=".2" stop-color="#0dc30d"/>
+      <stop offset=".46" stop-color="#3bff3b"/>
+      <stop offset=".78" stop-color="#0db80d"/>
+      <stop offset="1" stop-color="#125c12"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#127012"/>
+      <stop offset=".45" stop-color="#22e022"/>
+      <stop offset="1" stop-color="#115811"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#0f4f0f" stroke-width=".8" stroke-linejoin="round">
+    <!-- 위 축 -->
+    <rect x="12.8" y="3.2" width="4" height="4.6" rx=".5" fill="url(#band)"/>
+    <!-- 팬 커버 -->
+    <path d="M7.4 12 L9.4 8.2 H22.4 L24.4 12 Z" fill="url(#body)"/>
+
+    <!-- 냉각핀 묶음 — 오른쪽으로 팔이 뻗는다 -->
+    <rect x="3" y="12" width="24.2" height="9.4" rx="1.4" fill="url(#body)"/>
+    <path d="M27 12.8 H30.6 V20.6 H27 Z" fill="url(#band)"/>
+
+    <!-- 중간 밴드 -->
+    <rect x="6" y="21.2" width="20.2" height="5" rx="1" fill="url(#band)"/>
+    <!-- 몸통 -->
+    <rect x="7" y="26" width="18.2" height="15.4" rx="1" fill="url(#body)"/>
+    <!-- 아래 밴드 -->
+    <rect x="6" y="41.2" width="20.2" height="6.8" rx="1" fill="url(#band)"/>
+    <!-- 받침 -->
+    <path d="M9 48 H23.2 C22.8 50.8 20.6 52.4 16.1 52.4 C11.6 52.4 9.4 50.8 9 48 Z"
+          fill="url(#band)"/>
+  </g>
+
+  <!-- 냉각핀(가로 줄)과 몸통 명판.
+       선만 얹어 질감을 낸다 — 작은 크기라 홈을 파면 뭉개진다. -->
+  <g stroke="#0f5a0f" stroke-width=".7" opacity=".72">
+    <path d="M3.6 14.2 H26.6 M3.6 16.6 H26.6 M3.6 19 H26.6"/>
+  </g>
+  <rect x="13.6" y="31.4" width="5" height="5" rx="1.2" transform="rotate(45 16.1 33.9)"
+        fill="#0aa80a" stroke="#0f4f0f" stroke-width=".7"/>
+</svg>

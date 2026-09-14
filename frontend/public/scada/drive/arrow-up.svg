@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.5 1 19 39" width="19" height="39">
+  <!-- 위 방향 화살표. 원본 ent-up-10.png(20x41)의 픽셀 배치를 옮긴 것.
+       8자리에 쓴다 — ent-up-1~4, exit-up-1~4.
+       (exit-up-*는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다. 화살표는 좌우 대칭이라
+        뒤집혀도 같아 보이고, 명암만 반대쪽으로 간다.)
+
+       viewBox는 원본의 내용 영역에 가로 여백을 조금 더해 칸(20x41)의 비율에 맞췄다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 머리 꼭짓점 (9.5, 1)  머리 밑변 x 1~18, y 20.6
+                  자루 x 4.3~13.6, y 20.6~39 -->
+  <defs>
+    <!-- 왼쪽이 밝고 오른쪽이 어둡다(원본이 그렇다). 색은 원본에서 뽑은 값이다 —
+         모터의 형광 초록과 달리 이 화살표는 가라앉은 숲 초록이다. -->
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6aa96b"/>
+      <stop offset=".28" stop-color="#2b8a2c"/>
+      <stop offset=".62" stop-color="#117512"/>
+      <stop offset="1" stop-color="#0c5a0d"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M9.5 1.2 L17.9 20.6 L13.6 20.6 L13.6 39 L4.3 39 L4.3 20.6 L1.1 20.6 Z"
+        fill="url(#g)" stroke="#0a4f0b" stroke-width=".6" stroke-linejoin="round"/>
+</svg>

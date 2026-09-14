@@ -416,6 +416,25 @@
   margin-top: 2px;
 }
 
+/* 제품감지 — 표시등 아래에 글씨가 붙는 세로 묶음.
+   .hmi-lamp가 가로 배치(점 옆에 글씨)라 여기서 세로로 돌린다.
+   롤러와 DOOR 사이가 21px뿐이라 글씨가 양옆으로 넘치는데, 덧씌우는 층이라 잘리지
+   않고 그림 위에 얹힌다. 넘치는 폭이 가운데를 벗어나지 않게 translateX(-50%)로 세운다. */
+.dr-product-lamp {
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transform: translateX(-50%);
+}
+
+.dr-product-lamp em {
+  font-size: 10px;
+  font-weight: 700;
+  font-style: normal;
+  white-space: nowrap;
+  color: var(--hmi-text);
+}
+
 /* 그림 위에 얹는 짧은 문구. 위치는 DrivePage.jsx의 NOTES가 인라인으로 넣는다. */
 .dr-note {
   font-size: 12px;

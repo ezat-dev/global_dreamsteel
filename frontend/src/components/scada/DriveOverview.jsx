@@ -3,9 +3,32 @@
 
    클래스 이름은 작화 style.css(= pages/scada/driveOverview.css)와 1:1로 묶여 있어서
    하나도 바꾸면 안 된다. 원본과 줄 단위로 대조할 수 있게 순서·이름을 그대로 두었고,
-   바꾼 것은 딱 두 가지다.
+   바꾼 것은 세 가지다.
      - class=      → className=      (JSX 문법)
      - src="A.png" → src="/scada/drive/A.png"  (public 폴더로 옮겨서 경로가 생김)
+     - 모터 11개 / 화살표 16개 / 롤러 18개의 src를 SVG로 교체
+
+   마지막 것만 설명이 필요하다. 이것들은 20x41 같은 작은 PNG인데 화면에서 그림을 늘려
+   그리므로 흐려지고 찌그러진다. 같은 실루엣으로 SVG를 다시 그려 끼웠다.
+
+   45자리에 SVG는 7개뿐이다. 파일은 45개였지만 실제 그림은 7종이고(나머지는 같은
+   그림의 고해상도판), 자리마다 방향이 다른 것은 작화 CSS가 scale(-1,1)로 뒤집어
+   주기 때문이다. 그래서 파일 하나를 여러 자리에 그대로 끼워도 방향이 유지된다.
+     motor-h.svg     가로 기어드 모터 ent-motor-1 / exit-motor-1 / exit-motor-2 / exit-motor-4
+     motor-drum.svg  통 모터          ent-motor-2 / exit-motor-3
+     motor-v1.svg    세로 기어드 모터 ent-motor-3
+     motor-v2.svg    세로 모터+감속기 ent-motor-4 / main-motor-1 / main-motor-2 / exit-motor-5
+     arrow-up.svg    위 화살표        ent-up-1~4 / exit-up-1~4
+     arrow-down.svg  아래 화살표      ent-down-1~4 / exit-down-1~4
+     roller.svg      컨베이어 롤러    ent-conv-1~12 / exit-conv-1~6
+
+   각 SVG의 viewBox는 그 자리의 칸 비율에 맞춰 두었다. 작화 CSS에 object-fit: cover가
+   걸려 있어서 비율이 어긋나면 그림이 잘린다 — SVG를 고칠 때 viewBox를 건드리면
+   해당 칸의 width/height 비율과 같은지 반드시 확인할 것.
+
+   원본 PNG는 public 폴더에 그대로 두었다. 되돌리려면 src를 원래 파일명으로 바꾸면 된다
+   (ent-motor-10~40, main-motor-10·20, exit-motor-10~50, ent/exit-up-10~40,
+    ent/exit-down-10~40, ent-conv-10~120, exit-conv-10~60).
 
    그림은 1981x406px 고정 크기다. 화면 폭에 맞춰 줄이는 일은 이 컴포넌트를 감싸는
    쪽(DrivePage)에서 transform: scale로 처리한다 — 작화 CSS는 건드리지 않는다.
@@ -21,18 +44,18 @@ export default function DriveOverview() {
         <img className="ent-obj-4" src="/scada/drive/ent-obj-40.png" />
         <img className="ent-obj-5" src="/scada/drive/ent-obj-50.png" />
         <img className="ent-obj-6" src="/scada/drive/ent-obj-60.png" />
-        <img className="ent-conv-1" src="/scada/drive/ent-conv-10.png" />
-        <img className="ent-conv-2" src="/scada/drive/ent-conv-20.png" />
-        <img className="ent-conv-3" src="/scada/drive/ent-conv-30.png" />
-        <img className="ent-conv-4" src="/scada/drive/ent-conv-40.png" />
-        <img className="ent-conv-5" src="/scada/drive/ent-conv-50.png" />
-        <img className="ent-conv-6" src="/scada/drive/ent-conv-60.png" />
-        <img className="ent-conv-7" src="/scada/drive/ent-conv-70.png" />
-        <img className="ent-conv-8" src="/scada/drive/ent-conv-80.png" />
-        <img className="ent-conv-9" src="/scada/drive/ent-conv-90.png" />
-        <img className="ent-conv-10" src="/scada/drive/ent-conv-100.png" />
-        <img className="ent-conv-11" src="/scada/drive/ent-conv-110.png" />
-        <img className="ent-conv-12" src="/scada/drive/ent-conv-120.png" />
+        <img className="ent-conv-1" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-2" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-3" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-4" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-5" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-6" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-7" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-8" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-9" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-10" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-11" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-12" src="/scada/drive/roller.svg" />
         <img className="ent-obj-7" src="/scada/drive/ent-obj-70.png" />
         <img className="ent-obj-8" src="/scada/drive/ent-obj-80.png" />
         <img className="ent-obj-9" src="/scada/drive/ent-obj-90.png" />
@@ -297,18 +320,18 @@ export default function DriveOverview() {
           <div className="mini-rail233"></div>
           <div className="mini-rail234"></div>
         </div>
-        <img className="ent-up-1" src="/scada/drive/ent-up-10.png" />
-        <img className="ent-down-1" src="/scada/drive/ent-down-10.png" />
-        <img className="ent-up-2" src="/scada/drive/ent-up-20.png" />
-        <img className="ent-down-2" src="/scada/drive/ent-down-20.png" />
-        <img className="ent-up-3" src="/scada/drive/ent-up-30.png" />
-        <img className="ent-down-3" src="/scada/drive/ent-down-30.png" />
-        <img className="ent-up-4" src="/scada/drive/ent-up-40.png" />
-        <img className="ent-down-4" src="/scada/drive/ent-down-40.png" />
-        <img className="ent-motor-1" src="/scada/drive/ent-motor-10.png" />
-        <img className="ent-motor-2" src="/scada/drive/ent-motor-20.png" />
-        <img className="ent-motor-3" src="/scada/drive/ent-motor-30.png" />
-        <img className="ent-motor-4" src="/scada/drive/ent-motor-40.png" />
+        <img className="ent-up-1" src="/scada/drive/arrow-up.svg" />
+        <img className="ent-down-1" src="/scada/drive/arrow-down.svg" />
+        <img className="ent-up-2" src="/scada/drive/arrow-up.svg" />
+        <img className="ent-down-2" src="/scada/drive/arrow-down.svg" />
+        <img className="ent-up-3" src="/scada/drive/arrow-up.svg" />
+        <img className="ent-down-3" src="/scada/drive/arrow-down.svg" />
+        <img className="ent-up-4" src="/scada/drive/arrow-up.svg" />
+        <img className="ent-down-4" src="/scada/drive/arrow-down.svg" />
+        <img className="ent-motor-1" src="/scada/drive/motor-h.svg" />
+        <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" />
+        <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" />
+        <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" />
         <img className="ent-door-1" src="/scada/drive/ent-door-10.png" />
       </div>
       <div className="main-drive">
@@ -321,8 +344,8 @@ export default function DriveOverview() {
         <img className="main-7-zone" src="/scada/drive/main-7-zone0.png" />
         <img className="main-obj-2" src="/scada/drive/main-obj-20.png" />
         <img className="main-obj-1" src="/scada/drive/main-obj-10.png" />
-        <img className="main-motor-1" src="/scada/drive/main-motor-10.png" />
-        <img className="main-motor-2" src="/scada/drive/main-motor-20.png" />
+        <img className="main-motor-1" src="/scada/drive/motor-v2.svg" />
+        <img className="main-motor-2" src="/scada/drive/motor-v2.svg" />
       </div>
       <div className="exit-conv">
         <img className="exit-obj-1" src="/scada/drive/exit-obj-10.png" />
@@ -331,12 +354,12 @@ export default function DriveOverview() {
         <img className="exit-obj-4" src="/scada/drive/exit-obj-40.png" />
         <img className="exit-obj-5" src="/scada/drive/exit-obj-50.png" />
         <img className="exit-obj-6" src="/scada/drive/exit-obj-60.png" />
-        <img className="exit-conv-1" src="/scada/drive/exit-conv-10.png" />
-        <img className="exit-conv-2" src="/scada/drive/exit-conv-20.png" />
-        <img className="exit-conv-3" src="/scada/drive/exit-conv-30.png" />
-        <img className="exit-conv-6" src="/scada/drive/exit-conv-60.png" />
-        <img className="exit-conv-8" src="/scada/drive/exit-conv-80.png" />
-        <img className="exit-conv-9" src="/scada/drive/exit-conv-90.png" />
+        <img className="exit-conv-1" src="/scada/drive/roller.svg" />
+        <img className="exit-conv-2" src="/scada/drive/roller.svg" />
+        <img className="exit-conv-3" src="/scada/drive/roller.svg" />
+        <img className="exit-conv-6" src="/scada/drive/roller.svg" />
+        <img className="exit-conv-8" src="/scada/drive/roller.svg" />
+        <img className="exit-conv-9" src="/scada/drive/roller.svg" />
         <img className="exit-obj-7" src="/scada/drive/exit-obj-70.png" />
         <img className="exit-obj-8" src="/scada/drive/exit-obj-80.png" />
         <img className="exit-obj-9" src="/scada/drive/exit-obj-90.png" />
@@ -601,19 +624,19 @@ export default function DriveOverview() {
           <div className="mini-rail467"></div>
           <div className="mini-rail468"></div>
         </div>
-        <img className="exit-up-1" src="/scada/drive/exit-up-10.png" />
-        <img className="exit-down-1" src="/scada/drive/exit-down-10.png" />
-        <img className="exit-up-2" src="/scada/drive/exit-up-20.png" />
-        <img className="exit-down-2" src="/scada/drive/exit-down-20.png" />
-        <img className="exit-up-3" src="/scada/drive/exit-up-30.png" />
-        <img className="exit-down-3" src="/scada/drive/exit-down-30.png" />
-        <img className="exit-up-4" src="/scada/drive/exit-up-40.png" />
-        <img className="exit-down-4" src="/scada/drive/exit-down-40.png" />
-        <img className="exit-motor-1" src="/scada/drive/exit-motor-10.png" />
-        <img className="exit-motor-2" src="/scada/drive/exit-motor-20.png" />
-        <img className="exit-motor-3" src="/scada/drive/exit-motor-30.png" />
-        <img className="exit-motor-4" src="/scada/drive/exit-motor-40.png" />
-        <img className="exit-motor-5" src="/scada/drive/exit-motor-50.png" />
+        <img className="exit-up-1" src="/scada/drive/arrow-up.svg" />
+        <img className="exit-down-1" src="/scada/drive/arrow-down.svg" />
+        <img className="exit-up-2" src="/scada/drive/arrow-up.svg" />
+        <img className="exit-down-2" src="/scada/drive/arrow-down.svg" />
+        <img className="exit-up-3" src="/scada/drive/arrow-up.svg" />
+        <img className="exit-down-3" src="/scada/drive/arrow-down.svg" />
+        <img className="exit-up-4" src="/scada/drive/arrow-up.svg" />
+        <img className="exit-down-4" src="/scada/drive/arrow-down.svg" />
+        <img className="exit-motor-1" src="/scada/drive/motor-h.svg" />
+        <img className="exit-motor-2" src="/scada/drive/motor-h.svg" />
+        <img className="exit-motor-3" src="/scada/drive/motor-drum.svg" />
+        <img className="exit-motor-4" src="/scada/drive/motor-h.svg" />
+        <img className="exit-motor-5" src="/scada/drive/motor-v2.svg" />
       </div>
     </div>
   );
