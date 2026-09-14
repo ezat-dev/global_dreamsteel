@@ -617,3 +617,51 @@
   white-space: nowrap;
   cursor: not-allowed;
 }
+
+/* ===== 배관 입체감 ========================================================
+   작화가 뽑아준 파이프는 단색 10px 막대(흰색 90개 / 노란색 76개)라 납작한 띠로 보인다.
+   원본 CSS(combustionOverview.css)는 손대지 않고 여기서 명암만 덧칠해 둥근 관처럼 만든다.
+
+   background-image만 준다 — 색(background-color)은 원본이 정한 것을 그대로 쓴다.
+   그래서 흰 관과 노란 관에 같은 규칙 하나로 통한다. 원본이 background 단축 속성을
+   쓰므로 이 파일이 combustionOverview.css보다 나중에 import되어야 한다(CombustionPage.jsx
+   11~12줄). 순서가 바뀌면 덧칠이 지워진다.
+
+   명암을 위아래 대칭에 가깝게 둔 이유: 파이프마다 rotate(-180deg)와 rotate(90deg)가
+   섞여 있어서, 한쪽에만 하이라이트를 넣으면 이어지는 관끼리 밝은 면이 서로 반대로
+   간다. 대칭이면 어느 방향으로 돌아가도 같은 관으로 보인다.
+
+   pipe-group-*은 배경 없는 빈 묶음 상자(974x81 등)라 반드시 빼야 한다 —
+   여기에 그라데이션이 들어가면 그림 위에 커다란 사각형이 덮인다. */
+.combustion [class^="pipe"]:not([class*="group"]) {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, .34) 0%,
+    rgba(0, 0, 0, .10) 14%,
+    rgba(255, 255, 255, .55) 32%,
+    rgba(255, 255, 255, .14) 52%,
+    rgba(0, 0, 0, .12) 72%,
+    rgba(0, 0, 0, .36) 100%
+  );
+}
+
+/* ===== 존 불꽃 칸 =========================================================
+   작화가 잡아준 칸은 17x36 — 세로가 가로의 2배라 무엇을 그려 넣어도 길쭉해진다.
+   사진처럼 갈래진 불꽃을 넣으려면 칸 자체를 줄여야 해서 22x26으로 바꾼다.
+   zone-fire.svg의 viewBox도 같은 22x26이다(둘이 어긋나면 object-fit: cover가 자른다).
+
+   세로를 줄이는 쪽은 위치 보정이 필요 없다. 윗줄(for-*)은 left/top이 왼쪽 위 모서리라
+   위가 고정된 채 아래로만 짧아지고, 아랫줄(rev-*)은 transform-origin: 0 0 에
+   rotate(-180deg)라 아래가 고정된 채 위로만 짧아진다. 둘 다 버너에 붙은 쪽이 그대로다.
+
+   가로는 다르다. 5px 넓히면 윗줄은 오른쪽으로, 아랫줄은 (뒤집혀 있어서) 왼쪽으로
+   자란다. 그래서 가운데를 유지하려면 서로 반대로 밀어야 한다. */
+.combustion [class^="for-fire-"],
+.combustion [class^="rev-fire-"] {
+  width: 22px;
+  height: 26px;
+  aspect-ratio: 22 / 26;
+}
+
+.combustion [class^="for-fire-"] { margin-left: -2.5px; }
+.combustion [class^="rev-fire-"] { margin-left: 2.5px; }

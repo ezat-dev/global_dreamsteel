@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 4 47 34" width="47" height="34">
+  <!-- 존 버너 밸브(넓은 것) — 좌우 원뿔 사이에 4분할 디스크가 달린 버터플라이 밸브.
+       원본 obj22.png(56x45)의 픽셀 배치를 그대로 옮긴 것.
+       상단 존 7개 + 하단 존 7개가 같은 그림이고, 하단은 작화 CSS가 180도 돌려 쓴다
+       (4분할 색이 대각선 대칭이라 180도 돌려도 배색이 그대로다).
+
+       viewBox를 원본의 내용 영역(x 4~51, y 4~38)으로 잡았다. 그래야 39x28 칸에
+       넣었을 때 여백 없이 꽉 차면서 비율도 맞는다(47/34 = 1.38, 39/28 = 1.39).
+
+       원본 좌표:
+         왼쪽 원뿔  바깥면 x 5,  안쪽 x 17,  y 5~27
+         오른쪽 원뿔 바깥면 x 49, 안쪽 x 38,  y 5~27
+         디스크     x 18~38, y 6~26 (가운데 검은 축 x 27~29)
+         받침대 목  x 25~29, y 26~30      받침대 x 11~44, y 30~36 -->
+  <defs>
+    <!-- 원뿔: 가운데가 밝은 원통 음영(위아래로 흐른다) -->
+    <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6e6e6e"/>
+      <stop offset=".38" stop-color="#e4e4e4"/>
+      <stop offset=".62" stop-color="#b4b4b4"/>
+      <stop offset="1" stop-color="#5c5c5c"/>
+    </linearGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c8c8c8"/>
+      <stop offset=".55" stop-color="#9a9a9a"/>
+      <stop offset="1" stop-color="#6a6a6a"/>
+    </linearGradient>
+    <!-- 디스크 4분할. 위가 밝은 쪽으로 둬서 관·원뿔의 음영 방향과 맞춘다 -->
+    <linearGradient id="grn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f9c14"/>
+      <stop offset=".55" stop-color="#5fd62c"/>
+      <stop offset="1" stop-color="#8ff05e"/>
+    </linearGradient>
+    <linearGradient id="ylw" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c98b0c"/>
+      <stop offset=".55" stop-color="#f5c22a"/>
+      <stop offset="1" stop-color="#ffe08f"/>
+    </linearGradient>
+    <clipPath id="disc">
+      <circle cx="28" cy="16" r="9.6"/>
+    </clipPath>
+  </defs>
+
+  <!-- 선은 얇게. 39px 칸으로 줄여 그리므로 굵으면 만화처럼 보인다
+       (원본 1px / 56폭 = 이 좌표계에서 약 0.9). -->
+  <g stroke="#232323" stroke-width=".9" stroke-linejoin="round">
+    <!-- 좌우 원뿔 — 바깥이 넓고 가운데로 갈수록 좁아진다 -->
+    <path d="M5.6 5.4 V27.2 L17.4 22.4 V7.8 Z" fill="url(#cone)"/>
+    <path d="M49.4 5.4 V27.2 L37.6 22.4 V7.8 Z" fill="url(#cone)"/>
+
+    <!-- 받침대 목 — 원본은 세로선 두 줄이다 -->
+    <rect x="25.2" y="24.5" width="4.6" height="5.4" fill="#8f8f8f"/>
+    <!-- 받침대 -->
+    <rect x="11.8" y="29.8" width="32.4" height="6" rx="1.6" fill="url(#base)"/>
+  </g>
+
+  <!-- 디스크 -->
+  <g clip-path="url(#disc)">
+    <rect x="18" y="6" width="10" height="10" fill="url(#ylw)"/>
+    <rect x="28" y="6" width="10" height="10" fill="url(#grn)"/>
+    <rect x="18" y="16" width="10" height="10" fill="url(#grn)"/>
+    <rect x="28" y="16" width="10" height="10" fill="url(#ylw)"/>
+  </g>
+  <!-- 가운데 축과 테두리 -->
+  <rect x="27.1" y="5.6" width="1.8" height="20.8" fill="#1d1d1d"/>
+  <circle cx="28" cy="16" r="9.6" fill="none" stroke="#232323" stroke-width="1.1"/>
+</svg>

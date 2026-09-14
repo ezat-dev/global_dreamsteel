@@ -2,9 +2,43 @@
    연소화면 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
 
    클래스 이름은 작화 style.css(= pages/scada/combustionOverview.css)와 1:1로 묶여
-   있어서 하나도 바꾸면 안 된다. 바꾼 것은 딱 두 가지다.
+   있어서 하나도 바꾸면 안 된다. 바꾼 것은 세 가지다.
      - class=      → className=      (JSX 문법)
      - src="A.png" → src="/scada/combustion/A.png"  (public 폴더로 옮겨서 경로가 생김)
+     - 배관 부속 4개(gas-pre0 / gas-sol0 / blower-pre0 / blower-pump0)를 .png → .svg
+     - 존 밸브 42개(obj0~obj41.png)를 obj-valve-small.svg / obj-valve-wide.svg 로 교체
+     - 존 가스 밸브 28개(*-zone-valve-*.png)를 zone-valve.svg 로 교체
+     - 존 불꽃 28개(*-fire-*.png)를 zone-fire.svg 로 교체
+
+   뒤 네 가지는 같은 이유다. 이 화면은 그림을 창 크기에 맞춰 늘려 그리는데
+   (useStageStretch, 가로·세로 배율이 따로 논다), 원본이 작은 PNG면 늘릴 때
+   흐려지고 찌그러진다. 그래서 같은 실루엣으로 SVG를 다시 그려 끼웠다.
+
+   밸브가 42개지만 SVG는 2개뿐인 이유:
+     - 파일은 42개인데 실제 그림은 4종이었다(작은 것/넓은 것 x 상단/하단).
+     - 상단과 하단은 같은 기기이고, 하단은 작화 CSS가 rotate(-180deg)로 돌려 쓴다.
+       작은 것은 위아래 대칭이고, 넓은 것은 4분할 색이 대각선 대칭이라 돌려도 배색이
+       그대로다. 그래서 상·하단이 같은 파일 하나를 쓰면 된다.
+
+   각 SVG의 viewBox는 원본의 '내용 영역'으로 잡아 두었다. 칸(19x22 / 39x28)에 넣었을 때
+   여백 없이 꽉 차면서 비율이 맞는다. 하단 존은 예전에 여백이 있는 큰 PNG를 쓰고 있어
+   밸브가 상단보다 조금 작게 나왔는데, 이제 상·하단 크기가 같아진다.
+
+   존 가스 밸브 28개가 SVG 1개인 이유도 같다. 원본은 3종(27x22 두 개 + 50x41 한 개)인데
+   셋 다 같은 그림(구동부 돔이 왼쪽)이고, 자리마다 방향이 다른 것은 작화 CSS가
+   뒤집어 주기 때문이다. 그래서 파일 하나를 28곳에 그대로 끼워도 방향이 유지된다.
+     for-*-valve-1  변형 없음        for-*-valve-2  scale(-1, 1)
+     rev-*-valve-1  rotate(-180deg)  rev-*-valve-2  scale(1, -1)
+
+   불꽃 28개도 마찬가지다. 원본 2종이 같은 그림(불꽃이 위로)이고 아래 존만 CSS가
+   rotate(-180deg)로 돌린다. 다만 불꽃은 원본이 손으로 찍은 픽셀이라 좌우가
+   울퉁불퉁했는데, 7개가 나란히 서는 자리라 좌우 대칭으로 펴서 그렸다.
+
+   원본 PNG는 public 폴더에 다 그대로 두었다. 되돌리려면 src를 원래 파일명으로
+   바꾸면 된다 — 작은 것 obj0/2/3/5/6/8/9/11/12/14/15/17/18/20(상단)과
+   obj21/23/24/26/27/29/30/32/33/35/36/38/39/41(하단),
+   넓은 것 obj1/4/7/10/13/16/19(상단)과 obj22/25/28/31/34/37/40(하단),
+   존 가스 밸브는 for-N-zone-valve-10/20.png 와 rev-N-zone-valve-10/20.png.
    =========================================================================== */
 
 export default function CombustionOverview() {
@@ -154,8 +188,8 @@ export default function CombustionOverview() {
         <div className="pipe130"></div>
         <div className="pipe131"></div>
         <div className="pipe132"></div>
-        <img className="gas-pre" src="/scada/combustion/gas-pre0.png" />
-        <img className="gas-sol" src="/scada/combustion/gas-sol0.png" />
+        <img className="gas-pre" src="/scada/combustion/gas-pre0.svg" />
+        <img className="gas-sol" src="/scada/combustion/gas-sol0.svg" />
       </div>
       <div className="main-blower">
         <img className="main-blower2" src="/scada/combustion/main-blower1.png" />
@@ -163,8 +197,8 @@ export default function CombustionOverview() {
         <div className="pipe134"></div>
         <div className="pipe135"></div>
         <div className="pipe136"></div>
-        <img className="blower-pre" src="/scada/combustion/blower-pre0.png" />
-        <img className="blower-pump" src="/scada/combustion/blower-pump0.png" />
+        <img className="blower-pre" src="/scada/combustion/blower-pre0.svg" />
+        <img className="blower-pump" src="/scada/combustion/blower-pump0.svg" />
       </div>
       <div className="zon-box-1"></div>
       <div className="zon-box-2"></div>
@@ -172,215 +206,215 @@ export default function CombustionOverview() {
         <div className="for-1-zone-box"></div>
         <div className="pipe137"></div>
         <div className="pipe138"></div>
-        <img className="obj" src="/scada/combustion/obj0.png" />
-        <img className="obj2" src="/scada/combustion/obj1.png" />
-        <img className="obj3" src="/scada/combustion/obj2.png" />
+        <img className="obj" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj2" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj3" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-1-zone-per"></div>
-        <img className="for-1-zone-valve-1" src="/scada/combustion/for-1-zone-valve-10.png" />
-        <img className="for-1-zone-valve-2" src="/scada/combustion/for-1-zone-valve-20.png" />
+        <img className="for-1-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-1-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-2-zone-obj">
         <div className="for-2-zone-box"></div>
         <div className="pipe139"></div>
         <div className="pipe140"></div>
-        <img className="obj4" src="/scada/combustion/obj3.png" />
-        <img className="obj5" src="/scada/combustion/obj4.png" />
-        <img className="obj6" src="/scada/combustion/obj5.png" />
+        <img className="obj4" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj5" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj6" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-2-zone-per"></div>
-        <img className="for-2-zone-valve-1" src="/scada/combustion/for-2-zone-valve-10.png" />
-        <img className="for-2-zone-valve-2" src="/scada/combustion/for-2-zone-valve-20.png" />
+        <img className="for-2-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-2-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-3-zone-obj">
         <div className="for-3-zone-box"></div>
         <div className="pipe141"></div>
         <div className="pipe142"></div>
-        <img className="obj7" src="/scada/combustion/obj6.png" />
-        <img className="obj8" src="/scada/combustion/obj7.png" />
-        <img className="obj9" src="/scada/combustion/obj8.png" />
+        <img className="obj7" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj8" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj9" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-3-zone-per"></div>
-        <img className="for-3-zone-valve-1" src="/scada/combustion/for-3-zone-valve-10.png" />
-        <img className="for-3-zone-valve-2" src="/scada/combustion/for-3-zone-valve-20.png" />
+        <img className="for-3-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-3-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-4-zone-obj">
         <div className="for-4-zone-box"></div>
         <div className="pipe143"></div>
         <div className="pipe144"></div>
-        <img className="obj10" src="/scada/combustion/obj9.png" />
-        <img className="obj11" src="/scada/combustion/obj10.png" />
-        <img className="obj12" src="/scada/combustion/obj11.png" />
+        <img className="obj10" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj11" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj12" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-4-zone-per"></div>
-        <img className="for-4-zone-valve-1" src="/scada/combustion/for-4-zone-valve-10.png" />
-        <img className="for-4-zone-valve-2" src="/scada/combustion/for-4-zone-valve-20.png" />
+        <img className="for-4-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-4-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-5-zone-obj">
         <div className="for-5-zone-box"></div>
         <div className="pipe145"></div>
         <div className="pipe146"></div>
-        <img className="obj13" src="/scada/combustion/obj12.png" />
-        <img className="obj14" src="/scada/combustion/obj13.png" />
-        <img className="obj15" src="/scada/combustion/obj14.png" />
+        <img className="obj13" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj14" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj15" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-5-zone-per"></div>
-        <img className="for-5-zone-valve-1" src="/scada/combustion/for-5-zone-valve-10.png" />
-        <img className="for-5-zone-valve-2" src="/scada/combustion/for-5-zone-valve-20.png" />
+        <img className="for-5-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-5-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-6-zone-obj">
         <div className="for-6-zone-box"></div>
         <div className="pipe147"></div>
         <div className="pipe148"></div>
-        <img className="obj16" src="/scada/combustion/obj15.png" />
-        <img className="obj17" src="/scada/combustion/obj16.png" />
-        <img className="obj18" src="/scada/combustion/obj17.png" />
+        <img className="obj16" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj17" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj18" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-6-zone-per"></div>
-        <img className="for-6-zone-valve-1" src="/scada/combustion/for-6-zone-valve-10.png" />
-        <img className="for-6-zone-valve-2" src="/scada/combustion/for-6-zone-valve-20.png" />
+        <img className="for-6-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-6-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-7-zone-obj">
         <div className="for-7-zone-box"></div>
         <div className="pipe149"></div>
         <div className="pipe150"></div>
-        <img className="obj19" src="/scada/combustion/obj18.png" />
-        <img className="obj20" src="/scada/combustion/obj19.png" />
-        <img className="obj21" src="/scada/combustion/obj20.png" />
+        <img className="obj19" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj20" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj21" src="/scada/combustion/obj-valve-small.svg" />
         <div className="for-7-zone-per"></div>
-        <img className="for-7-zone-valve-1" src="/scada/combustion/for-7-zone-valve-10.png" />
-        <img className="for-7-zone-valve-2" src="/scada/combustion/for-7-zone-valve-20.png" />
+        <img className="for-7-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="for-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-fire-group">
         <img className="for-thun-1" src="/scada/combustion/for-thun-10.png" />
-        <img className="for-fire-1" src="/scada/combustion/for-fire-10.png" />
+        <img className="for-fire-1" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-2" src="/scada/combustion/for-thun-20.png" />
-        <img className="for-fire-2" src="/scada/combustion/for-fire-20.png" />
+        <img className="for-fire-2" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-3" src="/scada/combustion/for-thun-30.png" />
-        <img className="for-fire-3" src="/scada/combustion/for-fire-30.png" />
+        <img className="for-fire-3" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-4" src="/scada/combustion/for-thun-40.png" />
-        <img className="for-fire-4" src="/scada/combustion/for-fire-40.png" />
+        <img className="for-fire-4" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-5" src="/scada/combustion/for-thun-50.png" />
-        <img className="for-fire-5" src="/scada/combustion/for-fire-50.png" />
+        <img className="for-fire-5" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-6" src="/scada/combustion/for-thun-60.png" />
-        <img className="for-fire-6" src="/scada/combustion/for-fire-60.png" />
+        <img className="for-fire-6" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-7" src="/scada/combustion/for-thun-70.png" />
-        <img className="for-fire-7" src="/scada/combustion/for-fire-70.png" />
+        <img className="for-fire-7" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-8" src="/scada/combustion/for-thun-80.png" />
-        <img className="for-fire-8" src="/scada/combustion/for-fire-80.png" />
+        <img className="for-fire-8" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-9" src="/scada/combustion/for-thun-90.png" />
-        <img className="for-fire-9" src="/scada/combustion/for-fire-90.png" />
+        <img className="for-fire-9" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-10" src="/scada/combustion/for-thun-100.png" />
-        <img className="for-fire-10" src="/scada/combustion/for-fire-100.png" />
+        <img className="for-fire-10" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-11" src="/scada/combustion/for-thun-110.png" />
-        <img className="for-fire-11" src="/scada/combustion/for-fire-110.png" />
+        <img className="for-fire-11" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-12" src="/scada/combustion/for-thun-120.png" />
-        <img className="for-fire-12" src="/scada/combustion/for-fire-120.png" />
+        <img className="for-fire-12" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-13" src="/scada/combustion/for-thun-130.png" />
-        <img className="for-fire-13" src="/scada/combustion/for-fire-130.png" />
+        <img className="for-fire-13" src="/scada/combustion/zone-fire.svg" />
         <img className="for-thun-14" src="/scada/combustion/for-thun-140.png" />
-        <img className="for-fire-14" src="/scada/combustion/for-fire-140.png" />
+        <img className="for-fire-14" src="/scada/combustion/zone-fire.svg" />
       </div>
       <div className="rev-1-zone-obj">
         <div className="rev-1-zone-box"></div>
         <div className="pipe151"></div>
         <div className="pipe152"></div>
-        <img className="obj22" src="/scada/combustion/obj21.png" />
-        <img className="obj23" src="/scada/combustion/obj22.png" />
-        <img className="obj24" src="/scada/combustion/obj23.png" />
+        <img className="obj22" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj23" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj24" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-1-zone-per"></div>
-        <img className="rev-1-zone-valve-1" src="/scada/combustion/rev-1-zone-valve-10.png" />
-        <img className="rev-1-zone-valve-2" src="/scada/combustion/rev-1-zone-valve-20.png" />
+        <img className="rev-1-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-1-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-2-zone-obj">
         <div className="rev-2-zone-box"></div>
         <div className="pipe153"></div>
         <div className="pipe154"></div>
-        <img className="obj25" src="/scada/combustion/obj24.png" />
-        <img className="obj26" src="/scada/combustion/obj25.png" />
-        <img className="obj27" src="/scada/combustion/obj26.png" />
+        <img className="obj25" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj26" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj27" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-2-zone-per"></div>
-        <img className="rev-2-zone-valve-1" src="/scada/combustion/rev-2-zone-valve-10.png" />
-        <img className="rev-2-zone-valve-2" src="/scada/combustion/rev-2-zone-valve-20.png" />
+        <img className="rev-2-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-2-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-3-zone-obj">
         <div className="rev-3-zone-box"></div>
         <div className="pipe155"></div>
         <div className="pipe156"></div>
-        <img className="obj28" src="/scada/combustion/obj27.png" />
-        <img className="obj29" src="/scada/combustion/obj28.png" />
-        <img className="obj30" src="/scada/combustion/obj29.png" />
+        <img className="obj28" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj29" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj30" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-3-zone-per"></div>
-        <img className="rev-3-zone-valve-1" src="/scada/combustion/rev-3-zone-valve-10.png" />
-        <img className="rev-3-zone-valve-2" src="/scada/combustion/rev-3-zone-valve-20.png" />
+        <img className="rev-3-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-3-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-4-zone-obj">
         <div className="rev-4-zone-box"></div>
         <div className="pipe157"></div>
         <div className="pipe158"></div>
-        <img className="obj31" src="/scada/combustion/obj30.png" />
-        <img className="obj32" src="/scada/combustion/obj31.png" />
-        <img className="obj33" src="/scada/combustion/obj32.png" />
+        <img className="obj31" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj32" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj33" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-4-zone-per"></div>
-        <img className="rev-4-zone-valve-1" src="/scada/combustion/rev-4-zone-valve-10.png" />
-        <img className="rev-4-zone-valve-2" src="/scada/combustion/rev-4-zone-valve-20.png" />
+        <img className="rev-4-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-4-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-5-zone-obj">
         <div className="rev-5-zone-box"></div>
         <div className="pipe159"></div>
         <div className="pipe160"></div>
-        <img className="obj34" src="/scada/combustion/obj33.png" />
-        <img className="obj35" src="/scada/combustion/obj34.png" />
-        <img className="obj36" src="/scada/combustion/obj35.png" />
+        <img className="obj34" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj35" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj36" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-5-zone-per"></div>
-        <img className="rev-5-zone-valve-1" src="/scada/combustion/rev-5-zone-valve-10.png" />
-        <img className="rev-5-zone-valve-2" src="/scada/combustion/rev-5-zone-valve-20.png" />
+        <img className="rev-5-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-5-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-6-zone-obj">
         <div className="rev-6-zone-box"></div>
         <div className="pipe161"></div>
         <div className="pipe162"></div>
-        <img className="obj37" src="/scada/combustion/obj36.png" />
-        <img className="obj38" src="/scada/combustion/obj37.png" />
-        <img className="obj39" src="/scada/combustion/obj38.png" />
+        <img className="obj37" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj38" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj39" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-6-zone-per"></div>
-        <img className="rev-6-zone-valve-1" src="/scada/combustion/rev-6-zone-valve-10.png" />
-        <img className="rev-6-zone-valve-2" src="/scada/combustion/rev-6-zone-valve-20.png" />
+        <img className="rev-6-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-6-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-7-zone-obj">
         <div className="rev-7-zone-box"></div>
         <div className="pipe163"></div>
         <div className="pipe164"></div>
-        <img className="obj40" src="/scada/combustion/obj39.png" />
-        <img className="obj41" src="/scada/combustion/obj40.png" />
-        <img className="obj42" src="/scada/combustion/obj41.png" />
+        <img className="obj40" src="/scada/combustion/obj-valve-small.svg" />
+        <img className="obj41" src="/scada/combustion/obj-valve-wide.svg" />
+        <img className="obj42" src="/scada/combustion/obj-valve-small.svg" />
         <div className="rev-7-zone-per"></div>
-        <img className="rev-7-zone-valve-1" src="/scada/combustion/rev-7-zone-valve-10.png" />
-        <img className="rev-7-zone-valve-2" src="/scada/combustion/rev-7-zone-valve-20.png" />
+        <img className="rev-7-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="rev-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-fire-group">
         <img className="rev-thun-1" src="/scada/combustion/rev-thun-10.png" />
-        <img className="rev-fire-1" src="/scada/combustion/rev-fire-10.png" />
+        <img className="rev-fire-1" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-2" src="/scada/combustion/rev-thun-20.png" />
-        <img className="rev-fire-2" src="/scada/combustion/rev-fire-20.png" />
+        <img className="rev-fire-2" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-3" src="/scada/combustion/rev-thun-30.png" />
-        <img className="rev-fire-3" src="/scada/combustion/rev-fire-30.png" />
+        <img className="rev-fire-3" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-4" src="/scada/combustion/rev-thun-40.png" />
-        <img className="rev-fire-4" src="/scada/combustion/rev-fire-40.png" />
+        <img className="rev-fire-4" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-5" src="/scada/combustion/rev-thun-50.png" />
-        <img className="rev-fire-5" src="/scada/combustion/rev-fire-50.png" />
+        <img className="rev-fire-5" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-6" src="/scada/combustion/rev-thun-60.png" />
-        <img className="rev-fire-6" src="/scada/combustion/rev-fire-60.png" />
+        <img className="rev-fire-6" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-7" src="/scada/combustion/rev-thun-70.png" />
-        <img className="rev-fire-7" src="/scada/combustion/rev-fire-70.png" />
+        <img className="rev-fire-7" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-8" src="/scada/combustion/rev-thun-80.png" />
-        <img className="rev-fire-8" src="/scada/combustion/rev-fire-80.png" />
+        <img className="rev-fire-8" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-9" src="/scada/combustion/rev-thun-90.png" />
-        <img className="rev-fire-9" src="/scada/combustion/rev-fire-90.png" />
+        <img className="rev-fire-9" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-10" src="/scada/combustion/rev-thun-100.png" />
-        <img className="rev-fire-10" src="/scada/combustion/rev-fire-100.png" />
+        <img className="rev-fire-10" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-11" src="/scada/combustion/rev-thun-110.png" />
-        <img className="rev-fire-11" src="/scada/combustion/rev-fire-110.png" />
+        <img className="rev-fire-11" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-12" src="/scada/combustion/rev-thun-120.png" />
-        <img className="rev-fire-12" src="/scada/combustion/rev-fire-120.png" />
+        <img className="rev-fire-12" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-13" src="/scada/combustion/rev-thun-130.png" />
-        <img className="rev-fire-13" src="/scada/combustion/rev-fire-130.png" />
+        <img className="rev-fire-13" src="/scada/combustion/zone-fire.svg" />
         <img className="rev-thun-14" src="/scada/combustion/rev-thun-140.png" />
-        <img className="rev-fire-14" src="/scada/combustion/rev-fire-140.png" />
+        <img className="rev-fire-14" src="/scada/combustion/zone-fire.svg" />
       </div>
     </div>
   );

@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 26" width="22" height="26">
+  <!-- 존 버너 불꽃. 28개 자리에 이 파일 하나만 쓴다.
+
+       ── 칸 크기 ──
+       작화 기본 칸은 17x36(세로가 가로의 2배)이라 무엇을 그려도 길쭉해진다.
+       그래서 CombustionPage.css에서 22x26으로 바꿨다. viewBox도 같은 22x26이라
+       object-fit: cover로 잘리는 곳이 없다. 칸을 바꾸면 여기 viewBox도 같이 바꿔야 한다.
+
+       ── 방향 ──
+       원본은 넓고 밝은 쪽이 위, 가늘고 붉은 끝이 아래다. 불꽃은 뿌리가 가장 뜨겁고
+       (노랑) 끝으로 갈수록 식어서(빨강) 가늘어지므로, 이는 버너가 위에 있고 불이
+       아래로 뻗는 그림이다 — 윗줄 존 버너가 아래로 쏜다. 아랫줄은 작화 CSS가
+       rotate(-180deg)로 돌려 위로 쏘게 만든다.
+       그림은 그리기 편하게 "뿌리가 아래"로 그려 놓고 맨 바깥 <g>에서 통째로 뒤집는다.
+       각 겹의 transform-origin(50% 100%)은 제 도형 기준이라 뒤집어도 뿌리를 붙박는다.
+
+       ── 모양 ──
+       갈래진 불혀가 여럿 솟는 모양. 네 겹을 포개서 속으로 갈수록 밝아진다.
+         바깥(짙은 주황·빨강) → 가운데(주황) → 속불(노랑) → 밑동(흰빛)
+       불혀는 골(들어간 곳)과 마루(뾰족한 끝)를 번갈아 두어 만든다. 마루에서 제어점을
+       한 직선 위에 두지 않아야 끝이 뾰족해진다 — 나란히 두면 둥글어져 풍선이 된다.
+       골은 충분히 깊게 파야 갈래가 갈래로 보인다. 얕으면 한 덩어리로 뭉쳐 보인다.
+
+       ── 흔들림 ──
+       세 겹을 좌우로 기울여(skewX) 쓸리게 한다. 갈래가 많아서 통째로 기울이기만 해도
+       불혀가 서로 엇갈려 움직이는 것처럼 보인다.
+       주기는 셋 다 .85초로 같게 두고 기울기와 시작 시각만 어긋냈다. 주기를 다르게 두면
+       위상이 벌어지는 순간 속불이 바깥 불꽃을 뚫고 나온다.
+       기울기는 바깥으로 갈수록 작다(5 / 9 / 12도). 바깥 불꽃이 제일 넓고 키가 커서
+       같은 각도로도 끝이 훨씬 멀리 나가 viewBox 밖으로 잘리기 때문이다.
+       <img>로 띄워도 SVG 안의 CSS 애니메이션은 돈다(스크립트만 막힌다).
+
+       주의 — 태그를 연결할 때: 이 파일은 보이기만 하면 늘 흔들린다. 값이 1일 때만
+       흔들리게 하려면 화면 쪽에서 이 <img>를 숨기거나 보이게 하면 된다.
+       다만 28개가 같은 순간에 로드되어 흔들림이 서로 맞아떨어진다. 존마다 어긋나게
+       하려면 <img>를 감싼 요소에 animation-delay를 주는 식으로 바깥에서 손대야 한다
+       (img 자신의 transform은 작화 CSS가 rotate에 쓰고 있으니 건드리면 안 된다). -->
+  <defs>
+    <linearGradient id="outer" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ff7a00"/>
+      <stop offset=".45" stop-color="#f83a00"/>
+      <stop offset="1" stop-color="#d81e00"/>
+    </linearGradient>
+    <linearGradient id="mid" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ffc21a"/>
+      <stop offset=".5" stop-color="#ff8a00"/>
+      <stop offset="1" stop-color="#ff5e00"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#fff3b0"/>
+      <stop offset=".55" stop-color="#ffd327"/>
+      <stop offset="1" stop-color="#ffa300"/>
+    </linearGradient>
+    <!-- 밑동의 흰빛. 사진처럼 뿌리 쪽이 가장 뜨겁다 -->
+    <radialGradient id="hot" cx=".5" cy=".68" r=".62">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".45" stop-color="#fff6bf"/>
+      <stop offset="1" stop-color="#ffd94a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <style>
+    /* 아래 가운데를 붙박아야 밑동은 제자리에 있고 불혀만 쓸린다 */
+    .lick { transform-box: fill-box; transform-origin: 50% 100%; }
+
+    /* 주기는 셋 다 같다. 기울기 크기와 시작 시각(delay)만 어긋내서 겹끼리 엇갈리게
+       한다. 음수 delay는 "이미 그만큼 진행된 상태로 시작"이라는 뜻이다. */
+    .f1 { animation: sway1 .85s ease-in-out infinite alternate; }
+    .f2 { animation: sway2 .85s ease-in-out infinite alternate; animation-delay: -.07s; }
+    .f3 { animation: sway3 .85s ease-in-out infinite alternate; animation-delay: -.14s; }
+    .hot { animation: hot-pulse .43s ease-in-out infinite alternate; }
+
+    @keyframes sway1 {
+      from { transform: skewX(5deg)  scaleY(.95); }
+      to   { transform: skewX(-5deg) scaleY(1.05); }
+    }
+    @keyframes sway2 {
+      from { transform: skewX(9deg)  scaleY(1.06); }
+      to   { transform: skewX(-9deg) scaleY(.94); }
+    }
+    @keyframes sway3 {
+      from { transform: skewX(12deg) scaleY(.92); }
+      to   { transform: skewX(-12deg) scaleY(1.07); }
+    }
+    @keyframes hot-pulse {
+      from { transform: scale(.86); opacity: .72; }
+      to   { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* 움직임을 꺼 달라는 설정이면 멈춘다. 현장 패널에서 계속 흔들리는 게
+       거슬린다는 사람도 있어서, 그 설정을 존중한다. */
+    @media (prefers-reduced-motion: reduce) {
+      .f1, .f2, .f3, .hot { animation: none; }
+    }
+  </style>
+
+  <!-- 위아래 뒤집기 — 위 주석의 "방향" 참고 -->
+  <g transform="translate(0, 26) scale(1, -1)">
+
+    <!-- 바깥 불꽃 — 불혀 5갈래 -->
+    <path class="lick f1" fill="url(#outer)"
+          d="M11 25.4
+             C6.6 25.2 3 22.6 2.6 18.6
+             C2.3 16.4 2.8 14.4 3.4 12.8
+             C3 11 3.2 9.4 3.9 8
+             C4.6 10.4 5 12.6 5.6 14.6
+             C4.8 11.4 4.9 7.2 6.3 3.8
+             C7.2 6.8 7.7 9.6 8.2 12.2
+             C7.6 8.6 8.2 3.4 10.6 .8
+             C12 4.2 12.6 8 13 11.4
+             C13.4 8.2 14.2 4.8 15.6 2.6
+             C16.4 6 16.6 9.6 16.4 12.6
+             C16.9 10.6 17.6 8.6 18.4 7.4
+             C19 10.4 19.2 13.2 19 15.4
+             C19.6 17 19.5 18 19.4 18.6
+             C19 22.6 15.4 25.2 11 25.4 Z"/>
+
+    <!-- 가운데 불꽃 — 3갈래 -->
+    <path class="lick f2" fill="url(#mid)"
+          d="M11 24.2 C7.8 24 5.2 21.8 4.9 18.6 C4.7 17 5.1 15.6 5.6 14.4 C5.3 12.6 5.8 10.8 6.7 9.4 C7.4 11.4 7.8 13.2 8.3 14.8 C7.9 12.2 8.6 9 10.2 7.2 C11.4 9.6 12 12 12.4 14.2 C12.8 12.2 13.5 10.4 14.5 9.2 C15.2 11.4 15.5 13.6 15.5 15.4 C16 16.6 16.2 17.6 16.2 18.6 C16 21.8 14 24 11 24.2 Z"/>
+
+    <!-- 속불 — 3갈래. 갈래 끝을 짧게 끊어 밑동 쪽에만 밝은 덩어리가 남게 한다.
+         여기를 키우면 바깥 주황이 가려져서 노란 덩어리 하나로 보인다. -->
+    <path class="lick f3" fill="url(#inner)"
+          d="M11 23 C8.8 22.8 7.2 21 7 18.4 C6.9 17.2 7.2 16.2 7.5 15.3 C7.4 14 7.7 12.8 8.3 11.9 C8.8 13.3 9.1 14.6 9.4 15.8 C9.2 14 9.6 12 10.6 10.8 C11.4 12.4 11.8 14.2 12.1 15.6 C12.4 14.3 12.9 13.1 13.5 12.3 C13.9 13.9 14.1 15.4 14.1 16.6 C14.4 17.4 14.5 18 14.5 18.4 C14.3 21 12.9 22.8 11 23 Z"/>
+
+    <!-- 밑동의 흰빛 -->
+    <ellipse class="lick hot" cx="11" cy="20.4" rx="4" ry="3.6" fill="url(#hot)"/>
+  </g>
+</svg>
