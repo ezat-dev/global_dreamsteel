@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 112" width="48" height="112">
+  <!-- 로내 투입 방향 화살표. 원본 down-10.png(48x112)의 픽셀 배치를 옮긴 것.
+       두 자리에 이 파일 하나만 쓴다 — down-1 / down-2 (원본 두 파일이 같은 그림이다).
+
+       구동화면 화살표(drive/arrow-down.svg)와 같은 색(#117512)이고 명암 방향도 같다.
+       모양만 이 자리에 맞게 홀쭉하다 — 구동화면 것은 21x39, 여기는 48x112다.
+
+       viewBox가 칸(48x112)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 자루 x 12~35.6, y 0~54.4
+                  머리 밑변 x 0.4~47.2, y 54.4   꼭짓점 (23.7, 111.5) -->
+  <defs>
+    <!-- 원본 가로 단면(y 30)을 그대로 옮긴 명암이다.
+         왼쪽 끝만 살짝 어둡고 가운데는 평평하며 오른쪽 1/4에서 확 밝아진다.
+         좌우 대칭으로 펴면 원본보다 밋밋해진다. -->
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0e6410"/>
+      <stop offset=".12" stop-color="#117512"/>
+      <stop offset=".62" stop-color="#117512"/>
+      <stop offset=".8" stop-color="#2f8c30"/>
+      <stop offset="1" stop-color="#7ab97b"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M23.7 111.5 L0.4 54.4 L12 54.4 L12 0.4 L35.6 0.4 L35.6 54.4 L47.2 54.4 Z"
+        fill="url(#g)" stroke="#0a4f0b" stroke-width=".9" stroke-linejoin="round"/>
+</svg>
