@@ -2,47 +2,71 @@
   <!-- ADDTION 블로워(송풍기). 원본 motor-10.png(79x68).
 
        연소화면 '연소 BLOWER'의 송풍기(combustion/blower-pump0.svg)와 같은 기기다.
-       그 파일의 도형을 그대로 쓰고 두 가지만 바꿨다.
+       그 파일의 도형을 그대로 쓰고 세 가지만 바꿨다.
          - 좌우 뒤집기 — 이쪽은 흡입구가 오른쪽 위에 있다(원본 x 70~79, y 0~25)
          - 색 — 파랑 대신 은색. 원본이 거의 흰색이라 밝은 배경에서 형체가 안 보여서
                 테두리와 음영만 넣었다(색을 바꾼 게 아니라 명암을 준 것이다)
-       모양을 고칠 일이 생기면 두 파일을 같이 고쳐야 한다.
+         - 흡입구 두께 — 옆 배관이 이쪽은 21px, 연소화면은 10px라 값이 다르다
+       그 외 도형은 같다. 모양을 고칠 일이 생기면 두 파일을 같이 고쳐야 한다.
 
        viewBox — 도형은 43x34 좌표계로 그려져 있는데 이 자리의 칸은 79x68(비율 1.162)이다.
        그래서 아래로 3만큼 여백을 줘 43x37(비율 1.162)로 맞췄다. 여백을 위아래로 나눠
        주면 흡입구가 배관보다 아래로 내려간다 — 원본은 위쪽에 여백이 없다.
-       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
-
-       처음에 이걸 '왼쪽 위만 둥근 네모'로 그렸다가 전혀 다른 물건이 됐다. 원본 픽셀만
-       보고 윤곽을 따면 이렇게 된다 — 같은 기기가 다른 화면에 이미 있는지를 먼저 봐야 했다. -->
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다. -->
   <defs>
-    <radialGradient id="case" cx=".38" cy=".3" r=".8">
+    <!-- 빛을 세게 준다. 케이싱이 네모난 변을 가진 모양이라, 속이 평평하면
+         둥근 통이 아니라 상자로 보인다. -->
+    <radialGradient id="case" cx=".4" cy=".3" r=".78">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset=".55" stop-color="#e7edf2"/>
-      <stop offset="1" stop-color="#b6c1ca"/>
+      <stop offset=".42" stop-color="#eef2f6"/>
+      <stop offset=".72" stop-color="#ccd4db"/>
+      <stop offset="1" stop-color="#a7b2bb"/>
     </radialGradient>
     <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#c3ccd4"/>
-      <stop offset=".45" stop-color="#9aa6b0"/>
-      <stop offset="1" stop-color="#7c8894"/>
+      <stop offset=".45" stop-color="#8a959f"/>
+      <stop offset="1" stop-color="#6e7a85"/>
     </linearGradient>
   </defs>
 
-  <!-- 좌우 뒤집기. 43은 도형의 폭이라 이 식이 제자리에서 뒤집어 준다. -->
+  <!-- 좌우 뒤집기. 43은 도형의 폭이라 이 식이 제자리에서 뒤집어 준다.
+       뒤집은 뒤 흡입구가 오른쪽 위로 간다. -->
   <g transform="translate(43, 0) scale(-1, 1)">
-    <!-- 흡입구 (뒤집혀서 화면에서는 오른쪽 위로 간다).
-         두께와 높이를 옆 배관에 맞춘 값이라 연소화면 쪽과 다르다 — 그쪽 배관은 10px,
-         이쪽은 21px이다. 칸이 x202~281 / y43~111이고 배관(pipe-1)이 y45~66이므로,
-         배율 79/43 을 되돌리면 이 좌표계에서 y1.1~12.5 가 된다.
-         x를 0에서 시작해야 뒤집었을 때 오른쪽 끝(43)이 배관 시작점에 닿는다. -->
-    <rect x="0" y="1.1" width="11.4" height="11.4" rx="1.2" fill="url(#body)"/>
-    <rect x="2.4" y="3.6" width="2.6" height="6.4" fill="#f2f6fa" opacity=".8"/>
-    <!-- 케이싱 -->
-    <circle cx="24.5" cy="17.6" r="15.4" fill="url(#case)" stroke="#8a959f" stroke-width="1.6"/>
-    <!-- 허브 -->
-    <circle cx="24.5" cy="17.6" r="7" fill="none" stroke="#8a959f" stroke-width="1.6"/>
-    <circle cx="24.5" cy="17.6" r="3" fill="#eef2f6" stroke="#8a959f" stroke-width="1.2"/>
-    <!-- 받침 -->
-    <rect x="11.6" y="30.6" width="26" height="3" rx=".8" fill="url(#body)"/>
+
+  <!-- 흡입구 — 두께와 높이를 옆 배관에 맞춘다. 연소화면 쪽과 값이 다른 유일한 부분이다.
+       칸이 x202~281 / y43~111(79x68)이고 배관(pipe-1)이 y45~66이므로, 배율 79/43을
+       되돌리면 이 좌표계에서 y1.09~12.52 다.
+
+       가로 폭 20은 어림값이 아니다. 케이싱은 원(가운데 24.5,17.6 / 반지름 15.4)이라
+       이 높이(가운데 6.8)에서 원의 왼쪽 가장자리가 x 13.5 이다. 폭이 그보다 짧으면
+       흡입구가 케이싱에 안 닿고 떠 버린다 — 11로 뒀을 때 2.6px 떠 있었다.
+       닿기만 해서는 맞댄 것처럼 보이고, 원 속으로 6px쯤 밀어 넣어야(=20) 케이싱에서
+       뻗어 나온 관으로 읽힌다. 원은 이 다음에 그려서 겹친 부분을 덮는다. -->
+  <rect x="0" y="1.09" width="20" height="11.43" fill="url(#body)"/>
+  <rect x="1.8" y="2.89" width="2.8" height="7.83" fill="#f2f6fa" opacity=".8"/>
+  <!-- 왼쪽 끝 플랜지 -->
+  <rect x="0" y="0.29" width="2.6" height="13.03" rx=".6" fill="url(#body)" stroke="#8a959f" stroke-width=".8"/>
+  <!-- 받침판 — 케이싱보다 먼저 그려 뒤로 깔린다.
+       원본은 얇은 막대가 아니라 x5.6~42, y26.6~33 짜리 넓은 판이고 케이싱보다 좌우로
+       튀어나온다. 얇은 막대로 두면 통이 바닥에 얹힌 느낌이 안 난다. -->
+  <rect x="5.6" y="26.6" width="36.6" height="6.6" rx="1"
+        fill="url(#body)" stroke="#8a959f" stroke-width="1"/>
+
+  <!-- 케이싱 — 원이다.
+       한때 원본 픽셀의 네모난 윤곽을 따라 볼류트 모양으로 바꿔 봤는데, 밝은 원 밖으로
+       구석이 튀어나와 상자처럼 보였다. 이 크기(43px)에서는 원이 맞다. -->
+  <circle cx="24.5" cy="17.6" r="15.4" fill="url(#case)" stroke="#8a959f" stroke-width="1.6"/>
+  <!-- 허브 둘레의 날개 그림자. 원본에 짧은 눈금이 돌아가며 찍혀 있다.
+       허브 고리(반지름 7) 바로 바깥에만 짧게 8개. 길게 빼면 톱니바퀴처럼 보이고,
+       더 넣으면 43px로 줄었을 때 고리가 통째로 뭉개진다. -->
+  <g stroke="#aeb8c1" stroke-width=".7" stroke-linecap="round">
+    <path d="M32.1 17.6 L33.2 17.6 M29.9 12.2 L30.7 11.4 M24.5 10.0 L24.5 8.9 M19.1 12.2 L18.3 11.4 M16.9 17.6 L15.8 17.6 M19.1 23.0 L18.3 23.8 M24.5 25.2 L24.5 26.3 M29.9 23.0 L30.7 23.8"/>
+  </g>
+
+  <!-- 허브 — 케이싱과 같은 중심의 원 두 개 -->
+  <circle cx="24.5" cy="17.6" r="7" fill="none" stroke="#8a959f" stroke-width="1.6"/>
+  <circle cx="24.5" cy="17.6" r="3" fill="#eef2f6" stroke="#8a959f" stroke-width="1.2"/>
+
+
   </g>
 </svg>

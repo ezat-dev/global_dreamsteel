@@ -2,10 +2,13 @@
   <!-- 연소 BLOWER 송풍기. 원본 blower-pump0.png(43x34)와 같은 실루엣.
        원형 케이싱(볼류트) + 가운데 허브, 왼쪽 위 흡입구, 아래 받침. -->
   <defs>
-    <radialGradient id="case" cx=".38" cy=".3" r=".8">
+    <!-- 빛을 세게 준다. 케이싱이 네모난 변을 가진 모양이라, 속이 평평하면
+         둥근 통이 아니라 상자로 보인다. -->
+    <radialGradient id="case" cx=".4" cy=".3" r=".78">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset=".55" stop-color="#d3e7fc"/>
-      <stop offset="1" stop-color="#8fc0f4"/>
+      <stop offset=".42" stop-color="#eaf4fe"/>
+      <stop offset=".72" stop-color="#c2ddfa"/>
+      <stop offset="1" stop-color="#7fb6f2"/>
     </radialGradient>
     <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#8cc2fa"/>
@@ -16,14 +19,39 @@
 
   <!-- 흡입구 — 두께와 높이를 옆 배관에 맞춘다.
        칸이 y26~60이고 배관(pipe136)이 y27~37이므로, 이 좌표계에서는 y1~11이다.
-       가운데(6)가 어긋나면 배관이 흡입구에 비스듬히 꽂힌 것처럼 보인다. -->
-  <rect x=".8" y="1" width="10.6" height="10" rx="1.2" fill="url(#body)"/>
-  <rect x="2.8" y="3.2" width="2.6" height="5.6" fill="#e8f2fe" opacity=".8"/>
-  <!-- 케이싱 -->
+       가운데(6)가 어긋나면 배관이 흡입구에 비스듬히 꽂힌 것처럼 보인다.
+       원본만큼 두툼하게 y0.6~12 로 잡았는데, 가운데가 6.3이라 배관 중심(6)과 0.3만
+       차이난다 — 이 정도는 화면에서 안 보인다. 더 키우면 어긋나기 시작한다.
+
+       가로 폭 20은 어림값이 아니다. 케이싱은 원(가운데 24.5,17.6 / 반지름 15.4)이라
+       이 높이(가운데 6)에서 원의 왼쪽 가장자리가 x 14.3 이다. 폭이 그보다 짧으면
+       흡입구가 케이싱에 안 닿고 떠 버린다 — 11로 뒀을 때 2.6px 떠 있었다.
+       닿기만 해서는 맞댄 것처럼 보이고, 원 속으로 6px쯤 밀어 넣어야(=20) 케이싱에서
+       뻗어 나온 관으로 읽힌다. 원은 이 다음에 그려서 겹친 부분을 덮는다. -->
+  <rect x="0" y="1" width="20" height="10" fill="url(#body)"/>
+  <rect x="1.8" y="2.8" width="2.8" height="6.4" fill="#e8f2fe" opacity=".8"/>
+  <!-- 왼쪽 끝 플랜지 -->
+  <rect x="0" y=".2" width="2.6" height="11.6" rx=".6" fill="url(#body)" stroke="#4a9df0" stroke-width=".8"/>
+  <!-- 받침판 — 케이싱보다 먼저 그려 뒤로 깔린다.
+       원본은 얇은 막대가 아니라 x5.6~42, y26.6~33 짜리 넓은 판이고 케이싱보다 좌우로
+       튀어나온다. 얇은 막대로 두면 통이 바닥에 얹힌 느낌이 안 난다. -->
+  <rect x="5.6" y="26.6" width="36.6" height="6.6" rx="1"
+        fill="url(#body)" stroke="#4a9df0" stroke-width="1"/>
+
+  <!-- 케이싱 — 원이다.
+       한때 원본 픽셀의 네모난 윤곽을 따라 볼류트 모양으로 바꿔 봤는데, 밝은 원 밖으로
+       구석이 튀어나와 상자처럼 보였다. 이 크기(43px)에서는 원이 맞다. -->
   <circle cx="24.5" cy="17.6" r="15.4" fill="url(#case)" stroke="#4a9df0" stroke-width="1.6"/>
-  <!-- 허브 -->
+  <!-- 허브 둘레의 날개 그림자. 원본에 짧은 눈금이 돌아가며 찍혀 있다.
+       허브 고리(반지름 7) 바로 바깥에만 짧게 8개. 길게 빼면 톱니바퀴처럼 보이고,
+       더 넣으면 43px로 줄었을 때 고리가 통째로 뭉개진다. -->
+  <g stroke="#7cb8f5" stroke-width=".7" stroke-linecap="round">
+    <path d="M32.1 17.6 L33.2 17.6 M29.9 12.2 L30.7 11.4 M24.5 10.0 L24.5 8.9 M19.1 12.2 L18.3 11.4 M16.9 17.6 L15.8 17.6 M19.1 23.0 L18.3 23.8 M24.5 25.2 L24.5 26.3 M29.9 23.0 L30.7 23.8"/>
+  </g>
+
+  <!-- 허브 — 케이싱과 같은 중심의 원 두 개 -->
   <circle cx="24.5" cy="17.6" r="7" fill="none" stroke="#4a9df0" stroke-width="1.6"/>
   <circle cx="24.5" cy="17.6" r="3" fill="#eaf4ff" stroke="#4a9df0" stroke-width="1.2"/>
-  <!-- 받침 -->
-  <rect x="11.6" y="30.6" width="26" height="3" rx=".8" fill="url(#body)"/>
+
+
 </svg>

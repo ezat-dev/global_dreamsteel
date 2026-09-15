@@ -20,7 +20,11 @@
      motor-v2.svg    세로 모터+감속기 ent-motor-4 / main-motor-1 / main-motor-2 / exit-motor-5
      arrow-up.svg    위 화살표        ent-up-1~4 / exit-up-1~4
      arrow-down.svg  아래 화살표      ent-down-1~4 / exit-down-1~4
-     roller.svg      컨베이어 롤러    ent-conv-1~12 / exit-conv-1~6
+     roller.svg      컨베이어 롤러    ent-conv-1~12
+     roller-exit.svg 컨베이어 롤러    exit-conv-1~6
+                     (같은 그림인데 표면 자국 흐르는 방향만 반대다. 출구 쪽은 작화 CSS가
+                      scale(-1,1)로 뒤집어 그려서, 파일 안에서 반대로 흘려야 화면에서
+                      입구와 같은 방향으로 돈다)
 
    각 SVG의 viewBox는 그 자리의 칸 비율에 맞춰 두었다. 작화 CSS에 object-fit: cover가
    걸려 있어서 비율이 어긋나면 그림이 잘린다 — SVG를 고칠 때 viewBox를 건드리면
@@ -354,12 +358,12 @@ export default function DriveOverview() {
         <img className="exit-obj-4" src="/scada/drive/exit-obj-40.png" />
         <img className="exit-obj-5" src="/scada/drive/exit-obj-50.png" />
         <img className="exit-obj-6" src="/scada/drive/exit-obj-60.png" />
-        <img className="exit-conv-1" src="/scada/drive/roller.svg" />
-        <img className="exit-conv-2" src="/scada/drive/roller.svg" />
-        <img className="exit-conv-3" src="/scada/drive/roller.svg" />
-        <img className="exit-conv-6" src="/scada/drive/roller.svg" />
-        <img className="exit-conv-8" src="/scada/drive/roller.svg" />
-        <img className="exit-conv-9" src="/scada/drive/roller.svg" />
+        <img className="exit-conv-1" src="/scada/drive/roller-exit.svg" />
+        <img className="exit-conv-2" src="/scada/drive/roller-exit.svg" />
+        <img className="exit-conv-3" src="/scada/drive/roller-exit.svg" />
+        <img className="exit-conv-6" src="/scada/drive/roller-exit.svg" />
+        <img className="exit-conv-8" src="/scada/drive/roller-exit.svg" />
+        <img className="exit-conv-9" src="/scada/drive/roller-exit.svg" />
         <img className="exit-obj-7" src="/scada/drive/exit-obj-70.png" />
         <img className="exit-obj-8" src="/scada/drive/exit-obj-80.png" />
         <img className="exit-obj-9" src="/scada/drive/exit-obj-90.png" />

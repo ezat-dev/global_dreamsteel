@@ -726,8 +726,10 @@ export default function DrivePage() {
             ))}
 
             {/* 입구 롤러 줄 맨 끝 롤러 — 작화에서 빠져 나온 것을 여기서 채운다.
-                그림과 같은 좌표계라 배율이 바뀌어도 옆 롤러와 어긋나지 않는다. */}
-            <img className="dr-end-roller" src="/scada/drive/roller.svg" alt="" style={END_ROLLER} />
+                그림과 같은 좌표계라 배율이 바뀌어도 옆 롤러와 어긋나지 않는다.
+                이 하나만 겉면이 매쉬다(roller-mesh.svg) — 제품 감지 자리라 작화에도
+                옆의 매끈한 롤러들과 다르게 그려져 있다. */}
+            <img className="dr-end-roller" src="/scada/drive/roller-mesh.svg" alt="" style={END_ROLLER} />
 
             {/* 제품감지 — 위 롤러와 DOOR 사이에 표시등을 세우고 글씨를 그 아래 붙인다.
                 태그가 오면 회전감지 램프들처럼 hmi-lamp에 on/alarm 클래스만 붙이면 된다. */}
