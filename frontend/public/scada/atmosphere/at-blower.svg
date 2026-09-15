@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 43 37" width="43" height="37">
+  <!-- ADDTION 블로워(송풍기). 원본 motor-10.png(79x68).
+
+       연소화면 '연소 BLOWER'의 송풍기(combustion/blower-pump0.svg)와 같은 기기다.
+       그 파일의 도형을 그대로 쓰고 두 가지만 바꿨다.
+         - 좌우 뒤집기 — 이쪽은 흡입구가 오른쪽 위에 있다(원본 x 70~79, y 0~25)
+         - 색 — 파랑 대신 은색. 원본이 거의 흰색이라 밝은 배경에서 형체가 안 보여서
+                테두리와 음영만 넣었다(색을 바꾼 게 아니라 명암을 준 것이다)
+       모양을 고칠 일이 생기면 두 파일을 같이 고쳐야 한다.
+
+       viewBox — 도형은 43x34 좌표계로 그려져 있는데 이 자리의 칸은 79x68(비율 1.162)이다.
+       그래서 아래로 3만큼 여백을 줘 43x37(비율 1.162)로 맞췄다. 여백을 위아래로 나눠
+       주면 흡입구가 배관보다 아래로 내려간다 — 원본은 위쪽에 여백이 없다.
+       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       처음에 이걸 '왼쪽 위만 둥근 네모'로 그렸다가 전혀 다른 물건이 됐다. 원본 픽셀만
+       보고 윤곽을 따면 이렇게 된다 — 같은 기기가 다른 화면에 이미 있는지를 먼저 봐야 했다. -->
+  <defs>
+    <radialGradient id="case" cx=".38" cy=".3" r=".8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".55" stop-color="#e7edf2"/>
+      <stop offset="1" stop-color="#b6c1ca"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c3ccd4"/>
+      <stop offset=".45" stop-color="#9aa6b0"/>
+      <stop offset="1" stop-color="#7c8894"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 좌우 뒤집기. 43은 도형의 폭이라 이 식이 제자리에서 뒤집어 준다. -->
+  <g transform="translate(43, 0) scale(-1, 1)">
+    <!-- 흡입구 (뒤집혀서 화면에서는 오른쪽 위로 간다).
+         두께와 높이를 옆 배관에 맞춘 값이라 연소화면 쪽과 다르다 — 그쪽 배관은 10px,
+         이쪽은 21px이다. 칸이 x202~281 / y43~111이고 배관(pipe-1)이 y45~66이므로,
+         배율 79/43 을 되돌리면 이 좌표계에서 y1.1~12.5 가 된다.
+         x를 0에서 시작해야 뒤집었을 때 오른쪽 끝(43)이 배관 시작점에 닿는다. -->
+    <rect x="0" y="1.1" width="11.4" height="11.4" rx="1.2" fill="url(#body)"/>
+    <rect x="2.4" y="3.6" width="2.6" height="6.4" fill="#f2f6fa" opacity=".8"/>
+    <!-- 케이싱 -->
+    <circle cx="24.5" cy="17.6" r="15.4" fill="url(#case)" stroke="#8a959f" stroke-width="1.6"/>
+    <!-- 허브 -->
+    <circle cx="24.5" cy="17.6" r="7" fill="none" stroke="#8a959f" stroke-width="1.6"/>
+    <circle cx="24.5" cy="17.6" r="3" fill="#eef2f6" stroke="#8a959f" stroke-width="1.2"/>
+    <!-- 받침 -->
+    <rect x="11.6" y="30.6" width="26" height="3" rx=".8" fill="url(#body)"/>
+  </g>
+</svg>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 68" width="68" height="68">
+  <!-- 다이어프램 구동 조절밸브(가스 배관용). 원본 gas-pre0.png(68x68)의 픽셀 배치를 옮긴 것.
+
+       이 기기는 네 자리에 같은 모양으로 나온다 — 분위기제어의 가스/공기 쪽,
+       연소화면의 '압력 정상'/'압력 이상' 위. 색과 크기만 다르다.
+       은색판이 at-regulator-air.svg다. 모양을 고치면 두 파일을 같이 고쳐야 한다.
+
+       viewBox가 칸(68x68)과 같다. 공기 쪽 칸은 77x77이지만 둘 다 정사각이라 같은
+       viewBox로 통한다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표:
+         파일럿 관   x  0~20, y  0~14   (왼쪽으로 뻗는 조정부)
+         구동부 종   x 21~50, y  0~31   (위가 넓고 아래로 좁아진다)
+         요크 기둥   x 19~21 / 50~53, y 0~32   (종을 밸브에 붙드는 두 기둥)
+         플랜지 띠   x 19~53, y 32~38
+         세로 통로   x 19~51, y 38~68
+         가로 배관   x  3~67, y 42~61  (가운데 연한색, 양 끝 플랜지)
+
+       처음에 구동부를 '네모 틀 안의 공'으로 그렸다가 전혀 다른 물건이 됐다.
+       종 모양과 요크 기둥 두 개가 이 기기를 알아보게 하는 부분이다. -->
+  <defs>
+    <!-- 구동부: 좌우가 어둡고 가운데가 밝다(원본의 세로 하이라이트) -->
+    <linearGradient id="dome" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d98c00"/>
+      <stop offset=".18" stop-color="#f5a300"/>
+      <stop offset=".45" stop-color="#ffd24a"/>
+      <stop offset=".72" stop-color="#f5a300"/>
+      <stop offset="1" stop-color="#cf8300"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d98c00"/>
+      <stop offset=".35" stop-color="#ffb300"/>
+      <stop offset=".6" stop-color="#ffd24a"/>
+      <stop offset="1" stop-color="#cf8300"/>
+    </linearGradient>
+    <!-- 배관 속살: 거의 흰 크림색 -->
+    <linearGradient id="pale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9a8"/>
+      <stop offset=".45" stop-color="#fff8d8"/>
+      <stop offset="1" stop-color="#f0d07a"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a4e52"/>
+      <stop offset=".45" stop-color="#8f9498"/>
+      <stop offset="1" stop-color="#3f4347"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#a86a00" stroke-width=".8" stroke-linejoin="round">
+    <!-- 파일럿 관 — 구동부 왼쪽으로 뻗는다 -->
+    <rect x="0" y="2.6" width="20.4" height="8.8" rx="1.2" fill="url(#body)"/>
+    <rect x="4.6" y="0" width="7" height="14.4" rx="1" fill="url(#body)"/>
+
+    <!-- 요크 기둥 두 개 — 구동부를 밸브에 붙든다 -->
+    <rect x="18.6" y="0" width="2.8" height="32.4" fill="url(#body)"/>
+    <rect x="50.2" y="0" width="2.8" height="32.4" fill="url(#body)"/>
+
+    <!-- 구동부 종 — 위가 넓고 아래로 좁아진다 -->
+    <path d="M21.2 0 H50 V21.4
+             C50 26.6 44.6 30 37.6 31.4
+             H33.6
+             C26.6 30 21.2 26.6 21.2 21.4 Z"
+          fill="url(#dome)"/>
+
+    <!-- 요크와 밸브를 잇는 플랜지 띠 -->
+    <rect x="18.6" y="31.6" width="34.4" height="6.6" fill="url(#body)"/>
+
+    <!-- 세로 통로 — 플랜지 띠에서 아래끝까지 내려간다 -->
+    <rect x="19.2" y="38" width="31.6" height="30" fill="url(#pale)"/>
+
+    <!-- 가로 배관 — 가운데는 연한색, 양 끝은 플랜지 -->
+    <rect x="8" y="42" width="52" height="19.4" fill="url(#pale)"/>
+    <rect x="2.8" y="42" width="5.8" height="19.4" rx=".8" fill="url(#body)"/>
+    <rect x="61.4" y="42" width="5.8" height="19.4" rx=".8" fill="url(#body)"/>
+  </g>
+
+  <!-- 배관 이음매의 쇠 띠와 플랜지 볼트 자국 -->
+  <g fill="url(#steel)">
+    <rect x="9" y="42.4" width="10" height="1.8"/>
+    <rect x="9" y="59.6" width="10" height="1.8"/>
+    <rect x="50.6" y="42.4" width="10" height="1.8"/>
+    <rect x="50.6" y="59.6" width="10" height="1.8"/>
+    <rect x="3.4" y="48.6" width="4.8" height="2.4"/>
+    <rect x="3.4" y="53.4" width="4.8" height="2.4"/>
+    <rect x="61.8" y="48.6" width="4.8" height="2.4"/>
+    <rect x="61.8" y="53.4" width="4.8" height="2.4"/>
+    <!-- 플랜지 띠의 볼트 -->
+    <rect x="23.4" y="33.4" width="2.6" height="3.2"/>
+    <rect x="30.6" y="33.4" width="2.6" height="3.2"/>
+    <rect x="37.8" y="33.4" width="2.6" height="3.2"/>
+    <rect x="45" y="33.4" width="2.6" height="3.2"/>
+    <!-- 가운데 스템 -->
+    <rect x="33.4" y="47.6" width="3.4" height="11.6"/>
+  </g>
+</svg>

@@ -14,9 +14,11 @@
     </linearGradient>
   </defs>
 
-  <!-- 흡입구 -->
-  <rect x=".8" y="2.4" width="10.6" height="9.6" rx="1.2" fill="url(#body)"/>
-  <rect x="2.8" y="4.4" width="2.6" height="5.6" fill="#e8f2fe" opacity=".8"/>
+  <!-- 흡입구 — 두께와 높이를 옆 배관에 맞춘다.
+       칸이 y26~60이고 배관(pipe136)이 y27~37이므로, 이 좌표계에서는 y1~11이다.
+       가운데(6)가 어긋나면 배관이 흡입구에 비스듬히 꽂힌 것처럼 보인다. -->
+  <rect x=".8" y="1" width="10.6" height="10" rx="1.2" fill="url(#body)"/>
+  <rect x="2.8" y="3.2" width="2.6" height="5.6" fill="#e8f2fe" opacity=".8"/>
   <!-- 케이싱 -->
   <circle cx="24.5" cy="17.6" r="15.4" fill="url(#case)" stroke="#4a9df0" stroke-width="1.6"/>
   <!-- 허브 -->

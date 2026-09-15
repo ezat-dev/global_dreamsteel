@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 52" width="78" height="52">
+  <!-- ADDTION GAS 솔레노이드 밸브. 원본 gas-sol0.png(78x52)의 픽셀 배치를 옮긴 것.
+       같은 기기의 은색판이 at-solenoid-air.svg다(공기 배관용). 모양은 같고 색만 다르다.
+
+       viewBox가 칸(78x52)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 코일 갓 x 8~70, y 0~19    목 x 20~58, y 20~27
+                  검은 띠 x 32~46, y 27~29
+                  본체 y 30~52 — 좌 플랜지 x 0~11, 강관 x 12~24, 가운데 x 24~55,
+                                 강관 x 55~66, 우 플랜지 x 66~78 -->
+  <defs>
+    <!-- 위아래가 어둡고 가운데가 밝은 원통 음영. 배관·밸브 그림과 같은 규칙이다. -->
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d98c00"/>
+      <stop offset=".3" stop-color="#ffb300"/>
+      <stop offset=".55" stop-color="#ffdc7a"/>
+      <stop offset=".8" stop-color="#ffb300"/>
+      <stop offset="1" stop-color="#cf8300"/>
+    </linearGradient>
+    <linearGradient id="coil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffcf5e"/>
+      <stop offset=".45" stop-color="#ffb000"/>
+      <stop offset="1" stop-color="#d98c00"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f6367"/>
+      <stop offset=".45" stop-color="#9aa0a4"/>
+      <stop offset="1" stop-color="#55595d"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#a86a00" stroke-width=".8" stroke-linejoin="round">
+    <!-- 코일 갓 -->
+    <ellipse cx="39" cy="9" rx="30.6" ry="8.6" fill="url(#coil)"/>
+    <rect x="10" y="12.4" width="58" height="6.6" rx="2.6" fill="url(#coil)"/>
+    <!-- 목 -->
+    <rect x="20.4" y="19.6" width="37.2" height="7.8" rx="1.6" fill="url(#body)"/>
+  </g>
+
+  <!-- 목 아래 검은 띠 -->
+  <rect x="31.6" y="27.2" width="14.8" height="2.6" fill="url(#steel)" stroke="#2b2e31" stroke-width=".7"/>
+
+  <g stroke="#a86a00" stroke-width=".8" stroke-linejoin="round">
+    <!-- 강관 두 토막 (플랜지와 본체 사이) -->
+    <rect x="11.6" y="35.4" width="12.6" height="9.6" fill="url(#steel)" stroke="#4a4e51"/>
+    <rect x="54.8" y="35.4" width="11.4" height="9.6" fill="url(#steel)" stroke="#4a4e51"/>
+    <!-- 좌우 플랜지 -->
+    <rect x=".4" y="30" width="11.2" height="21.6" rx="1" fill="url(#body)"/>
+    <rect x="66.2" y="30" width="11.4" height="21.6" rx="1" fill="url(#body)"/>
+    <!-- 가운데 본체 -->
+    <rect x="24" y="29.8" width="31" height="22" rx="1.6" fill="url(#body)"/>
+  </g>
+</svg>
