@@ -494,14 +494,14 @@ export default function TrendPage() {
 
         {error && <span className="tr-error">{error}</span>}
 
-        {/* 조회한 구간과 상태. 24시간이면 2880점이라 응답이 바로 오지 않을 수 있어,
+        {/* 조회한 구간과 상태. 24시간이면 2880행이라 응답이 바로 오지 않을 수 있어,
             기다리는 중인지 / 구간에 데이터가 없는지를 구분해서 알린다 —
-            빈 차트만 보이면 조회가 느린 건지 값이 없는 건지 알 수 없다. */}
+            빈 차트만 보이면 조회가 느린 건지 값이 없는 건지 알 수 없다.
+            제대로 그려진 경우에는 아무 말도 붙이지 않는다(차트가 곧 답이다). */}
         <span className="tr-range">
           {`${format(range.start, TIME_FORMAT)} ~ ${format(range.end, TIME_FORMAT)}`}
           {loading && ' · 조회 중...'}
           {!loading && !error && rows.length === 0 && ' · 이 구간에 데이터가 없습니다'}
-          {!loading && rows.length > 0 && ` · ${rows.length}점`}
         </span>
       </div>
 
