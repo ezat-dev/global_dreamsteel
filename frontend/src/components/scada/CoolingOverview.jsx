@@ -52,7 +52,10 @@ export default function CoolingOverview() {
       <img className="pipe-1" src="/scada/cooling/pipe-10.png" />
       <img className="pipe-2" src="/scada/cooling/pipe-20.png" />
       <img className="pipe-3" src="/scada/cooling/pipe-30.png" />
-      <img className="pipe-4" src="/scada/cooling/pipe-40.png" />
+      {/* ?v=2 — 이 그림만 파일 내용을 고쳐 다시 구웠다(알파가 깨져 있어 어두운 바탕에서
+          가운데가 검은 줄로 보였다). public/ 자산은 Vite가 이름에 해시를 안 붙이므로
+          이름이 그대로면 브라우저가 받아둔 옛 그림을 계속 쓴다. 주소를 바꿔 새로 받게 한다. */}
+      <img className="pipe-4" src="/scada/cooling/pipe-40.png?v=2" />
       <img className="pipe-5" src="/scada/cooling/pipe-50.png" />
       <img className="pipe-6" src="/scada/cooling/pipe-60.png" />
       <img className="pipe-7" src="/scada/cooling/pipe-70.png" />

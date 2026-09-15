@@ -41,10 +41,21 @@ const VALUE_ROWS = [
   { key: 'zone3Pv', label: '3ZONE', color: '#ff8c00', unit: '℃' },
   { key: 'zone4Pv', label: '4ZONE', color: '#ff1a1a', unit: '℃' },
   { key: 'zone5Pv', label: '5ZONE', color: '#ff00e0', unit: '℃' },
-  { key: 'zone6Pv', label: '6ZONE', color: '#9933ff', unit: '℃' },
+  /* 참고 화면은 #9933ff였는데 어두운 바탕에서 가라앉아 한 단 밝게 올렸다 */
+  { key: 'zone6Pv', label: '6ZONE', color: '#a86bff', unit: '℃' },
   { key: 'zone7Pv', label: '7ZONE', color: '#c8a2ff', unit: '℃' },
-  { key: 'o2Pv', label: 'O2', color: '#ff1a1a', unit: 'mmV' },
+  /* O2는 참고 화면에서 4ZONE과 같은 빨강이었다. 값 판에서는 이름이 붙어 구분되지만
+     차트에서는 같은 색 선 두 개가 겹쳐 어느 쪽인지 알 수 없다. 단위도 축도 다른
+     값이라(오른쪽 mmV) 아예 계열이 다른 청록으로 뗐다. */
+  { key: 'o2Pv', label: 'O2', color: '#22d3ee', unit: 'mmV' },
 ];
+
+/* 차트 안쪽 색. CSS 변수는 Highcharts가 못 읽으므로(캔버스가 아니라 SVG 속성으로
+   들어간다) 여기에 같은 값을 둔다 — TrendPage.css의 --g-ink/--g-muted와 짝이다. */
+const INK = '#eaf0f8';
+const AX_TEXT = '#9aa8bd';
+const AX_LINE = 'rgba(255, 255, 255, .28)';
+const GRID_LINE = 'rgba(255, 255, 255, .10)';
 
 // 빠른 조회 버튼 — 지금부터 N시간 전까지
 const QUICK_HOURS = [1, 3, 6, 12, 24];
@@ -302,14 +313,14 @@ export default function TrendPage() {
       type: 'datetime',
       min: range.start.getTime(),
       max: range.end.getTime(),
-      lineColor: '#555555',
-      tickColor: '#555555',
-      labels: { style: { fontSize: '11px', color: '#555555' } },
+      lineColor: AX_LINE,
+      tickColor: AX_LINE,
+      labels: { style: { fontSize: '11px', color: AX_TEXT } },
       /* 메모 시각에 옅은 세로선. 카드는 겹치면 아랫줄로 내려가므로 카드 자리만으로는
          정확한 시각을 알 수 없다 — 이 선이 카드와 그 시각의 값을 이어 준다. */
       plotLines: memos.map((m) => ({
         value: m.x,
-        color: 'rgba(30, 95, 168, .35)',
+        color: 'rgba(94, 183, 255, .45)',
         dashStyle: 'Dash',
         width: 1,
         zIndex: 2,
@@ -320,22 +331,22 @@ export default function TrendPage() {
     yAxis: [
       {
         // 0번 = 왼쪽 — O2(mmV) 0~1500
-        title: { text: 'mmV', style: { fontSize: '11px', color: '#555555' } },
+        title: { text: 'mmV', style: { fontSize: '11px', color: AX_TEXT } },
         min: AXIS_RANGE.mmV.min,
         max: AXIS_RANGE.mmV.max,
-        gridLineColor: '#c8c8c8',
+        gridLineColor: GRID_LINE,
         gridLineDashStyle: 'Dash',
-        labels: { style: { fontSize: '11px', color: '#555555' } },
+        labels: { style: { fontSize: '11px', color: AX_TEXT } },
       },
       {
         // 1번 = 오른쪽 — 존 온도(℃) 0~1000
-        title: { text: '℃', style: { fontSize: '11px', color: '#555555' } },
+        title: { text: '℃', style: { fontSize: '11px', color: AX_TEXT } },
         min: AXIS_RANGE['℃'].min,
         max: AXIS_RANGE['℃'].max,
         opposite: true,
         // 오른쪽 축 눈금선까지 그리면 왼쪽 것과 겹쳐 지저분해진다
         gridLineWidth: 0,
-        labels: { style: { fontSize: '11px', color: '#555555' } },
+        labels: { style: { fontSize: '11px', color: AX_TEXT } },
       },
     ],
 
@@ -343,8 +354,9 @@ export default function TrendPage() {
        Highcharts 자체 토글을 막고 우리 hidden 상태를 바꾸게 해서 둘을 한 상태로 묶었다
        (그냥 두면 Highcharts가 자기 상태로 껐다 켜서 토글과 어긋난다). */
     legend: {
-      itemStyle: { fontSize: '12px', fontWeight: '600', color: '#101010' },
-      itemHiddenStyle: { color: '#9a9a9a' },
+      itemStyle: { fontSize: '12px', fontWeight: '600', color: INK },
+      itemHiddenStyle: { color: '#5b6b80' },
+      itemHoverStyle: { color: '#ffffff' },
       margin: 6,
       padding: 0,
     },
@@ -352,9 +364,11 @@ export default function TrendPage() {
     tooltip: {
       shared: true,
       xDateFormat: '%Y-%m-%d %H:%M:%S',
-      borderColor: '#808080',
-      borderRadius: 0,
-      style: { fontSize: '12px' },
+      // 선 위에 뜨는 판이라 유리(반투명)로 두면 숫자가 안 읽힌다 — 거의 불투명하게
+      backgroundColor: 'rgba(10, 16, 28, .95)',
+      borderColor: 'rgba(255, 255, 255, .25)',
+      borderRadius: 6,
+      style: { fontSize: '12px', color: INK },
     },
 
     plotOptions: {
@@ -439,7 +453,8 @@ export default function TrendPage() {
   }, [memos, rows, range, chartH]);
 
   return (
-    <div className="tr-page">
+    /* hmi-dark — 어두운 배경·유리 판·표 테마는 scada.css의 공용 규칙이 맡는다 */
+    <div className="tr-page hmi-dark">
       <div className="tr-toolbar">
         <div className="tr-filter">
           <label className="tr-label" htmlFor="tr-start">기간</label>

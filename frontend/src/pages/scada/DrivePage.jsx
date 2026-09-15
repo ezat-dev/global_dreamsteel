@@ -336,9 +336,12 @@ function OpPanel({ title, mode, onMode }) {
  *             아직 태그가 없는 칸(쿨링챔버·DOOR)은 비워 두면 된다 — 그 자체가
  *             "이 칸은 아직 연결 안 됨"이라는 표시가 된다.
  */
-function ValueBox({ label, value = '####', tone = 'red', tag }) {
+/* label은 칸에 찍히는 글자라 짧아야 한다(옆의 SV 칸과 나란히 선다).
+   hint는 마우스를 올렸을 때만 나오는 설명 — 어느 존의 값인지처럼 칸에 적기엔
+   긴 말을 여기로 넘긴다. 없으면 label을 그대로 쓴다. */
+function ValueBox({ label, value = '####', tone = 'red', tag, hint }) {
   return (
-    <div className="dr-vbox" title={tag ? `${label} — 읽기 전용 / ${tag}` : undefined}>
+    <div className="dr-vbox" title={tag ? `${hint ?? label} — 읽기 전용 / ${tag}` : undefined}>
       <span className="dr-vbox-label">{label}</span>
       <em className={`dr-val is-${tone}`} data-tag={tag}>{value}</em>
     </div>
@@ -600,7 +603,9 @@ export default function DrivePage() {
   }, []);
 
   return (
-    <div className="dr-page">
+    /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
+       작화(롤러·모터·컨베이어)는 배경이 비어 있어 그대로 얹힌다. */
+    <div className="dr-page hmi-dark">
       {/* ===== 상단 조작·상태 패널 ===== */}
       <div className="dr-top">
         <OpPanel title="입구 OP PANEL" mode={entMode} onMode={setEntMode} />
@@ -693,7 +698,7 @@ export default function DrivePage() {
               >
                 {/* 사진의 표기는 ZONE1이 아니라 1ZONE이다. */}
                 <div className="dr-zone-title">{`${n}ZONE`}</div>
-                <ValueBox label={`${n}ZONE 현재온도 (PV)`} value={zoneText(n, 'pv')} tag={zoneTag(n, 'pv')} />
+                <ValueBox label="PV" hint={`${n}ZONE 현재온도`} value={zoneText(n, 'pv')} tag={zoneTag(n, 'pv')} />
 
                 {/* SV는 설정값이라 눌러서 숫자패드로 넣는다. 글자색은 DrivePage.css의 --dr-sv.
                     표시는 tic_zN_sv(D100, 실제 적용 중인 목표값), 입력은 tic_zN_sv_cmd(R100). */}

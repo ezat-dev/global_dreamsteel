@@ -665,3 +665,101 @@
 
 .combustion [class^="for-fire-"] { margin-left: -2.5px; }
 .combustion [class^="rev-fire-"] { margin-left: 2.5px; }
+
+/* ===== 다크 보정 ============================================================
+
+   틀(배경·유리 판·버튼·LED칸)은 scada.css의 .hmi-dark가 맡는다. 작화도 손대지
+   않는다 — 노란 가스관·흰 공기관·불꽃·밸브는 어두운 바탕에서 오히려 대비가 좋다.
+
+   여기서 덮는 것은 밝은 바탕을 전제로 고른 색들뿐이다. 두 부류다:
+     1) 작화 위에 얹히는 이름판·조작칸 — 유리로 두면 밝은 그림(로 본체·버너판)
+        위에서 밝은 글자가 묻힌다. 불투명한 짙은 판으로 깔고 색은 글자가 맡는다.
+     2) 연한 크림·하늘·빨강 칩 — 채운 색 대신 옅은 막 + 밝은 글자로 뒤집는다.
+   경보의 채운 빨강(#dc2626)과 동작중 초록(#15803d)은 그대로 둔다. */
+
+/* ── 0) 작화에서 예외로 손대는 두 곳 ──
+   원칙은 작화를 안 건드리는 것이지만, 이 둘은 '글씨를 얹으려고 깔아둔 바탕'이라
+   그림이 아니라 판에 가깝다. 밝은 채로 두면 그 위의 밝은 글자가 그대로 묻힌다. */
+
+/* 로 본체 — 화면에서 제일 큰 면이라 밝은 회색이면 시선을 다 가져간다.
+   어두운 판으로 낮추면 주인공인 불꽃과 배관이 앞으로 나온다.
+   zon-box-1이 바깥 테, zon-box-2가 안쪽 면이다(원래 #929292 / #dadada). */
+.cb-page.hmi-dark .combustion .zon-box-1 {
+  background: #2c3542;
+}
+
+.cb-page.hmi-dark .combustion .zon-box-2 {
+  background: #3a4554;
+}
+
+/* 개도(MV) 값이 앉는 창 — 값을 읽는 칸이므로 아예 검게 낮춰 LED 창처럼 만든다.
+   글씨(.cb-per)는 --hmi-text라 이미 밝다. 버너판(-zone-box, #aca095)은 그대로
+   둔다 — 그 위에 검은 배관 조각이 그려져 있어서 같이 낮추면 그게 사라진다. */
+.cb-page.hmi-dark .combustion [class$="-zone-per"] {
+  background: #0d1524;
+}
+
+/* ── 1) 작화 위에 얹히는 판 ── */
+
+.cb-page.hmi-dark .cb-plate {
+  background: rgba(10, 16, 28, .88);
+  border-color: rgba(255, 255, 255, .34);
+}
+
+/* 판마다의 색 구분(노랑=가스, 파랑=공기)은 테두리와 글자가 맡는다.
+   파스텔은 짙은 바탕에서 흐려 보이므로 채도가 살아 있는 밝은 색을 쓴다. */
+.cb-page.hmi-dark .cb-plate--gas {
+  border-color: #f0c53f;
+  color: #ffd24a;
+}
+
+.cb-page.hmi-dark .cb-plate--blue {
+  border-color: #6fb6f5;
+  color: #8ecbff;
+}
+
+.cb-page.hmi-dark .cb-onoff.is-stacked {
+  background: rgba(10, 16, 28, .88);
+}
+
+/* ── 2) 연한 칩 ── */
+
+/* 옅은 막이 아니라 불투명한 판이어야 한다 — 이 둘은 로 본체(밝은 회색 큰 판)
+   위에 놓일 수 있어서, 반투명으로 두면 글자가 밝은 그림에 씻겨 사라진다. */
+.cb-page.hmi-dark .cb-action-btn {
+  border-color: rgba(240, 197, 63, .6);
+  background: #221a06;
+  color: #ffd24a;
+}
+
+.cb-page.hmi-dark .cb-action-btn:hover:not(:disabled) {
+  border-color: #ffd24a;
+  background: #322708;
+}
+
+.cb-page.hmi-dark .cb-alarm-error {
+  background: #2a100e;
+  color: #ffb4ad;
+}
+
+/* ── 존 모달 ── 공용 모달(.hmi-umodal)이 아니라 이 화면 전용이라 따로 덮는다.
+   작화 위에 뜨는 창이라 판은 반드시 불투명해야 한다. */
+
+.cb-page.hmi-dark .cb-zmodal {
+  background: var(--g-solid);
+}
+
+.cb-page.hmi-dark .cb-zmodal-scrim {
+  background: rgba(3, 7, 14, .62);
+}
+
+/* 존 이름만 색이 값으로 박혀 있었다(#101010) — 어두운 판에서는 안 보인다 */
+.cb-page.hmi-dark .cb-zmodal-name {
+  color: var(--g-ink);
+}
+
+.cb-page.hmi-dark .cb-zmodal-close:hover {
+  border-color: #ff9d95;
+  background: rgba(200, 55, 45, .22);
+  color: #ff9d95;
+}

@@ -341,7 +341,9 @@ export default function CombustionPage() {
   }, []);
 
   return (
-    <div className="cb-page">
+    /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
+       작화(노란 가스관·흰 공기관·불꽃)는 배경이 비어 있어 그대로 얹힌다. */
+    <div className="cb-page hmi-dark">
       {/* 줄인 뒤의 실제 높이만큼만 자리를 차지하게 한다 */}
       {/* 높이를 인라인으로 못박지 않는다 — 남는 세로를 그대로 차지해야 그 크기를 재서
           배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}

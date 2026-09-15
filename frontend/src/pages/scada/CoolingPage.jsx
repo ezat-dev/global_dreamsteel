@@ -90,7 +90,9 @@ export default function CoolingPage() {
   const [delays, setDelays] = useState({ high: '0', low: '0' });
 
   return (
-    <div className="ct-page">
+    /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
+       작화(파란 배관·청록 화살표·은색 펌프)는 배경이 비어 있어 그대로 얹힌다. */
+    <div className="ct-page hmi-dark">
       <div className="ct-stage" ref={stageRef}>
         {/* left:50% + 음수 margin으로 가운데를 맞춰 두고 transform-origin: top center로
             줄이기 때문에, 배율이 바뀌어도 가운데에 머문다.

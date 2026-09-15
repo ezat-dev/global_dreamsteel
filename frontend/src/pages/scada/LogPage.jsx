@@ -145,7 +145,8 @@ export default function LogPage() {
   );
 
   return (
-    <div className="ah-page">
+    /* hmi-dark — 어두운 배경·유리 판·표 테마는 scada.css의 공용 규칙이 맡는다 */
+    <div className="ah-page hmi-dark">
       <div className="ah-toolbar">
         <div className="ah-filter">
           <label className="ah-label" htmlFor="log-start">기록시각</label>

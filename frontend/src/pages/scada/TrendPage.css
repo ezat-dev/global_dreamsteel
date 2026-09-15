@@ -6,6 +6,10 @@
    그래프 칸만 맡는다.
    =========================================================================== */
 
+/* 어두운 배경·유리 판은 scada.css의 공용 .hmi-dark가 맡는다(TrendPage.jsx가
+   뿌리에 그 클래스를 붙인다). 여기에는 이 화면에만 있는 것 — 차트 안쪽 색과
+   메모 카드 — 만 남겨 둔다. */
+
 .tr-page {
   height: 100%;
   display: flex;
@@ -454,4 +458,40 @@
   font-size: 12.5px;
   font-weight: 700;
   color: #a3271b;
+}
+
+/* ===== 다크 보정 — 이 화면에만 있는 것 ======================================
+
+   공통(입력칸·달력·모달·표·액센트 글자)은 scada.css의 .hmi-dark가 맡는다.
+   여기 남은 것은 트랜드에만 있는 두 가지뿐이다: 메모 삭제 버튼과 메모 카드.
+   =========================================================================== */
+
+.tr-page .tm-del,
+.tr-page .tm-confirm {
+  color: #ff9d95;
+}
+
+.tr-page .tm-del {
+  border-color: rgba(255, 120, 110, .45);
+}
+
+.tr-page .tm-del:hover:not(:disabled) {
+  border-color: #ff9d95;
+  background: rgba(200, 55, 45, .22);
+}
+
+/* ── 메모 카드 ── 선 위에 겹치므로 유리가 아니라 거의 불투명한 판이어야 한다 */
+.tr-page .tr-memo-card {
+  border-color: rgba(94, 183, 255, .55);
+  background: rgba(13, 20, 34, .92);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, .7);
+}
+
+.tr-page .tr-memo-card:hover {
+  border-color: var(--g-accent);
+  background: rgba(20, 30, 48, .96);
+}
+
+.tr-page .tr-memo-head b {
+  color: var(--g-accent);
 }

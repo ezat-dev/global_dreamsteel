@@ -149,7 +149,8 @@ export default function AlarmPage() {
   }, [tags, page]);
 
   return (
-    <div className="al-page">
+    /* hmi-dark — 어두운 배경·유리 판·표 테마는 scada.css의 공용 규칙이 맡는다 */
+    <div className="al-page hmi-dark">
       <div className="al-top">
         {/* 페이지 전환 — 100칸이 한 화면의 최대치라 태그 200개를 두 장으로 나눈다 */}
         <div className="al-pager">

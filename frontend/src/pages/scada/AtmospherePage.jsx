@@ -237,7 +237,9 @@ export default function AtmospherePage() {
   };
 
   return (
-    <div className="at-page">
+    /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
+       작화(파이프·밸브·모터)는 배경이 비어 있는 그림이라 그대로 얹힌다. */
+    <div className="at-page hmi-dark">
       <div className="at-stage" ref={stageRef}>
         {/* left:50% + 음수 margin으로 가운데를 맞춰 두고 transform-origin: top center로
             줄이기 때문에, 배율이 바뀌어도 가운데에 머문다.

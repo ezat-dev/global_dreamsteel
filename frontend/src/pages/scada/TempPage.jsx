@@ -107,7 +107,8 @@ export default function TempPage() {
   }, []);
 
   return (
-    <div className="tz-grid">
+    /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다 */
+    <div className="tz-grid hmi-dark">
       {ZONES.map((n) => (
         <TempZonePanel
           key={n}

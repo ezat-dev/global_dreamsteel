@@ -513,3 +513,33 @@
 .dr-board .hmi-lamp {
   font-size: 11px;
 }
+
+/* ===== 다크 보정 ============================================================
+
+   틀(배경·유리 판·LED칸)은 scada.css의 .hmi-dark가 맡고, 작화는 건드리지 않는다 —
+   롤러·모터·컨베이어는 배경이 비어 있는 그림이라 어두운 바탕에서 대비가 더 좋다.
+   컨베이어 사이의 짙은 올리브 기둥(#4f4f00)도 그대로 둔다. 은색 판 사이의
+   구분선 노릇을 하는 것이라, 어두운 바탕에서는 그 사이가 비어 보이는 게 맞다.
+
+   여기서 덮는 것은 밝은 바탕을 전제로 고른 색뿐이다. */
+
+/* 눌린 회색 — 어두운 쪽으로 */
+.dr-page.hmi-dark .dr-op-btn:not(:disabled):hover {
+  background: rgba(255, 255, 255, .18);
+}
+
+/* 액센트가 하늘색이라 그 위의 흰 글자는 안 읽힌다 — 짙은 남색으로 */
+.dr-page.hmi-dark .dr-op-btn.is-on {
+  color: var(--g-accent-ink);
+}
+
+/* 정지 버튼의 붉은 글자와 경보 알림칸 — 어두운 바탕에서는 채운 색 대신
+   옅은 막 + 밝은 글자로 뒤집는다. */
+.dr-page.hmi-dark .dr-op-btn.is-stop:not(:disabled) {
+  color: #ff9d95;
+}
+
+.dr-page.hmi-dark .dr-alarm-error {
+  background: #2a100e;
+  color: #ffb4ad;
+}
