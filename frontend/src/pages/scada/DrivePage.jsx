@@ -332,12 +332,15 @@ function OpPanel({ title, mode, onMode }) {
  * 표시 전용이라 입력 부품(LedInput)을 쓰지 않는다. 존·쿨링챔버·DOOR가 같이 쓴다.
  *
  * @param tone 숫자색. 사진을 따라 PV는 red, SV는 green.
+ * @param tag  이 칸이 보여주는 PLC 태그 이름. 넘기면 마우스를 올렸을 때 뜬다.
+ *             아직 태그가 없는 칸(쿨링챔버·DOOR)은 비워 두면 된다 — 그 자체가
+ *             "이 칸은 아직 연결 안 됨"이라는 표시가 된다.
  */
-function ValueBox({ label, value = '####', tone = 'red' }) {
+function ValueBox({ label, value = '####', tone = 'red', tag }) {
   return (
-    <div className="dr-vbox">
+    <div className="dr-vbox" title={tag ? `${label} — 읽기 전용 / ${tag}` : undefined}>
       <span className="dr-vbox-label">{label}</span>
-      <em className={`dr-val is-${tone}`}>{value}</em>
+      <em className={`dr-val is-${tone}`} data-tag={tag}>{value}</em>
     </div>
   );
 }
@@ -690,7 +693,7 @@ export default function DrivePage() {
               >
                 {/* 사진의 표기는 ZONE1이 아니라 1ZONE이다. */}
                 <div className="dr-zone-title">{`${n}ZONE`}</div>
-                <ValueBox label="PV" value={zoneText(n, 'pv')} />
+                <ValueBox label={`${n}ZONE 현재온도 (PV)`} value={zoneText(n, 'pv')} tag={zoneTag(n, 'pv')} />
 
                 {/* SV는 설정값이라 눌러서 숫자패드로 넣는다. 글자색은 DrivePage.css의 --dr-sv.
                     표시는 tic_zN_sv(D100, 실제 적용 중인 목표값), 입력은 tic_zN_sv_cmd(R100). */}
@@ -736,6 +739,7 @@ export default function DrivePage() {
             <span
               className="hmi-lamp dr-product-lamp"
               style={{ left: PRODUCT_LAMP.cx, top: PRODUCT_LAMP.top }}
+              title="제품감지 — 태그 미연결"
             >
               <span className="hmi-lamp-dot" />
               <em>제품감지</em>

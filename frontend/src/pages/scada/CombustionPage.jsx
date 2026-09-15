@@ -471,7 +471,13 @@ export default function CombustionPage() {
               >
                 <b>PV</b>
                 {/* 단위는 박스 밖에 — 아래 SV(LedInput)가 단위를 밖에 그려서 높이를 맞춘다 */}
-                <em className="cb-val is-pv" data-tag={`tic_z${n}_pv`}>{zoneText(n, 'pv')}</em>
+                <em
+                  className="cb-val is-pv"
+                  data-tag={zoneTag(n, 'pv')}
+                  title={`${n}ZONE 현재온도(PV) — 읽기 전용 / ${zoneTag(n, 'pv')}`}
+                >
+                  {zoneText(n, 'pv')}
+                </em>
                 <em className="cb-unit">℃</em>
               </span>
             ))}

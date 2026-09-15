@@ -235,8 +235,18 @@ export default function TrendPage() {
     // 서버가 준 시각을 그대로 현지 시각으로 읽는다(끄면 UTC로 해석해 9시간 밀린다).
     time: { useUTC: false },
 
+    /* x축을 조회 구간에 못박는다.
+       안 박으면 하이차트가 '값이 있는 구간'에만 축을 맞춘다. 그러면 24시간을 조회해도
+       기록이 30분치뿐일 때 그 30분이 화면 전체로 늘어나서, 24시간을 조회한 티가 나지
+       않고 시간이 어긋난 것처럼 보인다. 실제로 그렇게 오해한 적이 있다.
+       못박아 두면 기록이 없는 구간은 빈 채로 남아 "그때는 수집이 멈춰 있었다"가 보인다.
+
+       range(입력칸이 아니라 조회 버튼을 눌러 확정된 구간)를 쓴다 — start/end를 쓰면
+       날짜만 고치고 조회를 안 눌러도 축이 먼저 움직인다. */
     xAxis: {
       type: 'datetime',
+      min: range.start.getTime(),
+      max: range.end.getTime(),
       lineColor: '#555555',
       tickColor: '#555555',
       labels: { style: { fontSize: '11px', color: '#555555' } },
@@ -314,7 +324,9 @@ export default function TrendPage() {
       // Highcharts는 [x, y] 쌍의 배열을 받는다.
       data: rows.map((d) => [d.t, d[r.key]]),
     })),
-  }), [rows, hidden, chartH]);
+    /* range가 빠지면 조회 구간을 바꿔도 x축이 옛 구간에 머문다 —
+       useMemo는 의존성이 안 바뀌면 옛 options를 그대로 돌려주기 때문이다. */
+  }), [rows, hidden, chartH, range]);
 
   return (
     <div className="tr-page">
