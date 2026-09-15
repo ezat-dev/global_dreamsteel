@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 142 75" width="142" height="75">
+  <!-- 쿨링타워 순환펌프. 원본 pump-10.png(142x75)의 픽셀 배치를 옮긴 것.
+
+       4자리에 이 파일 하나만 쓴다 — pump-1 / pump-2 / pump-3 / pump-4.
+       원본이 pump-10.png 와 pump-30.png 두 개였지만 픽셀의 7%만 다른 사실상 같은 그림이라
+       하나로 합쳤다(다른 부분은 받침 언저리의 잔 선이다).
+       pump-3 / pump-4 는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다.
+
+       viewBox가 칸(142x75)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표:
+         모터 드럼 x  4~57,  y 24~66   (가로 원통, 가운데에 흰 띠)
+         단자함    x 10~22,  y 42~62
+         펌프 케이싱 x 56~117, y 24~66
+         냉각 기둥 x 116~131, y 12~66  (가로 줄이 촘촘한 부분)
+         기둥 갓   x 116~131, y  4~12
+         옆 배관   x 130~140, y 16~47
+         받침      x  6~133, y 66~71 -->
+  <defs>
+    <!-- 모터 드럼: 가로로 누운 원통이라 위아래가 어둡고 가운데가 희다 -->
+    <linearGradient id="drum" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6e6e6e"/>
+      <stop offset=".2" stop-color="#a8a8a8"/>
+      <stop offset=".42" stop-color="#ffffff"/>
+      <stop offset=".62" stop-color="#cfcfcf"/>
+      <stop offset="1" stop-color="#7c7c7c"/>
+    </linearGradient>
+    <!-- 펌프 케이싱: 드럼보다 밝고 평평하다 -->
+    <linearGradient id="case" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f4f4"/>
+      <stop offset=".32" stop-color="#e2e2e2"/>
+      <stop offset=".62" stop-color="#cccccc"/>
+      <stop offset="1" stop-color="#b4b4b4"/>
+    </linearGradient>
+    <linearGradient id="col" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8e8e8e"/>
+      <stop offset=".4" stop-color="#e6e6e6"/>
+      <stop offset="1" stop-color="#7a7a7a"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#1f1f1f" stroke-width="1.2" stroke-linejoin="round">
+    <!-- 받침 -->
+    <rect x="6" y="66" width="127" height="5.6" fill="#cfcfcf"/>
+
+    <!-- 옆 배관 — 기둥 갓에서 내려와 꺾인다 -->
+    <path d="M131 17 H139.4 V47 H130 V34 H131 Z" fill="#dcdcdc"/>
+
+    <!-- 펌프 케이싱 -->
+    <rect x="56" y="24" width="61" height="42" fill="url(#case)"/>
+    <!-- 모터 드럼 -->
+    <rect x="4" y="24" width="53" height="42" fill="url(#drum)"/>
+    <!-- 단자함 -->
+    <rect x="10" y="42" width="12.4" height="20" fill="#e8e8e8"/>
+
+    <!-- 냉각 기둥과 갓 -->
+    <rect x="116" y="12" width="15" height="54" fill="url(#col)"/>
+    <rect x="115" y="4" width="17" height="8.4" rx="1" fill="#dcdcdc"/>
+  </g>
+
+  <!-- 케이싱 위의 작은 돌기 두 개 -->
+  <g fill="#1f1f1f">
+    <rect x="71" y="24" width="2.4" height="5"/>
+    <rect x="96" y="24" width="2.4" height="5"/>
+  </g>
+
+  <!-- 기둥의 가로 줄. 선만 얹어 질감을 낸다 — 142px로 줄여 그리므로 홈을 파면 뭉개진다. -->
+  <g stroke="#3c3c3c" stroke-width=".9" opacity=".8">
+    <path d="M116.6 17 H130.4 M116.6 22 H130.4 M116.6 27 H130.4 M116.6 32 H130.4
+             M116.6 37 H130.4 M116.6 42 H130.4 M116.6 47 H130.4 M116.6 52 H130.4
+             M116.6 57 H130.4 M116.6 62 H130.4"/>
+  </g>
+  <!-- 갓 위의 두 갈래 -->
+  <g stroke="#6a6a6a" stroke-width="2.2" stroke-linecap="round">
+    <path d="M120.5 4 V0.8 M126.5 4 V0.8"/>
+  </g>
+</svg>

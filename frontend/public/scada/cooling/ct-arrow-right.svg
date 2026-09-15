@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 3.2 36.5 35.6" width="36.5" height="35.6">
+  <!-- 쿨링타워 흐름 화살표 (오른쪽). 원본 arrow-70.png(45x44)의 픽셀 배치를 옮긴 것.
+
+       화살표 12개 자리에 이 그림 하나가 방향만 바꿔 들어간다. 파일은 셋이다:
+         ct-arrow-right.svg  arrow-1 / arrow-6 / arrow-7~12
+         ct-arrow-up.svg     arrow-2
+         ct-arrow-down.svg   arrow-3 / arrow-4 / arrow-5
+       arrow-7~12는 작화 CSS가 scale(-1,1) 과 rotate(-90deg)로 다시 돌려 쓴다 —
+       왼쪽·위·아래를 그렇게 만든다. 나머지는 변형이 없어서 파일을 따로 둬야 한다.
+
+       위·아래 파일은 이 파일의 도형을 rotate로 돌린 것뿐이다. 모양을 고치면 셋을
+       같이 고쳐야 한다.
+
+       원본 좌표: 자루 x 4~22, y 13~29      머리 뒷변 x 21, y 4~38   꼭짓점 (40.5, 21.2)
+
+       viewBox는 칸(39x38)의 비율에 맞췄다. 도형만 감싸면 1.074인데 칸은 1.026이라
+       위아래로 여백을 조금 줬다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다. -->
+  <defs>
+    <!-- 원본 색 그대로. 밝은 하늘색 몸통에 아래쪽이 조금 가라앉는다. -->
+    <linearGradient id="c" x1="0" y1="0" x2=".35" y2="1">
+      <stop offset="0" stop-color="#7bffff"/>
+      <stop offset=".35" stop-color="#04fcfc"/>
+      <stop offset="1" stop-color="#06cccc"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 굵은 검은 테두리가 이 화살표의 인상을 만든다. 원본이 2px쯤이라 그대로 뒀다. -->
+  <path d="M4.5 13.5 H21.5 V4.5 L40.5 21.2 L21.5 37.8 V29 H4.5 Z"
+        fill="url(#c)" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
+</svg>

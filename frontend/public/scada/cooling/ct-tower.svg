@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 382 289" width="382" height="289">
+  <!-- 쿨링타워 본체. 원본 obj-10.png(382x289)의 픽셀 배치를 옮긴 것. 한 자리에만 쓴다 — obj-1.
+
+       viewBox가 칸(382x289)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본이 흐리지는 않다(382x289로 크고, 쿨링타워 화면은 그림을 줄이기만 한다).
+       바꾼 이유는 면이 전부 단색이라 납작해 보여서다 — 실루엣은 그대로 두고 음영만 넣었다.
+
+       원본 좌표:
+         중앙 스택 x 130~250, y  4~54   (가운데 y 23~41 이 빨간 띠)
+         벤트 2개  보라 갓 x 44~90 / 292~338, y 24~36
+                   받침(아래로 벌어짐) y 36~54
+         상부 덱   x  20~360, y  54~72
+         본체      x  12~372, y  72~232
+           루버 12개 — x 24·52·80·112·140·168·200·316·344 는 아래까지(긴 것),
+                       x 228·256·284 는 조작판 위까지만(짧은 것)
+           이음매    x 184 / 196 에 세로 선 두 줄 — 본체가 두 짝으로 나뉜다
+           조작판    x 228~302, y 120~226  (안에 네모 둘)
+         하부 빔   x   4~376, y 232~240 / x 12~372, y 246~252
+         다리      x  12~22 와 360~372, 아래로 갈수록 조금 벌어진다
+
+       색은 원본에서 뽑았다: 몸통 #F9DCDC, 루버 #BF9B9B, 회색 #ADADAD,
+       빨강 #EF4B57, 보라 #6029B7, 받침 #635972, 빔·다리 #A0989D, 선 #333. -->
+  <defs>
+    <!-- 면마다 위가 밝고 아래가 어둡게. 배관·모터에 쓴 것과 같은 규칙이다. -->
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff0f0"/>
+      <stop offset=".45" stop-color="#f9dcdc"/>
+      <stop offset="1" stop-color="#e6c4c4"/>
+    </linearGradient>
+    <!-- 루버는 날개가 비스듬해서 왼쪽이 그늘지고 오른쪽이 밝다 -->
+    <linearGradient id="louver" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a88585"/>
+      <stop offset=".55" stop-color="#bf9b9b"/>
+      <stop offset="1" stop-color="#d4b4b4"/>
+    </linearGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cccccc"/>
+      <stop offset=".4" stop-color="#adadad"/>
+      <stop offset="1" stop-color="#8d8d8d"/>
+    </linearGradient>
+    <!-- 스택은 원통이라 좌우가 어둡고 가운데가 밝다 -->
+    <linearGradient id="stack" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a8a8a"/>
+      <stop offset=".38" stop-color="#d0d0d0"/>
+      <stop offset=".62" stop-color="#b4b4b4"/>
+      <stop offset="1" stop-color="#8a8a8a"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c22b3a"/>
+      <stop offset=".38" stop-color="#ff6b76"/>
+      <stop offset=".62" stop-color="#ef4b57"/>
+      <stop offset="1" stop-color="#c22b3a"/>
+    </linearGradient>
+    <linearGradient id="vent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4a1b8f"/>
+      <stop offset=".4" stop-color="#7c3fd6"/>
+      <stop offset="1" stop-color="#4a1b8f"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c0b8bd"/>
+      <stop offset=".45" stop-color="#a0989d"/>
+      <stop offset="1" stop-color="#857e83"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#333333" stroke-width="2" stroke-linejoin="round">
+    <!-- ── 다리와 하부 빔 (본체보다 먼저 그려 뒤로 깔린다) ── -->
+    <path d="M12 240 H22 L28 288 H6 Z" fill="url(#beam)"/>
+    <path d="M360 240 H372 L376 288 H354 Z" fill="url(#beam)"/>
+    <rect x="12" y="246" width="360" height="6.5" fill="url(#beam)"/>
+    <rect x="4" y="232" width="372" height="9" fill="url(#beam)"/>
+
+    <!-- ── 중앙 스택 ── -->
+    <rect x="130" y="4" width="120" height="8" rx="1.5" fill="url(#stack)"/>
+    <rect x="136" y="11" width="108" height="43" fill="url(#stack)"/>
+    <rect x="136" y="23" width="108" height="18" fill="url(#red)"/>
+
+    <!-- ── 벤트 2개 — 보라 갓 + 아래로 벌어지는 받침 ── -->
+    <path d="M60 36 H78 L98 54 H40 Z" fill="#635972"/>
+    <rect x="44" y="24" width="46" height="12.5" rx="1" fill="url(#vent)"/>
+    <path d="M304 36 H322 L342 54 H284 Z" fill="#635972"/>
+    <rect x="292" y="24" width="46" height="12.5" rx="1" fill="url(#vent)"/>
+
+    <!-- ── 상부 덱 ── -->
+    <rect x="20" y="54" width="340" height="18" fill="url(#deck)"/>
+
+    <!-- ── 본체 ── -->
+    <rect x="12" y="72" width="360" height="160" fill="url(#skin)"/>
+  </g>
+
+  <!-- ── 루버 ──
+       긴 것 9개는 아래까지 내려오고, 조작판 위의 3개(x 228·256·284)는 짧다.
+       하나씩 좌표를 적어 둔 것은 간격이 28~32px로 고르지 않기 때문이다.
+       고른 간격으로 다시 깔면 이음매(x 184·196)와 조작판 위치가 어긋난다. -->
+  <g fill="url(#louver)" stroke="#333333" stroke-width="1.6">
+    <rect x="24" y="76" width="16" height="152"/>
+    <rect x="52" y="76" width="16" height="152"/>
+    <rect x="80" y="76" width="20" height="152"/>
+    <rect x="112" y="76" width="16" height="152"/>
+    <rect x="140" y="76" width="16" height="152"/>
+    <rect x="168" y="76" width="16" height="152"/>
+    <rect x="200" y="76" width="16" height="152"/>
+    <rect x="316" y="76" width="16" height="152"/>
+    <rect x="344" y="76" width="16" height="152"/>
+
+    <rect x="228" y="76" width="16" height="42"/>
+    <rect x="256" y="76" width="16" height="42"/>
+    <rect x="284" y="76" width="20" height="42"/>
+  </g>
+
+  <!-- 본체를 두 짝으로 나누는 이음매 -->
+  <g stroke="#333333" stroke-width="2">
+    <path d="M184 72 V232 M196 72 V232"/>
+  </g>
+
+  <!-- ── 조작판 ── -->
+  <g stroke="#333333" stroke-width="2" fill="none">
+    <rect x="228" y="120" width="74" height="106"/>
+    <rect x="244" y="132" width="44" height="84"/>
+  </g>
+  <g fill="url(#louver)" stroke="#333333" stroke-width="1.6">
+    <rect x="250" y="140" width="32" height="34"/>
+    <rect x="250" y="184" width="32" height="30"/>
+  </g>
+</svg>

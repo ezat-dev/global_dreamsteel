@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 71 74" width="71" height="74">
+  <!-- 쿨링타워 팬 모터(앞에서 본 것). 원본 motor-10.png(71x74)의 픽셀 배치를 옮긴 것.
+       한 자리에만 쓴다 — motor-1.
+
+       viewBox가 칸(71x74)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표:
+         윗 띠     x  4~65.5, y  3.5~13.5   (가운데가 밝다)
+         냉각핀 몸통 x 3~67.5, y 13.5~62.5  (세로 줄이 촘촘한 부분)
+         단자함    x  7~29.5, y 43.5~61
+         작은 계기 x 60~67,   y 18~28
+         아랫 띠   x  7~64.5, y 62.5~69.5
+         받침      x  4~66.5, y 69.5~71.5 -->
+  <defs>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9e9e9e"/>
+      <stop offset=".2" stop-color="#d2d2d2"/>
+      <stop offset=".45" stop-color="#ffffff"/>
+      <stop offset=".72" stop-color="#d2d2d2"/>
+      <stop offset="1" stop-color="#9e9e9e"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b8b8b8"/>
+      <stop offset=".3" stop-color="#e4e4e4"/>
+      <stop offset=".62" stop-color="#d0d0d0"/>
+      <stop offset="1" stop-color="#a8a8a8"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#1f1f1f" stroke-width="1.2" stroke-linejoin="round">
+    <!-- 윗 띠 -->
+    <rect x="4" y="3.6" width="61.6" height="10" fill="url(#band)"/>
+    <!-- 냉각핀 몸통 -->
+    <rect x="3" y="13.4" width="64.6" height="49.2" fill="url(#body)"/>
+    <!-- 아랫 띠 -->
+    <rect x="7" y="62.4" width="57.6" height="7.2" fill="url(#band)"/>
+    <!-- 받침 -->
+    <rect x="4" y="69.4" width="62.6" height="2.4" fill="#4a4a4a"/>
+    <!-- 단자함 -->
+    <rect x="7" y="43.6" width="22.6" height="17.6" fill="#e8e8e8"/>
+  </g>
+
+  <!-- 냉각핀. 선만 얹어 질감을 낸다 — 71px로 줄여 그리므로 홈을 파면 뭉개진다.
+       간격을 고르게 두지 않고 원본처럼 들쭉날쭉하게 뒀다. 고르면 줄무늬 천처럼 보인다. -->
+  <g stroke="#2e2e2e" stroke-width=".9" opacity=".85">
+    <path d="M30.6 14 V62 M33.6 14 V62 M36.6 14 V62 M37.6 14 V62
+             M40.6 14 V62 M43.6 14 V62 M46.6 14 V62 M47.6 14 V62
+             M50.6 14 V62 M52.6 14 V62 M55.6 14 V62 M57.6 14 V62"/>
+  </g>
+  <!-- 단자함 왼쪽으로는 핀이 없다(매끈한 면) — 원본이 그렇다 -->
+  <g stroke="#2e2e2e" stroke-width=".9" opacity=".85">
+    <path d="M11.6 14 V43 M13.6 14 V43 M16.6 14 V43 M19.6 14 V43
+             M21.6 14 V43 M24.6 14 V43 M27.6 14 V43"/>
+  </g>
+
+  <!-- 오른쪽 위 작은 계기 -->
+  <circle cx="63.4" cy="23" r="4" fill="#efefef" stroke="#1f1f1f" stroke-width="1.1"/>
+  <path d="M63.4 23 L65.6 20.6" stroke="#1f1f1f" stroke-width="1" stroke-linecap="round"/>
+</svg>

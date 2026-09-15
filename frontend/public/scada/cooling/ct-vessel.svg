@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 262 157" width="262" height="157">
+  <!-- 가로로 누운 탱크. 원본 obj-190.png(262x157)을 대신한다.
+       두 자리에 이 파일 하나를 쓴다 — obj-19(COOLING CHAMBER) / obj-20(RX-발생기).
+
+       원본은 세로 그라데이션 한 장뿐이었다. 그것도 위아래가 희고 가운데가 어두운
+       배색이라 원통이 아니라 패인 홈처럼 보였다 — 누운 원통은 반대로 위아래 가장자리가
+       어둡고 가운데 조금 위가 밝아야 한다. 테두리도 끝단도 없어서 그냥 회색 박스였다.
+
+       넣은 것: 원통 음영(위아래 어둡게), 테두리, 양 끝 접합선, 아래 받침 두 개.
+
+       viewBox가 칸(262x157)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       주의 — 이름판이 이 위에 얹힌다. CoolingPage 의 TANK_PLATES 가 top 186에 두는데,
+       탱크가 y 121~278 이므로 이 그림의 y 65 언저리다. 그 높이를 밝게 둬야 글씨가 읽힌다.
+       가장 밝은 띠를 38%(y≈60)에 맞춘 것이 그래서다. -->
+  <defs>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6f6a66"/>
+      <stop offset=".1" stop-color="#a49e98"/>
+      <stop offset=".26" stop-color="#d8d3ce"/>
+      <stop offset=".38" stop-color="#f7f4f1"/>
+      <stop offset=".58" stop-color="#cfc9c3"/>
+      <stop offset=".82" stop-color="#97918b"/>
+      <stop offset="1" stop-color="#6b6662"/>
+    </linearGradient>
+    <linearGradient id="foot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a948e"/>
+      <stop offset="1" stop-color="#5f5a56"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 받침 두 개 (몸통보다 먼저 그려 뒤로 깔린다) -->
+  <g fill="url(#foot)" stroke="#3a3735" stroke-width="1.6">
+    <rect x="38" y="140" width="46" height="16" rx="2"/>
+    <rect x="178" y="140" width="46" height="16" rx="2"/>
+  </g>
+
+  <!-- 몸통 -->
+  <rect x="1" y="1" width="260" height="150" rx="7" fill="url(#shell)"
+        stroke="#3a3735" stroke-width="2"/>
+
+  <!-- 양 끝 접합선 — 누운 원통의 끝단을 암시한다.
+       선 하나씩이면 충분하다. 더 그으면 262px로 줄었을 때 얼룩으로 뭉친다. -->
+  <g stroke="#3a3735" stroke-width="1.4" opacity=".55">
+    <path d="M26 3 V149 M236 3 V149"/>
+  </g>
+</svg>

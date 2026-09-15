@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 581 159" width="581" height="159" preserveAspectRatio="none">
+  <!-- 큰 수조의 물. 원본 obj-40.png(581x159)을 대신한다. 한 자리에만 쓴다 — obj-4.
+       틀(청록 기둥과 받침)은 옆 파일 ct-tank-frame.svg 가 그린다.
+
+       원본은 #00CCFF 단색 사각형 하나였다. 깊이감이 없어 물이 아니라 색칠한 판으로 보였다.
+       넣은 것은 세 가지다:
+         - 세로 그라데이션 — 수면 쪽이 밝고 바닥으로 갈수록 가라앉는다
+         - 수면선 — 맨 위의 밝은 띠. 물이 어디서 끝나는지 눈에 잡히게 한다
+         - 가로로 흐르는 옅은 반사 두 줄
+
+       preserveAspectRatio="none" 을 준 이유: 이 그림은 물이 담긴 '면'이라 칸 크기가
+       바뀌면 그대로 늘어나야 한다. 기본값(비율 유지)이면 칸과 비율이 다를 때 잘린다.
+       도형이 아니라 채움이므로 늘어나도 어색하지 않다. -->
+  <defs>
+    <linearGradient id="deep" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9df0ff"/>
+      <stop offset=".06" stop-color="#3ad8ff"/>
+      <stop offset=".35" stop-color="#00ccff"/>
+      <stop offset=".72" stop-color="#00b2e8"/>
+      <stop offset="1" stop-color="#0088c0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="581" height="159" fill="url(#deep)"/>
+
+  <!-- 수면선 -->
+  <rect width="581" height="3.5" fill="#d6faff" opacity=".85"/>
+  <rect y="3.5" width="581" height="2" fill="#7ee8ff" opacity=".6"/>
+
+  <!-- 옅은 반사 두 줄. 더 넣으면 줄무늬처럼 보인다. -->
+  <rect y="26" width="581" height="5" fill="#ffffff" opacity=".13"/>
+  <rect y="74" width="581" height="3" fill="#ffffff" opacity=".08"/>
+</svg>

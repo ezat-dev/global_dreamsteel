@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 678 192" width="678" height="192">
+  <!-- 큰 수조의 틀(청록 기둥 둘 + 받침). 원본 obj-30.png(678x192)을 대신한다.
+       한 자리에만 쓴다 — obj-3. 물은 옆 파일 ct-water.svg 가 그리고, 작화 CSS가
+       이 틀 안쪽(48,12)에 얹는다.
+
+       원본은 청록 단색이라 납작했다. 실루엣은 그대로 두고 음영만 넣었다 —
+       기둥은 세로로 세워진 각관이라 좌우가 어둡고, 받침은 가로라 위아래가 어둡다.
+
+       viewBox가 칸(678x192)과 같다. CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+
+       원본 좌표: 왼 기둥 x 30~50, 오른 기둥 x 626~646, 둘 다 y 2~175
+                  받침 x 4~674, y 172~189 -->
+  <defs>
+    <linearGradient id="post" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#05585c"/>
+      <stop offset=".35" stop-color="#12969a"/>
+      <stop offset=".62" stop-color="#0c7a7e"/>
+      <stop offset="1" stop-color="#054a4e"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12969a"/>
+      <stop offset=".4" stop-color="#0c7a7e"/>
+      <stop offset="1" stop-color="#054a4e"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#0a2b2d" stroke-width="2" stroke-linejoin="round">
+    <rect x="30" y="2" width="20" height="176" fill="url(#post)"/>
+    <rect x="626" y="2" width="20" height="176" fill="url(#post)"/>
+    <rect x="4" y="172" width="670" height="17" fill="url(#beam)"/>
+  </g>
+</svg>
