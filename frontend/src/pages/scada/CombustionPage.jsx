@@ -60,7 +60,9 @@ const STAGE_TOTAL_H = DRAW_SHIFT + STAGE_H;
      오른쪽 배관 끝           : x 2101 (여기에 연소 BLOWER 패널이 붙는다)
 
    ※ 하단 개도는 작화 이름이 역순이다(rev-1이 맨 오른쪽). 화면에는 사진대로
-     왼쪽부터 1존으로 표시하므로, PLC 연동 때 어느 쪽이 맞는지 확인이 필요하다.
+     왼쪽부터 1존으로 표시한다. 개도는 위아래가 같은 값(tic_zN_mv)이라 이 역순이
+     문제되지 않는다 — 어느 쪽에 어느 존을 넣든 보이는 값이 같기 때문이다.
+     나중에 위아래가 다른 값을 쓰는 것이 생기면 그때는 순서를 확인해야 한다.
    ------------------------------------------------------------------------- */
 const ZONES = [1, 2, 3, 4, 5, 6, 7];
 
@@ -300,8 +302,10 @@ export default function CombustionPage() {
      세 화면이 같은 값을 보므로 한 곳에서 SV를 바꾸면 나머지에도 1초 안에 반영된다.
      값을 못 받았으면 0이 아니라 '---'로 둔다 — 읽지 못한 온도를 0으로 그리면
      노가 식은 것으로 오해한다. */
+  const zoneTag = (n, suffix) => `tic_z${n}_${suffix}`;
+
   const zoneText = (n, suffix) => {
-    const v = tagValues?.[`tic_z${n}_${suffix}`];
+    const v = tagValues?.[zoneTag(n, suffix)];
     return v == null || v === '' ? '---' : String(v);
   };
 
@@ -420,15 +424,32 @@ export default function CombustionPage() {
               </span>
             ))}
 
-            {/* ── 개도 % — 작화가 그려둔 박스 위에 글씨만 얹는다 ── */}
+            {/* ── 개도 % — 작화가 그려둔 박스 위에 글씨만 얹는다.
+                온도제어의 출력(MV)과 같은 값이다(tic_zN_mv, D102/D122/…/D222).
+                존마다 위·아래 두 곳에 같은 값을 보여준다 — 실제로 같은 태그다.
+
+                덕분에 작화 이름이 역순인 문제(rev-1이 맨 오른쪽)를 신경 쓰지 않아도 된다.
+                위아래가 같은 값이라 어느 쪽에 어느 존을 넣든 결과가 같기 때문이다. */}
             {ZONES.map((n) => (
-              <span className="cb-per" key={`top${n}`} style={{ left: topCx(n), top: PER_TOP }}>
-                #### %
+              <span
+                className="cb-per"
+                key={`top${n}`}
+                style={{ left: topCx(n), top: PER_TOP }}
+                data-tag={zoneTag(n, 'mv')}
+                title={`${n}ZONE 개도(MV) — 읽기 전용 / ${zoneTag(n, 'mv')}`}
+              >
+                {zoneText(n, 'mv')} %
               </span>
             ))}
             {ZONES.map((n) => (
-              <span className="cb-per" key={`bot${n}`} style={{ left: botCx(n), top: PER_BOT }}>
-                #### %
+              <span
+                className="cb-per"
+                key={`bot${n}`}
+                style={{ left: botCx(n), top: PER_BOT }}
+                data-tag={zoneTag(n, 'mv')}
+                title={`${n}ZONE 개도(MV) — 읽기 전용 / ${zoneTag(n, 'mv')}`}
+              >
+                {zoneText(n, 'mv')} %
               </span>
             ))}
 
