@@ -31,7 +31,18 @@ public interface ScadaService {
     ScadaUser getId(ScadaUser scadaUser);
 
     List<ScadaUser> getUserList(ScadaUser scadaUser);
+
     boolean updateUser(ScadaUser scadaUser);
+
     List<ScadaAlarm> getAlarmTagList(ScadaAlarm scadaAlarm);
+
     boolean writeTag(ScadaUser scadaUser);
+
+    List<ScadaTrend> getTrendMemoList(ScadaTrend scadaTrend);
+
+    boolean insertTrendMemo(ScadaTrend scadaTrend);
+
+    boolean updateTrendMemo(ScadaTrend scadaTrend);
+
+    boolean deleteTrendMemo(ScadaTrend scadaTrend);
 }

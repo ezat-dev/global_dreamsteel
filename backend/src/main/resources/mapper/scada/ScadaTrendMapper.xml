@@ -17,4 +17,62 @@
             ORDER BY record_time
     </select>
 
+    <!-- 트랜드 메모. 값 스냅샷(tb_temp_snapshot)과 조인하지 않는다 —
+         스냅샷은 30초 격자인데 메모는 아무 시각에나 찍히므로, 조인하면 격자에
+         안 맞는 메모가 통째로 빠진다. 차트와 따로 불러 깃발로만 얹는다.
+
+         tc_regtime이 DATETIME이 아니라 varchar(20)이라 문자열 비교다.
+         'yyyy-MM-dd HH:mm:ss'는 자리수가 고정이라 문자열 정렬 = 시간 정렬이 맞다.
+         STR_TO_DATE를 씌우지 않는 이유는 형식이 어긋난 행이 조용히 사라지기 때문이다.
+
+         ORDER BY는 빼면 안 된다 — 화면이 받은 순서대로 메모 카드를 왼쪽부터 놓으면서
+         겹치면 아랫줄로 내리기 때문에, 시간순이 아니면 카드가 어지럽게 쌓인다. -->
+    <select id="getTrendMemoList" parameterType="com.mes.domain.scada.ScadaTrend"
+            resultType="com.mes.domain.scada.ScadaTrend">
+            SELECT tc_cnt, tc_regtime, tc_name, tc_desc,
+                   tc_user_code, tc_yn, tc_user_name
+            FROM ez_scada.tb_temp_memo
+            <where>
+                <!-- 지운 메모는 행을 남기고 tc_yn만 'N'으로 바꾼다(흔적이 남는다) -->
+                tc_yn = 'Y'
+                <if test="startTime != null and startTime != ''">
+                    AND tc_regtime &gt;= #{startTime}
+                </if>
+                <if test="endTime != null and endTime != ''">
+                    AND tc_regtime &lt;= #{endTime}
+                </if>
+            </where>
+            ORDER BY tc_regtime
+    </select>
+
+    <!-- 남긴 사람(tc_user_code/tc_user_name)은 컨트롤러가 세션에서 채워 넘긴다 —
+         프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다(writeTag와 같은 방식). -->
+    <insert id="insertTrendMemo" parameterType="com.mes.domain.scada.ScadaTrend">
+            INSERT INTO ez_scada.tb_temp_memo
+                (tc_regtime, tc_name, tc_desc, tc_user_code, tc_user_name, tc_yn)
+            VALUES
+                (#{tcRegtime}, #{tcName}, #{tcDesc}, #{tcUserCode}, #{tcUserName}, 'Y')
+    </insert>
+
+    <!-- 작성자(tc_user_code/tc_user_name)는 건드리지 않는다 — 그 칸은 '누가 남겼는지'라서
+         고친 사람으로 덮어쓰면 원래 남긴 사람을 잃는다.
+         tc_yn = 'Y' 조건은 이미 지워진 메모가 되살아나는 것을 막는다(화면에서는 안 보이지만
+         tc_cnt만 알면 요청은 보낼 수 있다). -->
+    <update id="updateTrendMemo" parameterType="com.mes.domain.scada.ScadaTrend">
+            UPDATE ez_scada.tb_temp_memo
+                SET tc_regtime = #{tcRegtime},
+                    tc_name    = #{tcName},
+                    tc_desc    = #{tcDesc}
+            WHERE tc_cnt = #{tcCnt}
+                AND tc_yn = 'Y'
+    </update>
+
+    <!-- 행을 지우지 않고 tc_yn만 'N'으로 바꾼다. 조회가 'Y'만 보므로 화면에서는 사라지고,
+         무엇이 있었는지는 표에 남는다. DELETE로 지우면 되돌릴 방법이 없다. -->
+    <update id="deleteTrendMemo" parameterType="com.mes.domain.scada.ScadaTrend">
+            UPDATE ez_scada.tb_temp_memo
+                SET tc_yn = 'N'
+            WHERE tc_cnt = #{tcCnt}
+    </update>
+
 </mapper>

@@ -55,10 +55,10 @@ public class ScadaController {
     @PostMapping("/login")
     public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param, HttpSession session) {
         ScadaUser data = scadaService.getUser(param);
-        session.setAttribute("loginId", data.getId());  //pk
-        session.setAttribute("loginUserId", data.getUserId());  //로그인 아이디
-        session.setAttribute("loginUserName", data.getUserName());  //로그인 이름
-        session.setAttribute("loginUserRole", data.getUserRole());  //로그인 권한
+        session.setAttribute("loginId", data.getId()); // pk
+        session.setAttribute("loginUserId", data.getUserId()); // 로그인 아이디
+        session.setAttribute("loginUserName", data.getUserName()); // 로그인 이름
+        session.setAttribute("loginUserRole", data.getUserRole()); // 로그인 권한
         return ApiResponse.success(data);
     }
 
@@ -115,7 +115,7 @@ public class ScadaController {
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateUser(scadaUser)));
     }
 
-    //알람 태그 리스트 조회
+    // 알람 태그 리스트 조회
     @GetMapping("/getAlarmTagList")
     public ApiResponse<List<ScadaAlarm>> getAlarmTagList(@ModelAttribute ScadaAlarm scadaAlarm) {
         return ApiResponse.success(scadaService.getAlarmTagList(scadaAlarm));
@@ -141,25 +141,29 @@ public class ScadaController {
      *
      * @param scadaUser folderId, tagName, sendValue, writeLog
      *                  (writeLog=false는 momentary 버튼을 뗄 때 나가는 0 — 사람이 한 조작이
-     *                   아니라 누름의 자동 해제라서 기록하지 않는다)
+     *                  아니라 누름의 자동 해제라서 기록하지 않는다)
      */
-    //태그에 값 쓰기
+    // 태그에 값 쓰기
     @PostMapping("/writeTag")
     public ResponseEntity<ApiResponse<Boolean>> writeTag(@RequestBody ScadaUser scadaUser,
-                                                         HttpSession session) {
-        /* 로그에 남길 사람. 세션에만 있는 값이라 여기서 담아 넘긴다 —
-           프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다. */
+            HttpSession session) {
+        /*
+         * 로그에 남길 사람. 세션에만 있는 값이라 여기서 담아 넘긴다 —
+         * 프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다.
+         */
         String userId = (String) session.getAttribute("loginUserId");
 
-        /* 세션이 없으면 PLC에 값을 보내기 전에 막는다.
-           안 막으면 순서가 이렇게 된다: user_id가 null인 채로 C#에 값을 쓰고,
-           그 뒤 scada_log INSERT가 NOT NULL 위반으로 실패한다 —
-           설비는 이미 움직였는데 기록은 없고, 화면에는 원인과 무관한
-           "이미 존재하거나 참조 중인 데이터입니다"가 뜬다.
-
-           application.yml에서 만료를 없애고(timeout: -1) 정상 종료 시 복원되게 해뒀지만
-           (persistent: true), 강제 종료나 첫 기동에는 세션이 없다.
-           조작 기록이 비는 것보다는 거부가 낫다. */
+        /*
+         * 세션이 없으면 PLC에 값을 보내기 전에 막는다.
+         * 안 막으면 순서가 이렇게 된다: user_id가 null인 채로 C#에 값을 쓰고,
+         * 그 뒤 scada_log INSERT가 NOT NULL 위반으로 실패한다 —
+         * 설비는 이미 움직였는데 기록은 없고, 화면에는 원인과 무관한
+         * "이미 존재하거나 참조 중인 데이터입니다"가 뜬다.
+         * 
+         * application.yml에서 만료를 없애고(timeout: -1) 정상 종료 시 복원되게 해뒀지만
+         * (persistent: true), 강제 종료나 첫 기동에는 세션이 없다.
+         * 조작 기록이 비는 것보다는 거부가 낫다.
+         */
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
@@ -168,4 +172,54 @@ public class ScadaController {
         scadaUser.setUserName((String) session.getAttribute("loginUserName"));
         return ResponseEntity.ok(ApiResponse.success(scadaService.writeTag(scadaUser)));
     }
+
+    // 트렌드 메모 조회
+    @GetMapping("/getTrendMemoList")
+    public ApiResponse<List<ScadaTrend>> getTrendMemoList(@ModelAttribute ScadaTrend scadaTrend) {
+        return ApiResponse.success(scadaService.getTrendMemoList(scadaTrend));
+    }
+
+    /*
+     * 트렌드 메모 저장
+     *
+     * 남긴 사람은 세션에서 채운다 — 프론트가 보낸 값을 쓰면 아무 이름으로나 남길 수 있다.
+     *
+     * tc_user_code는 int(11)이고 기존 데이터도 scada_user.id가 들어 있다. 그래서
+     * loginUserId("admin")가 아니라 loginId(PK)를 넣는다. 아이디 문자열을 넣으면
+     * sql_mode에 STRICT_TRANS_TABLES가 걸려 있어 0으로 들어가는 게 아니라 INSERT가 터진다.
+     * loginId는 Long이라 형변환이 아니라 String.valueOf로 담는다.
+     */
+    @PostMapping("/insertTrendMemo")
+    public ResponseEntity<ApiResponse<Boolean>> insertTrendMemo(@RequestBody ScadaTrend scadaTrend,
+            HttpSession session) {
+        Object loginId = session.getAttribute("loginId");
+        if (loginId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
+        }
+        scadaTrend.setTcUserCode(String.valueOf(loginId));
+        scadaTrend.setTcUserName((String) session.getAttribute("loginUserName"));
+        return ResponseEntity.ok(ApiResponse.success(scadaService.insertTrendMemo(scadaTrend)));
+    }
+
+    /*
+     * 트렌드 메모 수정
+     *
+     * 작성자(tc_user_code/tc_user_name)는 넘기지 않는다 — 그 칸은 '누가 남겼는지'라서
+     * 고친 사람으로 덮으면 원래 남긴 사람을 잃는다. 쿼리도 그 두 칸은 건드리지 않는다.
+     */
+    @PostMapping("/updateTrendMemo")
+    public ResponseEntity<ApiResponse<Boolean>> updateTrendMemo(@RequestBody ScadaTrend scadaTrend,
+            HttpSession session) {
+        if (session.getAttribute("loginId") == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
+        }
+        return ResponseEntity.ok(ApiResponse.success(scadaService.updateTrendMemo(scadaTrend)));
+    }
+
+    // 트렌드 메모 삭제
+    @PostMapping("/deleteTrendMemo")
+    public ResponseEntity<ApiResponse<Boolean>> deleteTrendMemo(@RequestBody ScadaTrend scadaTrend) {
+        return ResponseEntity.ok(ApiResponse.success(scadaService.deleteTrendMemo(scadaTrend)));
+    }
+
 }

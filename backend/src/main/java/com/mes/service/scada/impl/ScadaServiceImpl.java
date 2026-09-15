@@ -62,7 +62,7 @@ public class ScadaServiceImpl implements ScadaService {
         return scadaDao.getLogList(scadaAlarm);
     }
 
-        @Override
+    @Override
     public boolean insertUser(ScadaUser scadaUser) {
         return scadaDao.insertUser(scadaUser);
     }
@@ -82,7 +82,7 @@ public class ScadaServiceImpl implements ScadaService {
         return scadaDao.updateUser(scadaUser);
     }
 
-        @Override
+    @Override
     public List<ScadaAlarm> getAlarmTagList(ScadaAlarm scadaAlarm) {
         return scadaDao.getAlarmTagList(scadaAlarm);
     }
@@ -107,8 +107,10 @@ public class ScadaServiceImpl implements ScadaService {
             throw new BusinessException(ErrorCode.INVALID_PARAMETER, "folderId, tagName, sendValue는 필수입니다.");
         }
 
-        /* {f}/{n}/{v} 자리에 인수가 순서대로 들어가고 URL 인코딩도 RestTemplate이 처리한다 —
-           태그 이름을 직접 문자열로 붙이면 특수문자가 들어갔을 때 깨진다. */
+        /*
+         * {f}/{n}/{v} 자리에 인수가 순서대로 들어가고 URL 인코딩도 RestTemplate이 처리한다 —
+         * 태그 이름을 직접 문자열로 붙이면 특수문자가 들어갔을 때 깨진다.
+         */
         String url = plcApiBaseUrl + "/api/foldertag/write/by-name"
                 + "?folderId={f}&name={n}&value={v}";
 
@@ -122,16 +124,20 @@ public class ScadaServiceImpl implements ScadaService {
                     "PLC 서버에 연결할 수 없습니다. " + e.getMessage());
         }
 
-        /* C#은 실패도 HTTP 200 + success:false 로 준다(태그를 못 찾음, PLC 연결 실패 등).
-           그래서 RestTemplate은 예외를 던지지 않는다 — 여기서 직접 확인해야 한다.
-           확인하지 않으면 쓰기가 실패했는데 아래에서 로그를 남겨, 기록을 믿을 수 없게 된다. */
+        /*
+         * C#은 실패도 HTTP 200 + success:false 로 준다(태그를 못 찾음, PLC 연결 실패 등).
+         * 그래서 RestTemplate은 예외를 던지지 않는다 — 여기서 직접 확인해야 한다.
+         * 확인하지 않으면 쓰기가 실패했는데 아래에서 로그를 남겨, 기록을 믿을 수 없게 된다.
+         */
         if (res == null || !Boolean.TRUE.equals(res.get("success"))) {
             String reason = res == null ? "응답이 비어 있습니다." : String.valueOf(res.get("error"));
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, reason);
         }
 
-        /* writeLog가 false인 경우는 momentary 버튼을 뗄 때 나가는 0이다 — 사람이 한 조작이
-           아니라 누름의 자동 해제라서, 기록하면 버튼 한 번에 로그가 두 줄씩 쌓인다. */
+        /*
+         * writeLog가 false인 경우는 momentary 버튼을 뗄 때 나가는 0이다 — 사람이 한 조작이
+         * 아니라 누름의 자동 해제라서, 기록하면 버튼 한 번에 로그가 두 줄씩 쌓인다.
+         */
         if (Boolean.TRUE.equals(scadaUser.getWriteLog())) {
             // 주소는 C# 응답에 들어 있다(R100 등) — folders_tags를 다시 조회할 필요가 없다
             scadaUser.setAddress(String.valueOf(res.get("address")));
@@ -139,5 +145,25 @@ public class ScadaServiceImpl implements ScadaService {
         }
 
         return true;
+    }
+
+    @Override
+    public List<ScadaTrend> getTrendMemoList(ScadaTrend scadaTrend) {
+        return scadaDao.getTrendMemoList(scadaTrend);
+    }
+
+    @Override
+    public boolean insertTrendMemo(ScadaTrend scadaTrend) {
+        return scadaDao.insertTrendMemo(scadaTrend);
+    }
+
+    @Override
+    public boolean updateTrendMemo(ScadaTrend scadaTrend) {
+        return scadaDao.updateTrendMemo(scadaTrend);
+    }
+
+    @Override
+    public boolean deleteTrendMemo(ScadaTrend scadaTrend) {
+        return scadaDao.deleteTrendMemo(scadaTrend);
     }
 }

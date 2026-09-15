@@ -287,3 +287,155 @@
     font-size: 15px;
   }
 }
+
+/* ===== 메모 ================================================================
+
+   조회줄 오른쪽 끝의 '메모 추가' 묶음과, 메모 모달에서만 쓰는 몇 칸.
+   모달의 틀(.hmi-umodal-*)은 scada.css의 공용 것을 그대로 쓰고,
+   여기엔 그 틀에 없는 것 — 여러 줄 입력칸과 삭제 버튼 — 만 둔다.
+   =========================================================================== */
+
+/* 빠른 버튼 묶음과 같은 방식으로 왼쪽에 선을 그어 떼어 놓는다 */
+.tr-memo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+  border-left: 1px solid var(--hmi-shadow-dark);
+}
+
+/* 메모를 못 불러왔을 때의 알림. 조회 오류(.tr-error)와 달리 붉게 쓰지 않는다 —
+   메모가 없어도 그래프는 그대로 볼 수 있어서 조회 실패만큼 급한 일이 아니다. */
+.tr-memo-note {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text-faint);
+}
+
+/* ── 차트 위에 얹는 메모 카드 ──
+   카드 자리(left/top)는 TrendPage.jsx가 x축에게 물어 픽셀로 계산한다.
+   여기 크기를 고치면 그쪽 CARD_W/CARD_H도 같이 고쳐야 카드가 겹친다. */
+.tr-chart-wrap {
+  position: relative;
+}
+
+/* 덮개는 마우스를 통과시킨다 — 안 그러면 차트 툴팁이 이 판 뒤에서 죽는다 */
+.tr-memo-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tr-memo-card {
+  position: absolute;
+  width: 150px;
+  height: 46px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--hmi-blue-edge);
+  border-radius: 7px;
+  /* 선 위에 겹쳐도 글씨가 읽히도록 바탕을 거의 불투명하게 둔다 */
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 2px 6px -2px rgba(20, 35, 50, .35);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background .12s, box-shadow .12s;
+}
+
+.tr-memo-card:hover {
+  background: #ffffff;
+  box-shadow: 0 4px 10px -2px rgba(20, 35, 50, .45);
+}
+
+.tr-memo-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.tr-memo-head b {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-blue-edge);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 시각은 줄어들지 않게 — 제목이 길면 제목 쪽이 잘린다 */
+.tr-memo-head i {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--hmi-text-faint);
+}
+
+/* 내용은 두 줄까지만. 넘치면 잘리고, 전문은 카드에 마우스를 올리면 나온다. */
+.tr-memo-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--hmi-text-sub);
+  word-break: break-all;
+}
+
+/* ── 메모 모달 ── */
+
+/* 내용칸만 여러 줄이라 라벨을 위로 붙인다. 가운데 정렬이면 라벨이 칸 한복판에 뜬다. */
+.tm-content-row {
+  align-items: start;
+}
+
+.tm-content-row > label {
+  padding-top: 7px;
+}
+
+/* 남은 자릿수 — 라벨보다 한 단 흐리게 둬서 라벨 글자와 섞여 읽히지 않게 한다 */
+.tm-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hmi-text-faint);
+}
+
+/* .hmi-umodal-input은 한 줄 칸이라 height가 30px로 박혀 있다 — 여러 줄은 풀어 준다 */
+.tm-textarea {
+  height: auto;
+  min-height: 88px;
+  padding: 7px 9px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+/* 삭제는 저장·취소와 반대편(왼쪽 끝)에 둔다. 나란히 두면 잘못 누르기 쉽다.
+   확인 문구가 뜬 상태에서는 문구가 먼저 오므로 그때는 밀어내지 않는다. */
+.hmi-umodal-foot > .tm-del:first-child {
+  margin-right: auto;
+}
+
+.tm-del {
+  border-color: #e0837a;
+  color: #a3271b;
+}
+
+.tm-del:hover:not(:disabled) {
+  background: #fdeae8;
+  border-color: #c2483c;
+}
+
+.tm-confirm {
+  margin-right: auto;
+  align-self: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a3271b;
+}

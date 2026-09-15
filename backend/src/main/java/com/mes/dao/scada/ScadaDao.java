@@ -80,4 +80,32 @@ public class ScadaDao {
         }
         return true;
     }
+
+    public List<ScadaTrend> getTrendMemoList(ScadaTrend scadaTrend) {
+        return sqlSession.selectList("ScadaTrendMapper.getTrendMemoList", scadaTrend);
+    }
+
+    public boolean insertTrendMemo(ScadaTrend scadaTrend) {
+        int result = sqlSession.insert("ScadaTrendMapper.insertTrendMemo", scadaTrend);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateTrendMemo(ScadaTrend scadaTrend) {
+        int result = sqlSession.update("ScadaTrendMapper.updateTrendMemo", scadaTrend);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean deleteTrendMemo(ScadaTrend scadaTrend) {
+        int result = sqlSession.delete("ScadaTrendMapper.deleteTrendMemo", scadaTrend);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
+    }
 }

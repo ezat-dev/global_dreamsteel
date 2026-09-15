@@ -6,6 +6,8 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getTrend } from '../../api/scada/trendApi';
+import { getTrendMemoList } from '../../api/scada/trendMemoApi';
+import TrendMemoModal from '../../components/scada/TrendMemoModal';
 import './TrendPage.css';
 
 /* ===========================================================================
@@ -85,6 +87,27 @@ function toChartRow(row) {
   return out;
 }
 
+/* 메모 한 건 → 차트에 얹을 카드 하나. 시각을 못 읽으면 null(호출부에서 버린다).
+
+   필드 이름이 tc_로 시작하는 건 예전부터 쓰던 tb_temp_memo를 그대로 쓰기 때문이다.
+   tc_regtime=시각, tc_name=제목, tc_desc=내용, tc_cnt=PK. */
+function toMemoPoint(memo) {
+  const raw = String(memo.tcRegtime ?? '');
+  const t = new Date(raw.includes('T') ? raw : raw.replace(' ', 'T')).getTime();
+  if (!Number.isFinite(t)) return null;
+  return { x: t, memo };
+}
+
+function toMemoPoints(list) {
+  return (list ?? []).map(toMemoPoint).filter(Boolean);
+}
+
+/* 카드 한 장의 크기. 자리를 겹치지 않게 미리 계산해야 해서 CSS가 아니라 여기서 정한다
+   (CSS에서 크기를 바꾸면 겹침 계산이 어긋나므로 .tr-memo-card와 같이 맞춰 둘 것). */
+const CARD_W = 150;
+const CARD_H = 46;
+const CARD_GAP = 4;
+
 export default function TrendPage() {
   const [start, setStart] = useState(() => subHours(new Date(), DEFAULT_HOURS));
   const [end, setEnd] = useState(() => new Date());
@@ -131,6 +154,14 @@ export default function TrendPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  /* 메모. memoSeq는 저장·삭제 뒤 같은 구간을 다시 부르기 위한 방아쇠다 —
+     range는 그대로인데 목록만 새로 받아야 하므로 의존성 하나를 더 둔다. */
+  const [memos, setMemos] = useState([]);
+  const [memoSeq, setMemoSeq] = useState(0);
+  const [memoNote, setMemoNote] = useState('');
+  /* 모달 상태. null이면 닫힘, {}이면 추가, { memo }면 수정. */
+  const [memoModal, setMemoModal] = useState(null);
+
   /** 우측 판에 띄울 값 — 조회 구간의 마지막 스냅샷. 없으면 undefined. */
   const lastRow = rows.length ? rows[rows.length - 1] : undefined;
 
@@ -161,6 +192,30 @@ export default function TrendPage() {
 
     return () => { alive = false; };
   }, [range]);
+
+  /* 메모도 같은 구간으로 부른다. 값 조회와 따로 두는 이유:
+     메모를 못 받아도 그래프는 그려야 하고(에러줄을 차지하지 않는다),
+     저장·삭제 뒤에는 메모만 다시 받으면 되기 때문이다. */
+  useEffect(() => {
+    let alive = true;
+
+    getTrendMemoList({
+      startTime: format(range.start, QUERY_FORMAT),
+      endTime: format(range.end, QUERY_FORMAT),
+    })
+      .then((res) => {
+        if (!alive) return;
+        setMemos(toMemoPoints(res.data));
+        setMemoNote('');
+      })
+      .catch(() => {
+        if (!alive) return;
+        setMemos([]);
+        setMemoNote('메모를 불러오지 못했습니다');
+      });
+
+    return () => { alive = false; };
+  }, [range, memoSeq]);
 
   const search = (s, e) => {
     if (!s || !e) {
@@ -250,6 +305,15 @@ export default function TrendPage() {
       lineColor: '#555555',
       tickColor: '#555555',
       labels: { style: { fontSize: '11px', color: '#555555' } },
+      /* 메모 시각에 옅은 세로선. 카드는 겹치면 아랫줄로 내려가므로 카드 자리만으로는
+         정확한 시각을 알 수 없다 — 이 선이 카드와 그 시각의 값을 이어 준다. */
+      plotLines: memos.map((m) => ({
+        value: m.x,
+        color: 'rgba(30, 95, 168, .35)',
+        dashStyle: 'Dash',
+        width: 1,
+        zIndex: 2,
+      })),
     },
     /* 축 둘 — 0번은 왼쪽 ℃, 1번은 오른쪽 mmV.
        O2(mmV)를 온도와 같은 축에 그리면 자릿수가 달라 한쪽이 납작해진다. */
@@ -326,7 +390,53 @@ export default function TrendPage() {
     })),
     /* range가 빠지면 조회 구간을 바꿔도 x축이 옛 구간에 머문다 —
        useMemo는 의존성이 안 바뀌면 옛 options를 그대로 돌려주기 때문이다. */
-  }), [rows, hidden, chartH, range]);
+  }), [rows, hidden, chartH, range, memos]);
+
+  /* ── 메모 카드 자리 계산 ────────────────────────────────────────────────
+     메모는 Highcharts의 깃발(flags)로 그리지 않고 차트 위에 HTML 카드로 얹는다.
+     깃발은 x축(그림판 바닥)에 붙박이고 글자도 한 줄뿐이라 제목·내용을 같이
+     보여줄 수 없다. 카드로 두면 생김새를 CSS로 잡을 수 있고 클릭도 그냥 버튼이다.
+
+     자리는 x축에게 물어본다(toPixels) — 조회 구간이 바뀌면 픽셀 자리도 달라지므로
+     차트가 다시 그려진 뒤에 다시 잰다. HighchartsReact가 자식이라 그쪽 갱신이
+     이 effect보다 먼저 끝난다(자식 effect가 부모보다 먼저 돈다). */
+  const chartRef = useRef(null);
+  const [memoCards, setMemoCards] = useState([]);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    const ax = chart?.xAxis?.[0];
+    if (!ax || memos.length === 0) {
+      setMemoCards([]);
+      return;
+    }
+
+    const minLeft = chart.plotLeft;
+    const maxLeft = chart.plotLeft + chart.plotWidth - CARD_W;
+    // 줄마다 '마지막 카드의 오른쪽 끝'. 겹치면 아랫줄로 내린다.
+    const rowEnd = [];
+
+    setMemoCards(
+      memos.map((m) => {
+        const px = ax.toPixels(m.x);
+        if (!Number.isFinite(px)) return null;
+
+        // 메모 시각을 가운데로. 양끝은 그림판 밖으로 나가지 않게 잡아 둔다.
+        const left = Math.round(Math.min(Math.max(px - CARD_W / 2, minLeft), maxLeft));
+
+        let row = 0;
+        while (rowEnd[row] != null && left < rowEnd[row] + CARD_GAP) row += 1;
+        rowEnd[row] = left + CARD_W;
+
+        return {
+          memo: m.memo,
+          left,
+          top: chart.plotTop + 6 + row * (CARD_H + CARD_GAP),
+        };
+      }).filter(Boolean),
+    );
+    /* rows가 바뀌면 y축 눈금 글자 폭이 달라져 plotLeft가 움직인다 — 그래서 의존성에 넣는다 */
+  }, [memos, rows, range, chartH]);
 
   return (
     <div className="tr-page">
@@ -366,6 +476,22 @@ export default function TrendPage() {
           ))}
         </div>
 
+        {/* 메모 — 추가는 여기서, 수정·삭제는 차트의 깃발을 눌러서 한다 */}
+        <div className="tr-memo">
+          <button
+            type="button"
+            className="tr-btn"
+            onClick={() => setMemoModal({})}
+            title="이 시각에 메모를 남깁니다"
+          >
+            메모 추가
+          </button>
+          {memoNote && <span className="tr-memo-note">{memoNote}</span>}
+          {!memoNote && memos.length > 0 && (
+            <span className="tr-memo-note">{`메모 ${memos.length}건 · 카드를 누르면 수정`}</span>
+          )}
+        </div>
+
         {error && <span className="tr-error">{error}</span>}
 
         {/* 조회한 구간과 상태. 24시간이면 2880점이라 응답이 바로 오지 않을 수 있어,
@@ -382,13 +508,39 @@ export default function TrendPage() {
       {/* 차트와 현재값 판을 가로로 나눈다 — 판은 폭 고정, 차트가 남는 폭을 차지한다 */}
       <div className="tr-body">
         <div className="tr-chart" ref={chartBoxRef}>
-          {/* 높이는 chart.height로 직접 넘기므로(위 chartH) 컨테이너에는 폭만 준다.
-              여기에 height: 100%를 같이 주면 SVG 높이와 겹쳐 흔들린다. */}
-          <HighchartsReact
-            highcharts={Highcharts}
-            options={chartOptions}
-            containerProps={{ style: { width: '100%' } }}
-          />
+          {/* 메모 카드를 차트 위에 겹치려면 기준 상자가 필요하다. 이 칸은 차트 그림과
+              크기가 같아서, 카드의 left/top을 Highcharts가 준 좌표 그대로 쓸 수 있다. */}
+          <div className="tr-chart-wrap">
+            {/* 높이는 chart.height로 직접 넘기므로(위 chartH) 컨테이너에는 폭만 준다.
+                여기에 height: 100%를 같이 주면 SVG 높이와 겹쳐 흔들린다. */}
+            <HighchartsReact
+              highcharts={Highcharts}
+              options={chartOptions}
+              containerProps={{ style: { width: '100%' } }}
+              callback={(chart) => { chartRef.current = chart; }}
+            />
+
+            {/* 메모 카드. 덮개 자체는 마우스를 통과시키고(pointer-events: none)
+                카드만 받는다 — 안 그러면 차트 툴팁이 카드 뒤에서 죽는다. */}
+            <div className="tr-memo-layer">
+              {memoCards.map(({ memo, left, top }) => (
+                <button
+                  type="button"
+                  key={memo.tcCnt}
+                  className="tr-memo-card"
+                  style={{ left, top }}
+                  onClick={() => setMemoModal({ memo })}
+                  title={`${memo.tcRegtime ?? ''}\n${memo.tcName ?? ''}\n${memo.tcDesc ?? ''}`}
+                >
+                  <span className="tr-memo-head">
+                    <b>{memo.tcName}</b>
+                    <i>{String(memo.tcRegtime ?? '').slice(11, 16)}</i>
+                  </span>
+                  <span className="tr-memo-desc">{memo.tcDesc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* 조회 구간의 마지막 값 + 그래프 표시 토글.
@@ -424,6 +576,16 @@ export default function TrendPage() {
           })}
         </div>
       </div>
+
+      {/* 추가·수정·삭제를 한 창에서 한다. memo가 있으면 수정 모드다.
+          저장이 끝나면 memoSeq를 올려 같은 구간의 메모만 다시 받는다. */}
+      {memoModal && (
+        <TrendMemoModal
+          memo={memoModal.memo}
+          onClose={() => setMemoModal(null)}
+          onSaved={() => setMemoSeq((n) => n + 1)}
+        />
+      )}
     </div>
   );
 }

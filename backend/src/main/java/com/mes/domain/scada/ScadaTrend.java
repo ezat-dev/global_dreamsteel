@@ -19,4 +19,12 @@ public class ScadaTrend {
     private String recordTime;
     private String startTime;
     private String endTime;
+    private String tcCnt;
+    private String tcRegtime;
+    private String tcName;
+    private String tcDesc;
+    private String tcUserCode;
+    private String tcYn;
+    private String tcUserName;
+
 }

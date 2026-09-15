@@ -23,7 +23,7 @@ const SCADA_MENU = [
   { key: 'temp', label: '온도제어', title: '온도제어', path: '/temp', authField: 'authTemp', control: true },
   { key: 'atmosphere', label: '분위기제어', title: '분위기제어', path: '/atmosphere', authField: 'authAtmosphere', control: true },
   { key: 'cooling', label: '쿨링타워', title: '쿨링타워', path: '/cooling', authField: 'authCooling', control: true },
-  { key: 'trend', label: '트랜드', title: '트랜드', path: '/trend', authField: 'authTrend' },
+  { key: 'trend', label: '트렌드', title: '트렌드', path: '/trend', authField: 'authTrend' },
   { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm', authField: 'authAlarm', control: true },
   { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory', authField: 'authAlarmHist' },
   { key: 'log', label: '로그', title: '로그', path: '/log', adminOnly: true },
