@@ -199,14 +199,8 @@
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45);
 }
 
-/* 대기시간을 채워 명령이 실제로 나간 상태 — 테두리를 밝게 해서 "지금 걸려 있다"를 알린다.
-   램프(PLC가 주는 값)와는 별개다. 램프가 안 켜지면 PLC가 거부한 것이다. */
-.cb-onoff > button.is-armed,
-.cb-zmodal-state > button.is-armed,
-.cb-zmodal-purge.is-armed {
-  outline: 2px solid var(--g-accent);
-  outline-offset: -2px;
-}
+/* 명령이 나간 뒤의 테두리(.is-armed)는 scada.css의 공용 규칙이 맡는다 —
+   네 화면이 같은 표시를 쓰므로 한 곳에 둔다. */
 
 /* ===== 누름 진행 바 =====================================================
    누르는 순간 이 요소가 새로 생기고(조건부 렌더) 애니메이션이 처음부터 돈다 —
@@ -218,9 +212,9 @@
   bottom: 0;
   height: 4px;
   width: 0;
-  /* 파랑(액센트)을 쓴다. 초록·주황·빨강은 이 프로젝트에서 안전 상태를 뜻하므로
-     진행 표시에 쓰면 경고로 오독된다. 밝은 쪽이라 회색·초록·빨강 배경 위에서 다 보인다. */
-  background: var(--g-accent);
+  /* 누름 게이지 전용 색(scada.css의 --hmi-hold-*). 네 화면이 같은 토큰을 쓴다. */
+  background: var(--hmi-hold-fill);
+  box-shadow: 0 0 6px rgba(255, 176, 32, .55);
   pointer-events: none;
   animation-name: cb-hold-fill;
   animation-timing-function: linear;

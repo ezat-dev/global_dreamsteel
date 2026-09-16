@@ -42,6 +42,8 @@ export default function TempPage() {
 
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
   const [heldTag, setHeldTag] = useState('');
+  // 누름 시간을 채워서 실제로 1이 나간 태그 — 테두리(.is-armed)를 그리는 데 쓴다
+  const [armedTag, setArmedTag] = useState('');
 
   /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
      값에 갇히고, 뗌을 놓치면 비트가 1로 남는다. */
@@ -57,10 +59,12 @@ export default function TempPage() {
     heldRef.current = name;
     armedRef.current = false;
     setHeldTag(name);
+    setArmedTag('');
     setWriteError('');
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      setArmedTag(name);
       chainRef.current = writeTag(TC_FOLDER_ID, name, 1)
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, MODE_HOLD_MS);
@@ -71,6 +75,7 @@ export default function TempPage() {
     if (!name) return;
     heldRef.current = null;
     setHeldTag('');
+    setArmedTag('');
 
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
@@ -117,6 +122,7 @@ export default function TempPage() {
           onWrite={handleWrite}
           onModePress={handleModePress}
           heldTag={heldTag}
+          armedTag={armedTag}
           holdMs={MODE_HOLD_MS}
         />
       ))}

@@ -4,6 +4,11 @@ import SCADA_MENU, { AUTH_CONTROL, AUTH_NONE, AUTH_VIEW } from '../constants/sca
 /* 로그인 정보를 담아 두는 키. axiosInstance의 세션 만료 처리도 같은 키를 지워야 해서
    내보낸다 — 두 곳에 문자열을 적어 두면 한쪽만 고쳐서 어긋난다. */
 export const STORAGE_KEY = 'scada_user';
+
+/* 세션이 끊겨서 로그인 화면으로 보냈다는 표시. axiosInstance가 남기고 로그인 화면이
+   꺼내 쓴다(꺼낸 뒤 지운다). sessionStorage를 쓰는 이유는 이 표시가 '지금 이 탭에서
+   방금 일어난 일'이라서다 — localStorage에 남기면 다음에 브라우저를 켰을 때도 뜬다. */
+export const SESSION_EXPIRED_KEY = 'scada_session_expired';
 const MENU_BY_KEY = new Map(SCADA_MENU.map((m) => [m.key, m]));
 const AuthContext = createContext(null);
 

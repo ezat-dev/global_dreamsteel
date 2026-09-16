@@ -159,6 +159,8 @@ export default function AtmospherePage() {
 
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
   const [heldTag, setHeldTag] = useState('');
+  // 누름 시간을 채워서 실제로 값이 나간 태그 — 테두리(.is-armed)를 그리는 데 쓴다
+  const [armedTag, setArmedTag] = useState('');
 
   /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
      값에 갇혀서 타이머를 못 지운다. */
@@ -181,10 +183,12 @@ export default function AtmospherePage() {
     if (heldRef.current) return;   // OPEN과 CLOSE를 동시에 누르는 상황은 만들지 않는다
     heldRef.current = selfCmd;
     setHeldTag(selfCmd);
+    setArmedTag('');
     setWriteError('');
 
     holdTimerRef.current = setTimeout(() => {
       holdTimerRef.current = null;
+      setArmedTag(selfCmd);
       sendPair(selfCmd, otherCmd);
     }, AT_HOLD_MS);
   };
@@ -195,6 +199,7 @@ export default function AtmospherePage() {
     if (!heldRef.current) return;
     heldRef.current = null;
     setHeldTag('');
+    setArmedTag('');
 
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
@@ -279,7 +284,8 @@ export default function AtmospherePage() {
                         type="button"
                         key={b.cmd}
                         className={`hmi-lampbox${lampClassOf(tagValues, b.cmd, b.onClassName)}`
-                          + (heldTag === b.cmd ? ' is-held' : '')}
+                          + (heldTag === b.cmd ? ' is-held' : '')
+                          + (armedTag === b.cmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(b.cmd, b.other)}
                         data-tag={b.cmd}
                         title={`${AT_HOLD_MS / 1000}초 누르면 ${b.other}=0, ${b.cmd}=1`
@@ -344,6 +350,7 @@ export default function AtmospherePage() {
                 values={tagValues}
                 onPress={handlePress}
                 heldTag={heldTag}
+                armedTag={armedTag}
                 holdMs={AT_HOLD_MS}
               />
             </div>

@@ -37,10 +37,11 @@ const RANGE = {
  * @param values   폴링으로 받은 { 태그이름: 값 }
  * @param onPress  (자기태그, 반대태그) => void — 모드 칸 누름
  * @param heldTag  지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
+ * @param armedTag 누름 시간을 채워 값이 나간 태그. 테두리를 그리는 데 쓴다
  * @param holdMs   눌러야 하는 시간(ms)
  */
 export default function AtmosValvePanel({
-  data, onChange, values, onPress, heldTag = '', holdMs = 2000,
+  data, onChange, values, onPress, heldTag = '', armedTag = '', holdMs = 2000,
 }) {
   const set = (field) => (value) => onChange(field, value);
 
@@ -113,7 +114,8 @@ export default function AtmosValvePanel({
               type="button"
               key={m.cmd}
               className={`at-mode-item hmi-lampbox${lampClassOf(values, m.cmd, ' is-on', m.litWhen)}`
-                + (heldTag === m.cmd ? ' is-held' : '')}
+                + (heldTag === m.cmd ? ' is-held' : '')
+                + (armedTag === m.cmd ? ' is-armed' : '')}
               onPointerDown={() => onPress(m.cmd, m.other)}
               data-tag={m.cmd}
               title={`${holdMs / 1000}초 누르면 ${m.other}=0, ${m.cmd}=1`

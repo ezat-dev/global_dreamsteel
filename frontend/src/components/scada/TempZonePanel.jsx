@@ -48,10 +48,11 @@ const RANGE = {
  * @param onWrite (tagName, number) => Promise — 숫자 쓰기(숫자패드)
  * @param onModePress (tagName) => void — 모드 버튼 누름. 뗌은 화면이 window에서 받는다
  * @param heldTag 지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
+ * @param armedTag 누름 시간을 채워 1이 나간 태그. 테두리를 그리는 데 쓴다
  * @param holdMs 눌러야 하는 시간(ms). 진행 바 애니메이션 길이와 같은 값이어야 한다
  */
 export default function TempZonePanel({
-  zoneNo, values, onWrite, onModePress, heldTag = '', holdMs = 2000,
+  zoneNo, values, onWrite, onModePress, heldTag = '', armedTag = '', holdMs = 2000,
 }) {
   /* 접두사 tic_ = TIC(Temperature Indicating Controller). PLC 주소표가 쓰는 표기와 같다
      ("TIC Temperature PV", "TIC PID (P) SV"). tc_로 쓰면 이 분야에서 써모커플로 읽힌다. */
@@ -141,7 +142,8 @@ export default function TempZonePanel({
         <div className="tz-foot">
           <button
             type="button"
-            className={`tz-mode-btn ${modeClass}${heldTag === modeCmd ? ' is-held' : ''}`}
+            className={`tz-mode-btn ${modeClass}${heldTag === modeCmd ? ' is-held' : ''}`
+              + (armedTag === modeCmd ? ' is-armed' : '')}
             onPointerDown={() => onModePress(modeCmd)}
             data-tag={modeCmd}
             title={`모드 전환 ${modeCmd} / 램프 ${lampOf(modeCmd)}`

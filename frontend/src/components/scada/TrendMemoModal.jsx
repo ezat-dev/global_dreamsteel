@@ -228,7 +228,7 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
           )}
           {editing && confirmDelete && (
             <>
-              <span className="tm-confirm">지울까요?</span>
+              <span className="tm-confirm">정말 삭제하시겠어요?</span>
               <button
                 type="button"
                 className="hmi-btn tm-del"

@@ -49,6 +49,17 @@ body {
 
   /* 상태색 — 안전 신호. 리뉴얼에서 채운 면으로 바뀌면서 톤을 한 단계 낮췄다.
      (예전 값: on #00c800 / alarm #ff2020 — 형광에 가까워 새 팔레트에서 튀었다) */
+  /* 2초 누름 진행 바 전용 색. 다른 데 쓰지 않는다 —
+     이 화면들에서 초록=운전, 주황=경고, 빨강=경보, 파랑=조작 UI로 뜻이 이미 박혀 있어서
+     진행 표시가 그 색을 쓰면 램프와 헷갈린다. 그래서 '달궈지는 쇠'를 빌려왔다:
+     꼬리는 진한 주황, 앞머리로 갈수록 밝아져 차오르는 방향이 색으로도 읽힌다.
+     경고 램프(어두운 주황 동그라미)와는 모양도 밝기도 확실히 다르다.
+     색을 바꾸려면 여기 세 줄만 고치면 네 화면이 같이 바뀐다. */
+  --hmi-hold-tail: #ff7a18;
+  --hmi-hold: #ffb020;
+  --hmi-hold-lead: #ffe680;
+  --hmi-hold-fill: linear-gradient(90deg, var(--hmi-hold-tail) 0%, var(--hmi-hold) 55%, var(--hmi-hold-lead) 100%);
+
   --hmi-lamp-on: #15803d;
   --hmi-lamp-warn: #d97706;
   --hmi-lamp-alarm: #dc2626;
@@ -395,6 +406,17 @@ body {
   font-weight: 700;
   color: var(--hmi-text);
   white-space: nowrap;
+}
+
+/* 누름 시간을 채워 명령이 실제로 나간 버튼.
+   테두리 색은 누름 게이지와 같은 계열(--hmi-hold)이다 — 게이지가 차오른 끝에 나오는
+   표시라서, 다른 색을 쓰면 방금 찬 막대와 무관한 것처럼 보인다.
+
+   이건 "웹이 값을 보냈다"는 표시일 뿐 PLC가 받았다는 뜻이 아니다. 램프(PLC가 주는 값)가
+   안 켜지면 PLC가 거부한 것이고, 그 둘을 눈으로 구분하라고 둔 표시다. */
+.is-armed {
+  outline: 2px solid var(--hmi-hold);
+  outline-offset: -2px;
 }
 
 /* 램프 */
@@ -1802,6 +1824,20 @@ body {
   font-weight: 600;
 }
 
+/* 세션 만료 안내 — 오류(.hmi-login-error)와 같은 틀이되 붉게 쓰지 않는다.
+   로그인에 실패한 것이 아니라 '왜 여기로 왔는지'를 알려주는 말이라,
+   빨강으로 두면 뭘 잘못한 것처럼 읽힌다. */
+.hmi-login-notice {
+  margin-bottom: 12px;
+  padding: 8px 11px;
+  border: 1px solid rgba(94, 183, 255, .45);
+  border-radius: 9px;
+  background: rgba(30, 60, 100, .45);
+  color: #cfe6ff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* .hmi-btn의 입체 테두리를 이 화면에서만 덮는다 */
 .hmi-login-submit {
   width: 100%;
@@ -1946,10 +1982,14 @@ body {
   --g-accent: #5eb7ff;
   --g-accent-ink: #06121f;
 
-  /* 글자를 읽어야 하는 칸은 유리가 아니라 불투명하게 — 로그인 화면과 같은 규칙 */
-  --g-field: #16203a;
+  /* 글자를 읽어야 하는 칸은 유리가 아니라 불투명하게 — 로그인 화면과 같은 규칙.
+
+     이 둘은 페이지 바탕(짙은 남색)보다 밝고 파란기가 덜하다. 바탕과 같은 남색으로
+     두면 달력·모달처럼 '글을 읽는 창'이 배경에 묻혀서 어둡고 파랗게만 보인다.
+     읽는 면은 올리고, 그 안에서 값을 넣는 칸(--g-field)만 다시 내려 파이게 둔다. */
+  --g-field: #1a2029;
   /* 아래가 비쳐선 안 되는 판(달력·모달) */
-  --g-solid: #172033;
+  --g-solid: #262c38;
 
   /* 공용 토큰 갈아끼우기 — 이 화면 안에서만 유효하다.
 
@@ -2145,6 +2185,72 @@ body {
 
 .hmi-dark .hmi-btn:active:not(:disabled) {
   background: rgba(255, 255, 255, .18);
+}
+
+/* ── 막대 게이지(온도제어 존 패널의 PV/SV/MV) ──
+   눈금 숫자가 거의 검정이고 막대 바탕이 흰색이라 어두운 판에서는 숫자가 사라지고
+   빈 막대만 하얗게 뜬다. 채움 색(빨강·초록·파랑)은 그대로 둔다 — 그건 값이다. */
+.hmi-dark .hmi-gauge-scale {
+  color: var(--g-muted);
+}
+
+.hmi-dark .hmi-gauge-track {
+  background: rgba(0, 0, 0, .45);
+}
+
+/* ── 숫자패드 ── */
+
+/* 입력 오류 안내가 짙은 빨강이라 어두운 판에서 안 읽힌다 */
+.hmi-dark .hmi-pad-hint.error {
+  color: #ff9d95;
+}
+
+/* 키를 누른 순간만 밝은 회색으로 번쩍인다 — 어두운 쪽으로 */
+.hmi-dark .hmi-pad-key:active {
+  background: rgba(255, 255, 255, .18);
+}
+
+/* ── 쓰기 실패 알림(화면 아래에 뜨는 띠) ──
+   연한 빨강을 채운 칩이라 어두운 화면에서 혼자 튄다. 다른 오류 표시와 같은 방식으로
+   뒤집되, 눈에 띄어야 하는 알림이라 테두리는 진하게 남긴다. */
+.hmi-dark .hmi-toast {
+  border-color: rgba(255, 120, 110, .65);
+  background: #2a100e;
+  color: #ffb4ad;
+}
+
+/* ── 사용자 추가·수정 모달 ──
+   이 두 창에만 있는 조각들(사용자 목록, 화면별 권한 격자)이 흰 바탕을 값으로 쥐고 있다.
+   표의 줄 구분은 어두운 바탕에서 훨씬 약하게 보이므로 밝은 화면보다 세게 준다. */
+
+.hmi-dark.hmi-dark .hmi-ulist,
+.hmi-dark.hmi-dark .hmi-authgrid,
+.hmi-dark.hmi-dark .hmi-authgrid-preset {
+  background: rgba(255, 255, 255, .05);
+}
+
+.hmi-dark.hmi-dark .hmi-ulist td {
+  border-bottom-color: rgba(255, 255, 255, .12);
+}
+
+.hmi-dark.hmi-dark .hmi-ulist tbody tr:hover {
+  background: rgba(94, 183, 255, .18);
+}
+
+/* 고른 줄은 하늘색으로 채워진다 — 그 위의 흰 글자는 안 읽히므로 짙은 남색으로 */
+.hmi-dark.hmi-dark .hmi-ulist tbody tr.is-selected td {
+  color: var(--g-accent-ink);
+}
+
+/* 지워진 사용자를 고른 줄 — 채운 하늘색 위에서 '흐린 글자'를 표현해야 하므로
+   밝은 회색이 아니라 바탕에 가까운 어두운 쪽으로 흐린다. */
+.hmi-dark.hmi-dark .hmi-ulist tbody tr.is-deleted.is-selected td {
+  color: rgba(6, 18, 31, .55);
+}
+
+/* 안내 띠 — 연한 하늘색 바탕이라 밝은 화면 전용이다 */
+.hmi-dark.hmi-dark .hmi-authgrid-note {
+  background: rgba(94, 183, 255, .14);
 }
 
 /* 주말 색 — 밝은 바탕용 진한 빨강·파랑이라 어두운 판에서는 가라앉는다 */

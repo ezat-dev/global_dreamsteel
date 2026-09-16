@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { STORAGE_KEY } from '../context/AuthContext';
+import { STORAGE_KEY, SESSION_EXPIRED_KEY } from '../context/AuthContext';
 
 // VITE_API_BASE_URL이 없으면, 지금 프론트에 접속한 주소(호스트명)를 그대로 백엔드 주소로 쓴다.
 // localhost:5051로 열든 192.168.x.x:5051로 열든 백엔드(8081)도 같은 호스트를 보게 되어,
@@ -31,6 +31,9 @@ axiosInstance.interceptors.response.use(
       try {
         localStorage.removeItem(STORAGE_KEY);
         sessionStorage.removeItem(STORAGE_KEY);
+        /* 왜 튕겼는지 로그인 화면에 알려준다. 이게 없으면 버튼을 눌렀는데 아무 말 없이
+           로그인 화면이 뜨는 것이라, 쓰는 사람은 버튼이 고장난 줄 안다. */
+        sessionStorage.setItem(SESSION_EXPIRED_KEY, '1');
       } catch {
         // 스토리지를 못 쓰는 환경이어도 아래 이동은 해야 한다
       }

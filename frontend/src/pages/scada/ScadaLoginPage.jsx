@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, SESSION_EXPIRED_KEY } from '../../context/AuthContext';
 import { login as loginApi } from '../../api/scada/scadaAuthApi';
 import ScadaLogo from '../../components/scada/ScadaLogo';
 import '../../styles/scada.css';
@@ -21,6 +21,30 @@ export default function ScadaLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  /* 세션이 끊겨 여기로 밀려왔는지. axiosInstance가 남긴 표시를 읽어 둔다.
+
+     읽기와 지우기를 갈라 놓은 데는 이유가 있다. useState 초기화 함수는 렌더의 일부라
+     StrictMode(개발)에서 두 번 돈다 — 거기서 지워 버리면 첫 번째가 지우고 두 번째가
+     빈 값을 읽어, 정작 안내가 안 뜬다. 그래서 여기서는 읽기만 하고(두 번 읽어도 같은 값),
+     지우는 것은 아래 effect에 맡긴다(두 번 지워도 결과가 같다). */
+  const [expired] = useState(() => {
+    try {
+      return sessionStorage.getItem(SESSION_EXPIRED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+
+  /* 한 번 보여줬으면 표시를 거둔다 — 안 지우면 나중에 스스로 로그인 화면에
+     들어왔을 때도 만료 안내가 뜬다. */
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(SESSION_EXPIRED_KEY);
+    } catch {
+      // 스토리지를 못 쓰는 환경이면 애초에 표시도 안 남았다
+    }
+  }, []);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -89,6 +113,13 @@ export default function ScadaLoginPage() {
                 autoComplete="current-password"
               />
             </div>
+
+            {/* 만료 안내는 로그인을 한 번이라도 시도하면 치운다 — 그때부터는 방금 시도한
+                결과(오류)가 알려줄 내용이고, 두 줄이 같이 떠 있으면 어느 쪽이 지금
+                상황인지 헷갈린다. */}
+            {expired && !error && !submitting && (
+              <div className="hmi-login-notice">세션이 만료되었습니다. 다시 로그인해주세요.</div>
+            )}
 
             {error && <div className="hmi-login-error">{error}</div>}
 

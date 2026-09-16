@@ -249,9 +249,9 @@
   bottom: 0;
   height: 3px;
   width: 0;
-  /* 파랑(액센트) — 초록·주황·빨강은 이 프로젝트에서 설비 상태를 뜻하므로
-     진행 표시에 쓰면 램프 색과 헷갈린다. */
-  background: var(--hmi-blue-edge);
+  /* 누름 게이지 전용 색(scada.css의 --hmi-hold-*). 네 화면이 같은 토큰을 쓴다. */
+  background: var(--hmi-hold-fill);
+  box-shadow: 0 0 6px rgba(255, 176, 32, .55);
   pointer-events: none;
   animation-name: dr-hold-fill;
   animation-timing-function: linear;

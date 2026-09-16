@@ -28,7 +28,11 @@ export default function MainPage() {
   const items = filterScadaMenu(canView).filter((m) => m.key !== 'main');
 
   return (
-    <div className="hmi-mainmenu">
+    /* hmi-dark — 이 화면은 원래 어두운 크롬 위에 유리 타일로 떠 있어서 바탕은 바꿀 게
+       없지만, 여기서 띄우는 사용자 추가·수정 모달이 공용 --hmi-* 토큰(밝은 쪽)을 쓴다.
+       클래스를 붙여 모달까지 같은 테마로 맞춘다. 타일·관리자 버튼은 --g-* 유리 토큰만
+       써서 영향을 받지 않는다. */
+    <div className="hmi-mainmenu hmi-dark">
       {/* 배경 — 이 설비의 공정 순서를 한 줄로 그려 아주 연하게 깔다.
           장식이지만 아무 그림이 아니라 입구 POCKET부터 출구까지의 생산 라인이다. */}
       <div className="hmi-home-art" aria-hidden="true">

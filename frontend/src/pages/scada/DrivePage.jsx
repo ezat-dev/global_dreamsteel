@@ -375,11 +375,12 @@ function LampList({ title, lamps, className = '' }) {
  * @param values 폴링으로 받은 { 태그이름: 값 }
  * @param onPress (tagName) => void — 누름. 뗌은 화면이 window에서 받는다
  * @param heldTag 지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
+ * @param armedTag 누름 시간을 채워 1이 나간 태그. 테두리를 그리는 데 쓴다
  * @param holdMs 눌러야 하는 시간(ms)
  */
 function DrivePanel({
   title, unit, style, data, values, onChange, svMin, svMax,
-  onPress, heldTag = '', holdMs = 2000,
+  onPress, heldTag = '', armedTag = '', holdMs = 2000,
 }) {
   /* ON/OFF 버튼 한 개 분량의 속성. 두 버튼이 켜지는 색만 다르고 나머지는 같다.
      disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아 비트가 1로 남는다. */
@@ -388,7 +389,8 @@ function DrivePanel({
     return {
       type: 'button',
       className: `dr-onoff hmi-lampbox${lampClassOf(values, cmd, onClassName)}`
-        + (heldTag === cmd ? ' is-held' : ''),
+        + (heldTag === cmd ? ' is-held' : '')
+        + (armedTag === cmd ? ' is-armed' : ''),
       onPointerDown: () => onPress(cmd),
       'data-tag': cmd,
       title: `${title} ${action.toUpperCase()} — ${holdMs / 1000}초 누르면 전송`
@@ -538,6 +540,8 @@ export default function DrivePage() {
 
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
   const [heldTag, setHeldTag] = useState('');
+  // 누름 시간을 채워서 실제로 1이 나간 태그 — 테두리(.is-armed)를 그리는 데 쓴다
+  const [armedTag, setArmedTag] = useState('');
 
   /* 누름 상태를 ref로도 들고 있는다. window 이벤트 핸들러가 state를 보면 첫 렌더의
      값에 갇히고, 뗌을 놓치면 비트가 1로 남는다. */
@@ -553,10 +557,12 @@ export default function DrivePage() {
     heldRef.current = name;
     armedRef.current = false;
     setHeldTag(name);
+    setArmedTag('');
     setWriteError('');
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      setArmedTag(name);
       chainRef.current = writeTag(DR_FOLDER_ID, name, 1)
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, DRIVE_HOLD_MS);
@@ -567,6 +573,7 @@ export default function DrivePage() {
     if (!name) return;
     heldRef.current = null;
     setHeldTag('');
+    setArmedTag('');
 
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
@@ -683,6 +690,7 @@ export default function DrivePage() {
                 onChange={(field, v) => handleDriveChange(p.key, field, v)}
                 onPress={handleDrivePress}
                 heldTag={heldTag}
+                armedTag={armedTag}
                 holdMs={DRIVE_HOLD_MS}
                 svMin={p.svMin}
                 svMax={p.svMax}
