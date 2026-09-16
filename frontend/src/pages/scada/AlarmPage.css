@@ -177,8 +177,20 @@
 /* ===== 하단 조작 ===== */
 
 /* 조작 버튼도 알람 칸과 같은 박스다(같은 격자의 마지막 줄). 글자만 빨갛다 — 사진 그대로. */
+/* 윗줄 오른쪽의 조작 묶음 — [ALARM RESET][HORN STOP][발생 N건].
+   격자에서 빼낸 자리라, 알람 칸과 높이를 맞출 필요 없이 페이지 버튼과 같은 높이로 둔다. */
+.al-ops {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .al-action {
-  padding: 2px 5px;
+  /* 격자 안에 있을 때는 칸 높이(약 60px)를 따랐다. 밖으로 나오면서 자기 높이를 갖는데,
+     같은 줄의 페이지 버튼(28px)에 맞추면 급할 때 누르는 버튼치고 너무 납작하다.
+     넓은 화면은 세로가 남으므로 넉넉히 두고, 좁은 화면에서만 아래 미디어쿼리로 낮춘다. */
+  height: 38px;
+  padding: 0 18px;
   border: 1px solid #d97873;
   border-radius: 7px;
   background: #fdeae8;
@@ -187,6 +199,7 @@
   font-size: 13.5px;
   font-weight: 800;
   letter-spacing: .3px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -211,13 +224,46 @@
   }
 }
 
-@media (max-width: 1200px) {
+/* 태블릿 가로(960px 안팎) — 열을 줄이지 않는다.
+
+   예전에는 1200px부터 5열로 접었는데, 그러면 한 페이지 100칸이 20행이 되고
+   min-height: 660px과 겹쳐 400px짜리 화면에 660px 격자가 들어간다 — 절반이 잘리고
+   세로로 계속 굴려야 했다. 이 화면은 '어느 자리가 빨간가'를 한눈에 보는 판이라
+   스크롤이 생기면 성격을 잃는다.
+
+   10열을 지키면 10행이라 그대로 들어온다. 대신 칸 안쪽(글씨·여백·간격)을 줄여
+   긴 메시지가 세 줄까지 담기게 한다. 5열·2열은 폰 크기에서만 쓴다. */
+@media (max-width: 1100px) {
   .al-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    /* 남는 높이를 그대로 쓴다 — 660px 하한이 스크롤의 직접 원인이었다 */
+    min-height: 0;
+    gap: 3px;
+  }
+
+  .al-cell {
+    padding: 1px 3px;
+    border-radius: 5px;
+    font-size: 10px;
+    line-height: 1.15;
+  }
+
+  /* 좁은 화면에서는 윗줄이 먹는 세로가 곧 알람 칸의 손해라, 페이지 버튼과 같은 높이로 낮춘다 */
+  .al-action {
+    height: 28px;
+    padding: 0 12px;
+    font-size: 12px;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
+  .al-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    /* 폰에서는 어차피 한 화면에 안 들어가므로 칸 높이를 지키고 스크롤을 받아들인다 */
+    min-height: 660px;
+  }
+}
+
+@media (max-width: 480px) {
   .al-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

@@ -188,9 +188,18 @@ export default function AlarmPage() {
           {range && <span className="al-range">{range}</span>}
         </div>
 
-        {/* 발생 건수는 전체 기준이다 — 다른 페이지에서 울리고 있는 것도 놓치지 않게 */}
-        <div className={`al-count${activeCount > 0 ? ' is-alarm' : ''}`}>
-          발생 {activeCount}건
+        {/* 조작 버튼은 윗줄 오른쪽에 둔다. 예전에는 격자의 마지막 줄이었는데 두 가지가
+            걸렸다 — 격자 한 줄(10칸)을 통째로 써서 알람 칸이 그만큼 납작해지고,
+            '보는 칸' 99개 사이에 '누르는 것' 둘이 같은 모양으로 섞여 있었다.
+            발생 건수와 함께 두면 이 줄이 '판을 다루는 줄'이 되어 구분도 분명해진다. */}
+        <div className="al-ops">
+          <button type="button" className="al-action">ALARM RESET</button>
+          <button type="button" className="al-action">HORN STOP</button>
+
+          {/* 발생 건수는 전체 기준이다 — 다른 페이지에서 울리고 있는 것도 놓치지 않게 */}
+          <div className={`al-count${activeCount > 0 ? ' is-alarm' : ''}`}>
+            발생 {activeCount}건
+          </div>
         </div>
       </div>
 
@@ -224,13 +233,6 @@ export default function AlarmPage() {
           );
         })}
 
-        {/* 조작 버튼은 격자의 마지막 줄에 둔다. 격자 밖에 두면 그 줄만 높이가 달라진다
-            (grid-auto-rows: 1fr이 11개 줄을 같은 높이로 맞춘다). */}
-        {Array.from({ length: COLS - 2 }, (_, i) => (
-          <div key={`action-empty-${i}`} className="al-cell is-empty" />
-        ))}
-        <button type="button" className="al-action">ALARM RESET</button>
-        <button type="button" className="al-action">HORN STOP</button>
       </div>
     </div>
   );
