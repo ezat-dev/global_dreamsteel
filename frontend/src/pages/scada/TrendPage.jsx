@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { ko } from 'date-fns/locale';
 import { format, subHours } from 'date-fns';
+import { IconFileSpreadsheet, IconPhotoDown } from '@tabler/icons-react';
 import Highcharts from 'highcharts';
 /* 차트를 그림 파일로 저장하는 기능. 두 모듈이 한 쌍이다 —
    exporting이 기능을 붙이고, offline-exporting이 '브라우저에서 직접 그리기'를 더한다.
@@ -613,17 +614,19 @@ export default function TrendPage() {
               ? '내보낼 선이 없습니다 — 오른쪽에서 보고 싶은 값을 켜주세요'
               : '지금 켜 둔 선만 엑셀 파일로 내려받습니다'}
           >
+            <IconFileSpreadsheet size={16} />
             엑셀 내려받기
           </button>
 
           {/* 지금 보고 있는 그래프를 그림으로. 메모 카드는 담기지 않는다(위 handleCapture 참고) */}
           <button
             type="button"
-            className="tr-btn"
+            className="tr-btn is-capture"
             onClick={handleCapture}
             disabled={loading || rows.length === 0}
             title="지금 보고 있는 그래프를 PNG 그림 파일로 저장합니다 (메모 카드는 담기지 않습니다)"
           >
+            <IconPhotoDown size={16} />
             트렌드 저장
           </button>
         </div>

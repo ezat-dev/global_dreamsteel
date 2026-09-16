@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { format } from 'date-fns';
+import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { ko } from 'date-fns/locale';
 import HmiTable from '../../components/scada/HmiTable';
 import downloadXlsx from '../../components/scada/downloadXlsx';
@@ -211,6 +212,7 @@ export default function AlarmHistPage() {
             disabled={loading || rows.length === 0}
             title="지금 표에 보이는 내용을 엑셀 파일로 내려받습니다"
           >
+            <IconFileSpreadsheet size={16} />
             엑셀 내려받기
           </button>
         </div>

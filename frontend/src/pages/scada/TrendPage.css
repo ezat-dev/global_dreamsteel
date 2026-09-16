@@ -94,6 +94,20 @@
   background: var(--hmi-excel-hi);
 }
 
+/* 그래프 저장 — 옆의 엑셀 버튼이 초록으로 꽉 차 있어서, 기본 버튼 그대로 두면
+   대비 때문에 검은 구멍처럼 보인다. 바탕보다 밝은 판을 깔아 버튼으로 읽히게 한다.
+   색을 채우지 않는 건 일부러다 — 이 줄에서 자주 누르는 건 엑셀 쪽이고,
+   채운 버튼이 둘이면 어느 것이 주인지 흐려진다. */
+.tr-btn.is-capture {
+  border-color: rgba(255, 255, 255, .34);
+  background: var(--hmi-panel-dark);
+}
+
+.tr-btn.is-capture:hover:not(:disabled) {
+  border-color: var(--g-accent);
+  background: rgba(255, 255, 255, .2);
+}
+
 .tr-btn:disabled {
   opacity: .45;
   cursor: not-allowed;

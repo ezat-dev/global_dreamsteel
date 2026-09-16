@@ -416,6 +416,23 @@ body {
   white-space: nowrap;
 }
 
+/* 아이콘이 들어가는 버튼(엑셀 내려받기·그래프 저장). 글자만 있는 버튼과 달리
+   아이콘과 글자를 나란히 놓아야 해서 flex로 둔다 — 메인화면의 .hmi-adminbtn과 같은 방식.
+   inline-flex라 조회줄 안에서 다른 버튼들과 같은 줄에 선다. */
+.is-excel,
+.is-capture {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* 아이콘은 글자보다 한 단 흐리게 — 같은 밝기면 아이콘이 먼저 읽혀서
+   무슨 버튼인지보다 그림이 눈에 들어온다. */
+.is-capture svg {
+  opacity: .85;
+}
+
 /* 누름 시간을 채워 명령이 실제로 나간 버튼.
    테두리 색은 누름 게이지와 같은 계열(--hmi-hold)이다 — 게이지가 차오른 끝에 나오는
    표시라서, 다른 색을 쓰면 방금 찬 막대와 무관한 것처럼 보인다.
