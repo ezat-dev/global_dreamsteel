@@ -129,23 +129,30 @@ export default function AlarmHistPage() {
      폭 배분 — 래퍼가 layout: 'fitColumns'라서, width를 준 컬럼은 고정이고 width가
      없는 컬럼들이 남는 공간을 widthGrow 비율대로 나눠 갖는다. 시각/상태처럼 값 길이가
      일정한 컬럼은 width로 고정하고, 길이가 들쭉날쭉한 텍스트 컬럼(경보주석·태그이름)만
-     늘어나게 둔다. 둘 중 하나만 width를 비워두면 그 컬럼이 남는 공간을 전부 먹는다. */
+     늘어나게 둔다. 둘 중 하나만 width를 비워두면 그 컬럼이 남는 공간을 전부 먹는다.
+
+     폭의 합은 태블릿 가로(960px)에서 표에 남는 폭(약 925px)을 넘지 않아야 한다.
+     fitColumns라도 고정폭 + minWidth의 합이 그보다 크면 가로 스크롤이 생기는데,
+     이 화면은 좌우로 굴리면서 볼 표가 아니다. 지금 합은 842px이고, 남는 폭은
+     widthGrow를 준 태그이름·경보주석이 나눠 가진다(넓은 화면에서는 그게 대부분이다). */
   const columns = useMemo(
     () => [
-      { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 60 },
+      { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 56 },
       /* 열 머리의 검색칸(headerFilter) — 조회는 기간으로 하고, 받아온 목록 안에서
          다시 좁힐 때 쓴다. 서버에 다시 묻지 않고 화면에 있는 행만 거른다. */
       {
-        title: '태그이름', field: 'tagName', minWidth: 160, widthGrow: 2, tooltip: true,
+        title: '태그이름', field: 'tagName', minWidth: 120, widthGrow: 2, tooltip: true,
         hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '태그 검색',
       },
-      { title: '태그주소', field: 'address', width: 120, hozAlign: 'center', headerFilter: 'input' },
+      { title: '태그주소', field: 'address', width: 96, hozAlign: 'center', headerFilter: 'input' },
       {
-        title: '경보주석', field: 'alarmMsg', minWidth: 240, widthGrow: 3, tooltip: true,
+        title: '경보주석', field: 'alarmMsg', minWidth: 190, widthGrow: 3, tooltip: true,
         hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '내용 검색',
       },
       {
-        title: '경보상태', field: 'alarmStatus', width: 120, hozAlign: 'center',
+        /* 값이 '발생/해제' 둘뿐이라 좁혀도 배지가 잘리지 않는다 — 폭을 줄일 여지가
+           제일 큰 칸이다. 84px는 머리글 '경보상태'(4글자)와 고르는 칸이 들어가는 폭. */
+        title: '경보상태', field: 'alarmStatus', width: 84, hozAlign: 'center',
         /* 값이 둘뿐이라 자유 입력이 아니라 고르는 칸으로 둔다. 화면에는 '발생/해제'로
            보이지만 실제 값은 ACTIVE/CLEARED라, 고르는 목록도 실제 값으로 맞춘다. */
         headerFilter: 'list',
@@ -163,9 +170,9 @@ export default function AlarmHistPage() {
             : '<span class="ht-badge off">해제</span>';
         },
       },
-      // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭. 더 주면 가운데만 비어 보인다.
-      { title: '발생시각', field: 'occurTimeStr', width: 170, hozAlign: 'center' },
-      { title: '해제시각', field: 'clearTimeStr', width: 170, hozAlign: 'center' },
+      // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭(12.5px 글자 ≈ 122px + 좌우 여백 16px).
+      { title: '발생시각', field: 'occurTimeStr', width: 150, hozAlign: 'center' },
+      { title: '해제시각', field: 'clearTimeStr', width: 150, hozAlign: 'center' },
     ],
     []
   );
