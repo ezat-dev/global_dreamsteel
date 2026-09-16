@@ -210,9 +210,13 @@ public class ScadaController {
     @PostMapping("/updateTrendMemo")
     public ResponseEntity<ApiResponse<Boolean>> updateTrendMemo(@RequestBody ScadaTrend scadaTrend,
             HttpSession session) {
+                String loginId = String.valueOf(session.getAttribute("loginId"));
+                String loginUserName = (String)session.getAttribute("loginUserName");
         if (session.getAttribute("loginId") == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
+        scadaTrend.setTcUserCode(loginId);
+        scadaTrend.setTcUserName(loginUserName);
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateTrendMemo(scadaTrend)));
     }
 

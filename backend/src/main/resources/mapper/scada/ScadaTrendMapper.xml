@@ -62,7 +62,9 @@
             UPDATE ez_scada.tb_temp_memo
                 SET tc_regtime = #{tcRegtime},
                     tc_name    = #{tcName},
-                    tc_desc    = #{tcDesc}
+                    tc_desc    = #{tcDesc},
+                    tc_user_code = #{tcUserCode},
+                    tc_user_name = #{tcUserName}
             WHERE tc_cnt = #{tcCnt}
                 AND tc_yn = 'Y'
     </update>
