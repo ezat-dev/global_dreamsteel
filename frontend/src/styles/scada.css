@@ -2117,6 +2117,29 @@ body {
   background: rgba(255, 255, 255, .16);
 }
 
+/* 열 머리의 검색칸(headerFilter). Tabulator 기본이 흰 입력칸이라 그냥 두면
+   어두운 머리줄 위에서 혼자 하얗게 뜬다. 다른 입력칸(--g-field)과 같게 맞춘다.
+   select도 함께 잡는다 — 경보상태처럼 고르는 칸이 있다. */
+.hmi-dark .hmi-table-wrap .tabulator-header-filter input,
+.hmi-dark .hmi-table-wrap .tabulator-header-filter select {
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 5px;
+  background: var(--g-field);
+  color: var(--g-ink);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+.hmi-dark .hmi-table-wrap .tabulator-header-filter input:focus {
+  border-color: var(--g-accent);
+}
+
+/* 안내 문구(placeholder)는 한 단 흐리게 — 입력한 글자와 구분돼야 한다 */
+.hmi-dark .hmi-table-wrap .tabulator-header-filter input::placeholder {
+  color: var(--hmi-text-faint);
+}
+
 .hmi-dark .hmi-table td {
   border-bottom-color: rgba(255, 255, 255, .10);
   border-right-color: rgba(255, 255, 255, .06);

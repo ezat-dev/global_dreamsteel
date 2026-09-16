@@ -126,11 +126,23 @@ export default function AlarmHistPage() {
   const columns = useMemo(
     () => [
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 60 },
-      { title: '태그이름', field: 'tagName', minWidth: 160, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-      { title: '태그주소', field: 'address', width: 120, hozAlign: 'center' },
-      { title: '경보주석', field: 'alarmMsg', minWidth: 240, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+      /* 열 머리의 검색칸(headerFilter) — 조회는 기간으로 하고, 받아온 목록 안에서
+         다시 좁힐 때 쓴다. 서버에 다시 묻지 않고 화면에 있는 행만 거른다. */
+      {
+        title: '태그이름', field: 'tagName', minWidth: 160, widthGrow: 2, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '태그 검색',
+      },
+      { title: '태그주소', field: 'address', width: 120, hozAlign: 'center', headerFilter: 'input' },
+      {
+        title: '경보주석', field: 'alarmMsg', minWidth: 240, widthGrow: 3, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '내용 검색',
+      },
       {
         title: '경보상태', field: 'alarmStatus', width: 120, hozAlign: 'center',
+        /* 값이 둘뿐이라 자유 입력이 아니라 고르는 칸으로 둔다. 화면에는 '발생/해제'로
+           보이지만 실제 값은 ACTIVE/CLEARED라, 고르는 목록도 실제 값으로 맞춘다. */
+        headerFilter: 'list',
+        headerFilterParams: { values: { '': '전체', ACTIVE: '발생', CLEARED: '해제' } },
         /* DB(vw_alarm_history)는 ACTIVE / CLEARED로 주는데 현장에서 읽을 말로 바꿔 보여준다.
            ACTIVE만 빨간 '발생'이고 나머지는 전부 회색 '해제'다 — 지금 값이 둘뿐이지만
            나중에 다른 상태가 늘어도 발생으로 오인하지 않게 ACTIVE만 골라낸다. */

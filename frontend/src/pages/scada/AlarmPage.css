@@ -164,16 +164,14 @@
   color: var(--hmi-text-faint);
 }
 
-/* 발생 중인 알람 — 박스 자체가 켜진다(글자색만 바꾸면 밝은 박스 위에서 눈에 덜 띈다) */
+/* 발생 중인 알람 — 박스 자체가 켜진다(글자색만 바꾸면 밝은 박스 위에서 눈에 덜 띈다).
+
+   깜빡이지 않는다. 이 화면은 계속 켜 두고 보는 판이라, 여러 칸이 동시에 깜빡이면
+   눈이 아파서 오히려 안 보게 된다. 어두운 바탕에서는 채운 빨강만으로도 충분히 뜬다. */
 .al-cell.on {
   border-color: #dc2626;
   background: #dc2626;
   color: #ffffff;
-  animation: al-blink 1s steps(1, end) infinite;
-}
-
-@keyframes al-blink {
-  50% { opacity: .35; }
 }
 
 /* ===== 하단 조작 ===== */

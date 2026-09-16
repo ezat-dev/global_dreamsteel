@@ -129,10 +129,16 @@ export default function LogPage() {
   const columns = useMemo(
     () => [
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 60 },
-      { title: '아이디', field: 'userId', width: 120, hozAlign: 'center' },
-      { title: '이름', field: 'userName', width: 110, hozAlign: 'center' },
-      { title: '태그주소', field: 'address', minWidth: 160, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-      { title: '전송값', field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center' },
+      /* 열 머리의 검색칸(headerFilter) — 조회는 기간으로 하고, 받아온 목록 안에서
+         다시 좁힐 때 쓴다. 이 화면에서 제일 자주 찾는 건 '그 태그를 언제 건드렸나'라
+         태그주소에 먼저 붙인다. */
+      { title: '아이디', field: 'userId', width: 120, hozAlign: 'center', headerFilter: 'input' },
+      { title: '이름', field: 'userName', width: 110, hozAlign: 'center', headerFilter: 'input' },
+      {
+        title: '태그주소', field: 'address', minWidth: 160, widthGrow: 2, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '주소 검색',
+      },
+      { title: '전송값', field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center', headerFilter: 'input' },
       {
         // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭. 더 주면 가운데만 비어 보인다.
         title: '기록시각', field: 'insertDate', width: 180, hozAlign: 'center',
