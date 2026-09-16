@@ -60,6 +60,14 @@ body {
   --hmi-hold-lead: #ffe680;
   --hmi-hold-fill: linear-gradient(90deg, var(--hmi-hold-tail) 0%, var(--hmi-hold) 55%, var(--hmi-hold-lead) 100%);
 
+  /* 엑셀 받기 버튼 색. 엑셀의 초록을 빌리되 정품 색(#217346)보다 한 단 밝다 —
+     어두운 바탕에서 정품 색은 대비가 2.98:1밖에 안 나와 버튼이 묻힌다.
+     글자는 흰색이 아니라 --g-accent-ink(짙은 남색)를 쓴다. 밝은 채움 위에는 짙은
+     글자가 읽힌다(화면의 액센트 버튼과 같은 방식).
+     버튼 규칙 자체는 화면마다 바탕색이 달라 각 CSS에 두고, 색만 여기서 나눠 쓴다. */
+  --hmi-excel: #2ca05a;
+  --hmi-excel-hi: #34b36a;
+
   --hmi-lamp-on: #15803d;
   --hmi-lamp-warn: #d97706;
   --hmi-lamp-alarm: #dc2626;

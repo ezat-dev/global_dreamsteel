@@ -289,6 +289,27 @@
   transition: background .12s;
 }
 
+/* 엑셀 받기 — 엑셀의 초록을 빌려 무슨 파일이 나오는지 색으로 알린다.
+   색은 scada.css의 --hmi-excel에 있다(트랜드 화면도 같은 색을 쓴다).
+
+   운전중 램프의 초록(#15803d)과 계열이 같지만, 이 화면과 로그 화면에는 램프가
+   아예 없어서 헷갈릴 일이 없다. 램프가 있는 화면에 이 버튼을 옮기게 되면 다시 볼 것. */
+.ah-btn.is-excel {
+  border-color: var(--hmi-excel);
+  background: var(--hmi-excel);
+  color: var(--g-accent-ink);
+}
+
+.ah-btn.is-excel:hover:not(:disabled) {
+  border-color: var(--hmi-excel-hi);
+  background: var(--hmi-excel-hi);
+}
+
+.ah-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
 .ah-btn:hover:not(:disabled) {
   background: #1a538f;
 }

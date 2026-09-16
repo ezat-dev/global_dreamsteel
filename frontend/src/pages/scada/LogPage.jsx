@@ -3,6 +3,7 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import HmiTable from '../../components/scada/HmiTable';
+import downloadXlsx from '../../components/scada/downloadXlsx';
 import { getLogList } from '../../api/scada/logApi';
 // 라이브러리 기본 스타일을 먼저 깔고, AlarmHistPage.css의 .ah-cal 규칙이 HMI 톤으로 덮어쓴다.
 import 'react-datepicker/dist/react-datepicker.css';
@@ -46,6 +47,10 @@ export default function LogPage() {
   /* 마지막으로 보낸 요청 번호. 늦게 도착한 이전 응답이 최신 결과를 덮어쓰지 않게 하고,
      화면을 벗어난 뒤 도착한 응답도 무시하게 한다(StrictMode의 이중 실행 포함). */
   const reqIdRef = useRef(0);
+
+  /* 내려받기에 쓸 Tabulator 인스턴스. 화면에 걸린 검색·정렬 그대로 내보내려면
+     rows(걸러지기 전 원본)가 아니라 표 자체에 물어봐야 한다. */
+  const tableRef = useRef(null);
 
   /* 달력이 펼쳐져 있는지. Enter가 날짜 확정인지 조회인지 구분하는 데만 쓴다
      (아래 handleKeyDown 참고). 화면을 다시 그릴 필요가 없어 state가 아닌 ref로 둔다. */
@@ -145,6 +150,8 @@ export default function LogPage() {
         /* TIMESTAMP를 String으로 받기 때문에 드라이버에 따라 '2026-09-02 15:21:07.0'처럼
            소수부가 붙어 올 수 있다. 초까지만 잘라서 다른 화면의 시각 표기와 맞춘다. */
         formatter: (cell) => (cell.getValue() ?? '').slice(0, 19),
+        // 파일에도 화면과 같은 모양으로 나가야 한다 — 엑셀에만 '.0'이 붙으면 어색하다
+        excelValue: (v) => (v ?? '').slice(0, 19),
       },
     ],
     []
@@ -182,6 +189,17 @@ export default function LogPage() {
           >
             조회
           </button>
+
+          {/* 화면에 걸린 검색·정렬 그대로 나간다. 받을 게 없으면 눌리지 않는다. */}
+          <button
+            type="button"
+            className="ah-btn is-excel"
+            onClick={() => downloadXlsx(tableRef.current, '조작로그')}
+            disabled={loading || rows.length === 0}
+            title="지금 표에 보이는 내용을 엑셀 파일로 내려받습니다"
+          >
+            엑셀 내려받기
+          </button>
         </div>
 
         {error && <span className="ah-error">{error}</span>}
@@ -189,7 +207,13 @@ export default function LogPage() {
       </div>
 
       <div className="ah-table">
-        <HmiTable data={rows} columns={columns} options={LOG_OPTIONS} height="100%" />
+        <HmiTable
+          data={rows}
+          columns={columns}
+          options={LOG_OPTIONS}
+          height="100%"
+          onTableReady={(t) => { tableRef.current = t; }}
+        />
       </div>
     </div>
   );

@@ -3,11 +3,23 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { ko } from 'date-fns/locale';
 import { format, subHours } from 'date-fns';
 import Highcharts from 'highcharts';
+/* 차트를 그림 파일로 저장하는 기능. 두 모듈이 한 쌍이다 —
+   exporting이 기능을 붙이고, offline-exporting이 '브라우저에서 직접 그리기'를 더한다.
+
+   offline-exporting이 없으면 Highcharts는 차트를 export.highcharts.com으로 보내
+   이미지를 받아온다. 폐쇄망에서는 그냥 실패하고, 무엇보다 설비 데이터가 바깥으로
+   나가서는 안 된다. 아래 chartOptions에서 fallbackToExportServer: false로
+   그 경로를 아예 막아 둔다(모듈을 빼먹어도 조용히 인터넷으로 나가지 않게).
+
+   13.x부터는 import만 하면 스스로 등록된다(예전처럼 함수로 부르지 않는다). */
+import 'highcharts/modules/exporting';
+import 'highcharts/modules/offline-exporting';
 import HighchartsReact from 'highcharts-react-official';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getTrend } from '../../api/scada/trendApi';
 import { getTrendMemoList } from '../../api/scada/trendMemoApi';
 import TrendMemoModal from '../../components/scada/TrendMemoModal';
+import { downloadRowsXlsx } from '../../components/scada/downloadXlsx';
 import './TrendPage.css';
 
 /* ===========================================================================
@@ -24,6 +36,10 @@ const TIME_FORMAT = 'yyyy-MM-dd HH:mm';
 
 /* 조회 파라미터로 보낼 형식. DB의 record_time이 datetime이라 이 형태로 비교된다. */
 const QUERY_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+
+/* 파일 이름에 넣을 형식. 콜론·공백은 파일 이름에 쓰기 나쁘고, 시트 이름에서는
+   콜론이 아예 금지 문자다. */
+const FILE_FORMAT = 'yyyyMMdd_HHmm';
 
 /* 오른쪽 판의 한 줄 = 차트의 한 선. 목록이 하나뿐이라 판의 이름·색과 그래프의
    이름·색이 어긋날 수 없고, 줄의 토글이 곧 그 선의 표시 여부가 된다.
@@ -112,6 +128,20 @@ function toMemoPoint(memo) {
 function toMemoPoints(list) {
   return (list ?? []).map(toMemoPoint).filter(Boolean);
 }
+
+/* 엑셀로 내보낼 열. 첫 칸은 시각이고 나머지는 화면의 선들과 같은 순서다.
+
+   단위를 제목에 붙인다(1ZONE(℃), O2(mmV)) — 파일만 따로 열었을 때 숫자가 뭔지
+   알 수 있어야 한다. 화면에는 오른쪽 판에 단위가 따로 있어서 필요 없던 것이다.
+
+   오른쪽 토글로 끈 선은 빼고 내보낸다 — 화면에서 본 것과 파일이 같아야 한다
+   (경보이력·로그에서 검색칸으로 좁힌 결과만 내보내는 것과 같은 규칙이다). */
+const excelCols = (hidden) => [
+  { title: '시각', value: (r) => format(new Date(r.t), QUERY_FORMAT) },
+  ...VALUE_ROWS
+    .filter((r) => !hidden[r.key])
+    .map((r) => ({ title: `${r.label}(${r.unit})`, field: r.key })),
+];
 
 /* 카드 한 장의 크기. 자리를 겹치지 않게 미리 계산해야 해서 CSS가 아니라 여기서 정한다
    (CSS에서 크기를 바꾸면 겹침 계산이 어긋나므로 .tr-memo-card와 같이 맞춰 둘 것). */
@@ -251,6 +281,56 @@ export default function TrendPage() {
     setRange({ start: from, end: now });
   };
 
+  /* 엑셀 받기 — 조회한 구간의 스냅샷을 그대로 내보낸다. 차트를 그리는 데 쓴 rows가
+     곧 그 구간이라 따로 서버에 묻지 않는다.
+
+     파일 이름에 구간을 넣는다. 트랜드는 표와 달리 '언제 받았나'보다 '언제 것인가'가
+     중요해서, 받은 시각만 적어두면 나중에 파일만 보고는 못 알아본다. */
+  const handleDownload = () => {
+    const span = `${format(range.start, FILE_FORMAT)}-${format(range.end, FILE_FORMAT)}`;
+    downloadRowsXlsx(excelCols(hidden), rows, `트렌드_${span}`, span);
+  };
+
+  /* 선을 전부 꺼 두면 시각만 남은 파일이 나온다 — 그건 받을 이유가 없으므로 막는다.
+     한 줄도 안 남는 파일이 떨어지면 고장인지 내가 끈 건지 알 수 없다. */
+  const shownCount = VALUE_ROWS.filter((r) => !hidden[r.key]).length;
+
+  /* 지금 보고 있는 그래프를 그림 파일로 저장한다. 브라우저가 직접 그린다
+     (offline-exporting) — 서버로 나가지 않는다.
+
+     메모 카드는 담기지 않는다. 카드는 차트 위에 얹은 HTML이고 내보내기는 차트의 SVG만
+     그리기 때문이다. 메모 시각의 점선 세로줄은 차트가 그린 것이라 그대로 남는다. */
+  const handleCapture = () => {
+    const chart = chartRef.current;
+    if (!chart) return;
+
+    const span = `${format(range.start, FILE_FORMAT)}-${format(range.end, FILE_FORMAT)}`;
+    chart.exportChartLocal(
+      {
+        type: 'image/png',
+        filename: `트렌드_${span}`,
+        /* 내보내기는 화면 밖에 차트를 새로 그린다. 거기엔 폭을 정해 주는 컨테이너가
+           없어서, 안 넘기면 Highcharts 기본값(600px)으로 쪼그라든다 — 화면에서는
+           폭을 컨테이너(width: 100%)에서 받아 쓰기 때문에 이 값이 없다.
+           지금 그려져 있는 크기를 그대로 넘겨 화면과 같은 비율로 뽑는다. */
+        sourceWidth: chart.chartWidth,
+        sourceHeight: chart.chartHeight,
+      },
+      {
+        /* 화면에서는 배경을 투명으로 두고 페이지의 어두운 바탕이 비치게 했는데,
+           그림 파일은 혼자 다니므로 자기 배경을 갖고 있어야 한다. 투명한 채로
+           문서에 붙이면 밝은 종이 위에 밝은 글자가 얹혀 안 보인다. */
+        chart: { backgroundColor: '#131a2a' },
+        /* 화면에는 조회 구간이 조회줄에 적혀 있지만 그림에는 아무 단서가 없다.
+           나중에 파일만 보고도 언제 것인지 알 수 있게 제목으로 박아 둔다. */
+        title: {
+          text: `${format(range.start, TIME_FORMAT)} ~ ${format(range.end, TIME_FORMAT)}`,
+          style: { color: INK, fontSize: '13px' },
+        },
+      },
+    );
+  };
+
   /* 달력 팝업의 생김새는 경보이력 화면에서 만든 HMI 테마(.ah-cal)를 그대로 쓴다.
      모든 CSS가 한 파일로 번들되므로 클래스만 지정하면 적용된다. */
   const calProps = {
@@ -298,6 +378,18 @@ export default function TrendPage() {
     title: { text: null },
     // 우측 하단 highcharts.com 표시 제거
     credits: { enabled: false },
+
+    /* 내보내기는 우리 버튼으로만 한다 — enabled: false는 차트 오른쪽 위에 붙는
+       햄버거 메뉴를 감추는 것이고, 기능 자체는 살아 있어 exportChartLocal을 부를 수 있다.
+
+       fallbackToExportServer: false가 중요하다. 브라우저에서 그리다 실패하면
+       Highcharts가 기본적으로 차트를 export.highcharts.com으로 보내 버린다.
+       폐쇄망이라 실패할 뿐 아니라, 설비 데이터가 바깥으로 나가서는 안 된다.
+       막아 두면 조용히 나가는 대신 error 콜백으로 떨어진다. */
+    exporting: {
+      enabled: false,
+      fallbackToExportServer: false,
+    },
     // 서버가 준 시각을 그대로 현지 시각으로 읽는다(끄면 UTC로 해석해 9시간 밀린다).
     time: { useUTC: false },
 
@@ -501,10 +593,39 @@ export default function TrendPage() {
           >
             메모 추가
           </button>
+
           {memoNote && <span className="tr-memo-note">{memoNote}</span>}
           {!memoNote && memos.length > 0 && (
             <span className="tr-memo-note">{`메모 ${memos.length}건 · 카드를 누르면 수정`}</span>
           )}
+        </div>
+
+        {/* 내려받기는 메모가 아니라 트랜드 값에 대한 것이라 묶음을 따로 둔다.
+            조회한 구간 중 지금 켜 둔 선만 나간다. 받을 게 없으면 눌리지 않는다 —
+            빈 파일이 떨어지면 고장인지 자료가 없는 건지 알 수 없다. */}
+        <div className="tr-export">
+          <button
+            type="button"
+            className="tr-btn is-excel"
+            onClick={handleDownload}
+            disabled={loading || rows.length === 0 || shownCount === 0}
+            title={shownCount === 0
+              ? '내보낼 선이 없습니다 — 오른쪽에서 보고 싶은 값을 켜주세요'
+              : '지금 켜 둔 선만 엑셀 파일로 내려받습니다'}
+          >
+            엑셀 내려받기
+          </button>
+
+          {/* 지금 보고 있는 그래프를 그림으로. 메모 카드는 담기지 않는다(위 handleCapture 참고) */}
+          <button
+            type="button"
+            className="tr-btn"
+            onClick={handleCapture}
+            disabled={loading || rows.length === 0}
+            title="지금 보고 있는 그래프를 PNG 그림 파일로 저장합니다 (메모 카드는 담기지 않습니다)"
+          >
+            트렌드 저장
+          </button>
         </div>
 
         {error && <span className="tr-error">{error}</span>}

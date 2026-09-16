@@ -46,3 +46,9 @@ logging:
       # debug 레벨이라 그냥 두면 디스크가 계속 찬다.
       max-file-size: 10MB
       max-history: 7
+
+scada:
+  export:
+    enabled: true
+    dir: D:/온도데이터        # 역슬래시 대신 슬래시 — 이스케이프 안 해도 된다
+
