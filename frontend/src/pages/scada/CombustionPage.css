@@ -757,3 +757,91 @@
   background: rgba(200, 55, 45, .22);
   color: #ff9d95;
 }
+
+/* ===== 좁은 화면(태블릿 가로) ===============================================
+
+   이 화면은 태블릿에서 많이 본다. 960px 가로에서 아래 조작판이 혼자 우락부락해지는데,
+   원인은 폭 배분이다 — 경보 표가 560px 고정이라 조작판 셋이 나눠 가질 폭이 364px
+   (각 121px)밖에 안 남는다. 데스크톱(1900px)에서는 각 439px이라 같은 글씨가 자연스럽다.
+
+   그래서 두 가지를 같이 손본다: 표를 줄여 조작판에 폭을 넘기고, 이 판에만 크게 잡아둔
+   글씨(15px — 화면의 다른 글씨는 11~13px이다)를 주변과 맞춘다.
+   ALL PURGE는 항목이 4개라 이래야 줄바꿈 없이 한 줄에 들어간다. */
+@media (max-width: 1100px) {
+  .cb-alarm {
+    /* 2줄 미리보기용이라 이 정도면 발생시각·태그이름·경보주석이 다 보인다 */
+    flex-basis: 430px;
+  }
+
+  /* 개별연소 이름표·버튼 — 판 폭이 약 102px까지 좁아져 12.5px로는 '1ZONE 개별...'로
+     잘린다(.cb-burn .cb-plate--zone이 width:100% + ellipsis다). 11px이면 좌우 여백까지
+     넣어도 '1ZONE 개별연소'가 통째로 들어간다. 이 화면에서 제일 많이 누르는 버튼이라
+     글자가 잘리면 안 된다. */
+  .cb-burn .cb-plate--zone {
+    padding: 3px 1px;
+    font-size: 11px;
+  }
+
+  /* 연소 ON/OFF 램프를 줄여 그만큼을 개별연소 버튼에 넘긴다.
+     램프는 눈으로 확인만 하는 상태 표시라 작아도 되고, 개별연소는 손가락으로 누르는
+     버튼이라 커야 한다 — 판 높이(106px)가 고정이므로 한쪽을 줄여야 다른 쪽이 커진다. */
+  .cb-burn .cb-onoff {
+    font-size: 10px;
+  }
+
+  .cb-burn .cb-onoff > b {
+    padding: 1px 2px;
+    line-height: 1.1;
+  }
+
+  /* 남은 세로를 버튼이 가져간다. 글씨는 위와 같은 11px이되 위아래를 두툼하게 —
+     글자 크기보다 '누를 면적'이 중요하다. */
+  .cb-burn .cb-plate--btn {
+    padding: 9px 1px;
+  }
+
+  /* 제목판과 아래 버튼을 띄운다. 위에서 글씨를 줄여 세로가 남았으니 그만큼 간격으로 돌린다 —
+     제목과 조작부가 붙어 있으면 한 덩어리로 읽혀서 무엇을 누르는 건지 흐려진다. */
+  .cb-action {
+    gap: 9px;
+    padding: 6px;
+    justify-content: center;
+  }
+
+  /* 좁아진 컬럼에 글자가 들어가도록 표 안쪽도 같이 줄인다.
+     컬럼 폭만 줄이고 글씨를 그대로 두면 태그이름·경보주석이 말줄임으로 잘린다. */
+  .cb-alarm .tabulator {
+    font-size: 11px;
+  }
+
+  .cb-alarm .tabulator-row .tabulator-cell {
+    padding: 4px 4px;
+  }
+
+  .cb-alarm .tabulator-col-title {
+    font-size: 11px;
+  }
+
+  .cb-action-row {
+    gap: 4px 6px;
+  }
+
+  .cb-action-lamp,
+  .cb-action-btn {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+
+  .cb-action .cb-plate--action {
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+
+  /* ALL PURGE만 항목이 4개다. 남는 폭(약 165px)에 한 줄로는 절대 안 들어가고,
+     그냥 접히게 두면 2+1+1로 세 줄이 되어 88px을 넘쳐 마지막 칸이 잘린다.
+     2×2로 못박으면 두 줄로 끝나고, 위에서 줄인 글씨 크기라면 88px 안에 들어온다. */
+  .cb-action--purge .cb-action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

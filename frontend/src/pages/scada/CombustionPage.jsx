@@ -157,11 +157,21 @@ const PIPE_LABELS = [
    좁은 칸이라 컬럼을 줄였다. 컬럼이 바뀌면 표를 통째로 다시 만들기 때문에
    모듈 상수로 둔다(매 렌더 새 배열을 넘기면 표가 계속 재생성된다). */
 const ALARM_COLUMNS = [
+  /* 최소 폭 합이 판 폭보다 크면 가로 스크롤이 생긴다. 태블릿에서 이 판은 430px까지
+     좁아지므로 합을 397px(145+80+100+72)로 맞춰 둔다.
+
+     발생시각만 145를 지킨다 — 'yyyy-MM-dd HH:mm:ss' 19자가 들어가야 해서 더 줄이면
+     글자가 잘린다. 나머지 셋을 줄였다.
+
+     데스크톱(560px)에서는 남는 폭을 widthGrow가 2:3으로 나눠 가지므로 보이는 폭이
+     예전과 거의 같다(태그이름 144→145, 경보주석 181→198). 최소값만 낮춘 것이라
+     넓은 화면의 모양은 건드리지 않는다. */
   { title: '발생시각', field: 'occurTimeStr', width: 145, hozAlign: 'center' },
-  { title: '태그이름', field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-  { title: '경보주석', field: 'alarmMsg', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+  { title: '태그이름', field: 'tagName', minWidth: 80, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+  { title: '경보주석', field: 'alarmMsg', minWidth: 100, widthGrow: 3, tooltip: true, hozAlign: 'center' },
   {
-    title: '경보상태', field: 'alarmStatus', width: 90, hozAlign: 'center',
+    // 배지('발생'/'해제')만 들어가는 칸이라 72px이면 충분하다
+    title: '경보상태', field: 'alarmStatus', width: 72, hozAlign: 'center',
     // DB(vw_alarm_history)는 ACTIVE / CLEARED로 준다. ACTIVE만 빨간 '발생'이다.
     formatter: (cell) => (cell.getValue() === 'ACTIVE'
       ? '<span class="ht-badge on">발생</span>'
@@ -548,7 +558,9 @@ export default function CombustionPage() {
         </div>
 
         {ACTION_PANELS.map((p) => (
-          <div className="cb-action" key={p.key}>
+          /* key별 클래스를 같이 준다 — 항목이 4개인 ALL PURGE만 좁은 화면에서
+             2×2로 접어야 해서 CSS가 그 판을 집어낼 수 있어야 한다. */
+          <div className={`cb-action cb-action--${p.key}`} key={p.key}>
             <span className="cb-plate cb-plate--action">{p.title}</span>
             <div className="cb-action-row">
               {p.items.map((it) => (it.kind === 'btn'
