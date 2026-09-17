@@ -315,7 +315,10 @@ export default function AtmospherePage() {
               <span
                 className="at-pipe-label hmi-lampbox is-alarm"
                 key={l.key}
-                style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
+                /* 가운데 맞춤(translateX(-50%))은 CSS(.at-pipe-label)가 한다 —
+                   인라인 transform으로 두면 좁은 화면에서 판을 키우는 규칙이 먹지 않는다
+                   (인라인이 스타일시트를 이긴다). */
+                style={{ left: l.cx, top: l.top }}
               >
                 {l.text}
               </span>
@@ -341,7 +344,7 @@ export default function AtmospherePage() {
               <em className="at-o2-unit">mmV</em>
             </span>
 
-            <div className="at-slot" style={SLOTS.valve}>
+            <div className="at-slot at-slot--valve" style={SLOTS.valve}>
               {/* 자동/수동 모드는 위 OPEN/CLOSE와 같은 래치 버튼이라 누름 처리를
                   그대로 넘긴다(handlePress). 나머지 칸은 아직 더미다. */}
               <AtmosValvePanel
@@ -355,7 +358,7 @@ export default function AtmospherePage() {
               />
             </div>
 
-            <div className="at-slot" style={SLOTS.cond}>
+            <div className="at-slot at-slot--cond" style={SLOTS.cond}>
               <AtmosConditionPanel conditions={conditions} />
             </div>
           </div>
