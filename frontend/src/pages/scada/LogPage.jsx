@@ -34,7 +34,12 @@ const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 /* 한 페이지에 뿌릴 행 수. HmiTable 기본값(20)을 덮어쓴다.
    화면에서 20/50/100/200 중에 다시 고를 수 있고, 여기 값은 처음 열었을 때의 선택이다.
    모듈 상수로 두는 이유는 매 렌더 새 객체를 넘기지 않기 위해서다. */
-const LOG_OPTIONS = { paginationSize: 50 };
+/* 경보이력과 같은 규칙 — 한 페이지 20행, 행 수 고르는 칸은 뺀다.
+   이 화면은 AlarmHistPage.css를 같이 쓰므로 페이지 버튼 가운데 정렬도 그대로 따라온다. */
+const LOG_OPTIONS = {
+  paginationSize: 20,
+  paginationSizeSelector: false,
+};
 
 export default function LogPage() {
   const [rows, setRows] = useState([]);

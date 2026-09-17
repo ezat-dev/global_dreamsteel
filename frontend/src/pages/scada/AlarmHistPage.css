@@ -355,3 +355,30 @@
 .ah-table .hmi-table-wrap > div {
   height: 100%;
 }
+
+/* 페이지 버튼을 표 가운데에 둔다. Tabulator 기본은 왼쪽 끝에 건수, 오른쪽 끝에 페이지인데,
+   넓은 화면에서는 페이지 버튼이 화면 오른쪽 구석까지 밀려 눈에도 손에도 멀다.
+
+   건수는 흐름에서 빼서(absolute) 왼쪽에 남긴다 — 그래야 남은 한 덩어리(페이지 묶음)가
+   진짜 가운데에 온다. justify-content만 바꾸면 건수 폭만큼 오른쪽으로 치우친다.
+
+   Tabulator 기본 규칙이 `.tabulator .tabulator-footer .tabulator-footer-contents`(0,3,0)라
+   클래스를 넷 겹쳐 한 단 높게 잡는다 — 셋만 쓰면 동점이 되어 두 CSS의 로드 순서에
+   결과가 달렸다(tabulator.min.css가 뒤에 깔리면 이 규칙이 진다). */
+.ah-page .ah-table .tabulator .tabulator-footer-contents {
+  position: relative;
+  justify-content: center;
+}
+
+.ah-page .ah-table .tabulator .tabulator-footer-contents .tabulator-page-counter {
+  position: absolute;
+  left: 0;
+}
+
+/* Tabulator는 페이지 묶음에 flex: 1 + text-align: right를 줘서 오른쪽 끝에 붙인다.
+   가운데로 보내려면 이 둘을 같이 풀어야 한다 — justify-content만 바꾸면 묶음이
+   폭을 전부 차지한 채 그 안에서만 오른쪽에 남는다(실제로 그렇게 나왔다). */
+.ah-page .ah-table .tabulator .tabulator-paginator {
+  flex: 0 0 auto;
+  text-align: center;
+}

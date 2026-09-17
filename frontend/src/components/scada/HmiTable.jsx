@@ -28,6 +28,25 @@ export default function HmiTable({ data, columns, options, height = '100%', onTa
       // 헤더는 headerHozAlign을 따로 줘야 한다.
       columnDefaults: { headerHozAlign: 'center' },
       placeholder: '데이터가 없습니다.',
+      /* 바닥줄 글자를 한글로. Tabulator 기본은 First/Prev/Next/Last와
+         "Showing 1-20 of 300 rows"라 이 화면에서 혼자 영어로 남는다.
+         건수 문구는 "{showing} 1-20 {of} 300 {rows}" 틀에 끼워지므로,
+         앞말을 비우고 사이를 '/'로 두어 "1-20 / 300건"이 되게 했다.
+         headerFilters는 건드리지 않는다 — 검색칸 안내문은 컬럼마다 따로 주고 있다. */
+      locale: 'ko',
+      langs: {
+        ko: {
+          pagination: {
+            first: '처음', first_title: '첫 페이지',
+            prev: '이전', prev_title: '이전 페이지',
+            next: '다음', next_title: '다음 페이지',
+            last: '마지막', last_title: '마지막 페이지',
+            page_title: '페이지',
+            counter: { showing: '', of: '/', rows: '건', pages: '페이지' },
+          },
+          data: { loading: '불러오는 중...', error: '오류' },
+        },
+      },
       pagination: true,
       paginationSize: 20,
       paginationSizeSelector: [20, 50, 100, 200],
