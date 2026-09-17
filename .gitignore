@@ -11,6 +11,13 @@ logs/
 # VS Code Java Upgrade 확장이 세션 중 자동 생성하는 폴더(프로젝트와 무관)
 .github/modernize/
 
+# VS Code 설정 — PC마다 달라야 해서 공유하지 않는다.
+# java.import.gradle.java.home / java.jdt.ls.java.home에 JDK 17의 실제 경로를 적는데,
+# 개발 PC는 C:\Program Files\Java\jdk-17, 서버 PC는 Eclipse Adoptium이라 경로가 다르다.
+# 공유하면 한쪽에서 맞춘 경로가 다른 쪽에서 '없는 경로'가 되어 Gradle 동기화가 조용히
+# 실패하고, 코드는 멀쩡한데 IDE에만 빨간 줄이 뜬다(poi-ooxml을 못 찾는 그 증상).
+.vscode/settings.json
+
 # 실제 DB 비밀번호가 들어있는 로컬 실행 스크립트 (run-backend.bat.example 참고해서 각자 생성)
 run-backend.bat
 
