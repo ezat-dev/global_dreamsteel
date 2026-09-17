@@ -58,8 +58,12 @@ const LEVEL_BANNERS = [
   { key: 'low', left: 868, top: 618, width: 228, text: '집수조 LEVEL LOW' },
 ];
 
-// 냉각수 알람 지연시간 — HIGH/LOW를 분 단위로 넣는다.
-const DELAY_PANEL = { left: 1140, top: 556, width: 215 };
+/* 냉각수 알람 지연시간 — HIGH/LOW를 분 단위로 넣는다.
+   폭은 아래 두 줄의 내용 폭과 같게 잡는다: HIGH/LOW 글자판 54 + 간격 5 + 값칸 112
+   (입력 84 + 'min' 28) = 171. 예전 215는 제목판만 60px 넓어서 아래 줄과 오른쪽 선이
+   어긋나 보였다. 값칸 폭(CoolingPage.css의 .ct-delay-label / .hmi-led-input)을 고치면
+   이 숫자도 같이 고쳐야 한다. */
+const DELAY_PANEL = { left: 1140, top: 556, width: 171 };
 
 /* 두 칸의 허용 범위가 같다. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
 const DELAY_MIN = 0;
