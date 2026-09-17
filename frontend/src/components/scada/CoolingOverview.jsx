@@ -1,4 +1,6 @@
-﻿/* ===========================================================================
+import { memo } from 'react';
+
+/* ===========================================================================
    쿨링타워 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
 
    클래스 이름은 작화 style.css(= pages/scada/coolingOverview.css)와 1:1로 묶여 있어서
@@ -46,7 +48,7 @@
    쪽(CoolingPage)에서 transform: scale로 처리한다 — 작화 CSS는 건드리지 않는다.
    =========================================================================== */
 
-export default function CoolingOverview() {
+function CoolingOverview() {
   return (
     <div className="cooling-tower">
       <img className="pipe-1" src="/scada/cooling/pipe-10.png" />
@@ -130,3 +132,8 @@ export default function CoolingOverview() {
     </div>
   );
 }
+
+/* memo — 이 컴포넌트는 값을 받지 않는 고정 그림이다. 감싸는 화면이 1초마다 폴링 값으로
+   다시 그려지는데, memo가 없으면 그때마다 이 안의 수백 개 요소(구동 571 / 연소 328)까지
+   같이 비교된다. props가 없으니 memo는 "두 번 다시 그리지 않는다"와 같다. */
+export default memo(CoolingOverview);

@@ -1999,6 +1999,22 @@ button {
   background-clip: content-box;
 }
 
+/* ===== 터치 기기에서는 서리 유리를 끈다 =================================
+
+   backdrop-filter는 뒤에 깔린 것을 매 프레임 다시 계산해서 흐린다. 제목바와 메뉴바는
+   화면 전체 폭을 차지하는 큰 면이라, 본문이 1초마다 폴링 값으로 다시 그려질 때마다
+   그 폭만큼 블러를 다시 계산한다. 데스크톱 GPU는 견디지만 태블릿에서는 부담이 된다.
+
+   유리 느낌을 버리는 대신 반투명은 남긴다 — 블러 없이 rgba만 써도 바탕과 구분되고,
+   글자 대비는 오히려 나아진다. 마우스 기기(pointer: fine)는 그대로 둔다. */
+@media (pointer: coarse) {
+  .hmi-title,
+  .hmi-menu {
+    backdrop-filter: none;
+    background: var(--g-glass-hi);
+  }
+}
+
 /* 크롬(어두운 바탕) 쪽에서는 손잡이도 밝은 쪽으로 뒤집는다 */
 .hmi-mainmenu::-webkit-scrollbar-thumb,
 .hmi-menu::-webkit-scrollbar-thumb {
