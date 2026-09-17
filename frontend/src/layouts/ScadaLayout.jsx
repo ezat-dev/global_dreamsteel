@@ -36,8 +36,21 @@ export default function ScadaLayout() {
     navigate('/login', { replace: true });
   };
 
+  /* 안드로이드 태블릿에서 버튼을 1초쯤 누르고 있으면 브라우저의 롱프레스 메뉴
+     (다운로드·공유·인쇄)가 떠서 조작을 가로챈다. 이 화면의 조작 버튼은 2초를 눌러야
+     값이 나가는 모멘터리라, 정상 조작이 매번 그 메뉴에 막힌다.
+
+     touch-action / user-select로는 막히지 않는다 — 롱프레스 메뉴는 contextmenu
+     이벤트로 뜨므로 그 이벤트를 막아야 한다(작화 그림 위에서는 '이미지 다운로드'로 뜬다).
+
+     문서 전체를 막지는 않는다. 표의 글자는 그대로 끌어서 복사할 수 있어야 하고,
+     PC에서 오른쪽 클릭도 살려 둔다 — 버튼과 그림 위에서만 막는다. */
+  const blockLongPressMenu = (e) => {
+    if (e.target.closest?.('button, img, svg, input, .hmi-lampbox')) e.preventDefault();
+  };
+
   return (
-    <div className="hmi-root">
+    <div className="hmi-root" onContextMenu={blockLongPressMenu}>
       <div className="hmi-shell">
         <div className="hmi-header">
           <ScadaLogo />

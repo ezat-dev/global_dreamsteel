@@ -146,7 +146,14 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
   else if (isBlank) hint = rangeText ? `범위 ${rangeText}` : '값을 입력하세요';
 
   return createPortal((
-    <div className="hmi-pad-overlay" onMouseDown={onCancel}>
+    /* onContextMenu — 이 패드는 portal로 document.body에 붙어서 ScadaLayout의
+       롱프레스 메뉴 차단이 닿지 않는다. 숫자키를 조금 오래 누르면 태블릿에서
+       다운로드·공유 메뉴가 뜨므로 여기서도 따로 막는다. */
+    <div
+      className="hmi-pad-overlay"
+      onMouseDown={onCancel}
+      onContextMenu={(e) => e.preventDefault()}
+    >
       {/* 패드 내부 클릭이 오버레이(=취소)로 전달되지 않게 막는다.
           위치를 재기 전(pos === null) 한 프레임은 숨겨서 왼쪽 위에 번쩍이지 않게 한다. */}
       <div

@@ -123,6 +123,16 @@ button {
   /* 값이 바뀔 때 자릿수 때문에 레이아웃이 흔들리지 않도록 */
   font-variant-numeric: tabular-nums;
   user-select: none;
+  /* 터치 기기에서 길게 눌렀을 때 뜨는 미리보기·메뉴(iOS 계열)를 끈다.
+     안드로이드 쪽 롱프레스 메뉴는 이걸로 안 막혀서 ScadaLayout이 contextmenu를 막는다. */
+  -webkit-touch-callout: none;
+}
+
+/* 작화 그림을 길게 누르면 '이미지 다운로드'가 뜨고, 끌면 이미지가 딸려 나온다.
+   전부 보기만 하는 그림이라 끌기를 막아 둔다. */
+.hmi-root img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 .hmi-root *,
