@@ -758,6 +758,48 @@
   color: #ff9d95;
 }
 
+/* ===== ALL PURGE가 한 줄에 안 들어가는 폭 ==================================
+
+   아래 조작판 셋은 경보 표(560px 고정)가 쓰고 남은 폭을 나눠 갖는다. ALL PURGE만
+   항목이 넷(ON / PURGE 준비 / 중 / 완료)이라 제일 많이 먹는데, 1904px에서는 판이
+   434px이라 한 줄에 들어가지만 그 아래로는 두 줄이 된다. 그런데 .cb-bottom 높이가
+   88px로 못박혀 있어서 두 줄이 되는 순간 판 밖으로 삐져나온다
+   (1280px 태블릿에서 내용 117px / 상자 88px).
+
+   줄 높이를 내용에 맞춰 늘려도 되지만(그림이 그만큼 낮아진다), 88 → 127로 40px 가까이
+   올라가서 그림이 눈에 띄게 줄었다. 그래서 반대로 간다 — 88px은 그대로 두고, 이 판에만
+   크게 잡아 둔 글씨(15px, 화면의 다른 글씨는 11~13px이다)를 12.5px로 내려
+   두 줄이 88px 안에 들어오게 한다.
+
+   접히는 모양은 2x2로 못박는다. 그냥 두면 폭에 따라 3+1이나 2+1+1로 갈려서
+   줄 수가 들쭉날쭉해진다. */
+@media (max-width: 1700px) {
+  .cb-action {
+    gap: 6px;
+    padding: 5px 8px;
+  }
+
+  .cb-action .cb-plate--action {
+    padding: 2px 6px;
+    font-size: 12.5px;
+  }
+
+  .cb-action-row {
+    gap: 4px 6px;
+  }
+
+  .cb-action-lamp,
+  .cb-action-btn {
+    padding: 3px 8px;
+    font-size: 12.5px;
+  }
+
+  .cb-action--purge .cb-action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 /* ===== 좁은 화면(태블릿 가로) ===============================================
 
    이 화면은 태블릿에서 많이 본다. 960px 가로에서 아래 조작판이 혼자 우락부락해지는데,
