@@ -831,7 +831,10 @@
     font-size: 10px;
   }
 
-  .cb-burn .cb-onoff > b {
+  /* 존 연소 ON/OFF는 태그가 붙으면서 b → button이 됐다. 태그가 없는 화면 상태에서도
+     같은 모양이어야 하므로 둘 다 잡는다(위 .cb-onoff > b, > button과 같은 이유). */
+  .cb-burn .cb-onoff > b,
+  .cb-burn .cb-onoff > button {
     padding: 1px 2px;
     line-height: 1.1;
   }

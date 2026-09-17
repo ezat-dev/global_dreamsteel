@@ -6,7 +6,7 @@ import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, writeTag, TAG_OFF } from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -182,6 +182,23 @@ const ALARM_COLUMNS = [
 /* 낮은 칸이라 페이지 넘김 줄이 자리를 너무 먹는다. 대신 세로 스크롤로 본다. */
 const ALARM_OPTIONS = { pagination: false };
 
+/* 존 전체의 연소 ON/OFF 명령 — ez_scada.folders_tags.name과 반드시 같아야 한다.
+   개별 버너가 cb_z1_b1_on_cmd(1존 1번 버너)라, 존 전체는 버너 번호 자리에 burn을 넣어
+   cb_z1_burn_on_cmd로 구분한다(M361~M374 / 램프 M661~M674).
+   램프 이름은 여기에 '_lamp'를 붙인 것이고, 그 규칙은 foldertagApi의 lampOf가 갖고 있다. */
+const zoneBurnCmd = (zone, action) => `cb_z${zone}_burn_${action}_cmd`;
+
+/* 존 연소 두 칸. 서로를 보고 그리지 않고 각자 자기 램프 값만 본다.
+
+   켜지는 값이 둘이 다르다 — ON은 1일 때 초록, OFF는 0일 때 빨강이다(PLC가 그렇게 준다).
+   MAIN GAS CLOSE와 같은 경우로, lampClassOf의 litWhen이 이걸 위해 있다.
+   그래서 연소 중이면 ON=1(초록) / OFF=1(회색)이고, 정지 중이면 ON=0(회색) / OFF=0(빨강)이다.
+   값을 못 읽으면 둘 다 점선(is-unknown)으로 '모름'을 표시한다. */
+const ZONE_BURN_BUTTONS = [
+  { action: 'on', text: '연소\nON', lit: ' is-on' },
+  { action: 'off', text: '연소\nOFF', lit: ' is-alarm', litWhen: TAG_OFF },
+];
+
 /* 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지.
    RESET만 누르는 버튼(btn)이고 나머지는 PLC 상태를 비추는 램프(lamp)다.
    램프의 tone은 켜졌을 때의 색이고, 지금은 PLC가 없어 전부 꺼진 회색으로 나온다. */
@@ -216,9 +233,8 @@ export default function CombustionPage() {
      먼저 가져가는 만큼 그림이 작아지고 좌우가 비게 된다. */
   const [stageRef, scale] = useStageStretch(STAGE_W, STAGE_TOTAL_H);
 
-  /* PLC 상태·설정값. 지금은 사진과 같은 더미다. */
+  /* PLC 상태·설정값. 지금은 사진과 같은 더미다(존 연소 ON/OFF는 태그가 붙어서 빠졌다). */
   const [devices] = useState({ mainGas: false, blower: false, burnerCool: false });
-  const [zoneBurn] = useState(() => ZONES.map(() => false));
 
   /* 개별연소 모달을 띄운 존 번호. null이면 닫힘.
      존마다 창을 따로 두지 않고 번호만 바꿔 끼운다 — 내용이 존 번호로만 갈린다. */
@@ -533,10 +549,33 @@ export default function CombustionPage() {
           >
             <span className="cb-plate cb-plate--zone">{`NO.${n}ZONE`}</span>
             {/* 사진처럼 "연소"와 "ON/OFF"를 두 줄로 — 칸이 좁아 한 줄로는 안 들어간다
-                (.hmi-lampbox에 white-space: pre-line이 걸려 있어 \n이 줄바꿈이 된다). */}
+                (.hmi-lampbox에 white-space: pre-line이 걸려 있어 \n이 줄바꿈이 된다).
+
+                본판의 MAIN GAS OPEN/CLOSE와 같은 모멘터리 버튼이다 — HOLD_MS만큼
+                누르면 1이 나가고 떼면 0이 나간다(뗌은 window가 받는다). 색은 누른 것과
+                무관하게 PLC 램프가 정한다. disabled를 걸지 않는 이유는 위와 같다:
+                비활성 요소는 뗌 이벤트를 못 받아서 비트가 1로 남는다. */}
             <span className="cb-onoff">
-              <b className={`hmi-lampbox${zoneBurn[n - 1] ? ' is-on' : ''}`}>{'연소\nON'}</b>
-              <b className={`hmi-lampbox${zoneBurn[n - 1] ? '' : ' is-alarm'}`}>{'연소\nOFF'}</b>
+              {ZONE_BURN_BUTTONS.map((b) => {
+                const cmd = zoneBurnCmd(n, b.action);
+                return (
+                  <button
+                    type="button"
+                    key={cmd}
+                    className={`hmi-lampbox${lampClass(cmd, b.lit, b.litWhen)}`
+                      + (heldTag === cmd ? ' is-held' : '')
+                      + (armedTag === cmd ? ' is-armed' : '')}
+                    onPointerDown={() => handlePress(cmd)}
+                    data-tag={cmd}
+                    title={`${cmd} / 램프 ${lampOf(cmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
+                  >
+                    {b.text}
+                    {heldTag === cmd && (
+                      <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                    )}
+                  </button>
+                );
+              })}
             </span>
             {/* 이름표지만 누르면 그 존의 버너 4개 운전창이 열린다 */}
             <button
