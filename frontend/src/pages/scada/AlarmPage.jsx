@@ -161,7 +161,8 @@ export default function AlarmPage() {
             disabled={page === 0}
             title="이전 페이지"
           >
-            <IconChevronLeft size={16} />
+            {/* 버튼이 36px이라 화살표도 한 단 키운다 — 이 둘이 실제로 누르는 것이다 */}
+            <IconChevronLeft size={19} />
           </button>
 
           {Array.from({ length: pageCount }, (_, i) => (
@@ -182,7 +183,7 @@ export default function AlarmPage() {
             disabled={page >= pageCount - 1}
             title="다음 페이지"
           >
-            <IconChevronRight size={16} />
+            <IconChevronRight size={19} />
           </button>
 
           {range && <span className="al-range">{range}</span>}

@@ -31,19 +31,23 @@
   gap: 4px;
 }
 
+/* 28px이던 것을 36px로 키웠다. 마우스로도 작았고, 이 화면은 태블릿에서 가장 많이 보는
+   화면이라 손가락으로도 눌러야 한다(터치 권장 크기는 44px 안팎이다).
+   넓은 화면에서는 같은 줄의 ALARM RESET(38px)이 이미 그만큼 높아서 윗줄 높이가
+   늘지 않는다 — 즉 알람 칸이 손해 보지 않는다. */
 .al-pager-arrow,
 .al-pager-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  min-width: 28px;
-  padding: 0 8px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 12px;
   border: 1px solid var(--hmi-shadow-dark);
   border-radius: 7px;
   background: var(--hmi-panel);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--hmi-text);
   cursor: pointer;
@@ -247,11 +251,13 @@
     line-height: 1.15;
   }
 
-  /* 좁은 화면에서는 윗줄이 먹는 세로가 곧 알람 칸의 손해라, 페이지 버튼과 같은 높이로 낮춘다 */
+  /* 조작 버튼도 페이지 버튼과 같은 높이로 맞춘다. 예전에는 세로를 아끼려고 28px까지
+     낮췄는데, 이 폭에서는 어차피 격자가 본문 칸보다 커서 세로 스크롤이 생긴다 —
+     8px을 아껴도 스크롤은 그대로고 버튼만 누르기 힘들어진다. 손가락으로 누르는 쪽을 택한다. */
   .al-action {
-    height: 28px;
+    height: 36px;
     padding: 0 12px;
-    font-size: 12px;
+    font-size: 12.5px;
   }
 }
 
