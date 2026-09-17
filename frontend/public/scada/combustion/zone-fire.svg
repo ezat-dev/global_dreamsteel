@@ -1,10 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 26" width="22" height="26">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 36" width="22" height="36">
   <!-- 존 버너 불꽃. 28개 자리에 이 파일 하나만 쓴다.
 
        ── 칸 크기 ──
-       작화 기본 칸은 17x36(세로가 가로의 2배)이라 무엇을 그려도 길쭉해진다.
-       그래서 CombustionPage.css에서 22x26으로 바꿨다. viewBox도 같은 22x26이라
-       object-fit: cover로 잘리는 곳이 없다. 칸을 바꾸면 여기 viewBox도 같이 바꿔야 한다.
+       작화 기본 칸은 17x36이다. 폭이 좁아 갈래진 불꽃이 안 들어가서 22로 넓혔고,
+       세로는 한동안 26으로 줄여 썼다가 "불꽃이 더 길어도 된다"는 요청으로 36으로 되돌렸다.
+       CombustionPage.css의 칸도 22x36이고 viewBox도 같아서 object-fit: cover로 잘리는
+       곳이 없다. 칸을 바꾸면 여기 viewBox도 같이 바꿔야 한다.
+
+       도형 자체는 26 높이 기준으로 그려져 있어서, 아래 <g>에서 세로만 1.39배로 늘려
+       36 칸을 채운다(뿌리는 칸 맨 위에 붙고 끝이 그만큼 더 뻗는다). 배율을 더 키우면
+       아래의 타오르는 움직임에서 끝이 칸 밖으로 나가 잘린다.
 
        ── 방향 ──
        원본은 넓고 밝은 쪽이 위, 가늘고 붉은 끝이 아래다. 불꽃은 뿌리가 가장 뜨겁고
@@ -21,13 +26,18 @@
        한 직선 위에 두지 않아야 끝이 뾰족해진다 — 나란히 두면 둥글어져 풍선이 된다.
        골은 충분히 깊게 파야 갈래가 갈래로 보인다. 얕으면 한 덩어리로 뭉쳐 보인다.
 
-       ── 흔들림 ──
-       세 겹을 좌우로 기울여(skewX) 쓸리게 한다. 갈래가 많아서 통째로 기울이기만 해도
-       불혀가 서로 엇갈려 움직이는 것처럼 보인다.
-       주기는 셋 다 .85초로 같게 두고 기울기와 시작 시각만 어긋냈다. 주기를 다르게 두면
-       위상이 벌어지는 순간 속불이 바깥 불꽃을 뚫고 나온다.
-       기울기는 바깥으로 갈수록 작다(5 / 9 / 12도). 바깥 불꽃이 제일 넓고 키가 커서
-       같은 각도로도 끝이 훨씬 멀리 나가 viewBox 밖으로 잘리기 때문이다.
+       ── 타오름 ──
+       예전에는 좌우로 기울여(skewX) 바람에 쓸리듯 움직였는데, 버너 불꽃은 옆으로
+       쓸리는 게 아니라 뿜는 방향으로 뻗었다 줄었다 한다. 그래서 기울임을 걷어내고
+       제 길이 방향으로 늘었다 줄어들게 한다(scaleY). 뿌리는 붙박이고 끝만 움직인다.
+
+       폭은 길이와 반대로 준다(길어질 때 살짝 홀쭉, 짧아질 때 통통) — 같은 양이
+       움직이는 것처럼 보여야 불꽃이 앞으로 뿜는 느낌이 난다.
+
+       주기는 셋 다 .9초로 같게 두고 시작 시각만 조금씩(-.06 / -.12초) 어긋냈다.
+       주기를 다르게 두면 위상이 벌어지는 순간 속불이 바깥 불꽃을 뚫고 나온다 —
+       같은 주기에 조금만 어긋내면 겹 순서가 늘 유지된다.
+       늘어나는 쪽 한계(1.02)는 칸에 맞춰 잡았다. 더 키우면 끝이 viewBox 밖으로 잘린다.
        <img>로 띄워도 SVG 안의 CSS 애니메이션은 돈다(스크립트만 막힌다).
 
        주의 — 태그를 연결할 때: 이 파일은 보이기만 하면 늘 흔들린다. 값이 1일 때만
@@ -63,28 +73,70 @@
     /* 아래 가운데를 붙박아야 밑동은 제자리에 있고 불혀만 쓸린다 */
     .lick { transform-box: fill-box; transform-origin: 50% 100%; }
 
-    /* 주기는 셋 다 같다. 기울기 크기와 시작 시각(delay)만 어긋내서 겹끼리 엇갈리게
-       한다. 음수 delay는 "이미 그만큼 진행된 상태로 시작"이라는 뜻이다. */
-    .f1 { animation: sway1 .85s ease-in-out infinite alternate; }
-    .f2 { animation: sway2 .85s ease-in-out infinite alternate; animation-delay: -.07s; }
-    .f3 { animation: sway3 .85s ease-in-out infinite alternate; animation-delay: -.14s; }
-    .hot { animation: hot-pulse .43s ease-in-out infinite alternate; }
+    /* 주기는 셋 다 같고 시작 시각(delay)만 어긋낸다. 음수 delay는 "이미 그만큼
+       진행된 상태로 시작"이라는 뜻이다. 속불이 먼저 튀어나가고 바깥 불꽃이 뒤따른다.
 
-    @keyframes sway1 {
-      from { transform: skewX(5deg)  scaleY(.95); }
-      to   { transform: skewX(-5deg) scaleY(1.05); }
+       주기를 2.1초로 길게 잡고 그 안에 크기가 다른 네 번의 뿜기를 넣었다 — 같은 크기로
+       규칙적으로 뛰면 기계가 펌프질하는 것처럼 보인다. 크게 한 번, 작게, 크게, 작게가
+       섞여야 "화르륵" 하고 타오르는 것처럼 들쭉날쭉해진다. */
+    .f1 { animation: shoot 2.1s infinite; }
+    .f2 { animation: shoot 2.1s infinite; animation-delay: -.05s; }
+    .f3 { animation: shoot 2.1s infinite; animation-delay: -.1s; }
+
+    /* 위의 느린 뿜기 위에 얹는 빠른 떨림. 세 겹을 감싼 묶음(.gust)에 걸어서 셋이 똑같이
+       흔들리게 한다 — 겹마다 따로 흔들면 위상이 벌어지는 순간 속불이 바깥으로 삐져나온다.
+       이 잔떨림이 있어야 불이 살아서 타는 것처럼 보인다(없으면 매끄럽게 커졌다 작아진다).
+       폭(1.04)이 길이(1.03)보다 크게 흔들려서 좌우로 일렁이는 느낌도 같이 난다. */
+    .gust {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      animation: gust .23s infinite alternate, flicker .41s infinite alternate;
     }
-    @keyframes sway2 {
-      from { transform: skewX(9deg)  scaleY(1.06); }
-      to   { transform: skewX(-9deg) scaleY(.94); }
+    /* 밑동은 쏘는 박자에 맞춰 같이 터진다 — 불이 실제로 뿜어 나오는 곳이 여기다 */
+    .hot { animation: hot-flash 1.05s infinite; animation-delay: -.12s; }
+
+    /* 쏘는 모양 — 뿌리에 뭉쳤다가(.58) 한 번에 뻗고(1.02), 도로 당겨졌다가 다시 뻗는다.
+       alternate(왔다갔다)가 아니라 한 방향으로 도는 이유가 이것이다: 나가는 구간은
+       빠르게, 당겨지는 구간은 느리게 해야 "쏜다"로 보인다. 구간마다 가속을 따로 준다.
+
+       폭(scaleX)은 길이와 반대로 간다 — 뭉쳐 있을 땐 통통하고 뻗을 땐 홀쭉해져서
+       같은 양의 불이 앞으로 뿜어 나가는 것처럼 보인다.
+
+       늘어나는 쪽 한계는 1.02다. 더 키우면 끝이 칸 밖으로 잘린다.
+       줄어드는 쪽은 얼마든 내려도 안 잘리므로 극적인 차이는 이쪽에서 번다. */
+    @keyframes shoot {
+      0%   { transform: scale(1.18, .54); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
+      9%   { transform: scale(.92, .99);  animation-timing-function: ease-in; }   /* 크게 한 번 */
+      24%  { transform: scale(1.12, .62); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
+      31%  { transform: scale(1.0, .82);  animation-timing-function: ease-in; }   /* 작게 */
+      43%  { transform: scale(1.14, .58); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
+      52%  { transform: scale(.94, .96);  animation-timing-function: ease-in; }   /* 다시 크게 */
+      67%  { transform: scale(1.1, .66);  animation-timing-function: cubic-bezier(.05, .85, .25, 1); }
+      75%  { transform: scale(1.02, .86); animation-timing-function: ease-in; }   /* 작게 */
+      88%  { transform: scale(1.15, .56); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
+      95%  { transform: scale(.96, .92);  animation-timing-function: ease-in; }   /* 짧게 한 번 더 */
+      100% { transform: scale(1.18, .54); }
     }
-    @keyframes sway3 {
-      from { transform: skewX(12deg) scaleY(.92); }
-      to   { transform: skewX(-12deg) scaleY(1.07); }
+
+    /* 잔떨림 — 느린 뿜기에 곱해진다. 폭이 길이보다 크게 흔들려 일렁이는 느낌을 준다. */
+    @keyframes gust {
+      from { transform: scale(.97, 1.0); }
+      to   { transform: scale(1.04, 1.03); }
     }
-    @keyframes hot-pulse {
-      from { transform: scale(.86); opacity: .72; }
-      to   { transform: scale(1.1); opacity: 1; }
+
+    /* 밝기 떨림 — 불빛이 흔들리는 것처럼. 모양과 다른 주기라 박자가 겹치지 않는다. */
+    @keyframes flicker {
+      from { opacity: .86; }
+      to   { opacity: 1; }
+    }
+
+    /* 밑동은 뻗는 순간 하얗게 커지고, 당겨질 때 잦아든다 */
+    @keyframes hot-flash {
+      0%   { transform: scale(1.1, .72);  opacity: .55; animation-timing-function: cubic-bezier(.05, .85, .25, 1); }
+      17%  { transform: scale(.92, 1.25); opacity: 1;   animation-timing-function: ease-in; }
+      42%  { transform: scale(1.05, .82); opacity: .6;  animation-timing-function: cubic-bezier(.05, .85, .25, 1); }
+      58%  { transform: scale(.95, 1.12); opacity: .95; animation-timing-function: ease-in; }
+      100% { transform: scale(1.1, .72);  opacity: .55; }
     }
 
     /* 움직임을 꺼 달라는 설정이면 멈춘다. 현장 패널에서 계속 흔들리는 게
@@ -94,8 +146,11 @@
     }
   </style>
 
-  <!-- 위아래 뒤집기 — 위 주석의 "방향" 참고 -->
-  <g transform="translate(0, 26) scale(1, -1)">
+  <!-- 위아래 뒤집기 — 위 주석의 "방향" 참고.
+       안쪽 g의 scale(1, 1.39)가 26 기준으로 그린 도형을 36 칸에 맞춰 늘린다. -->
+  <g transform="translate(0, 36) scale(1, -1)">
+   <g transform="scale(1, 1.39)">
+    <g class="gust">
 
     <!-- 바깥 불꽃 — 불혀 5갈래 -->
     <path class="lick f1" fill="url(#outer)"
@@ -126,5 +181,7 @@
 
     <!-- 밑동의 흰빛 -->
     <ellipse class="lick hot" cx="11" cy="20.4" rx="4" ry="3.6" fill="url(#hot)"/>
+    </g>
+   </g>
   </g>
 </svg>
