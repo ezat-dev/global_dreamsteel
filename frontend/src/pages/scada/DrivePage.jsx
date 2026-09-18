@@ -305,17 +305,17 @@ const ALARM_OPTIONS = { pagination: false };
  * 두 램프는 서로를 보고 그리지 않는다. 각자 자기 태그가 1일 때 켜지고, 둘 다 0이면
  * 둘 다 꺼진 채로 둔다(셀렉터가 중립이거나 넘어가는 중인 상태를 그대로 보여준다).
  */
-function OpPanel({ title, values, autoTag, manualTag }) {
+function OpPanel({ title, values, autoTag, manualTag, autoDriveTag, stopTag }) {
   /* 이 태그들은 이름 자체가 램프다(_cmd_lamp가 아니다). lampClassOf는 명령 이름에
      '_lamp'를 붙여 찾으므로 여기서는 값을 바로 읽는다.
 
      켜지는 값이 둘이 다르다 — 자동은 1일 때, 수동은 0일 때 켜진다(PLC가 그렇게 준다).
      연소화면의 MAIN GAS CLOSE와 같은 경우다. 그래서 몇에서 켜지는지를 호출부가 정한다. */
-  const lampClass = (name, litWhen) => {
+  const lampClass = (name, litWhen, onClassName = ' is-on') => {
     if (!values) return ' is-unknown';
     const st = tagState(values[name]);
     if (st === TAG_UNKNOWN) return ' is-unknown';
-    return st === litWhen ? ' is-on' : '';
+    return st === litWhen ? onClassName : '';
   };
 
   return (
@@ -340,10 +340,24 @@ function OpPanel({ title, values, autoTag, manualTag }) {
         </span>
       </div>
 
-      {/* 실제 기동/정지는 PLC 쓰기라 연동 전까지 눌러도 아무 일도 하지 않는다. */}
+      {/* 자동운전·비상정지도 램프다 — 기동과 정지는 현장 OP 패널에서 하고, 화면은
+          지금 어떤 상태인지만 비춘다. 둘 다 값이 1일 때 켜지고, 색만 다르다:
+          운전 중은 초록, 비상정지가 걸리면 빨강(다른 화면의 경보 색과 같다). */}
       <div className="dr-op-row">
-        <button type="button" className="dr-op-btn is-wide" disabled>자동운전</button>
-        <button type="button" className="dr-op-btn is-wide is-stop" disabled>비상정지</button>
+        <span
+          className={`dr-op-btn dr-op-lamp is-wide${lampClass(autoDriveTag, TAG_ON)}`}
+          data-tag={autoDriveTag}
+          title={`${autoDriveTag} — 값이 1이면 자동운전 중(켜짐)`}
+        >
+          자동운전
+        </span>
+        <span
+          className={`dr-op-btn dr-op-lamp is-wide${lampClass(stopTag, TAG_ON, ' is-alarm')}`}
+          data-tag={stopTag}
+          title={`${stopTag} — 값이 1이면 비상정지 걸림(빨강)`}
+        >
+          비상정지
+        </span>
       </div>
     </div>
   );
@@ -641,6 +655,8 @@ export default function DrivePage() {
           values={tagValues}
           autoTag="charge_op_auto_lamp"
           manualTag="charge_op_manual_lamp"
+          autoDriveTag="charge_op_auto_drive_lamp"
+          stopTag="charge_op_emergency_stop_lamp"
         />
 
         <div className="hmi-group dr-panel dr-alarm-sw">
@@ -676,6 +692,8 @@ export default function DrivePage() {
           values={tagValues}
           autoTag="discharge_op_auto_lamp"
           manualTag="discharge_op_manual_lamp"
+          autoDriveTag="discharge_op_auto_drive_lamp"
+          stopTag="discharge_op_emergency_stop_lamp"
         />
       </div>
 

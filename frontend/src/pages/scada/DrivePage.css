@@ -113,6 +113,14 @@
   color: #ffffff;
 }
 
+/* 비상정지가 걸린 상태 — 채운 빨강. 다른 화면의 경보 색(#dc2626)과 같다.
+   어두운 테마에서도 낮추지 않는다(램프 색은 안전 신호라 그대로 둔다는 규칙). */
+.dr-op-row .dr-op-lamp.is-alarm {
+  border-color: #dc2626;
+  background: #dc2626;
+  color: #ffffff;
+}
+
 /* 값을 못 읽은 상태 — 꺼짐과 구분한다. 다른 화면의 램프와 같은 점선 규칙이다. */
 .dr-op-lamp.is-unknown {
   border-style: dashed;
@@ -124,10 +132,6 @@
   border-color: var(--hmi-blue-edge);
   background: var(--hmi-blue-edge);
   color: #ffffff;
-}
-
-.dr-op-btn.is-stop:not(:disabled) {
-  color: #a01818;
 }
 
 /* 아직 PLC에 쓰지 않는 버튼 — 사진처럼 흐리게 두어 조작 대상이 아님을 보인다 */
@@ -561,12 +565,8 @@
   color: #ffffff;
 }
 
-/* 정지 버튼의 붉은 글자와 경보 알림칸 — 어두운 바탕에서는 채운 색 대신
-   옅은 막 + 밝은 글자로 뒤집는다. */
-.dr-page.hmi-dark .dr-op-btn.is-stop:not(:disabled) {
-  color: #ff9d95;
-}
-
+/* 경보 알림칸 — 어두운 바탕에서는 채운 색 대신 옅은 막 + 밝은 글자로 뒤집는다.
+   (예전에 여기 있던 .is-stop 규칙은 비상정지가 버튼에서 램프로 바뀌면서 지웠다.) */
 .dr-page.hmi-dark .dr-alarm-error {
   background: #2a100e;
   color: #ffb4ad;
