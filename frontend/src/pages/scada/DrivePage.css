@@ -104,6 +104,34 @@
   cursor: default;
 }
 
+/* ALARM SWITCH의 두 버튼 — 누르는 버튼이면서 동시에 램프다(값을 쓰는 태그와 상태를
+   읽는 태그가 하나다). 진행 바를 안쪽 아래에 붙이려면 기준과 잘라내기가 필요하고,
+   터치에서 손가락이 조금 움직여도 누름이 끊기지 않게 스크롤 가로채기를 끈다. */
+.dr-alarm-sw .dr-op-btn {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* PLC가 1을 주는 동안 — 알람화면의 같은 버튼과 같은 초록.
+   hover 규칙(0,4,0)보다 약하면 손을 올렸을 때 초록이 사라지므로 무게를 맞춘다. */
+.dr-panel.dr-alarm-sw .dr-op-btn.is-on {
+  border-color: #15803d;
+  background: #15803d;
+  color: #ffffff;
+}
+
+.dr-alarm-sw .dr-op-btn.is-unknown {
+  border-style: dashed;
+  color: var(--hmi-text-faint);
+}
+
+.dr-alarm-sw .dr-op-btn.is-held {
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, .4);
+}
+
 /* 켜진 쪽은 채운 초록 — 다른 화면의 켜진 램프와 같은 색이다(하늘색은 '지금 고른 것'을
    뜻하는 버튼 색이라, 값을 비추는 램프와 구분한다).
    .dr-op-btn.is-on(하늘색)이 뒤에 있어서 같은 무게로는 못 덮는다 — 한 단 높여 잡는다. */
@@ -560,8 +588,9 @@
   color: var(--g-accent-ink);
 }
 
-/* 조작 선택 램프는 초록이라 흰 글자가 맞다 — 위 규칙(짙은 남색)을 되돌린다 */
-.dr-page.hmi-dark .dr-op-lamp.is-on {
+/* 조작 선택 램프와 ALARM SWITCH는 초록이라 흰 글자가 맞다 — 위 규칙(짙은 남색)을 되돌린다 */
+.dr-page.hmi-dark .dr-op-lamp.is-on,
+.dr-page.hmi-dark .dr-alarm-sw .dr-op-btn.is-on {
   color: #ffffff;
 }
 

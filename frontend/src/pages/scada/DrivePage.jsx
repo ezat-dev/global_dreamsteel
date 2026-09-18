@@ -95,6 +95,17 @@ const DR_FOLDER_ID = 9;
    CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
 const DRIVE_HOLD_MS = 2000;
 
+/* ALARM SWITCH 판의 두 버튼 — 알람화면의 같은 버튼과 태그·동작이 완전히 같다
+   (같은 주소를 폴더 9에도 넣어 두었다. 이 화면은 폴더 9만 폴링하므로,
+   여기에 있어야 읽기와 쓰기가 한 폴더에서 끝난다).
+
+   값을 쓰는 태그와 상태를 읽는 태그가 하나다 — 짝이 되는 _lamp가 없다.
+   2초 누르면 1이 나가고 떼면 0, 그리고 1인 동안 버튼이 초록으로 켜진다. */
+const ALARM_SWITCHES = [
+  { tag: 'alarm_reset', text: 'ALARM RESET' },
+  { tag: 'alarm_horn_stop', text: 'HORN STOP' },
+];
+
 /* 구동부 ON/OFF 태그. 화면 이름은 입구/출구지만 태그는 현장 용어인 장입/배출을 쓴다.
      charge    M300 ON / M301 OFF   램프 M600 / M601   입구 TABLE DRIVE
      maincc    M302 / M303          램프 M602 / M603   MAIN/CC DRIVE
@@ -586,6 +597,15 @@ export default function DrivePage() {
      도착해서 비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
   const chainRef = useRef(Promise.resolve());
 
+  /* ALARM SWITCH 두 버튼의 색 — 이 태그들은 이름 자체가 상태값이라(_lamp가 없다)
+     lampClassOf 대신 값을 바로 읽는다. 1이면 켜짐, 못 읽으면 모름(점선). */
+  const switchLampClass = (name) => {
+    if (!tagValues) return ' is-unknown';
+    const st = tagState(tagValues[name]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === TAG_ON ? ' is-on' : '';
+  };
+
   const handleDrivePress = (name) => {
     if (heldRef.current) return;   // ON과 OFF를 동시에 누르는 상황은 만들지 않는다
     heldRef.current = name;
@@ -661,8 +681,26 @@ export default function DrivePage() {
 
         <div className="hmi-group dr-panel dr-alarm-sw">
           <span className="hmi-group-title">ALARM SWITCH</span>
-          <button type="button" className="dr-op-btn is-wide" disabled>ALARM RESET</button>
-          <button type="button" className="dr-op-btn is-wide" disabled>HORN STOP</button>
+          {/* 알람화면의 같은 버튼과 동작이 같다 — 2초 누르면 1, 떼면 0.
+              disabled를 걸지 않는 이유는 다른 momentary 버튼과 같다:
+              비활성 요소는 뗌 이벤트를 못 받아서 비트가 1로 남는다. */}
+          {ALARM_SWITCHES.map((b) => (
+            <button
+              type="button"
+              key={b.tag}
+              className={`dr-op-btn is-wide${switchLampClass(b.tag)}`
+                + (heldTag === b.tag ? ' is-held' : '')
+                + (armedTag === b.tag ? ' is-armed' : '')}
+              onPointerDown={() => handleDrivePress(b.tag)}
+              data-tag={b.tag}
+              title={`${b.tag} — ${DRIVE_HOLD_MS / 1000}초 누르면 1, 떼면 0`}
+            >
+              {b.text}
+              {heldTag === b.tag && (
+                <span className="dr-hold-bar" style={{ animationDuration: `${DRIVE_HOLD_MS}ms` }} />
+              )}
+            </button>
+          ))}
         </div>
 
         <LampList title="입구 자동운전 조건" lamps={ENT_CONDITIONS} />
