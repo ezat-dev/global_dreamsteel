@@ -216,6 +216,57 @@
   background: #f7cbc6;
 }
 
+/* ===== 조작 버튼의 상태 표시 =============================================
+   이 두 버튼은 값을 쓰는 태그와 상태를 읽는 태그가 같다. 그래서 버튼 자신이 램프다 —
+   PLC가 1을 돌려주는 동안 초록으로 켜진다. 다른 화면의 켜진 램프와 같은 초록이다.
+
+   touch-action / user-select는 다른 화면의 누름 버튼과 같은 이유다: 손가락을 누른 채
+   조금 움직이면 브라우저가 스크롤로 가로채 pointercancel이 떠서 명령이 끊긴다. */
+.al-action {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.al-action.is-on {
+  border-color: #15803d;
+  background: #15803d;
+  color: #ffffff;
+}
+
+/* 값을 못 읽은 상태 — 꺼진 것과 구분한다(격자 칸의 is-unknown과 같은 규칙) */
+.al-action.is-unknown {
+  border-style: dashed;
+}
+
+/* 누르고 있는 동안 — 값(PLC 상태)과 별개로 "지금 누르고 있다"만 알린다 */
+.al-action.is-held {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .35);
+}
+
+/* 누름 진행 바. 누르는 순간 요소가 새로 생겨(조건부 렌더) 처음부터 돈다 —
+   클래스만 토글하면 연달아 누를 때 애니메이션이 다시 시작되지 않는다.
+   길이는 JS의 HOLD_MS를 inline style로 받는다. */
+.al-hold-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0;
+  background: var(--hmi-hold-fill);
+  box-shadow: 0 0 6px rgba(255, 176, 32, .55);
+  pointer-events: none;
+  animation-name: al-hold-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes al-hold-fill {
+  to { width: 100%; }
+}
+
 /* ===== 좁은 화면 =====
    10열이 다 들어가지 않으면 글자가 뭉개져서 단계적으로 열을 줄인다.
    DB 메시지가 영문 장문("Discharge Pocket(1) Up/Down EOCR Fault Abnormal")이라

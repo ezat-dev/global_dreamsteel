@@ -11,8 +11,10 @@ import plcApiInstance from '../plcApiInstance';
    서로 다른 서버를 보므로 인스턴스도 둘이다(정의는 자바 8081, 값은 C# 5050).
    =========================================================================== */
 
-/** ez_scada.folders.id — 폴더 이름 '알람페이지_램프'. 알람화면 램프 200개가 이 폴더에 있다. */
-const ALARM_LAMP_FOLDER_ID = 6;
+/** ez_scada.folders.id — 폴더 이름 '알람페이지_램프'. 알람화면 램프 200개가 이 폴더에 있다.
+    ALARM RESET / HORN STOP 명령 태그도 같은 폴더라, 화면이 쓸 때 쓰라고 내보낸다
+    (두 파일에 6을 각각 적어 두면 폴더를 옮길 때 한쪽만 고치게 된다). */
+export const ALARM_LAMP_FOLDER_ID = 6;
 
 /** 램프 태그 이름 규칙: tb_alarm_tag.tag_name + 이 접미사 (alarm_1000 → alarm_1000_lamp) */
 const LAMP_SUFFIX = '_lamp';
