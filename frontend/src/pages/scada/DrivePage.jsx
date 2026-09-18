@@ -332,7 +332,13 @@ const NOTES = [
   // MAIN DRIVE 존(x 609~1136, 아래끝 y 366) 바로 밑
   /* lamp를 주면 글자 뒤에 빨간 램프 칸이 붙는다 — 이 줄의 "OFF"는 설명이 아니라
      설비가 실제로 꺼졌음을 알리는 표시등이다. */
-  { key: 'tempOff', cx: 872, top: 372, value: '####', text: '℃ 이하시 설비', lamp: 'OFF' },
+  {
+    key: 'tempOff', cx: 872, top: 372, text: '℃ 이하시 설비', lamp: 'OFF',
+    /* 앞의 빨간 숫자를 PLC에서 읽는다. 못 읽으면 '---'로 둔다 — 0으로 그리면
+       0℃ 이하에서 끈다는 말이 되어 설정을 잘못 읽는다. */
+    valueTag: 'facility_off_temp',
+    valueLabel: '설비 OFF 기준 온도',
+  },
   // ent-motor-4(x 332~356, y 360~401) 오른쪽 옆. 모터 세로 가운데에 맞춘다.
   { key: 'stopper', left: 362, top: 372, text: 'STOPPER 하강 감지' },
   // ent-motor-3(x 497~522, y 160~201) 바로 위. 가운데(510)에 맞춘다.
@@ -707,6 +713,12 @@ export default function DrivePage() {
     return v == null || v === '' ? '---' : String(v);
   };
 
+  /* 그림 위 글귀에 섞이는 값(NOTES의 valueTag) — 같은 규칙으로 '---'를 쓴다. */
+  const noteValue = (tag) => {
+    const v = tagValues?.[tag];
+    return v == null || v === '' ? '---' : String(v);
+  };
+
   /* 표시는 Working SV(D100), 입력은 R100으로 나간다 — 온도제어 화면과 같은 규칙이다.
      램프 프로그램이 돌면 930을 넣어도 표시는 850→880→910으로 따라 올라간다. */
   const handleZoneSv = (n, value) => {
@@ -1010,8 +1022,9 @@ export default function DrivePage() {
                 style={n.cx != null
                   ? { left: n.cx, top: n.top, transform: 'translateX(-50%)' }
                   : { left: n.left, top: n.top }}
+                title={n.valueTag ? `${n.valueLabel} — 읽기 전용 / ${n.valueTag}` : undefined}
               >
-                {n.value && <span className="dr-note-val">{n.value}</span>}
+                {n.valueTag && <span className="dr-note-val">{noteValue(n.valueTag)}</span>}
                 {n.text}
                 {n.lamp && <span className="dr-note-lamp hmi-lampbox is-alarm">{n.lamp}</span>}
               </span>
