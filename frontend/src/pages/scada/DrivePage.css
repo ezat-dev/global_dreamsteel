@@ -598,6 +598,24 @@
   visibility: hidden;
 }
 
+/* ===== 입구 왼쪽 모터 둘 ===================================================
+
+   값이 0이거나 못 읽으면 회색, 1이면 작화 그대로(초록)다.
+   화살표와 같은 방식으로 무대에 클래스만 붙는다(DrivePage.jsx의 MOTOR_TAGS).
+
+   모터 그림(motor-h.svg / motor-drum.svg)이 초록 한 색이라 grayscale 하나로 끝난다.
+   색을 덮어씌우지 않고 채도만 빼기 때문에 명암·모양은 그대로 남아서, 회색이어도
+   모터로 보인다. 그림 파일을 바꿔 끼우는 롤러와 달리 이렇게 되는 이유는 filter가
+   바깥에서 <img> 에 걸리는 속성이기 때문이다(SVG 안의 애니메이션은 그게 안 된다).
+
+   작화 CSS는 이 자리에 filter를 걸지 않으므로 무게를 다툴 상대가 없다. 나중에 작화나
+   다크 테마가 모터에 filter를 걸게 되면 서로 덮어쓴다 — filter는 겹쳐 쌓이지 않고
+   나중 것 하나만 남기 때문에, 그때는 두 값을 한 줄에 같이 적어야 한다. */
+.dr-stage-inner.gray-ent-motor1 .ent-motor-1,
+.dr-stage-inner.gray-ent-motor2 .ent-motor-2 {
+  filter: grayscale(1);
+}
+
 /* 로 순환 팬 — 보기만 하는 그림이라 클릭을 받지 않는다.
    (.dr-overlay > * 가 pointer-events: auto를 걸어 주므로 여기서 다시 끈다.) */
 .dr-fan {

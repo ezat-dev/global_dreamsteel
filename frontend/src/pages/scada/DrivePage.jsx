@@ -159,6 +159,13 @@ const ARROW_TAGS = [
 const ENT_ROLLER_TAG = 'charge_side_conveyor_roller';
 const EXIT_ROLLER_TAG = 'discharge_side_conveyor_roller';
 
+/* 입구 왼쪽 모터 둘 — 값이 1이면 지금 색(초록), 0이거나 못 읽으면 회색.
+   작화의 모터 그림이 초록이라 회색으로 만드는 건 filter 한 줄이면 된다. */
+const MOTOR_TAGS = [
+  { tag: 'charge_motor1_lamp', grayClass: 'gray-ent-motor1' },
+  { tag: 'charge_motor2_lamp', grayClass: 'gray-ent-motor2' },
+];
+
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
    같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
    복제한 것이다. PLC 왕복은 늘지 않는다(C# 폴러가 주소를 Distinct로 묶어 읽는다).
@@ -691,6 +698,12 @@ export default function DrivePage() {
   const entRolling = tagState(tagValues?.[ENT_ROLLER_TAG]) === TAG_ON;
   const exitRolling = tagState(tagValues?.[EXIT_ROLLER_TAG]) === TAG_ON;
 
+  /* 모터는 화살표와 같은 방식이다 — 무대에 클래스만 붙이고 회색으로 만드는 일은 CSS가 한다. */
+  const motorGrayClass = MOTOR_TAGS
+    .filter(({ tag }) => tagState(tagValues?.[tag]) !== TAG_ON)
+    .map(({ grayClass }) => ` ${grayClass}`)
+    .join('');
+
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다.
      읽지 못한 온도를 0으로 그리면 노가 식은 것으로 오해한다. */
   const zoneText = (n, suffix) => {
@@ -877,7 +890,7 @@ export default function DrivePage() {
         {/* 왼쪽 위를 고정점으로 줄인다(transform-origin: top left). 배율이 가로 기준이라
             줄인 폭이 곧 무대 폭이 되어 좌우 양끝에 딱 맞는다. */}
         <div
-          className={`dr-stage-inner${arrowHideClass}`}
+          className={`dr-stage-inner${arrowHideClass}${motorGrayClass}`}
           style={{
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,
