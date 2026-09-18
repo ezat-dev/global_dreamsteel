@@ -140,6 +140,19 @@ const ALARM_SWITCHES = [
    있는 대로 보여주는 게 맞다. 연소화면 MAIN GAS의 OPEN/CLOSE도 같은 구조다. */
 const driveCmd = (unit, action) => `${unit}_${action}_cmd`;
 
+/* 입구·출구 SIDE CONVEYOR의 오르내림 화살표. 한 구역의 같은 방향 네 개가 한 태그를 본다
+   (작화 클래스 ent-up-1~4 / ent-down-1~4 / exit-up-1~4 / exit-down-1~4).
+   값이 1이면 보이고, 0이거나 못 읽으면 숨긴다 — 숨기는 일은 DrivePage.css가 맡고
+   여기서는 무대에 붙일 클래스 이름만 정한다.
+
+   주소는 아직 넷 다 M001이라 같이 나타났다 사라진다. */
+const ARROW_TAGS = [
+  { tag: 'charge_side_conveyor_arrow_up', hideClass: 'hide-ent-up' },
+  { tag: 'charge_side_conveyor_arrow_down', hideClass: 'hide-ent-down' },
+  { tag: 'discharge_side_conveyor_arrow_up', hideClass: 'hide-exit-up' },
+  { tag: 'discharge_side_conveyor_arrow_down', hideClass: 'hide-exit-down' },
+];
+
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
    같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
    복제한 것이다. PLC 왕복은 늘지 않는다(C# 폴러가 주소를 Distinct로 묶어 읽는다).
@@ -648,9 +661,23 @@ export default function DrivePage() {
       .catch((e) => setWriteError(`${tag} — ${e.message}`));
   };
 
-  /* 존 PV/SV 실시간값. 나머지 칸(구동부 3개, 램프, TIME 설정 등)은 아직 더미다. */
+  /* 이 화면의 PLC 값 — 램프·PV/SV·조작 상태가 전부 여기서 온다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(DR_FOLDER_ID);
   const [writeError, setWriteError] = useState('');
+
+  /* SIDE CONVEYOR 화살표 — 값이 1인 방향만 보인다(0이거나 못 읽으면 숨긴다).
+     통신이 끊겼는데 화살표가 떠 있으면 컨베이어가 도는 것으로 읽히므로 숨기는 쪽이 안전하다.
+
+     작화(DriveOverview)는 값을 받지 않는 고정 그림이라 memo로 묶여 있다 — 여기에 값을
+     넘기면 1초마다 요소 571개를 다시 비교하게 된다. 그래서 무대에 클래스만 붙이고
+     실제로 숨기는 일은 DrivePage.css가 맡는다.
+
+     tagValues를 쓰므로 반드시 그 아래에 둔다 — 위에 두면 선언 전에 읽어서(TDZ)
+     렌더가 통째로 죽는다. 실제로 그렇게 만들어 화면이 빈 적이 있다. */
+  const arrowHideClass = ARROW_TAGS
+    .filter(({ tag }) => tagState(tagValues?.[tag]) !== TAG_ON)
+    .map(({ hideClass }) => ` ${hideClass}`)
+    .join('');
 
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다.
      읽지 못한 온도를 0으로 그리면 노가 식은 것으로 오해한다. */
@@ -838,7 +865,7 @@ export default function DrivePage() {
         {/* 왼쪽 위를 고정점으로 줄인다(transform-origin: top left). 배율이 가로 기준이라
             줄인 폭이 곧 무대 폭이 되어 좌우 양끝에 딱 맞는다. */}
         <div
-          className="dr-stage-inner"
+          className={`dr-stage-inner${arrowHideClass}`}
           style={{
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,

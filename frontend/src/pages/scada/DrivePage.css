@@ -579,6 +579,25 @@
   text-align: center;
 }
 
+/* ===== SIDE CONVEYOR 오르내림 화살표 =====================================
+
+   작화의 화살표(ent-up-1~4 / ent-down-1~4 / exit-up-1~4 / exit-down-1~4)를 값에 따라
+   숨긴다. 작화 파일도, 작화 컴포넌트도 건드리지 않는다 — 화면이 무대에 hide-* 클래스만
+   붙이고(DrivePage.jsx의 ARROW_TAGS) 실제로 숨기는 일은 여기서 한다.
+   그래야 DriveOverview가 memo로 묶인 채 남아서 1초마다 다시 그려지지 않는다.
+
+   클래스를 넷 겹쳐 잡은 이유: 작화 CSS가 .overview-1 .ent-up-1(둘)로 위치를 주고 있어
+   그보다 무거워야 한다. 속성 선택자 [class^=]는 클래스 하나 몫이다.
+
+   display가 아니라 visibility인 이유: 자리는 그대로 두고 보이기만 감춘다. 절대배치라
+   레이아웃에 영향은 없지만, 다시 켤 때 그리기만 하면 되어 값이 자주 뒤집힐 때 가볍다. */
+.dr-stage-inner.hide-ent-up .overview-1 [class^="ent-up-"],
+.dr-stage-inner.hide-ent-down .overview-1 [class^="ent-down-"],
+.dr-stage-inner.hide-exit-up .overview-1 [class^="exit-up-"],
+.dr-stage-inner.hide-exit-down .overview-1 [class^="exit-down-"] {
+  visibility: hidden;
+}
+
 /* 로 순환 팬 — 보기만 하는 그림이라 클릭을 받지 않는다.
    (.dr-overlay > * 가 pointer-events: auto를 걸어 주므로 여기서 다시 끈다.) */
 .dr-fan {
