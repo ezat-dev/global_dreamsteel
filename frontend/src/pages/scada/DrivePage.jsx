@@ -168,10 +168,15 @@ const EXIT_CONDITIONS = [
 /* 출구 구동부 자동운전 TIME 설정 — 초 단위 설정값 3개.
    min/max는 항목마다 다르다. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다
    (NumPad에서 "입력" 버튼이 잠긴다). */
+/* tag는 ez_scada.folders_tags.name이다. 이 셋은 값을 쓰는 태그와 읽는 태그가 하나다 —
+   PLC에 써 놓은 설정값을 그대로 다시 읽어 보여준다(존 SV처럼 표시용 주소가 따로 없다).
+
+   주소는 아직 셋 다 D000이다(현장 주소를 못 받았다). 그래서 한 칸을 고치면 세 칸이
+   같이 바뀐다. 주소를 받으면 DB의 address만 칸마다 고치면 되고 화면은 손댈 필요가 없다. */
 const EXIT_TIMES = [
-  { key: 'align', label: '출구제품 정렬(지연)시간', min: 0, max: 600 },
-  { key: 'clear', label: '제품 감지 해제TIME', min: 0, max: 600 },
-  { key: 'sideConv', label: '출구 SIDE CONVEYOR 전진 TIME', min: 15, max: 50 },
+  { key: 'align', label: '출구제품 정렬(지연)시간', min: 0, max: 600, tag: 'discharge_product_sort_delay_time' },
+  { key: 'clear', label: '제품 감지 해제TIME', min: 0, max: 600, tag: 'discharge_product_detect_clear_time' },
+  { key: 'sideConv', label: '출구 SIDE CONVEYOR 전진 TIME', min: 15, max: 50, tag: 'discharge_side_conveyor_forward_time' },
 ];
 
 /* ---------------------------------------------------------------------------
@@ -566,9 +571,23 @@ export default function DrivePage() {
   }, []);
 
 
-  /* PLC 값이 붙기 전의 초기 표시값. sideConv는 하한이 15라 0으로 두면 화면에
-     허용 범위 밖 값이 보이므로 하한으로 맞춰 둔다(EXIT_TIMES의 min/max 참고). */
-  const [times, setTimes] = useState({ align: '0', clear: '0', sideConv: '15' });
+  /* 출구 TIME 설정 세 칸의 표시값 — 폴링으로 받은 PLC 값을 그대로 보여준다.
+     못 받았으면 '---'로 둔다(0으로 보여주면 실제 0과 구분되지 않는다). */
+  const timeText = (tag) => {
+    const v = tagValues?.[tag];
+    return v == null || v === '' ? '---' : String(v);
+  };
+
+  /* 숫자패드에서 확정한 값을 PLC에 쓴다. 값 태그와 표시 태그가 같아서,
+     쓰고 나면 다음 폴링에 그 값이 그대로 돌아온다(안 돌아오면 쓰기가 실패한 것이다). */
+  const handleTime = (tag, value) => {
+    const num = Math.round(Number(value));
+    if (!Number.isFinite(num)) return;
+
+    setWriteError('');
+    writeTag(DR_FOLDER_ID, tag, num)
+      .catch((e) => setWriteError(`${tag} — ${e.message}`));
+  };
 
   /* detectOn은 구동감지 램프의 점등 여부. PLC 값이 붙기 전이라 꺼둔다 —
      모르는 상태를 켜진 것으로 그리지 않는 쪽이 안전하다. */
@@ -740,10 +759,11 @@ export default function DrivePage() {
               <span className="dr-time-label">{t.label}</span>
               {/* 색은 DrivePage.css의 .dr-time 규칙이 --dr-sv(존 SV와 같은 연두)로 덮는다. */}
               <LedInput
-                value={times[t.key]}
-                onChange={(v) => setTimes((prev) => ({ ...prev, [t.key]: v }))}
+                value={timeText(t.tag)}
+                onChange={(v) => handleTime(t.tag, v)}
                 size="sm"
                 unit="SEC"
+                title={`${t.label} — ${t.tag}`}
                 label={t.label}
                 min={t.min}
                 max={t.max}
