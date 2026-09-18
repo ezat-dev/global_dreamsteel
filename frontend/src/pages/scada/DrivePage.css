@@ -93,9 +93,12 @@
   text-align: center;
 }
 
-/* 램프(.dr-op-lamp)는 뺀다 — 누르는 것이 아니라 현장 셀렉터를 비추는 표시라,
-   손을 올렸을 때 색이 변하면 누를 수 있는 것처럼 보인다. */
-.dr-op-btn:not(.dr-op-lamp):not(:disabled):hover {
+/* 두 가지를 뺀다.
+   - 램프(.dr-op-lamp): 누르는 것이 아니라 현장 셀렉터를 비추는 표시라, 손을 올렸을 때
+     색이 변하면 누를 수 있는 것처럼 보인다.
+   - 켜진 버튼(.is-on): 그 색은 PLC 값이다. hover가 덮으면 값이 1인 동안에도 초록이
+     안 보인다 — 마우스로 누르는 내내 커서가 버튼 위에 있으니 계속 덮인다. */
+.dr-op-btn:not(.dr-op-lamp):not(.is-on):not(:disabled):hover {
   background: #e8e8e8;
 }
 
@@ -116,8 +119,13 @@
 }
 
 /* PLC가 1을 주는 동안 — 알람화면의 같은 버튼과 같은 초록.
-   hover 규칙(0,4,0)보다 약하면 손을 올렸을 때 초록이 사라지므로 무게를 맞춘다. */
-.dr-panel.dr-alarm-sw .dr-op-btn.is-on {
+
+   이 버튼을 누를 때는 커서가 버튼 위에 얹혀 있어서 내내 hover 상태다. 그래서 hover
+   규칙이 배경을 덮으면 값이 1인 동안에도 초록이 안 보인다(실제로 값이 8초를 유지하는
+   동안 회색이었다). 무게를 올려 이기려고 하면 끝이 없어서 — 다크 hover 규칙은
+   :not() 둘과 :hover까지 쳐서 클래스 여섯 무게다 — hover 쪽에서 .is-on을 빼는 방식으로
+   풀었다(위의 두 hover 규칙 참고). */
+.dr-page .dr-panel.dr-alarm-sw .dr-op-btn.is-on {
   border-color: #15803d;
   background: #15803d;
   color: #ffffff;
@@ -578,8 +586,8 @@
    여기서 덮는 것은 밝은 바탕을 전제로 고른 색뿐이다. */
 
 /* 눌린 회색 — 어두운 쪽으로 */
-/* 램프는 여기서도 뺀다 — 위 밝은 테마의 hover 규칙과 같은 이유다 */
-.dr-page.hmi-dark .dr-op-btn:not(.dr-op-lamp):not(:disabled):hover {
+/* 램프와 켜진 버튼은 여기서도 뺀다 — 위 밝은 테마의 hover 규칙과 같은 이유다 */
+.dr-page.hmi-dark .dr-op-btn:not(.dr-op-lamp):not(.is-on):not(:disabled):hover {
   background: rgba(255, 255, 255, .18);
 }
 
@@ -588,9 +596,9 @@
   color: var(--g-accent-ink);
 }
 
-/* 조작 선택 램프와 ALARM SWITCH는 초록이라 흰 글자가 맞다 — 위 규칙(짙은 남색)을 되돌린다 */
-.dr-page.hmi-dark .dr-op-lamp.is-on,
-.dr-page.hmi-dark .dr-alarm-sw .dr-op-btn.is-on {
+/* 조작 선택 램프는 초록이라 흰 글자가 맞다 — 위 규칙(짙은 남색)을 되돌린다.
+   (ALARM SWITCH는 위쪽 .dr-page .dr-panel.dr-alarm-sw 규칙이 색까지 같이 잡는다.) */
+.dr-page.hmi-dark .dr-op-lamp.is-on {
   color: #ffffff;
 }
 
