@@ -58,6 +58,17 @@ export const ROLLER_TAGS = {
   exit: { tag: 'discharge_side_conveyor_roller', label: '출구 SIDE CONVEYOR 롤러' },
 };
 
+/* 로 순환 팬 셋. 값이 1이면 돌고 0이거나 못 읽으면 선다.
+   키는 DrivePage의 FANS와 같다. 왼쪽부터 1·2·3이다.
+     door x 536   DOOR 오른쪽 판(main-obj-1) 가운데
+     cc1  x1161   쿨링챔버 판(main-obj-2) 왼쪽
+     cc2  x1266   쿨링챔버 판 오른쪽 */
+export const FAN_TAGS = {
+  door: { tag: 'fan1_lamp', label: '로 순환 팬 1 (DOOR 옆)' },
+  cc1: { tag: 'fan2_lamp', label: '로 순환 팬 2 (쿨링챔버 왼쪽)' },
+  cc2: { tag: 'fan3_lamp', label: '로 순환 팬 3 (쿨링챔버 오른쪽)' },
+};
+
 /* SIDE CONVEYOR 오르내림 화살표. 한 구역의 같은 방향 넷이 한 태그를 본다.
    hideClass는 DrivePage가 무대에 붙이고 DrivePage.css가 실제로 숨긴다.
    주소는 아직 넷 다 M001이라 같이 나타났다 사라진다. */

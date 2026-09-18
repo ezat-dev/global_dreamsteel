@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import DriveOverview from '../../components/scada/DriveOverview';
-import { ARROW_TAGS, MOTOR_TAGS, ROLLER_TAGS, motorGrayClass } from '../../components/scada/driveArtTags';
+import {
+  ARROW_TAGS, FAN_TAGS, MOTOR_TAGS, ROLLER_TAGS, artTitle, motorGrayClass,
+} from '../../components/scada/driveArtTags';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
@@ -175,6 +177,13 @@ const FANS = [
   { key: 'cc1', left: 1161 },
   { key: 'cc2', left: 1266 },
 ];
+
+/* 팬 그림 두 벌 — 도는 것과 멈춘 것. 롤러와 같은 이유로 파일을 바꿔 끼운다
+   (<img>로 띄운 SVG 안의 애니메이션은 바깥 CSS로 멈출 수 없다).
+   ?v= 는 캐시 무효화다 — public/ 자산은 파일명에 해시가 안 붙어서, 그림을 고치면
+   이 숫자를 올려야 현장 화면에 반영된다. */
+const FAN_SPIN_SRC = '/scada/drive/fan-spin.svg?v=10';
+const FAN_STILL_SRC = '/scada/drive/fan-still.svg?v=1';
 
 /* ---------------------------------------------------------------------------
    상단 패널
@@ -951,15 +960,14 @@ export default function DrivePage() {
             </div>
 
             {/* 로 순환 팬 — 그림과 같은 좌표계에 놓아서 배율이 바뀌어도 판 가운데에 남는다.
-                도는 것은 SVG 안의 CSS 애니메이션이 맡는다(태그 없이 항상 돈다).
-                ?v= 는 캐시 무효화다 — public/ 자산은 파일명에 해시가 안 붙어서,
-                그림을 고치면 이 숫자를 올려야 현장 화면에 반영된다. */}
+                값이 1이면 도는 그림, 0이거나 못 읽으면 멈춘 그림으로 바꿔 끼운다. */}
             {FANS.map((f) => (
               <img
                 className="dr-fan"
                 key={f.key}
-                src="/scada/drive/fan-spin.svg?v=10"
+                src={tagState(tagValues?.[FAN_TAGS[f.key].tag]) === TAG_ON ? FAN_SPIN_SRC : FAN_STILL_SRC}
                 alt=""
+                title={artTitle(FAN_TAGS[f.key])}
                 style={{ left: f.left, top: FAN_TOP, width: FAN_SIZE, height: FAN_SIZE }}
               />
             ))}

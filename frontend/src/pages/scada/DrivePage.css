@@ -626,10 +626,12 @@
   filter: grayscale(1);
 }
 
-/* 로 순환 팬 — 보기만 하는 그림이라 클릭을 받지 않는다.
-   (.dr-overlay > * 가 pointer-events: auto를 걸어 주므로 여기서 다시 끈다.) */
+/* 로 순환 팬 — 마우스를 받는다. 태그 이름 툴팁이 떠야 하는데 pointer-events: none이면
+   hover 자체가 안 잡혀서 툴팁도 안 뜨기 때문이다(.dr-overlay > * 가 켜 주는 대로 둔다).
+   눌러도 하는 일은 없고, 아래에 깔린 것은 작화 판(main-obj-1/2)이라 가릴 조작도 없다.
+   태블릿에서 길게 눌러 뜨는 메뉴는 ScadaLayout의 blockLongPressMenu가 막는다(img 포함). */
 .dr-fan {
-  pointer-events: none;
+  cursor: default;
 }
 
 /* 제목 없는 램프 묶음 — 제목 자리를 비우고 위쪽 여백만 줄인다 */

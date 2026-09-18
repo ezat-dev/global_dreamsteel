@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- 멈춘 로 순환 팬. fan-spin.svg 와 그림이 완전히 같고 회전만 없다.
+       태그 값이 0이거나 PLC 값을 못 읽을 때 이 파일로 바꿔 끼운다(DrivePage의 FANS).
+
+       <img> 로 띄운 SVG 안의 애니메이션은 바깥 CSS로 멈출 수 없다. 그래서 롤러와 같이
+       파일을 바꿔 끼우는 방식을 쓴다(roller-still.svg 참고).
+
+       날개가 4방 대칭이라 멈춘 모습은 어느 각도에서나 같다 — 도는 파일과 각도를
+       맞출 필요가 없다.
+
+       그림 부분은 fan-spin.svg 에서 그대로 옮긴 것이다. 날개 모양이나 링 크기를 고치면
+       두 파일을 같이 고쳐야 한다. -->
+  <defs>
+    <!-- 날개 한 장(위쪽을 향한다). 자리 계산은 fan-spin.svg 주석에 적어 두었다. -->
+    <path id="fan-blade"
+          d="M37.50 22.47
+             C 43.5 15.5 41.0 6.5 34.98 3.66
+             C 26.0 0.2 12.5 2.5 11.16 10.42
+             C 10.0 16.5 19.0 21.5 25.23 23.33
+             A 11 11 0 0 1 37.50 22.47 Z"/>
+  </defs>
+
+  <g fill="#232323">
+    <!-- 날개 넷 -->
+    <g>
+      <use href="#fan-blade"/>
+      <use href="#fan-blade" transform="rotate(90 32 32)"/>
+      <use href="#fan-blade" transform="rotate(180 32 32)"/>
+      <use href="#fan-blade" transform="rotate(270 32 32)"/>
+    </g>
+
+    <!-- 가운데 링. 속을 비워 두면 뒤에 깔린 설비 색이 그대로 비친다. -->
+    <circle cx="32" cy="32" r="8.5" fill="none" stroke="#232323" stroke-width="3"/>
+  </g>
+</svg>
