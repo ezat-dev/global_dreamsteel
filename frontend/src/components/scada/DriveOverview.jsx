@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { ENT_MOTOR_TAGS, ROLLER_TAGS, artTitle, arrowTitle } from './driveArtTags';
 
 /* ===========================================================================
    구동화면 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -55,6 +56,17 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
   const entRoller = entRolling ? '/scada/drive/roller.svg' : '/scada/drive/roller-still.svg';
   const exitRoller = exitRolling ? '/scada/drive/roller-exit.svg' : '/scada/drive/roller-still.svg';
 
+  /* 그림 위 요소에 붙는 태그 이름 툴팁. 값이 아니라 이름이라 매번 같은 글이고,
+     memo와 상관없이 한 번 그려지면 그대로 남는다.
+
+     모터는 회색(값 0)이어도 툴팁은 떠야 한다 — 값이 안 들어올 때야말로 어느 태그를
+     봐야 하는지 알아야 하기 때문이다. 회색은 filter라 마우스를 막지 않으니 그냥 뜬다. */
+  const entRollerTitle = artTitle(ROLLER_TAGS.ent);
+  const exitRollerTitle = artTitle(ROLLER_TAGS.exit);
+  const motorTitle = Object.fromEntries(
+    Object.entries(ENT_MOTOR_TAGS).map(([n, t]) => [n, artTitle(t)]),
+  );
+
   return (
     <div className="overview-1">
       <div className="entrance-conv">
@@ -64,18 +76,18 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="ent-obj-4" src="/scada/drive/ent-obj-40.png" />
         <img className="ent-obj-5" src="/scada/drive/ent-obj-50.png" />
         <img className="ent-obj-6" src="/scada/drive/ent-obj-60.png" />
-        <img className="ent-conv-1" src={entRoller} />
-        <img className="ent-conv-2" src={entRoller} />
-        <img className="ent-conv-3" src={entRoller} />
-        <img className="ent-conv-4" src={entRoller} />
-        <img className="ent-conv-5" src={entRoller} />
-        <img className="ent-conv-6" src={entRoller} />
-        <img className="ent-conv-7" src={entRoller} />
-        <img className="ent-conv-8" src={entRoller} />
-        <img className="ent-conv-9" src={entRoller} />
-        <img className="ent-conv-10" src={entRoller} />
-        <img className="ent-conv-11" src={entRoller} />
-        <img className="ent-conv-12" src={entRoller} />
+        <img className="ent-conv-1" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-2" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-3" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-4" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-5" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-6" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-7" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-8" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-9" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-10" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-11" src={entRoller} title={entRollerTitle} />
+        <img className="ent-conv-12" src={entRoller} title={entRollerTitle} />
         <img className="ent-obj-7" src="/scada/drive/ent-obj-70.png" />
         <img className="ent-obj-8" src="/scada/drive/ent-obj-80.png" />
         <img className="ent-obj-9" src="/scada/drive/ent-obj-90.png" />
@@ -340,18 +352,18 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
           <div className="mini-rail233"></div>
           <div className="mini-rail234"></div>
         </div>
-        <img className="ent-up-1" src="/scada/drive/arrow-up.svg" />
-        <img className="ent-down-1" src="/scada/drive/arrow-down.svg" />
-        <img className="ent-up-2" src="/scada/drive/arrow-up.svg" />
-        <img className="ent-down-2" src="/scada/drive/arrow-down.svg" />
-        <img className="ent-up-3" src="/scada/drive/arrow-up.svg" />
-        <img className="ent-down-3" src="/scada/drive/arrow-down.svg" />
-        <img className="ent-up-4" src="/scada/drive/arrow-up.svg" />
-        <img className="ent-down-4" src="/scada/drive/arrow-down.svg" />
-        <img className="ent-motor-1" src="/scada/drive/motor-h.svg" />
-        <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" />
-        <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" />
-        <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" />
+        <img className="ent-up-1" src="/scada/drive/arrow-up.svg" title={arrowTitle('entUp')} />
+        <img className="ent-down-1" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
+        <img className="ent-up-2" src="/scada/drive/arrow-up.svg" title={arrowTitle('entUp')} />
+        <img className="ent-down-2" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
+        <img className="ent-up-3" src="/scada/drive/arrow-up.svg" title={arrowTitle('entUp')} />
+        <img className="ent-down-3" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
+        <img className="ent-up-4" src="/scada/drive/arrow-up.svg" title={arrowTitle('entUp')} />
+        <img className="ent-down-4" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
+        <img className="ent-motor-1" src="/scada/drive/motor-h.svg" title={motorTitle[1]} />
+        <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" title={motorTitle[2]} />
+        <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" title={motorTitle[3]} />
+        <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" title={motorTitle[4]} />
         <img className="ent-door-1" src="/scada/drive/ent-door-10.png" />
       </div>
       <div className="main-drive">
@@ -374,12 +386,12 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="exit-obj-4" src="/scada/drive/exit-obj-40.png" />
         <img className="exit-obj-5" src="/scada/drive/exit-obj-50.png" />
         <img className="exit-obj-6" src="/scada/drive/exit-obj-60.png" />
-        <img className="exit-conv-1" src={exitRoller} />
-        <img className="exit-conv-2" src={exitRoller} />
-        <img className="exit-conv-3" src={exitRoller} />
-        <img className="exit-conv-6" src={exitRoller} />
-        <img className="exit-conv-8" src={exitRoller} />
-        <img className="exit-conv-9" src={exitRoller} />
+        <img className="exit-conv-1" src={exitRoller} title={exitRollerTitle} />
+        <img className="exit-conv-2" src={exitRoller} title={exitRollerTitle} />
+        <img className="exit-conv-3" src={exitRoller} title={exitRollerTitle} />
+        <img className="exit-conv-6" src={exitRoller} title={exitRollerTitle} />
+        <img className="exit-conv-8" src={exitRoller} title={exitRollerTitle} />
+        <img className="exit-conv-9" src={exitRoller} title={exitRollerTitle} />
         <img className="exit-obj-7" src="/scada/drive/exit-obj-70.png" />
         <img className="exit-obj-8" src="/scada/drive/exit-obj-80.png" />
         <img className="exit-obj-9" src="/scada/drive/exit-obj-90.png" />
@@ -644,14 +656,14 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
           <div className="mini-rail467"></div>
           <div className="mini-rail468"></div>
         </div>
-        <img className="exit-up-1" src="/scada/drive/arrow-up.svg" />
-        <img className="exit-down-1" src="/scada/drive/arrow-down.svg" />
-        <img className="exit-up-2" src="/scada/drive/arrow-up.svg" />
-        <img className="exit-down-2" src="/scada/drive/arrow-down.svg" />
-        <img className="exit-up-3" src="/scada/drive/arrow-up.svg" />
-        <img className="exit-down-3" src="/scada/drive/arrow-down.svg" />
-        <img className="exit-up-4" src="/scada/drive/arrow-up.svg" />
-        <img className="exit-down-4" src="/scada/drive/arrow-down.svg" />
+        <img className="exit-up-1" src="/scada/drive/arrow-up.svg" title={arrowTitle('exitUp')} />
+        <img className="exit-down-1" src="/scada/drive/arrow-down.svg" title={arrowTitle('exitDown')} />
+        <img className="exit-up-2" src="/scada/drive/arrow-up.svg" title={arrowTitle('exitUp')} />
+        <img className="exit-down-2" src="/scada/drive/arrow-down.svg" title={arrowTitle('exitDown')} />
+        <img className="exit-up-3" src="/scada/drive/arrow-up.svg" title={arrowTitle('exitUp')} />
+        <img className="exit-down-3" src="/scada/drive/arrow-down.svg" title={arrowTitle('exitDown')} />
+        <img className="exit-up-4" src="/scada/drive/arrow-up.svg" title={arrowTitle('exitUp')} />
+        <img className="exit-down-4" src="/scada/drive/arrow-down.svg" title={arrowTitle('exitDown')} />
         <img className="exit-motor-1" src="/scada/drive/motor-h.svg" />
         <img className="exit-motor-2" src="/scada/drive/motor-h.svg" />
         <img className="exit-motor-3" src="/scada/drive/motor-drum.svg" />

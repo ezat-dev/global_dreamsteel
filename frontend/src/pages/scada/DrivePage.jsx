@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import DriveOverview from '../../components/scada/DriveOverview';
+import { ARROW_TAGS, ENT_MOTOR_TAGS, ROLLER_TAGS } from '../../components/scada/driveArtTags';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
@@ -140,39 +141,20 @@ const ALARM_SWITCHES = [
    있는 대로 보여주는 게 맞다. 연소화면 MAIN GAS의 OPEN/CLOSE도 같은 구조다. */
 const driveCmd = (unit, action) => `${unit}_${action}_cmd`;
 
-/* 입구·출구 SIDE CONVEYOR의 오르내림 화살표. 한 구역의 같은 방향 네 개가 한 태그를 본다
-   (작화 클래스 ent-up-1~4 / ent-down-1~4 / exit-up-1~4 / exit-down-1~4).
-   값이 1이면 보이고, 0이거나 못 읽으면 숨긴다 — 숨기는 일은 DrivePage.css가 맡고
-   여기서는 무대에 붙일 클래스 이름만 정한다.
+/* 작화 위 요소(화살표·롤러·모터)의 태그 이름은 driveArtTags.js 한 곳에 있다 —
+   그림에 다는 툴팁과 여기서 색·표시를 정하는 일이 같은 이름을 봐야 하기 때문이다.
+   여기서는 그 태그에 화면 쪽 처리(무대에 붙일 클래스)만 얹는다.
 
-   주소는 아직 넷 다 M001이라 같이 나타났다 사라진다. */
-const ARROW_TAGS = [
-  { tag: 'charge_side_conveyor_arrow_up', hideClass: 'hide-ent-up' },
-  { tag: 'charge_side_conveyor_arrow_down', hideClass: 'hide-ent-down' },
-  { tag: 'discharge_side_conveyor_arrow_up', hideClass: 'hide-exit-up' },
-  { tag: 'discharge_side_conveyor_arrow_down', hideClass: 'hide-exit-down' },
-];
-
-/* 컨베이어 롤러 — 값이 1이면 돌고 0이면 선다. 한 구역의 롤러는 한 축으로 같이 도니까
-   태그도 구역당 하나다(입구 ent-conv-1~12 / 출구 exit-conv-1~6).
-   입구 줄 맨 끝의 매쉬 롤러는 빠진다 — 제품 감지 자리라 원래 돌지 않는다. */
-const ENT_ROLLER_TAG = 'charge_side_conveyor_roller';
-const EXIT_ROLLER_TAG = 'discharge_side_conveyor_roller';
-
-/* 입구 모터 넷 — 값이 1이면 지금 색(초록), 0이거나 못 읽으면 회색.
-   작화의 모터 그림이 초록이라 회색으로 만드는 건 filter 한 줄이면 된다.
-
-   어느 모터인지는 작화 좌표와 아래 NOTES의 글씨로 묶인다.
+   화살표: 값이 1이면 보이고 0이거나 못 읽으면 숨긴다. 숨기는 일은 DrivePage.css가 맡는다.
+   모터:   값이 1이면 지금 색(초록), 아니면 회색. 모터 그림이 초록 한 색이라 filter 한 줄로 된다.
      ent-motor-1 x 0    왼쪽 끝(가로 기어드)
      ent-motor-2 x 170  그 오른쪽(통 모터)
-     ent-motor-3 x 497  DOOR(x 494~) 바로 위 — NOTES의 '입구문 열림'이 붙는 자리
+     ent-motor-3 x 497  DOOR(x 494~) 바로 위 — 아래 NOTES의 '입구문 열림'이 붙는 자리
      ent-motor-4 x 332  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리 */
-const MOTOR_TAGS = [
-  { tag: 'charge_motor1_lamp', grayClass: 'gray-ent-motor1' },
-  { tag: 'charge_motor2_lamp', grayClass: 'gray-ent-motor2' },
-  { tag: 'charge_door_open_lamp', grayClass: 'gray-ent-motor3' },
-  { tag: 'charge_stopper_down_detect_lamp', grayClass: 'gray-ent-motor4' },
-];
+const MOTOR_TAGS = [1, 2, 3, 4].map((n) => ({
+  tag: ENT_MOTOR_TAGS[n].tag,
+  grayClass: `gray-ent-motor${n}`,
+}));
 
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
    같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
@@ -703,8 +685,8 @@ export default function DrivePage() {
   /* 롤러도 같은 규칙이다 — 1일 때만 돌고, 0이거나 못 읽으면 선다.
      이쪽은 클래스로 될 일이 아니라서(SVG 안의 애니메이션은 바깥 CSS가 못 건드린다)
      작화에 boolean을 넘긴다. 1초마다 오는 값이 아니라 결론만 넘기므로 memo는 그대로 산다. */
-  const entRolling = tagState(tagValues?.[ENT_ROLLER_TAG]) === TAG_ON;
-  const exitRolling = tagState(tagValues?.[EXIT_ROLLER_TAG]) === TAG_ON;
+  const entRolling = tagState(tagValues?.[ROLLER_TAGS.ent.tag]) === TAG_ON;
+  const exitRolling = tagState(tagValues?.[ROLLER_TAGS.exit.tag]) === TAG_ON;
 
   /* 모터는 화살표와 같은 방식이다 — 무대에 클래스만 붙이고 회색으로 만드는 일은 CSS가 한다. */
   const motorGrayClass = MOTOR_TAGS
