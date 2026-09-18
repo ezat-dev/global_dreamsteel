@@ -122,15 +122,21 @@ const driveCmd = (unit, action) => `${unit}_${action}_cmd`;
    주소가 바뀌면 두 폴더를 함께 고쳐야 한다는 점만 주의. */
 const zoneTag = (n, suffix) => `tic_z${n}_${suffix}`;
 
-/* DOOR 오른쪽과 COOLING CHAMBER TABLE DRIVE의 PV 칸.
-   셋을 한 목록으로 묶어 같은 top을 쓰게 한다 — 따로 두면 높이가 어긋난다.
-   266은 DOOR(y 205~365)의 세로 가운데에 칸(높이 약 38px)을 놓은 값이다. */
-const PV_TOP = 266;
+/* 로 순환 팬 셋 — DOOR 오른쪽 판에 하나, 쿨링챔버 판에 둘.
+   예전에는 이 자리에 PV 값칸 셋이 있었다(값을 줄 태그가 없어 '####'로만 떠 있었다).
 
-const PV_BOXES = [
-  { key: 'door', left: 529, width: 77 },   // DOOR 이름(x 494~525) 바로 오른쪽
-  { key: 'cc1', left: 1150, width: 86 },
-  { key: 'cc2', left: 1255, width: 86 },
+   자리는 작화 판의 가운데로 잡았다:
+     왼쪽 = main-obj-1 (x525~609, y199~365) 가운데
+     오른쪽 = main-obj-2 (x1137~1353, y200~368) 위에 둘. 옛 PV 칸의 가운데
+              (x1193 / x1298)를 그대로 써서 간격이 전과 같다.
+   셋 다 같은 top을 쓴다 — 따로 두면 높이가 어긋난다. */
+const FAN_SIZE = 64;
+const FAN_TOP = 253;
+
+const FANS = [
+  { key: 'door', left: 536 },
+  { key: 'cc1', left: 1161 },
+  { key: 'cc2', left: 1266 },
 ];
 
 /* ---------------------------------------------------------------------------
@@ -817,15 +823,18 @@ export default function DrivePage() {
               <span className="dr-door-text">DOOR</span>
             </div>
 
-            {/* DOOR 오른쪽 + 쿨링챔버 PV — 셋 다 같은 높이(PV_TOP) */}
-            {PV_BOXES.map((p) => (
-              <div
-                className="dr-zone"
-                key={p.key}
-                style={{ left: p.left, top: PV_TOP, width: p.width }}
-              >
-                <ValueBox label="PV" />
-              </div>
+            {/* 로 순환 팬 — 그림과 같은 좌표계에 놓아서 배율이 바뀌어도 판 가운데에 남는다.
+                도는 것은 SVG 안의 CSS 애니메이션이 맡는다(태그 없이 항상 돈다).
+                ?v= 는 캐시 무효화다 — public/ 자산은 파일명에 해시가 안 붙어서,
+                그림을 고치면 이 숫자를 올려야 현장 화면에 반영된다. */}
+            {FANS.map((f) => (
+              <img
+                className="dr-fan"
+                key={f.key}
+                src="/scada/drive/fan-spin.svg?v=10"
+                alt=""
+                style={{ left: f.left, top: FAN_TOP, width: FAN_SIZE, height: FAN_SIZE }}
+              />
             ))}
 
             {/* 입구 롤러 줄 맨 끝 롤러 — 작화에서 빠져 나온 것을 여기서 채운다.

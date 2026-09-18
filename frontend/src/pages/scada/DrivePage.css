@@ -438,7 +438,8 @@
   color: var(--hmi-led-green);
 }
 
-/* DOOR 이름만 담는 칸. PV는 PV_BOXES가 따로 배치한다(쿨링챔버 PV와 높이를 맞추려고). */
+/* DOOR 이름만 담는 칸. 오른쪽에 있던 PV 값칸은 순환 팬(.dr-fan)으로 바뀌었고,
+   그 자리는 FANS 목록이 따로 잡는다(쿨링챔버 팬 둘과 높이를 맞추려고). */
 .dr-door {
   display: flex;
   align-items: center;
@@ -562,6 +563,12 @@
   font-size: 11.5px;
   font-weight: 700;
   text-align: center;
+}
+
+/* 로 순환 팬 — 보기만 하는 그림이라 클릭을 받지 않는다.
+   (.dr-overlay > * 가 pointer-events: auto를 걸어 주므로 여기서 다시 끈다.) */
+.dr-fan {
+  pointer-events: none;
 }
 
 /* 제목 없는 램프 묶음 — 제목 자리를 비우고 위쪽 여백만 줄인다 */
