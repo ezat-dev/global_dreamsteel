@@ -4,7 +4,9 @@ import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
+import {
+  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
+} from '../../api/scada/foldertagApi';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './driveOverview.css';
 import './DrivePage.css';
@@ -294,28 +296,48 @@ const ALARM_OPTIONS = { pagination: false };
    작은 부품들
    ------------------------------------------------------------------------- */
 
-/** 조작 선택(수동/자동)과 자동운전/비상정지가 한 벌인 OP PANEL. */
-function OpPanel({ title, mode, onMode }) {
+/** 조작 선택(수동/자동)과 자동운전/비상정지가 한 벌인 OP PANEL.
+ *
+ * 조작 선택은 버튼이 아니라 램프다 — 모드를 고르는 것은 현장 OP 패널의 물리 셀렉터이고,
+ * 화면은 지금 어느 쪽에 걸려 있는지만 비춘다. 예전에는 눌리는 버튼이라 화면에서 누르면
+ * 색이 바뀌었는데, PLC는 그대로인 채 화면만 바뀌어서 "바꿨다"고 오해할 자리였다.
+ *
+ * 두 램프는 서로를 보고 그리지 않는다. 각자 자기 태그가 1일 때 켜지고, 둘 다 0이면
+ * 둘 다 꺼진 채로 둔다(셀렉터가 중립이거나 넘어가는 중인 상태를 그대로 보여준다).
+ */
+function OpPanel({ title, values, autoTag, manualTag }) {
+  /* 이 태그들은 이름 자체가 램프다(_cmd_lamp가 아니다). lampClassOf는 명령 이름에
+     '_lamp'를 붙여 찾으므로 여기서는 값을 바로 읽는다.
+
+     켜지는 값이 둘이 다르다 — 자동은 1일 때, 수동은 0일 때 켜진다(PLC가 그렇게 준다).
+     연소화면의 MAIN GAS CLOSE와 같은 경우다. 그래서 몇에서 켜지는지를 호출부가 정한다. */
+  const lampClass = (name, litWhen) => {
+    if (!values) return ' is-unknown';
+    const st = tagState(values[name]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === litWhen ? ' is-on' : '';
+  };
+
   return (
     <div className="hmi-group dr-panel">
       <span className="hmi-group-title">{title}</span>
 
       <div className="dr-op-row">
         <span className="dr-op-label">조작 선택</span>
-        <button
-          type="button"
-          className={`dr-op-btn${mode === 'manual' ? ' is-on' : ''}`}
-          onClick={() => onMode('manual')}
+        <span
+          className={`dr-op-btn dr-op-lamp${lampClass(manualTag, TAG_OFF)}`}
+          data-tag={manualTag}
+          title={`${manualTag} — 값이 0이면 수동에 걸린 것(켜짐)`}
         >
           수동
-        </button>
-        <button
-          type="button"
-          className={`dr-op-btn${mode === 'auto' ? ' is-on' : ''}`}
-          onClick={() => onMode('auto')}
+        </span>
+        <span
+          className={`dr-op-btn dr-op-lamp${lampClass(autoTag, TAG_ON)}`}
+          data-tag={autoTag}
+          title={`${autoTag} — 값이 1이면 자동에 걸린 것(켜짐)`}
         >
           자동
-        </button>
+        </span>
       </div>
 
       {/* 실제 기동/정지는 PLC 쓰기라 연동 전까지 눌러도 아무 일도 하지 않는다. */}
@@ -491,8 +513,6 @@ export default function DrivePage() {
     return () => { alive = false; };
   }, []);
 
-  const [entMode, setEntMode] = useState('manual');
-  const [exitMode, setExitMode] = useState('manual');
 
   /* PLC 값이 붙기 전의 초기 표시값. sideConv는 하한이 15라 0으로 두면 화면에
      허용 범위 밖 값이 보이므로 하한으로 맞춰 둔다(EXIT_TIMES의 min/max 참고). */
@@ -615,7 +635,13 @@ export default function DrivePage() {
     <div className="dr-page hmi-dark">
       {/* ===== 상단 조작·상태 패널 ===== */}
       <div className="dr-top">
-        <OpPanel title="입구 OP PANEL" mode={entMode} onMode={setEntMode} />
+        {/* 입구 = charge, 출구 = discharge. 폴더 9의 기존 태그(charge_on_cmd 등)와 같은 말이다. */}
+        <OpPanel
+          title="입구 OP PANEL"
+          values={tagValues}
+          autoTag="charge_op_auto_lamp"
+          manualTag="charge_op_manual_lamp"
+        />
 
         <div className="hmi-group dr-panel dr-alarm-sw">
           <span className="hmi-group-title">ALARM SWITCH</span>
@@ -645,7 +671,12 @@ export default function DrivePage() {
           ))}
         </div>
 
-        <OpPanel title="출구 OP PANEL" mode={exitMode} onMode={setExitMode} />
+        <OpPanel
+          title="출구 OP PANEL"
+          values={tagValues}
+          autoTag="discharge_op_auto_lamp"
+          manualTag="discharge_op_manual_lamp"
+        />
       </div>
 
       {/* ===== 설비 그림 + 그 위에 얹는 것들 ===== */}

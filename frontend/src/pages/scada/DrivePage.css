@@ -93,8 +93,30 @@
   text-align: center;
 }
 
-.dr-op-btn:not(:disabled):hover {
+/* 램프(.dr-op-lamp)는 뺀다 — 누르는 것이 아니라 현장 셀렉터를 비추는 표시라,
+   손을 올렸을 때 색이 변하면 누를 수 있는 것처럼 보인다. */
+.dr-op-btn:not(.dr-op-lamp):not(:disabled):hover {
   background: #e8e8e8;
+}
+
+/* 조작 선택(수동/자동) — 모양은 옆의 조작 버튼과 같게 두고 반응만 없앤다. */
+.dr-op-lamp {
+  cursor: default;
+}
+
+/* 켜진 쪽은 채운 초록 — 다른 화면의 켜진 램프와 같은 색이다(하늘색은 '지금 고른 것'을
+   뜻하는 버튼 색이라, 값을 비추는 램프와 구분한다).
+   .dr-op-btn.is-on(하늘색)이 뒤에 있어서 같은 무게로는 못 덮는다 — 한 단 높여 잡는다. */
+.dr-op-row .dr-op-lamp.is-on {
+  border-color: #15803d;
+  background: #15803d;
+  color: #ffffff;
+}
+
+/* 값을 못 읽은 상태 — 꺼짐과 구분한다. 다른 화면의 램프와 같은 점선 규칙이다. */
+.dr-op-lamp.is-unknown {
+  border-style: dashed;
+  color: var(--hmi-text-faint);
 }
 
 /* 지금 걸린 쪽만 채운다 — 눌려 보이게 하는 대신 색으로 알린다 */
@@ -524,13 +546,19 @@
    여기서 덮는 것은 밝은 바탕을 전제로 고른 색뿐이다. */
 
 /* 눌린 회색 — 어두운 쪽으로 */
-.dr-page.hmi-dark .dr-op-btn:not(:disabled):hover {
+/* 램프는 여기서도 뺀다 — 위 밝은 테마의 hover 규칙과 같은 이유다 */
+.dr-page.hmi-dark .dr-op-btn:not(.dr-op-lamp):not(:disabled):hover {
   background: rgba(255, 255, 255, .18);
 }
 
 /* 액센트가 하늘색이라 그 위의 흰 글자는 안 읽힌다 — 짙은 남색으로 */
 .dr-page.hmi-dark .dr-op-btn.is-on {
   color: var(--g-accent-ink);
+}
+
+/* 조작 선택 램프는 초록이라 흰 글자가 맞다 — 위 규칙(짙은 남색)을 되돌린다 */
+.dr-page.hmi-dark .dr-op-lamp.is-on {
+  color: #ffffff;
 }
 
 /* 정지 버튼의 붉은 글자와 경보 알림칸 — 어두운 바탕에서는 채운 색 대신
