@@ -2292,7 +2292,15 @@ button {
   color: #ffb4ad;
 }
 
-.hmi-dark.hmi-dark .al-action:hover,
+/* hover는 마우스가 있는 기기에서만 — 터치 기기는 한 번 만진 요소에 hover가 남아서
+   색이 진해진 채 굳는다(AlarmPage.css의 같은 규칙 주석 참고). :active는 그대로 둔다. */
+@media (hover: hover) {
+  .hmi-dark.hmi-dark .al-action:hover {
+    border-color: #ff9d95;
+    background: rgba(200, 55, 45, .3);
+  }
+}
+
 .hmi-dark.hmi-dark .al-action:active {
   border-color: #ff9d95;
   background: rgba(200, 55, 45, .3);

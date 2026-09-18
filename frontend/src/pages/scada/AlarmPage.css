@@ -207,9 +207,17 @@
   cursor: pointer;
 }
 
-.al-action:hover {
-  border-color: #c0392b;
-  background: #fbdad6;
+/* 마우스가 있는 기기에서만 hover를 건다.
+
+   터치 기기는 한 번 만진 요소에 hover 상태를 그대로 남겨 둔다(다른 곳을 만질 때까지).
+   그래서 태블릿에서 한 번 톡 누르면 색이 진해진 채 굳어 있었다 — 2초를 눌러야 값이
+   나가는 버튼인데, 색이 바뀌면 "눌렸다"로 읽혀서 손을 뗀다.
+   누르는 동안의 표시는 :active와 .is-held(눌린 그림자)·진행 바가 맡는다. */
+@media (hover: hover) {
+  .al-action:hover {
+    border-color: #c0392b;
+    background: #fbdad6;
+  }
 }
 
 .al-action:active {

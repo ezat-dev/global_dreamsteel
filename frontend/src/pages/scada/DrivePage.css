@@ -98,8 +98,13 @@
      색이 변하면 누를 수 있는 것처럼 보인다.
    - 켜진 버튼(.is-on): 그 색은 PLC 값이다. hover가 덮으면 값이 1인 동안에도 초록이
      안 보인다 — 마우스로 누르는 내내 커서가 버튼 위에 있으니 계속 덮인다. */
-.dr-op-btn:not(.dr-op-lamp):not(.is-on):not(:disabled):hover {
-  background: #e8e8e8;
+/* hover는 마우스가 있는 기기에서만 건다 — 터치 기기는 한 번 만진 요소에 hover를
+   그대로 남겨서, 태블릿에서 톡 누르면 색이 진해진 채 굳는다. 2초를 눌러야 값이 나가는
+   버튼이라 그 색이 "눌렸다"로 읽히면 손을 떼게 된다. */
+@media (hover: hover) {
+  .dr-op-btn:not(.dr-op-lamp):not(.is-on):not(:disabled):hover {
+    background: #e8e8e8;
+  }
 }
 
 /* 조작 선택(수동/자동) — 모양은 옆의 조작 버튼과 같게 두고 반응만 없앤다. */
@@ -593,9 +598,12 @@
    여기서 덮는 것은 밝은 바탕을 전제로 고른 색뿐이다. */
 
 /* 눌린 회색 — 어두운 쪽으로 */
-/* 램프와 켜진 버튼은 여기서도 뺀다 — 위 밝은 테마의 hover 규칙과 같은 이유다 */
-.dr-page.hmi-dark .dr-op-btn:not(.dr-op-lamp):not(.is-on):not(:disabled):hover {
-  background: rgba(255, 255, 255, .18);
+/* 램프와 켜진 버튼은 여기서도 뺀다 — 위 밝은 테마의 hover 규칙과 같은 이유다.
+   마우스가 있는 기기에서만 거는 것도 같다(터치는 hover가 남아 색이 굳는다). */
+@media (hover: hover) {
+  .dr-page.hmi-dark .dr-op-btn:not(.dr-op-lamp):not(.is-on):not(:disabled):hover {
+    background: rgba(255, 255, 255, .18);
+  }
 }
 
 /* 액센트가 하늘색이라 그 위의 흰 글자는 안 읽힌다 — 짙은 남색으로 */
