@@ -153,6 +153,12 @@ const ARROW_TAGS = [
   { tag: 'discharge_side_conveyor_arrow_down', hideClass: 'hide-exit-down' },
 ];
 
+/* 컨베이어 롤러 — 값이 1이면 돌고 0이면 선다. 한 구역의 롤러는 한 축으로 같이 도니까
+   태그도 구역당 하나다(입구 ent-conv-1~12 / 출구 exit-conv-1~6).
+   입구 줄 맨 끝의 매쉬 롤러는 빠진다 — 제품 감지 자리라 원래 돌지 않는다. */
+const ENT_ROLLER_TAG = 'charge_side_conveyor_roller';
+const EXIT_ROLLER_TAG = 'discharge_side_conveyor_roller';
+
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
    같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
    복제한 것이다. PLC 왕복은 늘지 않는다(C# 폴러가 주소를 Distinct로 묶어 읽는다).
@@ -668,9 +674,9 @@ export default function DrivePage() {
   /* SIDE CONVEYOR 화살표 — 값이 1인 방향만 보인다(0이거나 못 읽으면 숨긴다).
      통신이 끊겼는데 화살표가 떠 있으면 컨베이어가 도는 것으로 읽히므로 숨기는 쪽이 안전하다.
 
-     작화(DriveOverview)는 값을 받지 않는 고정 그림이라 memo로 묶여 있다 — 여기에 값을
-     넘기면 1초마다 요소 571개를 다시 비교하게 된다. 그래서 무대에 클래스만 붙이고
-     실제로 숨기는 일은 DrivePage.css가 맡는다.
+     작화(DriveOverview)는 요소가 571개라 memo로 묶여 있다 — 1초마다 오는 값을 그대로
+     넘기면 매 초 전부 다시 비교하게 된다. 그래서 무대에 클래스만 붙이고 실제로 숨기는
+     일은 DrivePage.css가 맡는다(롤러는 CSS로 안 되는 경우라 아래에서 따로 다룬다).
 
      tagValues를 쓰므로 반드시 그 아래에 둔다 — 위에 두면 선언 전에 읽어서(TDZ)
      렌더가 통째로 죽는다. 실제로 그렇게 만들어 화면이 빈 적이 있다. */
@@ -678,6 +684,12 @@ export default function DrivePage() {
     .filter(({ tag }) => tagState(tagValues?.[tag]) !== TAG_ON)
     .map(({ hideClass }) => ` ${hideClass}`)
     .join('');
+
+  /* 롤러도 같은 규칙이다 — 1일 때만 돌고, 0이거나 못 읽으면 선다.
+     이쪽은 클래스로 될 일이 아니라서(SVG 안의 애니메이션은 바깥 CSS가 못 건드린다)
+     작화에 boolean을 넘긴다. 1초마다 오는 값이 아니라 결론만 넘기므로 memo는 그대로 산다. */
+  const entRolling = tagState(tagValues?.[ENT_ROLLER_TAG]) === TAG_ON;
+  const exitRolling = tagState(tagValues?.[EXIT_ROLLER_TAG]) === TAG_ON;
 
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다.
      읽지 못한 온도를 0으로 그리면 노가 식은 것으로 오해한다. */
@@ -872,7 +884,7 @@ export default function DrivePage() {
             transform: `scale(${scale})`,
           }}
         >
-          <DriveOverview />
+          <DriveOverview entRolling={entRolling} exitRolling={exitRolling} />
 
           <div className="dr-overlay">
             {LABELS.map((l) => (

@@ -27,6 +27,16 @@ import { memo } from 'react';
                      (같은 그림인데 표면 자국 흐르는 방향만 반대다. 출구 쪽은 작화 CSS가
                       scale(-1,1)로 뒤집어 그려서, 파일 안에서 반대로 흘려야 화면에서
                       입구와 같은 방향으로 돈다)
+     roller-still.svg 멈춘 롤러       위 두 자리 공용
+
+   롤러가 도는지 마는지는 PLC 값으로 정해진다(entRolling / exitRolling). <img>로 띄운
+   SVG 안의 애니메이션은 바깥 CSS로 멈출 수 없어서, 클래스를 붙이는 대신 파일을 바꿔
+   끼운다 — 멈춘 그림은 흐르는 방향이 없으므로 입구·출구가 한 파일을 같이 쓴다.
+
+   값을 받는 건 이 두 개뿐이다. 그림 전체가 memo로 묶여 있는데(요소 571개) 값이 1초마다
+   바뀌는 것을 여기까지 들이면 매 초 전부 다시 비교하게 되므로, 판단은 DrivePage에서
+   끝내고 여기로는 결론(boolean)만 넘긴다. 그래서 롤러가 실제로 멈추거나 돌 때만
+   다시 그려진다.
 
    각 SVG의 viewBox는 그 자리의 칸 비율에 맞춰 두었다. 작화 CSS에 object-fit: cover가
    걸려 있어서 비율이 어긋나면 그림이 잘린다 — SVG를 고칠 때 viewBox를 건드리면
@@ -40,7 +50,11 @@ import { memo } from 'react';
    쪽(DrivePage)에서 transform: scale로 처리한다 — 작화 CSS는 건드리지 않는다.
    =========================================================================== */
 
-function DriveOverview() {
+function DriveOverview({ entRolling = true, exitRolling = true }) {
+  /* 기본값이 true인 것은 이 컴포넌트를 값 없이 써도 예전처럼 도는 그림이 나오게 하려는 것이다. */
+  const entRoller = entRolling ? '/scada/drive/roller.svg' : '/scada/drive/roller-still.svg';
+  const exitRoller = exitRolling ? '/scada/drive/roller-exit.svg' : '/scada/drive/roller-still.svg';
+
   return (
     <div className="overview-1">
       <div className="entrance-conv">
@@ -50,18 +64,18 @@ function DriveOverview() {
         <img className="ent-obj-4" src="/scada/drive/ent-obj-40.png" />
         <img className="ent-obj-5" src="/scada/drive/ent-obj-50.png" />
         <img className="ent-obj-6" src="/scada/drive/ent-obj-60.png" />
-        <img className="ent-conv-1" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-2" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-3" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-4" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-5" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-6" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-7" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-8" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-9" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-10" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-11" src="/scada/drive/roller.svg" />
-        <img className="ent-conv-12" src="/scada/drive/roller.svg" />
+        <img className="ent-conv-1" src={entRoller} />
+        <img className="ent-conv-2" src={entRoller} />
+        <img className="ent-conv-3" src={entRoller} />
+        <img className="ent-conv-4" src={entRoller} />
+        <img className="ent-conv-5" src={entRoller} />
+        <img className="ent-conv-6" src={entRoller} />
+        <img className="ent-conv-7" src={entRoller} />
+        <img className="ent-conv-8" src={entRoller} />
+        <img className="ent-conv-9" src={entRoller} />
+        <img className="ent-conv-10" src={entRoller} />
+        <img className="ent-conv-11" src={entRoller} />
+        <img className="ent-conv-12" src={entRoller} />
         <img className="ent-obj-7" src="/scada/drive/ent-obj-70.png" />
         <img className="ent-obj-8" src="/scada/drive/ent-obj-80.png" />
         <img className="ent-obj-9" src="/scada/drive/ent-obj-90.png" />
@@ -360,12 +374,12 @@ function DriveOverview() {
         <img className="exit-obj-4" src="/scada/drive/exit-obj-40.png" />
         <img className="exit-obj-5" src="/scada/drive/exit-obj-50.png" />
         <img className="exit-obj-6" src="/scada/drive/exit-obj-60.png" />
-        <img className="exit-conv-1" src="/scada/drive/roller-exit.svg" />
-        <img className="exit-conv-2" src="/scada/drive/roller-exit.svg" />
-        <img className="exit-conv-3" src="/scada/drive/roller-exit.svg" />
-        <img className="exit-conv-6" src="/scada/drive/roller-exit.svg" />
-        <img className="exit-conv-8" src="/scada/drive/roller-exit.svg" />
-        <img className="exit-conv-9" src="/scada/drive/roller-exit.svg" />
+        <img className="exit-conv-1" src={exitRoller} />
+        <img className="exit-conv-2" src={exitRoller} />
+        <img className="exit-conv-3" src={exitRoller} />
+        <img className="exit-conv-6" src={exitRoller} />
+        <img className="exit-conv-8" src={exitRoller} />
+        <img className="exit-conv-9" src={exitRoller} />
         <img className="exit-obj-7" src="/scada/drive/exit-obj-70.png" />
         <img className="exit-obj-8" src="/scada/drive/exit-obj-80.png" />
         <img className="exit-obj-9" src="/scada/drive/exit-obj-90.png" />
