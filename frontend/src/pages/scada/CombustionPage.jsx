@@ -217,7 +217,10 @@ const ACTION_PANELS = [
     key: 'purge',
     title: 'ALL PURGE',
     items: [
-      { text: 'ON', tone: 'on' },
+      /* ON만 누르는 버튼이다 — 2초 누르면 all_purge_on_cmd에 1, 떼면 0.
+         색은 램프(all_purge_on_cmd_lamp)가 정한다. 나머지 셋은 퍼지 단계를 보여주는
+         표시 램프인데 아직 태그가 없어서 꺼진 회색으로만 나온다. */
+      { text: 'ON', tone: 'on', cmd: 'all_purge_on_cmd' },
       { text: 'PURGE 준비', tone: 'on' },
       { text: 'PURGE 중', tone: 'on' },
       { text: 'PURGE 완료', tone: 'on' },
@@ -602,17 +605,44 @@ export default function CombustionPage() {
           <div className={`cb-action cb-action--${p.key}`} key={p.key}>
             <span className="cb-plate cb-plate--action">{p.title}</span>
             <div className="cb-action-row">
-              {p.items.map((it) => (it.kind === 'btn'
-                ? (
-                  <button type="button" className="cb-action-btn" key={it.text} disabled>
-                    {it.text}
-                  </button>
-                )
-                : (
-                  /* 램프는 눌리는 것이 아니라 상태 표시라 button이 아닌 span이다.
-                     지금은 PLC 값이 없어 꺼진 상태(회색)로만 나온다. */
-                  <span className="cb-action-lamp hmi-lampbox" key={it.text}>{it.text}</span>
-                )))}
+              {p.items.map((it) => {
+                if (it.kind === 'btn') {
+                  return (
+                    <button type="button" className="cb-action-btn" key={it.text} disabled>
+                      {it.text}
+                    </button>
+                  );
+                }
+
+                /* 명령 태그가 붙은 칸(ALL PURGE의 ON)은 램프이면서 버튼이다.
+                   본판 OPEN/CLOSE와 같은 모멘터리다: HOLD_MS만큼 누르면 1, 떼면 0.
+                   색은 누른 것과 무관하게 램프(_cmd_lamp)가 정한다.
+                   disabled를 걸지 않는 이유도 같다 — 비활성 요소는 뗌 이벤트를 못 받아서
+                   비트가 1로 남는다. */
+                if (it.cmd) {
+                  return (
+                    <button
+                      type="button"
+                      key={it.text}
+                      className={`cb-action-lamp hmi-lampbox${lampClass(it.cmd, ' is-on')}`
+                        + (heldTag === it.cmd ? ' is-held' : '')
+                        + (armedTag === it.cmd ? ' is-armed' : '')}
+                      onPointerDown={() => handlePress(it.cmd)}
+                      data-tag={it.cmd}
+                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
+                    >
+                      {it.text}
+                      {heldTag === it.cmd && (
+                        <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                      )}
+                    </button>
+                  );
+                }
+
+                /* 나머지는 눌리는 것이 아니라 상태 표시라 button이 아닌 span이다.
+                   아직 태그가 없어 꺼진 상태(회색)로만 나온다. */
+                return <span className="cb-action-lamp hmi-lampbox" key={it.text}>{it.text}</span>;
+              })}
             </div>
           </div>
         ))}
