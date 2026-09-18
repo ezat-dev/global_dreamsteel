@@ -2298,6 +2298,27 @@ button {
   background: rgba(200, 55, 45, .3);
 }
 
+/* 알람화면 조작 버튼(ALARM RESET / HORN STOP)은 값을 쓰는 태그와 상태를 읽는 태그가
+   같아서 버튼 자신이 램프다. PLC가 1을 주는 동안은 채운 초록 — 다른 화면의 켜진 램프와
+   같은 색이어야 한다(다크에서도 램프 색은 낮추지 않는다는 규칙).
+
+   위의 붉은 톤이 .hmi-dark.hmi-dark .al-action(0,3,0)이라, 페이지 쪽의
+   .al-action.is-on(0,2,0)으로는 못 덮는다 — 여기서 한 단 높여 덮는다.
+   :hover / :active 규칙보다 뒤에 두어야 손을 올린 동안에도 초록이 유지된다. */
+.hmi-dark.hmi-dark .al-action.is-on {
+  border-color: #15803d;
+  background: #15803d;
+  color: #ffffff;
+}
+
+/* 값을 못 읽은 상태 — 붉은 톤으로 두면 '경보'로 읽힌다. 중립으로 낮추고 점선만 남긴다
+   (점선 자체는 페이지 CSS의 .al-action.is-unknown이 건다). */
+.hmi-dark.hmi-dark .al-action.is-unknown {
+  border-color: rgba(255, 255, 255, .38);
+  background: rgba(255, 255, 255, .08);
+  color: var(--g-muted);
+}
+
 .hmi-dark.hmi-dark .tz-mode-btn.auto {
   border-color: rgba(110, 220, 140, .5);
   background: rgba(30, 140, 70, .2);
