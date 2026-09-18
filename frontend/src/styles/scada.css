@@ -577,6 +577,14 @@ button {
   50% { opacity: .3; }
 }
 
+/* 값을 못 읽은 램프 — 꺼진 것과 반드시 구분해야 한다. 회색으로 두면 '조건이 안 섰다'와
+   '지금 상태를 모른다'가 같아 보인다. 다른 화면의 .hmi-lampbox.is-unknown과 같은 규칙(점선)이다. */
+.hmi-lamp.unknown .hmi-lamp-dot {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--hmi-shadow-dark);
+}
+
 /* LED 수치 표시기 — 검은 바탕에 빨강/노랑 숫자 */
 .hmi-led {
   display: inline-flex;

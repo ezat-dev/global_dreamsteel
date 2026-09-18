@@ -143,20 +143,26 @@ const FANS = [
    상단 패널
    ------------------------------------------------------------------------- */
 
-// 자동운전 조건 램프 — 순서와 문구는 현장 HMI 화면 그대로.
+/* 자동운전 조건 램프 — 순서와 문구는 현장 HMI 화면 그대로.
+
+   tag는 ez_scada.folders_tags.name이다. 이 램프들은 짝이 되는 명령이 없는 상태 표시라
+   이름 자체가 램프다(_cmd_lamp가 아니다). 0이면 빨강, 1이면 초록, 못 읽으면 점선.
+
+   주소는 아직 전부 M000이다(현장 주소를 못 받았다). 받으면 DB의 address만 고치면 되고
+   화면은 손댈 필요가 없다 — 그래서 이름을 먼저 박아 두었다. */
 const ENT_CONDITIONS = [
-  '입구 모터 트립조건',
-  '입구 자동STEP 초기조건',
-  '입구 TABLE DRIVE 구동상태',
-  '입구 비상정지 OFF',
+  { text: '입구 모터 트립조건', tag: 'charge_motor_trip_lamp' },
+  { text: '입구 자동STEP 초기조건', tag: 'charge_auto_step_lamp' },
+  { text: '입구 TABLE DRIVE 구동상태', tag: 'charge_table_drive_lamp' },
+  { text: '입구 비상정지 OFF', tag: 'charge_emergency_off_lamp' },
 ];
 
 const EXIT_CONDITIONS = [
-  '출구 모터 트립조건',
-  '출구 자동STEP 초기조건',
-  '출구 TABLE DRIVE 구동상태',
-  '출구 SIDE CONVEYOR 하강상태',
-  '출구 비상정지 OFF',
+  { text: '출구 모터 트립조건', tag: 'discharge_motor_trip_lamp' },
+  { text: '출구 자동STEP 초기조건', tag: 'discharge_auto_step_lamp' },
+  { text: '출구 TABLE DRIVE 구동상태', tag: 'discharge_table_drive_lamp' },
+  { text: '출구 SIDE CONVEYOR 하강상태', tag: 'discharge_side_conveyor_down_state_lamp' },
+  { text: '출구 비상정지 OFF', tag: 'discharge_emergency_off_lamp' },
 ];
 
 /* 출구 구동부 자동운전 TIME 설정 — 초 단위 설정값 3개.
@@ -171,66 +177,68 @@ const EXIT_TIMES = [
 /* ---------------------------------------------------------------------------
    하단 램프판 — 묶음별 램프 목록
    ------------------------------------------------------------------------- */
+/* tag는 ez_scada.folders_tags.name이다(위 조건 램프와 같은 규칙).
+   주소는 아직 전부 M000이라 26개가 같이 움직인다 — 현장 주소를 받으면 DB만 고치면 된다. */
 const LAMP_BOARDS = [
   {
     key: 'entSol',
     lamps: [
-      '입구 POCKET\nSOL VALVE UP',
-      '입구 POCKET\nSOL VALVE DOWN',
-      '입구 SIDE CONVEYOR\nSOL VALVE UP',
-      '입구 SIDE CONVEYOR\nSOL VALVE DOWN',
+      { text: '입구 POCKET\nSOL VALVE UP', tag: 'charge_pocket_sol_valve_up_lamp' },
+      { text: '입구 POCKET\nSOL VALVE DOWN', tag: 'charge_pocket_sol_valve_down_lamp' },
+      { text: '입구 SIDE CONVEYOR\nSOL VALVE UP', tag: 'charge_side_conveyor_sol_valve_up_lamp' },
+      { text: '입구 SIDE CONVEYOR\nSOL VALVE DOWN', tag: 'charge_side_conveyor_sol_valve_down_lamp' },
     ],
   },
   {
     key: 'entLs',
     lamps: [
-      '입구 POCKET\nUP L/S',
-      '입구 POCKET\nDOWN L/S',
-      '입구 SIDE CONVEYOR\nUP L/S',
-      '입구 SIDE CONVEYOR\nDOWN L/S',
+      { text: '입구 POCKET\nUP L/S', tag: 'charge_pocket_up_ls_lamp' },
+      { text: '입구 POCKET\nDOWN L/S', tag: 'charge_pocket_down_ls_lamp' },
+      { text: '입구 SIDE CONVEYOR\nUP L/S', tag: 'charge_side_conveyor_up_ls_lamp' },
+      { text: '입구 SIDE CONVEYOR\nDOWN L/S', tag: 'charge_side_conveyor_down_ls_lamp' },
     ],
   },
   {
     key: 'entPx',
     lamps: [
-      '입구 SIDE CONVEYOR\nFORWARD P/X',
-      '입구 SIDE CONVEYOR\nBACKWARD P/X',
-      '입구 DOOR\nOPEN P/X',
-      '입구 DOOR\nCLOSE P/X',
+      { text: '입구 SIDE CONVEYOR\nFORWARD P/X', tag: 'charge_side_conveyor_forward_px_lamp' },
+      { text: '입구 SIDE CONVEYOR\nBACKWARD P/X', tag: 'charge_side_conveyor_backward_px_lamp' },
+      { text: '입구 DOOR\nOPEN P/X', tag: 'charge_door_open_px_lamp' },
+      { text: '입구 DOOR\nCLOSE P/X', tag: 'charge_door_close_px_lamp' },
     ],
   },
   {
     key: 'entEtc',
     lamps: [
-      '입구 제품 투입\n감지 P/X',
-      '입구 제품 정렬\nSTOPPER 하강 L/S',
+      { text: '입구 제품 투입\n감지 P/X', tag: 'charge_product_detect_px_lamp' },
+      { text: '입구 제품 정렬\nSTOPPER 하강 L/S', tag: 'charge_product_sort_stopper_down_lamp' },
     ],
   },
   {
     key: 'exitSol',
     lamps: [
-      '출구 SIDE CONVEYOR\nSOL VALVE UP',
-      '출구 SIDE CONVEYOR\nSOL VALVE DOWN',
-      '출구 SIDE CONVEYOR\nUP L/S',
-      '출구 SIDE CONVEYOR\nDOWN L/S',
+      { text: '출구 SIDE CONVEYOR\nSOL VALVE UP', tag: 'discharge_side_conveyor_sol_valve_up_lamp' },
+      { text: '출구 SIDE CONVEYOR\nSOL VALVE DOWN', tag: 'discharge_side_conveyor_sol_valve_down_lamp' },
+      { text: '출구 SIDE CONVEYOR\nUP L/S', tag: 'discharge_side_conveyor_up_ls_lamp' },
+      { text: '출구 SIDE CONVEYOR\nDOWN L/S', tag: 'discharge_side_conveyor_down_ls_lamp' },
     ],
   },
   {
     key: 'exitPx',
     lamps: [
-      '출구 SIDE CONVEYOR\nFORWARD P/X',
-      '출구 SIDE CONVEYOR\nBACKWARD P/X',
-      '출구 제품 속도\n감지 P/H',
-      '제품 도착\n감지 L/S',
+      { text: '출구 SIDE CONVEYOR\nFORWARD P/X', tag: 'discharge_side_conveyor_forward_px_lamp' },
+      { text: '출구 SIDE CONVEYOR\nBACKWARD P/X', tag: 'discharge_side_conveyor_backward_px_lamp' },
+      { text: '출구 제품 속도\n감지 P/H', tag: 'discharge_product_speed_detect_ph_lamp' },
+      { text: '제품 도착\n감지 L/S', tag: 'discharge_product_arrive_detect_ls_lamp' },
     ],
   },
   {
     key: 'exitPocket',
     lamps: [
-      '출구 POCKET\n제품 감지 P/X',
-      '출구 POCKET\n제품 감지 (상)',
-      '출구 POCKET\n제품 감지 (중)',
-      '출구 POCKET\n제품 감지 (하)',
+      { text: '출구 POCKET\n제품 감지 P/X', tag: 'discharge_pocket_product_detect_px_lamp' },
+      { text: '출구 POCKET\n제품 감지 (상)', tag: 'discharge_pocket_product_detect_top_lamp' },
+      { text: '출구 POCKET\n제품 감지 (중)', tag: 'discharge_pocket_product_detect_mid_lamp' },
+      { text: '출구 POCKET\n제품 감지 (하)', tag: 'discharge_pocket_product_detect_bottom_lamp' },
     ],
   },
 ];
@@ -401,16 +409,29 @@ function ValueBox({ label, value = '####', tone = 'red', tag, hint }) {
   );
 }
 
-/** PLC 상태를 비추기만 하는 램프 목록. 조작 대상이 아니다. */
-function LampList({ title, lamps, className = '' }) {
+/** PLC 상태를 비추기만 하는 램프 목록. 조작 대상이 아니다.
+ *
+ * 색은 값 하나로 정해진다 — 1이면 초록(on), 0이면 빨강(alarm).
+ * 이 화면의 램프는 "조건이 섰나"를 보는 것이라 꺼짐이 회색이 아니라 빨강이다:
+ * 회색으로 두면 조건이 안 선 것과 값을 못 읽은 것이 같아 보인다.
+ * 못 읽었으면 점선(unknown)으로 따로 표시한다.
+ */
+function LampList({ title, lamps, values, className = '' }) {
+  const lampClass = (tag) => {
+    if (!values) return ' unknown';
+    const st = tagState(values[tag]);
+    if (st === TAG_UNKNOWN) return ' unknown';
+    return st === TAG_ON ? ' on' : ' alarm';
+  };
+
   return (
     <div className={`hmi-group dr-panel ${className}`}>
       {title && <span className="hmi-group-title">{title}</span>}
       <div className="dr-lamp-list">
-        {lamps.map((text) => (
-          <span className="hmi-lamp" key={text}>
+        {lamps.map((lamp) => (
+          <span className={`hmi-lamp${lampClass(lamp.tag)}`} key={lamp.tag} title={lamp.tag}>
             <span className="hmi-lamp-dot" />
-            {text}
+            {lamp.text}
           </span>
         ))}
       </div>
@@ -709,8 +730,8 @@ export default function DrivePage() {
           ))}
         </div>
 
-        <LampList title="입구 자동운전 조건" lamps={ENT_CONDITIONS} />
-        <LampList title="출구 자동운전 조건" lamps={EXIT_CONDITIONS} />
+        <LampList title="입구 자동운전 조건" lamps={ENT_CONDITIONS} values={tagValues} />
+        <LampList title="출구 자동운전 조건" lamps={EXIT_CONDITIONS} values={tagValues} />
 
         <div className="hmi-group dr-panel dr-time">
           <span className="hmi-group-title">출구 구동부 자동운전 TIME 설정</span>
@@ -893,7 +914,7 @@ export default function DrivePage() {
         </div>
 
         {LAMP_BOARDS.map((b) => (
-          <LampList key={b.key} lamps={b.lamps} className="dr-board" />
+          <LampList key={b.key} lamps={b.lamps} values={tagValues} className="dr-board" />
         ))}
       </div>
 

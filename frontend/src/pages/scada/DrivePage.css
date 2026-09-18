@@ -61,6 +61,15 @@
   margin-top: 2px;
 }
 
+/* 이 화면의 빨간 램프는 깜빡이지 않는다.
+
+   공용 .hmi-lamp.alarm은 경보용이라 점이 깜빡이는데, 여기 35개는 '조건이 섰나'를
+   보는 상태등이라 꺼짐(0)이 곧 빨강이다. 그대로 두면 조건이 안 선 램프가 전부
+   동시에 깜빡여서 화면을 볼 수 없다. */
+.dr-lamp-list .hmi-lamp.alarm .hmi-lamp-dot {
+  animation: none;
+}
+
 .dr-op-row {
   display: flex;
   align-items: center;
