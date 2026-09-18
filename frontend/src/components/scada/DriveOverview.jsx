@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ENT_MOTOR_TAGS, ROLLER_TAGS, artTitle, arrowTitle } from './driveArtTags';
+import { ROLLER_TAGS, artTitle, arrowTitle, motorTitle } from './driveArtTags';
 
 /* ===========================================================================
    구동화면 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -63,9 +63,6 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
      봐야 하는지 알아야 하기 때문이다. 회색은 filter라 마우스를 막지 않으니 그냥 뜬다. */
   const entRollerTitle = artTitle(ROLLER_TAGS.ent);
   const exitRollerTitle = artTitle(ROLLER_TAGS.exit);
-  const motorTitle = Object.fromEntries(
-    Object.entries(ENT_MOTOR_TAGS).map(([n, t]) => [n, artTitle(t)]),
-  );
 
   return (
     <div className="overview-1">
@@ -360,10 +357,10 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="ent-down-3" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
         <img className="ent-up-4" src="/scada/drive/arrow-up.svg" title={arrowTitle('entUp')} />
         <img className="ent-down-4" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
-        <img className="ent-motor-1" src="/scada/drive/motor-h.svg" title={motorTitle[1]} />
-        <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" title={motorTitle[2]} />
-        <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" title={motorTitle[3]} />
-        <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" title={motorTitle[4]} />
+        <img className="ent-motor-1" src="/scada/drive/motor-h.svg" title={motorTitle('ent-motor-1')} />
+        <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" title={motorTitle('ent-motor-2')} />
+        <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" title={motorTitle('ent-motor-3')} />
+        <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" title={motorTitle('ent-motor-4')} />
         <img className="ent-door-1" src="/scada/drive/ent-door-10.png" />
       </div>
       <div className="main-drive">
@@ -376,8 +373,8 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="main-7-zone" src="/scada/drive/main-7-zone0.png" />
         <img className="main-obj-2" src="/scada/drive/main-obj-20.png" />
         <img className="main-obj-1" src="/scada/drive/main-obj-10.png" />
-        <img className="main-motor-1" src="/scada/drive/motor-v2.svg" />
-        <img className="main-motor-2" src="/scada/drive/motor-v2.svg" />
+        <img className="main-motor-1" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-1')} />
+        <img className="main-motor-2" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-2')} />
       </div>
       <div className="exit-conv">
         <img className="exit-obj-1" src="/scada/drive/exit-obj-10.png" />
@@ -664,11 +661,11 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="exit-down-3" src="/scada/drive/arrow-down.svg" title={arrowTitle('exitDown')} />
         <img className="exit-up-4" src="/scada/drive/arrow-up.svg" title={arrowTitle('exitUp')} />
         <img className="exit-down-4" src="/scada/drive/arrow-down.svg" title={arrowTitle('exitDown')} />
-        <img className="exit-motor-1" src="/scada/drive/motor-h.svg" />
-        <img className="exit-motor-2" src="/scada/drive/motor-h.svg" />
-        <img className="exit-motor-3" src="/scada/drive/motor-drum.svg" />
-        <img className="exit-motor-4" src="/scada/drive/motor-h.svg" />
-        <img className="exit-motor-5" src="/scada/drive/motor-v2.svg" />
+        <img className="exit-motor-1" src="/scada/drive/motor-h.svg" title={motorTitle('exit-motor-1')} />
+        <img className="exit-motor-2" src="/scada/drive/motor-h.svg" title={motorTitle('exit-motor-2')} />
+        <img className="exit-motor-3" src="/scada/drive/motor-drum.svg" title={motorTitle('exit-motor-3')} />
+        <img className="exit-motor-4" src="/scada/drive/motor-h.svg" title={motorTitle('exit-motor-4')} />
+        <img className="exit-motor-5" src="/scada/drive/motor-v2.svg" title={motorTitle('exit-motor-5')} />
       </div>
     </div>
   );

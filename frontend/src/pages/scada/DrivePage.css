@@ -598,10 +598,11 @@
   visibility: hidden;
 }
 
-/* ===== 입구 모터 넷 =========================================================
+/* ===== 모터 11개 ============================================================
 
    값이 0이거나 못 읽으면 회색, 1이면 작화 그대로(초록)다.
-   화살표와 같은 방식으로 무대에 클래스만 붙는다(DrivePage.jsx의 MOTOR_TAGS).
+   화살표와 같은 방식으로 무대에 클래스만 붙는다(driveArtTags.js의 MOTOR_TAGS).
+   클래스 이름은 gray-<작화 클래스>라서 짝이 눈으로 맞춰진다.
 
    모터 그림(motor-h.svg / motor-drum.svg)이 초록 한 색이라 grayscale 하나로 끝난다.
    색을 덮어씌우지 않고 채도만 빼기 때문에 명암·모양은 그대로 남아서, 회색이어도
@@ -611,10 +612,17 @@
    작화 CSS는 이 자리에 filter를 걸지 않으므로 무게를 다툴 상대가 없다. 나중에 작화나
    다크 테마가 모터에 filter를 걸게 되면 서로 덮어쓴다 — filter는 겹쳐 쌓이지 않고
    나중 것 하나만 남기 때문에, 그때는 두 값을 한 줄에 같이 적어야 한다. */
-.dr-stage-inner.gray-ent-motor1 .ent-motor-1,
-.dr-stage-inner.gray-ent-motor2 .ent-motor-2,
-.dr-stage-inner.gray-ent-motor3 .ent-motor-3,
-.dr-stage-inner.gray-ent-motor4 .ent-motor-4 {
+.dr-stage-inner.gray-ent-motor-1 .ent-motor-1,
+.dr-stage-inner.gray-ent-motor-2 .ent-motor-2,
+.dr-stage-inner.gray-ent-motor-3 .ent-motor-3,
+.dr-stage-inner.gray-ent-motor-4 .ent-motor-4,
+.dr-stage-inner.gray-main-motor-1 .main-motor-1,
+.dr-stage-inner.gray-main-motor-2 .main-motor-2,
+.dr-stage-inner.gray-exit-motor-1 .exit-motor-1,
+.dr-stage-inner.gray-exit-motor-2 .exit-motor-2,
+.dr-stage-inner.gray-exit-motor-3 .exit-motor-3,
+.dr-stage-inner.gray-exit-motor-4 .exit-motor-4,
+.dr-stage-inner.gray-exit-motor-5 .exit-motor-5 {
   filter: grayscale(1);
 }
 

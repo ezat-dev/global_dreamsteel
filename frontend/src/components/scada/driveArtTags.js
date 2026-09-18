@@ -20,16 +20,34 @@
    표시. 통신이 끊겼는데 도는 것처럼 보이면 설비가 도는 줄로 읽히므로 그쪽이 안전하다. */
 const RULE = '값이 1일 때만 표시 / 0이거나 못 읽으면 꺼짐';
 
-/* 입구 모터 넷. 자리와 태그를 짝지은 근거는 작화 좌표다.
-     1 x 0    왼쪽 끝(가로 기어드)
-     2 x 170  그 오른쪽(통 모터)
-     3 x 497  DOOR(x 494~) 바로 위 — DrivePage NOTES의 '입구문 열림'이 붙는 자리
-     4 x 332  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리 */
-export const ENT_MOTOR_TAGS = {
-  1: { tag: 'charge_motor1_lamp', label: '입구 모터 1' },
-  2: { tag: 'charge_motor2_lamp', label: '입구 모터 2' },
-  3: { tag: 'charge_door_open_lamp', label: '입구문 열림' },
-  4: { tag: 'charge_stopper_down_detect_lamp', label: 'STOPPER 하강 감지' },
+/* 모터 11개 전부. 키는 작화 클래스 이름 그대로다 — 그림과 회색 클래스(gray-<키>)가
+   같은 이름을 쓰게 되어 어느 자리인지 헷갈릴 일이 없다.
+
+   자리와 태그를 짝지은 근거는 작화 좌표다(overview 기준, 왼쪽 위가 0,0).
+   회전감지 셋은 전부 아래줄(y≈360)의 같은 모터 그림이라 짝이 갈린다.
+     ent-motor-1   x   0 y 124  입구 왼쪽 끝(가로 기어드)
+     ent-motor-2   x 170 y 175  그 오른쪽(통 모터)
+     ent-motor-3   x 497 y 160  DOOR(x 494~) 바로 위 — NOTES의 '입구문 열림'이 붙는 자리
+     ent-motor-4   x 332 y 360  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리
+     main-motor-1  x 633 y 365  MAIN 존(x 609~1136) 아래
+     main-motor-2  x1162 y 365  MAIN 존 오른쪽 밖 = CC 쪽 아래
+     exit-motor-1  x1347 y   0  출구 위쪽 둘 중 위
+     exit-motor-2  x1347 y  49  출구 위쪽 둘 중 아래(x가 1번과 같아 위아래로 갈린다)
+     exit-motor-3  x1553 y 174  통 모터
+     exit-motor-4  x1723 y 172  출구 오른쪽 끝
+     exit-motor-5  x1403 y 360  출구 아래줄 */
+export const MOTOR_TAGS = {
+  'ent-motor-1': { tag: 'charge_motor1_lamp', label: '입구 모터 1' },
+  'ent-motor-2': { tag: 'charge_motor2_lamp', label: '입구 모터 2' },
+  'ent-motor-3': { tag: 'charge_door_open_lamp', label: '입구문 열림' },
+  'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp', label: 'STOPPER 하강 감지' },
+  'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp', label: 'MAIN TABLE DRIVE 컨베이어 회전감지' },
+  'main-motor-2': { tag: 'cc_table_drive_conveyor_rotate_detect_lamp', label: 'CC TABLE DRIVE 컨베이어 회전감지' },
+  'exit-motor-1': { tag: 'discharge_motor1_lamp', label: '출구 모터 1' },
+  'exit-motor-2': { tag: 'discharge_motor2_lamp', label: '출구 모터 2' },
+  'exit-motor-3': { tag: 'discharge_motor3_lamp', label: '출구 모터 3' },
+  'exit-motor-4': { tag: 'discharge_motor4_lamp', label: '출구 모터 4' },
+  'exit-motor-5': { tag: 'discharge_table_drive_conveyor_rotate_detect_lamp', label: '출구 TABLE DRIVE 컨베이어 회전감지' },
 };
 
 /* 컨베이어 롤러. 한 구역의 롤러는 한 축으로 같이 도니까 태그도 구역당 하나다
@@ -56,3 +74,10 @@ export const artTitle = ({ tag, label }) => `${label} / ${tag} — ${RULE}`;
 
 /* 화살표는 방향별로 4자리씩 같은 태그를 본다 — key로 찾아 쓴다. */
 export const arrowTitle = (key) => artTitle(ARROW_TAGS.find((a) => a.key === key));
+
+/* 모터는 작화 클래스 이름으로 찾는다. 값이 0이라 회색이어도 툴팁은 떠야 한다 —
+   값이 안 들어올 때야말로 어느 태그를 봐야 하는지 알아야 하기 때문이다. */
+export const motorTitle = (cls) => artTitle(MOTOR_TAGS[cls]);
+
+/* 회색으로 만들 때 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다. */
+export const motorGrayClass = (cls) => `gray-${cls}`;

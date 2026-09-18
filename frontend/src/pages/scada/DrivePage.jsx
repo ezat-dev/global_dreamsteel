@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import DriveOverview from '../../components/scada/DriveOverview';
-import { ARROW_TAGS, ENT_MOTOR_TAGS, ROLLER_TAGS } from '../../components/scada/driveArtTags';
+import { ARROW_TAGS, MOTOR_TAGS, ROLLER_TAGS, motorGrayClass } from '../../components/scada/driveArtTags';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
@@ -147,13 +147,10 @@ const driveCmd = (unit, action) => `${unit}_${action}_cmd`;
 
    화살표: 값이 1이면 보이고 0이거나 못 읽으면 숨긴다. 숨기는 일은 DrivePage.css가 맡는다.
    모터:   값이 1이면 지금 색(초록), 아니면 회색. 모터 그림이 초록 한 색이라 filter 한 줄로 된다.
-     ent-motor-1 x 0    왼쪽 끝(가로 기어드)
-     ent-motor-2 x 170  그 오른쪽(통 모터)
-     ent-motor-3 x 497  DOOR(x 494~) 바로 위 — 아래 NOTES의 '입구문 열림'이 붙는 자리
-     ent-motor-4 x 332  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리 */
-const MOTOR_TAGS = [1, 2, 3, 4].map((n) => ({
-  tag: ENT_MOTOR_TAGS[n].tag,
-  grayClass: `gray-ent-motor${n}`,
+           어느 자리가 어느 태그인지는 driveArtTags.js의 MOTOR_TAGS 주석에 좌표까지 적혀 있다. */
+const MOTOR_GRAY = Object.entries(MOTOR_TAGS).map(([cls, t]) => ({
+  tag: t.tag,
+  grayClass: motorGrayClass(cls),
 }));
 
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
@@ -689,7 +686,7 @@ export default function DrivePage() {
   const exitRolling = tagState(tagValues?.[ROLLER_TAGS.exit.tag]) === TAG_ON;
 
   /* 모터는 화살표와 같은 방식이다 — 무대에 클래스만 붙이고 회색으로 만드는 일은 CSS가 한다. */
-  const motorGrayClass = MOTOR_TAGS
+  const motorGray = MOTOR_GRAY
     .filter(({ tag }) => tagState(tagValues?.[tag]) !== TAG_ON)
     .map(({ grayClass }) => ` ${grayClass}`)
     .join('');
@@ -880,7 +877,7 @@ export default function DrivePage() {
         {/* 왼쪽 위를 고정점으로 줄인다(transform-origin: top left). 배율이 가로 기준이라
             줄인 폭이 곧 무대 폭이 되어 좌우 양끝에 딱 맞는다. */}
         <div
-          className={`dr-stage-inner${arrowHideClass}${motorGrayClass}`}
+          className={`dr-stage-inner${arrowHideClass}${motorGray}`}
           style={{
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,
