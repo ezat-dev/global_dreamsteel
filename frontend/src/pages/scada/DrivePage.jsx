@@ -66,11 +66,35 @@ const LABELS = [
 /* svMin/svMax는 구동부마다 다른 속도 설정 허용 범위(mm/Min).
    숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
 /* unit은 ON/OFF 태그 이름의 앞부분이다(charge_on_cmd 등) — driveCmd() 참고. */
+/* pvTag/svTag/detectTag는 ez_scada.folders_tags.name이다. unit에서 조립하지 않고 그대로
+   적는다 — 가운데가 제각각이라(charge_table_drive_ / maincc_drive_ / discharge_table_drive_)
+   규칙으로 만들면 한 곳만 어긋나도 조용히 빈 값이 된다.
+
+   PV는 읽기 전용, SV는 값을 쓰는 태그와 읽는 태그가 하나다(쓰면 다음 폴링에 그 값이 온다).
+   구동감지는 0이 정상(초록), 1이 이상(빨강)이다 — 이름의 _normal_ 이 그 뜻이다.
+
+   주소는 아직 임시다: PV·SV가 D000, 구동감지가 M001이라 세 박스가 같이 움직인다.
+   현장 주소를 받으면 DB의 address만 고치면 되고 화면은 손댈 필요가 없다. */
 const DRIVE_PANELS = [
-  { key: 'entTable', unit: 'charge', title: '입구 TABLE DRIVE', left: 350, top: 12, svMin: 0, svMax: 2610 },
-  { key: 'mainCc', unit: 'maincc', title: 'MAIN/CC DRIVE', left: 700, top: 12, svMin: 0, svMax: 2610 },
+  {
+    key: 'entTable', unit: 'charge', title: '입구 TABLE DRIVE', left: 350, top: 12, svMin: 0, svMax: 2610,
+    pvTag: 'charge_table_drive_pv',
+    svTag: 'charge_table_drive_sv',
+    detectTag: 'charge_table_drive_detect_normal_lamp',
+  },
+  {
+    key: 'mainCc', unit: 'maincc', title: 'MAIN/CC DRIVE', left: 700, top: 12, svMin: 0, svMax: 2610,
+    pvTag: 'maincc_drive_pv',
+    svTag: 'maincc_drive_sv',
+    detectTag: 'maincc_drive_detect_normal_lamp',
+  },
   // 출구 컨베이어(x 1353~1723) 위에 오도록. 폭이 250이라 left는 1473을 넘기면 안 된다.
-  { key: 'exitTable', unit: 'discharge', title: '출구 TABLE DRIVE', left: 1050, top: 12, svMin: 0, svMax: 4110 },
+  {
+    key: 'exitTable', unit: 'discharge', title: '출구 TABLE DRIVE', left: 1050, top: 12, svMin: 0, svMax: 4110,
+    pvTag: 'discharge_table_drive_pv',
+    svTag: 'discharge_table_drive_sv',
+    detectTag: 'discharge_table_drive_detect_normal_lamp',
+  },
 ];
 
 // MAIN DRIVE 존 — 작화 존 이미지 위에 PV/SV를 그대로 얹는다(존 폭 75.5px 간격).
@@ -458,9 +482,25 @@ function LampList({ title, lamps, values, className = '' }) {
  * @param holdMs 눌러야 하는 시간(ms)
  */
 function DrivePanel({
-  title, unit, style, data, values, onChange, svMin, svMax,
+  title, unit, style, values, svMin, svMax,
+  pvTag, svTag, detectTag, onSv,
   onPress, heldTag = '', armedTag = '', holdMs = 2000,
 }) {
+  /* 값을 못 받았으면 0이 아니라 '---'로 보여준다 — 0으로 그리면 실제 0과 구분되지 않는다. */
+  const text = (tag) => {
+    const v = values?.[tag];
+    return v == null || v === '' ? '---' : String(v);
+  };
+
+  /* 구동감지 — 글자는 "구동감지 정상"으로 고정이고 색만 바뀐다(현장 화면 그대로).
+     0이 정상(초록), 1이 이상(빨강), 못 읽으면 점선으로 '모름'. */
+  const detectClass = (() => {
+    if (!values) return ' is-unknown';
+    const st = tagState(values[detectTag]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === TAG_OFF ? ' is-on' : ' is-alarm';
+  })();
+
   /* ON/OFF 버튼 한 개 분량의 속성. 두 버튼이 켜지는 색만 다르고 나머지는 같다.
      disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아 비트가 1로 남는다. */
   const btn = (action, onClassName) => {
@@ -493,7 +533,14 @@ function DrivePanel({
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <button {...btn('on', ' is-on')} />
         <span className="dr-drive-tag">PV</span>
-        <LedInput value={data.pv} readOnly color="red" size="sm" unit="mm/Min" title={`${title} PV`} />
+        <LedInput
+          value={text(pvTag)}
+          readOnly
+          color="red"
+          size="sm"
+          unit="mm/Min"
+          title={`${title} 현재속도(PV) — 읽기 전용 / ${pvTag}`}
+        />
       </div>
 
       {/* is-sv를 붙여 SV 입력칸만 연두색으로 물들인다(DrivePage.css의 --dr-sv). */}
@@ -502,11 +549,12 @@ function DrivePanel({
         <button {...btn('off', ' is-alarm')} />
         <span className="dr-drive-tag">SV</span>
         <LedInput
-          value={data.sv}
-          onChange={(v) => onChange('sv', v)}
+          value={text(svTag)}
+          onChange={(v) => onSv(svTag, v)}
           color="red"
           size="sm"
           unit="mm/Min"
+          title={`${title} 속도 설정(SV) / ${svTag}`}
           label={`${title} 속도 설정`}
           min={svMin}
           max={svMax}
@@ -515,8 +563,8 @@ function DrivePanel({
 
       {/* 구동감지 — 글자 칸 자체가 램프다. 조작이 아니라 PLC 상태를 비춘다. */}
       <div className="dr-drive-foot">
-        <span className={`dr-detect hmi-lampbox${data.detectOn ? ' is-on' : ''}`}>
-          구동감지 {data.detect}
+        <span className={`dr-detect hmi-lampbox${detectClass}`} title={detectTag}>
+          구동감지 정상
         </span>
       </div>
     </div>
@@ -589,18 +637,15 @@ export default function DrivePage() {
       .catch((e) => setWriteError(`${tag} — ${e.message}`));
   };
 
-  /* detectOn은 구동감지 램프의 점등 여부. PLC 값이 붙기 전이라 꺼둔다 —
-     모르는 상태를 켜진 것으로 그리지 않는 쪽이 안전하다. */
-  /* 아직 태그가 없는 칸만 남은 더미다. ON/OFF는 램프 태그로 넘어가서 여기서 빠졌다
-     (그래서 on 항목이 없다) — PV/SV/구동감지 태그가 오면 이 state는 통째로 사라진다. */
-  const [drives, setDrives] = useState({
-    entTable: { pv: '0', sv: '0', detect: '정상', detectOn: false },
-    mainCc: { pv: '0', sv: '0', detect: '정상', detectOn: false },
-    exitTable: { pv: '0', sv: '0', detect: '정상', detectOn: false },
-  });
+  /* 구동부 속도 설정(SV) — 숫자패드에서 확정한 값을 PLC에 쓴다.
+     값 태그와 표시 태그가 같아서, 쓰고 나면 다음 폴링에 그 값이 그대로 돌아온다. */
+  const handleDriveSv = (tag, value) => {
+    const num = Math.round(Number(value));
+    if (!Number.isFinite(num)) return;
 
-  const handleDriveChange = (key, field, value) => {
-    setDrives((prev) => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
+    setWriteError('');
+    writeTag(DR_FOLDER_ID, tag, num)
+      .catch((e) => setWriteError(`${tag} — ${e.message}`));
   };
 
   /* 존 PV/SV 실시간값. 나머지 칸(구동부 3개, 램프, TIME 설정 등)은 아직 더미다. */
@@ -819,9 +864,11 @@ export default function DrivePage() {
                 title={p.title}
                 unit={p.unit}
                 style={{ left: p.left, top: p.top }}
-                data={drives[p.key]}
                 values={tagValues}
-                onChange={(field, v) => handleDriveChange(p.key, field, v)}
+                pvTag={p.pvTag}
+                svTag={p.svTag}
+                detectTag={p.detectTag}
+                onSv={handleDriveSv}
                 onPress={handleDrivePress}
                 heldTag={heldTag}
                 armedTag={armedTag}
