@@ -712,4 +712,13 @@
     padding: 9px 6px;
     font-size: 17px;
   }
+
+  /* 발생기만 조금 낮게. 설비 상자가 y80~194이고 이 칸이 y158에서 시작해서
+     쓸 수 있는 높이가 36px뿐이다 — 위 40px을 그대로 주면 상자 아래로 내려온다.
+     (블로워는 41, 가스는 43이 남아서 40이 들어간다.) 글자 크기는 그대로 두고
+     위아래 여백만 줄여 34px로 맞춘다. */
+  .at-overlay > .at-plate--gen + .at-openclose em,
+  .at-overlay > .at-plate--gen + .at-openclose button {
+    padding: 6px 6px;
+  }
 }
