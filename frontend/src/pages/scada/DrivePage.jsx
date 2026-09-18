@@ -122,6 +122,9 @@ const DR_FOLDER_ID = 9;
    CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
 const DRIVE_HOLD_MS = 2000;
 
+/* MAIN DRIVE 아래 '####℃ 이하시 설비 OFF'의 OFF 버튼. 읽기와 쓰기가 같은 태그다. */
+const FACILITY_OFF_BTN_TAG = 'facility_off_temp_toggle_button';
+
 /* ALARM SWITCH 판의 두 버튼 — 알람화면의 같은 버튼과 태그·동작이 완전히 같다
    (같은 주소를 폴더 9에도 넣어 두었다. 이 화면은 폴더 9만 폴링하므로,
    여기에 있어야 읽기와 쓰기가 한 폴더에서 끝난다).
@@ -338,6 +341,10 @@ const NOTES = [
        0℃ 이하에서 끈다는 말이 되어 설정을 잘못 읽는다. */
     valueTag: 'facility_off_temp',
     valueLabel: '설비 OFF 기준 온도',
+    /* 뒤의 'OFF'는 글씨가 아니라 누르는 버튼이다. 읽는 태그와 쓰는 태그가 같다.
+       2초를 채우면 1을 보내고, 떼도 0을 보내지 않는다 — 걸어 두는 자리다.
+       이미 1이면 보낼 것이 없다(다시 0으로 내리는 조작은 없다). */
+    lampTag: 'facility_off_temp_toggle_button',
   },
   // ent-motor-4(x 332~356, y 360~401) 오른쪽 옆. 모터 세로 가운데에 맞춘다.
   { key: 'stopper', left: 362, top: 372, text: 'STOPPER 하강 감지' },
@@ -794,13 +801,49 @@ export default function DrivePage() {
       .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
   };
 
+  /* ── 설비 OFF 버튼 (누르면 1을 걸어 둔다) ─────────────────────────────
+     위 ON/OFF와 달리 모멘터리가 아니다. 2초를 채우면 1을 보내고, 떼도 0을 보내지
+     않는다 — 값을 걸어 두는 자리라 해제 조작이 따로 없다.
+
+     이미 1이면 누름 자체를 시작하지 않는다. 눌러도 아무 일이 없는 것을 진행 바가
+     차오르다 마는 것으로 보여 주면 고장으로 읽히므로, 처음부터 반응하지 않게 둔다.
+     값을 못 읽는 동안도 같다 — 지금 값을 모르는 채로 쓰지 않는다. */
+  const offBtnState = tagState(tagValues?.[FACILITY_OFF_BTN_TAG]);
+  const offBtnClass = offBtnState === TAG_UNKNOWN
+    ? ' is-unknown'
+    : (offBtnState === TAG_ON ? ' is-on' : ' is-alarm');
+  const [offBtnHeld, setOffBtnHeld] = useState(false);
+  const offBtnHeldRef = useRef(false);
+  const offBtnTimerRef = useRef(null);
+
+  const handleOffBtnPress = () => {
+    if (offBtnHeldRef.current || offBtnState !== TAG_OFF) return;
+    offBtnHeldRef.current = true;
+    setOffBtnHeld(true);
+    setWriteError('');
+
+    offBtnTimerRef.current = setTimeout(() => {
+      writeTag(DR_FOLDER_ID, FACILITY_OFF_BTN_TAG, 1)
+        .catch((e) => setWriteError(`${FACILITY_OFF_BTN_TAG} — ${e.message}`));
+    }, DRIVE_HOLD_MS);
+  };
+
+  /* 보낸 뒤에도 0을 보내지 않으므로 여기서는 타이머만 거둔다. */
+  const handleOffBtnRelease = () => {
+    if (!offBtnHeldRef.current) return;
+    offBtnHeldRef.current = false;
+    setOffBtnHeld(false);
+    clearTimeout(offBtnTimerRef.current);
+    offBtnTimerRef.current = null;
+  };
+
   /* 뗌을 버튼이 아니라 window에서 받는다.
      손가락이 버튼 밖으로 나가서 떼도, 창이 포커스를 잃어도(탭 전환·알림창) 반드시
      0이 나가게 하려는 것이다. 버튼의 onPointerUp만 믿으면 그런 경우에 비트가 1로
      남고, PLC는 기동/정지 명령이 계속 걸려 있는 상태가 된다.
      핸들러가 ref와 setState만 건드려서 렌더마다 새로 걸 필요가 없다. */
   useEffect(() => {
-    const release = () => handleDriveRelease();
+    const release = () => { handleDriveRelease(); handleOffBtnRelease(); };
     window.addEventListener('pointerup', release);
     window.addEventListener('pointercancel', release);
     window.addEventListener('blur', release);
@@ -1026,7 +1069,21 @@ export default function DrivePage() {
               >
                 {n.valueTag && <span className="dr-note-val">{noteValue(n.valueTag)}</span>}
                 {n.text}
-                {n.lamp && <span className="dr-note-lamp hmi-lampbox is-alarm">{n.lamp}</span>}
+                {/* 0이면 빨강, 1이면 초록, 못 읽으면 점선. 1일 때는 보낼 것이 없어
+                    눌러도 반응하지 않는다(위 handleOffBtnPress 참고). */}
+                {n.lamp && (
+                  <button
+                    type="button"
+                    className={`dr-note-lamp hmi-lampbox${offBtnClass}${offBtnHeld ? ' is-held' : ''}`}
+                    onPointerDown={handleOffBtnPress}
+                    title={`설비 OFF / ${n.lampTag} — 값이 0일 때 ${DRIVE_HOLD_MS / 1000}초 누르면 1`}
+                  >
+                    {n.lamp}
+                    {offBtnHeld && (
+                      <span className="dr-hold-bar" style={{ animationDuration: `${DRIVE_HOLD_MS}ms` }} />
+                    )}
+                  </button>
+                )}
               </span>
             ))}
           </div>
