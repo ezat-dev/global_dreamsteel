@@ -159,11 +159,19 @@ const ARROW_TAGS = [
 const ENT_ROLLER_TAG = 'charge_side_conveyor_roller';
 const EXIT_ROLLER_TAG = 'discharge_side_conveyor_roller';
 
-/* 입구 왼쪽 모터 둘 — 값이 1이면 지금 색(초록), 0이거나 못 읽으면 회색.
-   작화의 모터 그림이 초록이라 회색으로 만드는 건 filter 한 줄이면 된다. */
+/* 입구 모터 넷 — 값이 1이면 지금 색(초록), 0이거나 못 읽으면 회색.
+   작화의 모터 그림이 초록이라 회색으로 만드는 건 filter 한 줄이면 된다.
+
+   어느 모터인지는 작화 좌표와 아래 NOTES의 글씨로 묶인다.
+     ent-motor-1 x 0    왼쪽 끝(가로 기어드)
+     ent-motor-2 x 170  그 오른쪽(통 모터)
+     ent-motor-3 x 497  DOOR(x 494~) 바로 위 — NOTES의 '입구문 열림'이 붙는 자리
+     ent-motor-4 x 332  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리 */
 const MOTOR_TAGS = [
   { tag: 'charge_motor1_lamp', grayClass: 'gray-ent-motor1' },
   { tag: 'charge_motor2_lamp', grayClass: 'gray-ent-motor2' },
+  { tag: 'charge_door_open_lamp', grayClass: 'gray-ent-motor3' },
+  { tag: 'charge_stopper_down_detect_lamp', grayClass: 'gray-ent-motor4' },
 ];
 
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).

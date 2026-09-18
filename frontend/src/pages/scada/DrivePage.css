@@ -598,7 +598,7 @@
   visibility: hidden;
 }
 
-/* ===== 입구 왼쪽 모터 둘 ===================================================
+/* ===== 입구 모터 넷 =========================================================
 
    값이 0이거나 못 읽으면 회색, 1이면 작화 그대로(초록)다.
    화살표와 같은 방식으로 무대에 클래스만 붙는다(DrivePage.jsx의 MOTOR_TAGS).
@@ -612,7 +612,9 @@
    다크 테마가 모터에 filter를 걸게 되면 서로 덮어쓴다 — filter는 겹쳐 쌓이지 않고
    나중 것 하나만 남기 때문에, 그때는 두 값을 한 줄에 같이 적어야 한다. */
 .dr-stage-inner.gray-ent-motor1 .ent-motor-1,
-.dr-stage-inner.gray-ent-motor2 .ent-motor-2 {
+.dr-stage-inner.gray-ent-motor2 .ent-motor-2,
+.dr-stage-inner.gray-ent-motor3 .ent-motor-3,
+.dr-stage-inner.gray-ent-motor4 .ent-motor-4 {
   filter: grayscale(1);
 }
 
