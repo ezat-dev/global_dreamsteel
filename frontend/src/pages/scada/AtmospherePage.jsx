@@ -7,7 +7,7 @@ import {
   lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
 import {
-  BEACON, FITTING_TAGS, fittingOffClass, fittingOnClass,
+  BEACON, FITTING_TAGS, ROTATE_VALVE, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
@@ -149,8 +149,9 @@ export default function AtmospherePage() {
     return () => ro.disconnect();
   }, []);
 
-  /* PLC 태그 값. 지금 붙어 있는 것은 O2 SENSOR(o2_pv, D241) 하나뿐이고,
-     나머지 칸(조건 램프·밸브 패널)은 아직 더미다. */
+  /* 이 화면의 PLC 값 — 램프·밸브 패널·조건판이 전부 여기서 온다.
+     작화 위 그림 중 볼밸브(valve-2)와 로내 투입 화살표(down-1 / down-2)는 태그가 없다 —
+     맞는 PLC 값이 없어서 그냥 그려만 둔다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(AT_FOLDER_ID);
 
   /** 압력계·솔밸브 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
@@ -199,6 +200,11 @@ export default function AtmospherePage() {
 
   /* 발생기 위 경광등 — 0이면 초록(정상), 1이면 그림 그대로 빨강, 못 읽으면 회색.
      밸브·모터와 달리 1일 때 아무것도 안 건다 — 원래 빨간 경광등이라 그게 맞다. */
+  /* 주배관 위 컨트롤 밸브 — 1일 때만 돈다. 0이거나 못 읽으면 선다(롤러·팬과 같은 규칙).
+     색은 안 건드린다. 여기만 클래스가 아니라 작화에 boolean을 넘기는데, 회전이 SVG 안의
+     <animateTransform>이라 바깥 CSS로는 멈출 수 없어 그림 파일을 바꿔 끼우기 때문이다. */
+  const valveSpinning = tagState(tagValues?.[ROTATE_VALVE.tag]) === TAG_ON;
+
   const beaconState = tagState(tagValues?.[BEACON.tag]);
   const beaconClass = beaconState === TAG_OFF
     ? ' beacon-green'
@@ -380,7 +386,7 @@ export default function AtmospherePage() {
             visibility: scale ? 'visible' : 'hidden',
           }}
         >
-          <AtmosphereOverview />
+          <AtmosphereOverview valveSpinning={valveSpinning} />
 
           <div className="at-overlay">
             {/* 설비 제목판 + OPEN/CLOSE — 두 칸 다 램프다. OPEN은 초록, CLOSE는 빨강으로

@@ -46,6 +46,21 @@ export const BEACON = { cls: 'alarm-1', tag: 'generator_lamp', label: '발생기
 export const beaconTitle = () =>
   `${BEACON.label} / ${BEACON.tag} — 값이 0이면 초록 / 1이면 빨강 / 못 읽으면 회색`;
 
+/* 주배관 위 컨트롤 밸브(작화 valve-1, x 626~676 / y 118~161).
+   디스크가 도는 그림(at-valve-spin.svg)과 멈춘 그림(at-valve.svg) 두 벌이 있어서
+   값에 따라 파일을 바꿔 끼운다 — 회전이 SVG 안의 <animateTransform>이라 <img>로
+   띄운 바깥에서는 멈출 수 없다(구동화면 롤러·팬과 같은 사정).
+
+   색은 건드리지 않는다. 도느냐 마느냐만 보여 준다. */
+export const ROTATE_VALVE = {
+  cls: 'valve-1',
+  tag: 'atmosphere_rotate_valve_lamp',
+  label: 'ADDTION 컨트롤 밸브',
+};
+
+export const rotateValveTitle = () =>
+  `${ROTATE_VALVE.label} / ${ROTATE_VALVE.tag} — 값이 1이면 돌고 0이거나 못 읽으면 선다`;
+
 /* 무대에 붙는 클래스. AtmospherePage.css의 선택자와 짝이 맞아야 한다.
    초록·회색 둘 다 클래스를 붙인다 — 둘 다 filter를 걸어야 해서, 한쪽만 붙이고
    나머지를 '규칙 없음'으로 두면 0일 때 가스 밸브의 주황이 그대로 남는다. */

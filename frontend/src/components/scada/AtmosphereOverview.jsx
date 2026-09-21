@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { beaconTitle, fittingTitle } from './atmosphereArtTags';
+import { beaconTitle, fittingTitle, rotateValveTitle } from './atmosphereArtTags';
 
 /* ===========================================================================
    분위기제어 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -22,12 +22,11 @@ import { beaconTitle, fittingTitle } from './atmosphereArtTags';
      at-solenoid-gas.svg  / at-solenoid-air.svg    솔레노이드 밸브 gas-sol / blowe-sol
      at-blower.svg                                 송풍기 케이싱   motor-1
      at-beacon.svg                                 경광등          alarm-1
-     at-valve-spin.svg                             컨트롤 밸브     valve-1
+     at-valve-spin.svg / at-valve.svg              컨트롤 밸브     valve-1
                                                    (연소화면 존 밸브와 같은 기기.
-                                                    디스크가 도는 판이다. 정지판이
-                                                    at-valve.svg 이고 도형은 똑같다 —
-                                                    태그가 오면 값 1일 때 spin, 0일 때
-                                                    정지판으로 src 만 갈아끼우면 된다)
+                                                    디스크가 도는 판과 멈춘 판 두 벌이고,
+                                                    값이 1이면 spin 0이면 정지판을 쓴다
+                                                    — valveSpinning)
      at-ballvalve.svg                              레버식 볼밸브   valve-2
      at-arrow-down.svg                             로내 투입 화살표 down-1 / down-2
                                                    (원본 두 파일이 같은 그림이라 하나만 쓴다)
@@ -39,7 +38,11 @@ import { beaconTitle, fittingTitle } from './atmosphereArtTags';
    쪽(AtmospherePage)에서 transform: scale로 처리한다.
    =========================================================================== */
 
-function AtmosphereOverview() {
+/* valveSpinning — 주배관 위 컨트롤 밸브가 도는지. 값 자체가 아니라 결론(boolean)만
+   받는다. 그림 전체가 memo로 묶여 있어서, 1초마다 오는 값을 여기까지 들이면 매 초
+   다시 비교하게 된다. 기본값이 true인 것은 값 없이 써도 예전처럼 도는 그림이 나오게
+   하려는 것이다. */
+function AtmosphereOverview({ valveSpinning = true }) {
   return (
     <div className="atmosphere">
       <div className="pipe-1"></div>
@@ -58,7 +61,11 @@ function AtmosphereOverview() {
       <img className="obj-2" src="/scada/atmosphere/obj-20.png" />
       <img className="obj-3" src="/scada/atmosphere/obj-30.png" />
       <img className="obj-4" src="/scada/atmosphere/obj-40.png" />
-      <img className="valve-1" src="/scada/atmosphere/at-valve-spin.svg" />
+      <img
+        className="valve-1"
+        src={valveSpinning ? '/scada/atmosphere/at-valve-spin.svg' : '/scada/atmosphere/at-valve.svg'}
+        title={rotateValveTitle()}
+      />
       <img className="valve-2" src="/scada/atmosphere/at-ballvalve.svg" />
       <img className="motor-1" src="/scada/atmosphere/at-blower.svg" title={fittingTitle('motor-1')} />
       <img className="blowe-pre" src="/scada/atmosphere/at-regulator-air.svg" title={fittingTitle('blowe-pre')} />
@@ -72,7 +79,8 @@ function AtmosphereOverview() {
   );
 }
 
-/* memo — 이 컴포넌트는 값을 받지 않는 고정 그림이다. 감싸는 화면이 1초마다 폴링 값으로
-   다시 그려지는데, memo가 없으면 그때마다 이 안의 수백 개 요소(구동 571 / 연소 328)까지
-   같이 비교된다. props가 없으니 memo는 "두 번 다시 그리지 않는다"와 같다. */
+/* memo — 감싸는 화면이 1초마다 폴링 값으로 다시 그려지는데, memo가 없으면 그때마다
+   이 안의 요소까지 전부 같이 비교된다(구동 571 / 연소 328과 같은 이유).
+   받는 props가 boolean 하나뿐이라 비교는 사실상 공짜고, 밸브가 실제로 멈추거나
+   돌 때만 다시 그려진다. */
 export default memo(AtmosphereOverview);
