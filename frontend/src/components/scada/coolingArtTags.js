@@ -23,3 +23,31 @@ export const TOWER_MOTOR = {
 
 export const towerMotorTitle = () =>
   `${TOWER_MOTOR.label} / ${TOWER_MOTOR.tag} — 값이 1이면 초록 / 0이면 그대로 / 못 읽으면 회색`;
+
+/* 냉각수 흐름 화살표 아홉. 값이 1이면 깜빡이고 아니면 가만히 있는다 — 색은 안 바뀐다.
+   깜빡임은 <img> 요소 자체에 거는 CSS 애니메이션이라 무대에 클래스만 붙이면 된다
+   (SVG 안의 애니메이션을 쓰는 롤러·팬·컨트롤밸브와 다르다).
+
+   태그 이름이 작화 클래스 이름 그대로다(사용자가 정한 이름) — 이 화면의 다른 태그와
+   달리 snake_case도 _lamp도 아니다. 어느 배관인지는 아래 좌표로 찾는다.
+
+   아래로 내려가는 화살표 셋(arrow-3~5, 타워에서 수조로 떨어지는 물)은 빠졌다. */
+export const ARROW_TAGS = [
+  { cls: 'arrow-1', tag: 'arrow-1', label: '화살표 1 (타워 위 입구)' },
+  { cls: 'arrow-2', tag: 'arrow-2', label: '화살표 2 (왼쪽 상승관)' },
+  { cls: 'arrow-6', tag: 'arrow-6', label: '화살표 6 (작은 수조 출구)' },
+  { cls: 'arrow-7', tag: 'arrow-7', label: '화살표 7 (큰 수조 출구)' },
+  { cls: 'arrow-8', tag: 'arrow-8', label: '화살표 8 (가운데 상승관)' },
+  { cls: 'arrow-9', tag: 'arrow-9', label: '화살표 9 (COOLING CHAMBER 위)' },
+  { cls: 'arrow-10', tag: 'arrow-10', label: '화살표 10 (RX-발생기 위)' },
+  { cls: 'arrow-11', tag: 'arrow-11', label: '화살표 11 (COOLING CHAMBER 아래)' },
+  { cls: 'arrow-12', tag: 'arrow-12', label: '화살표 12 (RX-발생기 아래)' },
+];
+
+export const arrowTitle = (cls) => {
+  const a = ARROW_TAGS.find((x) => x.cls === cls);
+  return `${a.label} / ${a.tag} — 값이 1이면 깜빡임`;
+};
+
+/* 깜빡일 때 무대에 붙는 클래스. CoolingPage.css의 선택자와 짝이 맞아야 한다. */
+export const arrowBlinkClass = (cls) => `blink-${cls}`;

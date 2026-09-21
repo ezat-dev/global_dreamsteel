@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { towerMotorTitle } from './coolingArtTags';
+import { arrowTitle, towerMotorTitle } from './coolingArtTags';
 
 /* ===========================================================================
    쿨링타워 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -118,18 +118,18 @@ function CoolingOverview() {
       <img className="obj-19" src="/scada/cooling/ct-vessel.svg" />
       <img className="obj-20" src="/scada/cooling/ct-vessel.svg" />
       <img className="motor-1" src="/scada/cooling/ct-motor.svg" title={towerMotorTitle()} />
-      <img className="arrow-1" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-2" src="/scada/cooling/ct-arrow-up.svg" />
+      <img className="arrow-1" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-1')} />
+      <img className="arrow-2" src="/scada/cooling/ct-arrow-up.svg" title={arrowTitle('arrow-2')} />
       <img className="arrow-3" src="/scada/cooling/ct-arrow-down.svg" />
       <img className="arrow-4" src="/scada/cooling/ct-arrow-down.svg" />
       <img className="arrow-5" src="/scada/cooling/ct-arrow-down.svg" />
-      <img className="arrow-6" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-7" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-8" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-9" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-10" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-11" src="/scada/cooling/ct-arrow-right.svg" />
-      <img className="arrow-12" src="/scada/cooling/ct-arrow-right.svg" />
+      <img className="arrow-6" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-6')} />
+      <img className="arrow-7" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-7')} />
+      <img className="arrow-8" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-8')} />
+      <img className="arrow-9" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-9')} />
+      <img className="arrow-10" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-10')} />
+      <img className="arrow-11" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-11')} />
+      <img className="arrow-12" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-12')} />
     </div>
   );
 }
