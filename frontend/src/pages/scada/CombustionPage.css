@@ -172,7 +172,12 @@
 .cb-onoff.is-stacked {
   flex-direction: column;
   gap: 4px;
-  padding: 4px 0 6px;
+  /* 좌우 9px은 위 제목판(.cb-plate)과 같은 값이다 — 둘 다 content-box라 이게 같아야
+     같은 width를 줬을 때 바깥 폭이 맞는다(제목판 아래에 딱 붙는 판이라 어긋나면 보인다). */
+  padding: 4px 9px 6px;
+  /* 세로로 쌓이면 flex:1이 높이에만 걸려서 폭은 글자 수를 따라간다 — ON이 OFF보다
+     좁아진다. stretch로 둘 다 판 폭에 맞춘다(위 .cb-onoff의 center를 덮는다). */
+  align-items: stretch;
   /* 위쪽 테두리가 없어(제목판에 붙는다) 아래 두 각만 둥글게 */
   border-radius: 0 0 6px 6px;
   background: #dcebfa;

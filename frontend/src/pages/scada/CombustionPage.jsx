@@ -139,9 +139,25 @@ const DEVICE_PANELS = [
      7존 개도(for-7-zone-per, x 1047~1115 / y 91~120)를 가리지 않게 오른쪽으로 민다. */
   {
     key: 'burnerCool', tone: 'blue', title: '버너 쿨링',
-    plate: { left: 1160, top: 78, width: 120 },
-    state: { left: 1160, top: 100, width: 120 },
+    /* 폭은 제목판과 상태판이 같아야 한다 — 다르면 아래 판이 삐져나온다.
+
+       오른쪽 끝이 무대 폭(STAGE_W 1285)을 넘으면 안 된다. .cb-stage가 overflow: hidden
+       이라 넘는 만큼 그냥 잘린다. 바깥 폭 = width + 좌우 여백 9*2 + 테두리 2 = width+20
+       이므로, left 1145 + 118 + 20 = 1283으로 2px 남기고 맞췄다.
+
+       왼쪽 한계는 1132다 — 그보다 왼쪽에는 7존 개도 상자(for-7-zone-box, x 1045~1117)와
+       작은 조각들(obj21 x 1113~1132)이 있어서 가린다. 판을 더 넓히려면 무대를 넓히는
+       수밖에 없는데, 그러면 그림 전체가 그만큼 작아진다. */
+    plate: { left: 1145, top: 78, width: 118 },
+    state: { left: 1145, top: 100, width: 118 },
     on: 'ON', off: 'OFF', stacked: true,
+    /* 위 둘과 OFF 램프 규칙이 다르다 — 여기는 존 연소 ON/OFF와 같은 쪽이다.
+       ON은 1이면 초록, OFF는 0이면 빨강(즉 '지금 꺼져 있다'를 빨강으로 알린다).
+       MAIN GAS·연소 BLOWER의 CLOSE/OFF는 반대로 1일 때 켜진다. 같은 화면에서 갈리는
+       것이라, 램프가 거꾸로 보이면 이 offLitWhen부터 본다. */
+    onCmd: 'burner_cooling_on_cmd',   // M300(임시) / 램프 burner_cooling_on_cmd_lamp
+    offCmd: 'burner_cooling_off_cmd', // M300(임시) / 램프 burner_cooling_off_cmd_lamp
+    offLitWhen: TAG_OFF,
   },
 ];
 
