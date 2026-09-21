@@ -305,11 +305,16 @@ const LAMP_BOARDS = [
    \n 줄바꿈은 DrivePage.css의 .dr-trip-lamp에서 white-space: pre-line으로 살린다. */
 const TRIP_TOP = 410;
 
+/* 네 램프는 값이 1이면 초록, 0이면 회색, 못 읽으면 점선이다.
+
+   바로 위 모터에도 회전감지 이름의 태그가 따로 붙어 있다(driveArtTags.js의 MOTOR_TAGS —
+   main_table_drive_conveyor_rotate_detect_lamp 등). 이름이 겹치지만 다른 태그다.
+   모터는 그림 색, 여기는 글씨 램프라 따로 움직인다 — 한쪽만 바뀌어도 고장이 아니다. */
 const TRIP_LAMPS = [
-  { key: 'ent', cx: 344, text: '입구 TABLE DRIVE\nCONVEYOR 회전감지' },
-  { key: 'main', cx: 621, text: 'MAIN TABLE DRIVE\nCONVEYOR 회전감지' },
-  { key: 'cc', cx: 1150, text: 'C/C TABLE DRIVE\nCONVEYOR 회전감지' },
-  { key: 'exit', cx: 1415, text: '출구 TABLE DRIVE\nCONVEYOR 회전감지' },
+  { key: 'ent', cx: 344, text: '입구 TABLE DRIVE\nCONVEYOR 회전감지', tag: 'charge_table_status_lamp' },
+  { key: 'main', cx: 621, text: 'MAIN TABLE DRIVE\nCONVEYOR 회전감지', tag: 'main_table_status_lamp' },
+  { key: 'cc', cx: 1150, text: 'C/C TABLE DRIVE\nCONVEYOR 회전감지', tag: 'cc_table_status_lamp' },
+  { key: 'exit', cx: 1415, text: '출구 TABLE DRIVE\nCONVEYOR 회전감지', tag: 'discharge_table_status_lamp' },
 ];
 
 /* 입구 롤러 줄 맨 끝의 제품 감지 자리.
@@ -326,7 +331,7 @@ const TRIP_LAMPS = [
    붙인다. 사이가 21px뿐이라 글씨가 양옆으로 넘치는데, 덧씌우는 층이라 잘리지 않고
    그림 위에 얹힌다. 글씨를 작게(10px) 둔 것도 그래서다. */
 const END_ROLLER = { left: 455, top: 215, width: 18, height: 138 };
-const PRODUCT_LAMP = { cx: 483, top: 265 };
+const PRODUCT_LAMP = { cx: 483, top: 265, tag: 'product_detect_lamp' };
 
 /* 그림 위에 얹는 짧은 문구들.
    cx를 주면 그 x가 글자의 가운데가 되고, left를 주면 그 x가 왼쪽 끝이 된다.
@@ -720,6 +725,15 @@ export default function DrivePage() {
     return v == null || v === '' ? '---' : String(v);
   };
 
+  /** 그림 위에 얹는 상태 램프(제품감지·회전감지 넷) — 1이면 초록, 0이면 회색, 못 읽으면 점선.
+      아래 LampList의 램프와 달리 0을 빨강으로 두지 않는다. 이 자리는 "지금 감지되고
+      있다"를 알리는 것이지 이상을 알리는 것이 아니라, 안 감지된 상태가 경보로 보이면 안 된다. */
+  const statusLampClass = (tag) => {
+    const st = tagState(tagValues?.[tag]);
+    if (st === TAG_UNKNOWN) return ' unknown';
+    return st === TAG_ON ? ' on' : '';
+  };
+
   /* 그림 위 글귀에 섞이는 값(NOTES의 valueTag) — 같은 규칙으로 '---'를 쓴다. */
   const noteValue = (tag) => {
     const v = tagValues?.[tag];
@@ -1033,12 +1047,12 @@ export default function DrivePage() {
                 옆의 매끈한 롤러들과 다르게 그려져 있다. */}
             <img className="dr-end-roller" src="/scada/drive/roller-mesh.svg" alt="" style={END_ROLLER} />
 
-            {/* 제품감지 — 위 롤러와 DOOR 사이에 표시등을 세우고 글씨를 그 아래 붙인다.
-                태그가 오면 회전감지 램프들처럼 hmi-lamp에 on/alarm 클래스만 붙이면 된다. */}
+            {/* 제품감지 — 위 롤러와 DOOR 사이에 표시등을 세우고 글씨를 그 아래 붙인다. */}
             <span
-              className="hmi-lamp dr-product-lamp"
+              className={`hmi-lamp dr-product-lamp${statusLampClass(PRODUCT_LAMP.tag)}`}
               style={{ left: PRODUCT_LAMP.cx, top: PRODUCT_LAMP.top }}
-              title="제품감지 — 태그 미연결"
+              data-tag={PRODUCT_LAMP.tag}
+              title={`제품감지 — 읽기 전용 / ${PRODUCT_LAMP.tag} — 1이면 초록`}
             >
               <span className="hmi-lamp-dot" />
               <em>제품감지</em>
@@ -1048,9 +1062,11 @@ export default function DrivePage() {
                 배율이 바뀌어도 모터와 어긋나지 않는다. */}
             {TRIP_LAMPS.map((l) => (
               <span
-                className="hmi-lamp dr-trip-lamp"
+                className={`hmi-lamp dr-trip-lamp${statusLampClass(l.tag)}`}
                 key={l.key}
                 style={{ left: l.cx, top: TRIP_TOP, transform: 'translateX(-50%)' }}
+                data-tag={l.tag}
+                title={`${l.text.replace('\n', ' ')} — 읽기 전용 / ${l.tag} — 1이면 초록`}
               >
                 <span className="hmi-lamp-dot" />
                 {l.text}
