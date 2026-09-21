@@ -51,12 +51,14 @@
    초록(#15803d) 비율로 실어서, 원래 색이 달라도 같은 초록이 된다.
 
    .at-stage-inner로 좁히므로 연소화면의 같은 이름(.gas-pre / .gas-sol)과 겹치지 않는다. */
+/* contrast를 먼저 걸고 물들인다(필터는 적힌 순서대로 걸린다). 원본이 밝은 은회색
+   좁은 범위라 바로 물들이면 안쪽 모양이 뭉개져 초록 덩어리가 된다. */
 .at-stage-inner.on-motor-1 .motor-1,
 .at-stage-inner.on-blowe-pre .blowe-pre,
 .at-stage-inner.on-blowe-sol .blowe-sol,
 .at-stage-inner.on-gas-pre .gas-pre,
 .at-stage-inner.on-gas-sol .gas-sol {
-  filter: url(#at-green);
+  filter: contrast(1.8) url(#at-green);
 }
 
 .at-stage-inner.off-motor-1 .motor-1,
