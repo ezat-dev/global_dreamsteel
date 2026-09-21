@@ -330,7 +330,9 @@ const TRIP_LAMPS = [
    램프는 그 롤러(~473)와 DOOR(494~) 사이 빈 자리의 가운데에 세우고 글씨를 그 아래
    붙인다. 사이가 21px뿐이라 글씨가 양옆으로 넘치는데, 덧씌우는 층이라 잘리지 않고
    그림 위에 얹힌다. 글씨를 작게(10px) 둔 것도 그래서다. */
-const END_ROLLER = { left: 455, top: 215, width: 18, height: 138 };
+/* 이 롤러만 값에 따라 색이 바뀐다 — 0이면 빨강, 1이면 초록, 못 읽으면 회색.
+   그림이 은회색 쇠라 빨강·초록 둘 다 색 행렬이 필요하다(아래 #dr-red / #dr-green). */
+const END_ROLLER = { left: 455, top: 215, width: 18, height: 138, tag: 'charge_side_mesh_roller' };
 const PRODUCT_LAMP = { cx: 483, top: 265, tag: 'product_detect_lamp' };
 
 /* 그림 위에 얹는 짧은 문구들.
@@ -734,6 +736,13 @@ export default function DrivePage() {
     return st === TAG_ON ? ' on' : '';
   };
 
+  /* 입구 롤러 줄 맨 끝의 매쉬 롤러 — 0이면 빨강, 1이면 초록, 못 읽으면 회색.
+     이 그림만 색이 바뀐다. 램프가 아니라 그림이라 클래스가 아니라 filter로 물들인다. */
+  const endRollerState = tagState(tagValues?.[END_ROLLER.tag]);
+  const endRollerClass = endRollerState === TAG_UNKNOWN
+    ? ' is-unknown'
+    : (endRollerState === TAG_ON ? ' is-on' : ' is-alarm');
+
   /* 그림 위 글귀에 섞이는 값(NOTES의 valueTag) — 같은 규칙으로 '---'를 쓴다. */
   const noteValue = (tag) => {
     const v = tagValues?.[tag];
@@ -875,6 +884,38 @@ export default function DrivePage() {
     /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
        작화(롤러·모터·컨베이어)는 배경이 비어 있어 그대로 얹힌다. */
     <div className="dr-page hmi-dark">
+      {/* 매쉬 롤러를 물들이는 색 행렬. CSS의 filter: url(#dr-green) / url(#dr-red)가 부른다.
+
+          기성 필터로는 안 된다 — grayscale·sepia에는 '초록으로'가 없고, hue-rotate로 맞추면
+          원래 색마다 다른 색이 나온다. 그래서 화면 램프 색(초록 #15803d / 빨강 #dc2626)을
+          먼저 정하고, 거기에 밝기(luminance)로 낸 배수 0.45~1.30을 곱한다. 어디를 찍어도
+          그 색 계열 안이고 그 안에서만 명암이 진다.
+
+          CSS가 앞에 contrast(1.8)을 먼저 건다 — 원본이 밝은 은회색 좁은 범위라 바로
+          물들이면 안쪽 매쉬 무늬가 뭉개진다. 분위기제어(#at-green)와 같은 방식이고,
+          그쪽 주석에 왜 이 값인지(형광이 됐던 과정까지) 적어 두었다.
+          필터 정의는 문서마다 따로 있어야 해서 화면끼리 나눠 쓸 수 없다. */}
+      <svg className="dr-filter-defs" aria-hidden="true">
+        <filter id="dr-green" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.01488 0.05006 0.00505 0 0.03706
+                    0.09071 0.30515 0.03081 0 0.22588
+                    0.04323 0.14542 0.01468 0 0.10765
+                    0       0       0       1 0"
+          />
+        </filter>
+        <filter id="dr-red" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.15591 0.52448 0.05295 0 0.38824
+                    0.02693 0.09059 0.00915 0 0.06706
+                    0.02693 0.09059 0.00915 0 0.06706
+                    0       0       0       1 0"
+          />
+        </filter>
+      </svg>
+
       {/* ===== 상단 조작·상태 패널 ===== */}
       <div className="dr-top">
         {/* 입구 = charge, 출구 = discharge. 폴더 9의 기존 태그(charge_on_cmd 등)와 같은 말이다. */}
@@ -1045,7 +1086,14 @@ export default function DrivePage() {
                 그림과 같은 좌표계라 배율이 바뀌어도 옆 롤러와 어긋나지 않는다.
                 이 하나만 겉면이 매쉬다(roller-mesh.svg) — 제품 감지 자리라 작화에도
                 옆의 매끈한 롤러들과 다르게 그려져 있다. */}
-            <img className="dr-end-roller" src="/scada/drive/roller-mesh.svg" alt="" style={END_ROLLER} />
+            <img
+              className={`dr-end-roller${endRollerClass}`}
+              src="/scada/drive/roller-mesh.svg"
+              alt=""
+              data-tag={END_ROLLER.tag}
+              title={`제품 감지 매쉬 롤러 — 읽기 전용 / ${END_ROLLER.tag} — 1이면 초록 / 0이면 빨강`}
+              style={{ left: END_ROLLER.left, top: END_ROLLER.top, width: END_ROLLER.width, height: END_ROLLER.height }}
+            />
 
             {/* 제품감지 — 위 롤러와 DOOR 사이에 표시등을 세우고 글씨를 그 아래 붙인다. */}
             <span

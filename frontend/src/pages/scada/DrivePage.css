@@ -643,6 +643,34 @@
   filter: grayscale(1);
 }
 
+/* ===== 입구 롤러 줄 맨 끝의 매쉬 롤러 =====================================
+
+   값이 1이면 초록, 0이면 빨강, 못 읽으면 회색이다. 이 롤러 하나만 색이 바뀐다 —
+   옆의 매끈한 롤러들은 도느냐 마느냐(그림 교체)만 바뀐다.
+
+   #dr-green / #dr-red는 DrivePage.jsx가 그려 두는 색 행렬이다. contrast를 먼저 걸고
+   물들인다(필터는 적힌 순서대로 걸린다) — 바로 물들이면 매쉬 무늬가 뭉개져 덩어리가 된다. */
+.dr-end-roller.is-on {
+  filter: contrast(1.8) url(#dr-green);
+}
+
+.dr-end-roller.is-alarm {
+  filter: contrast(1.8) url(#dr-red);
+}
+
+.dr-end-roller.is-unknown {
+  filter: grayscale(1);
+}
+
+/* 색 행렬만 담는 그림. 자리를 차지하면 안 되므로 크기를 0으로 둔다
+   (display: none으로 숨기면 브라우저가 필터를 못 찾는 경우가 있다). */
+.dr-filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 /* 로 순환 팬 — 마우스를 받는다. 태그 이름 툴팁이 떠야 하는데 pointer-events: none이면
    hover 자체가 안 잡혀서 툴팁도 안 뜨기 때문이다(.dr-overlay > * 가 켜 주는 대로 둔다).
    눌러도 하는 일은 없고, 아래에 깔린 것은 작화 판(main-obj-1/2)이라 가릴 조작도 없다.
