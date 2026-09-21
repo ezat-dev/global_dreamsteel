@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import CoolingOverview from '../../components/scada/CoolingOverview';
 import { LedInput } from '../../components/scada/HmiParts';
+import useFolderTagValues from '../../components/scada/useFolderTagValues';
+import { tagState, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
+import { TOWER_MOTOR } from '../../components/scada/coolingArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './coolingOverview.css';
 import './CoolingPage.css';
@@ -18,6 +21,11 @@ import './CoolingPage.css';
 
    값은 아직 더미다. PLC 연동 때 state 자리만 폴링 결과로 바꾸면 된다.
    =========================================================================== */
+
+/* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '쿨링타워').
+   DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
+   조용히 실패하니, 값이 안 오면 여기를 먼저 본다. */
+const CT_FOLDER_ID = 11;
 
 const STAGE_W = 1496;
 const STAGE_H = 708;
@@ -93,16 +101,47 @@ export default function CoolingPage() {
 
   const [delays, setDelays] = useState({ high: '0', low: '0' });
 
+  /* 이 화면의 PLC 값. 지금 붙어 있는 것은 상부 모터 램프 하나뿐이고,
+     알람 지연시간·수위 배너·펌프는 아직 태그가 없다. */
+  const { values: tagValues, error: tagValueError } = useFolderTagValues(CT_FOLDER_ID);
+
+  /* 쿨링타워 상부 모터 — 1이면 초록, 0이면 작화 그대로, 못 읽으면 회색.
+     구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
+     않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 CoolingPage.css가 맡는다.
+
+     tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
+  const motorState = tagState(tagValues?.[TOWER_MOTOR.tag]);
+  const motorClass = motorState === TAG_ON
+    ? ' motor-green'
+    : (motorState === TAG_UNKNOWN ? ' motor-gray' : '');
+
   return (
     /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
        작화(파란 배관·청록 화살표·은색 펌프)는 배경이 비어 있어 그대로 얹힌다. */
     <div className="ct-page hmi-dark">
+      {/* 상부 모터를 초록으로 물들이는 색 행렬. CSS의 filter: url(#ct-green)이 이걸 부른다.
+          분위기제어(#at-green)와 같은 값이다 — 화면 램프의 초록(#15803d)에 밝기로 낸
+          배수(0.45~1.30)를 곱한다. CSS가 앞에 contrast(1.8)을 먼저 걸어 안쪽 음영을
+          살린다. 자세한 사정은 AtmospherePage.jsx의 같은 자리 주석에 적어 두었다.
+          (필터 정의는 문서마다 따로 있어야 해서 화면끼리 나눠 쓸 수 없다) */}
+      <svg className="ct-filter-defs" aria-hidden="true">
+        <filter id="ct-green" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.01489 0.05009 0.00506 0 0.03708
+                    0.09072 0.30518 0.03081 0 0.22590
+                    0.04323 0.14541 0.01468 0 0.10764
+                    0       0       0       1 0"
+          />
+        </filter>
+      </svg>
+
       <div className="ct-stage" ref={stageRef}>
         {/* left:50% + 음수 margin으로 가운데를 맞춰 두고 transform-origin: top center로
             줄이기 때문에, 배율이 바뀌어도 가운데에 머문다.
             배율을 재기 전(0) 한 프레임은 원본 크기로 번쩍이지 않게 숨긴다. */}
         <div
-          className="ct-stage-inner"
+          className={`ct-stage-inner${motorClass}`}
           style={{
             width: STAGE_W,
             height: STAGE_H,
@@ -169,6 +208,10 @@ export default function CoolingPage() {
           </div>
         </div>
       </div>
+
+      {/* 값을 못 받고 있으면 알린다 — 다른 화면과 같은 자리(.hmi-toast)다.
+          이게 없으면 램프가 회색인 것이 "안 돈다"인지 "못 읽는다"인지 화면만 보고 모른다. */}
+      {tagValueError && <div className="hmi-toast">{tagValueError}</div>}
     </div>
   );
 }

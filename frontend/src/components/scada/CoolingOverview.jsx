@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { towerMotorTitle } from './coolingArtTags';
 
 /* ===========================================================================
    쿨링타워 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -116,7 +117,7 @@ function CoolingOverview() {
       <img className="obj-18" src="/scada/cooling/obj-180.png" />
       <img className="obj-19" src="/scada/cooling/ct-vessel.svg" />
       <img className="obj-20" src="/scada/cooling/ct-vessel.svg" />
-      <img className="motor-1" src="/scada/cooling/ct-motor.svg" />
+      <img className="motor-1" src="/scada/cooling/ct-motor.svg" title={towerMotorTitle()} />
       <img className="arrow-1" src="/scada/cooling/ct-arrow-right.svg" />
       <img className="arrow-2" src="/scada/cooling/ct-arrow-up.svg" />
       <img className="arrow-3" src="/scada/cooling/ct-arrow-down.svg" />
