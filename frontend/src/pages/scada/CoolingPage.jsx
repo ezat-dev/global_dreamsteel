@@ -3,7 +3,9 @@ import CoolingOverview from '../../components/scada/CoolingOverview';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { tagState, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
-import { ARROW_TAGS, TOWER_MOTOR, arrowBlinkClass } from '../../components/scada/coolingArtTags';
+import {
+  ARROW_TAGS, PUMPS, TOWER_MOTOR, arrowBlinkClass, pumpGrayClass, pumpGreenClass,
+} from '../../components/scada/coolingArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './coolingOverview.css';
 import './CoolingPage.css';
@@ -115,6 +117,15 @@ export default function CoolingPage() {
     ? ' motor-green'
     : (motorState === TAG_UNKNOWN ? ' motor-gray' : '');
 
+  /* 펌프 넷 — 상부 모터와 같은 규칙(1이면 초록, 0이면 그대로, 못 읽으면 회색). */
+  const pumpClasses = PUMPS
+    .map(({ cls, tag }) => {
+      const st = tagState(tagValues?.[tag]);
+      if (st === TAG_ON) return ` ${pumpGreenClass(cls)}`;
+      return st === TAG_UNKNOWN ? ` ${pumpGrayClass(cls)}` : '';
+    })
+    .join('');
+
   /* 냉각수 흐름 화살표 — 값이 1인 것만 깜빡인다. 0이거나 못 읽으면 가만히 있는다.
      아홉이 한 렌더에서 같이 붙으므로 애니메이션도 같이 시작해 박자가 맞는다. */
   const arrowBlinkClasses = ARROW_TAGS
@@ -148,7 +159,7 @@ export default function CoolingPage() {
             줄이기 때문에, 배율이 바뀌어도 가운데에 머문다.
             배율을 재기 전(0) 한 프레임은 원본 크기로 번쩍이지 않게 숨긴다. */}
         <div
-          className={`ct-stage-inner${motorClass}${arrowBlinkClasses}`}
+          className={`ct-stage-inner${motorClass}${pumpClasses}${arrowBlinkClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_H,

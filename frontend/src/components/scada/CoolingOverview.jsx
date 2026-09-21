@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { arrowTitle, towerMotorTitle } from './coolingArtTags';
+import { arrowTitle, pumpTitle, towerMotorTitle } from './coolingArtTags';
 
 /* ===========================================================================
    쿨링타워 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -93,10 +93,10 @@ function CoolingOverview() {
       <img className="pipe-36" src="/scada/cooling/pipe-360.png" />
       <img className="pipe-37" src="/scada/cooling/pipe-370.png" />
       <img className="pipe-38" src="/scada/cooling/pipe-380.png" />
-      <img className="pump-1" src="/scada/cooling/ct-pump.svg" />
-      <img className="pump-2" src="/scada/cooling/ct-pump.svg" />
-      <img className="pump-3" src="/scada/cooling/ct-pump.svg" />
-      <img className="pump-4" src="/scada/cooling/ct-pump.svg" />
+      <img className="pump-1" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-1')} />
+      <img className="pump-2" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-2')} />
+      <img className="pump-3" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-3')} />
+      <img className="pump-4" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-4')} />
       <img className="obj-1" src="/scada/cooling/ct-tower.svg" />
       <img className="obj-2" src="/scada/cooling/ct-tank-small.svg" />
       <img className="obj-3" src="/scada/cooling/ct-tank-frame.svg" />

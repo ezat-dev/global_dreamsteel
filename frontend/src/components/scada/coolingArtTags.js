@@ -24,6 +24,26 @@ export const TOWER_MOTOR = {
 export const towerMotorTitle = () =>
   `${TOWER_MOTOR.label} / ${TOWER_MOTOR.tag} — 값이 1이면 초록 / 0이면 그대로 / 못 읽으면 회색`;
 
+/* 펌프 넷. 상부 모터와 같은 규칙이다 — 1이면 초록, 0이면 그대로, 못 읽으면 회색.
+
+   pump-3 / pump-4 는 작화 CSS가 좌우로 뒤집어 그려서 left가 오른쪽 끝이다.
+   아래 좌표는 뒤집기를 반영한 실제 자리이고, 화면의 이름판과 맞는다. */
+export const PUMPS = [
+  { cls: 'pump-1', tag: 'circulate_pump_1', label: 'NO.1 순환펌프' },      // x 161~303 y 498~573
+  { cls: 'pump-2', tag: 'circulate_pump_2', label: 'NO.2 순환펌프' },      // x 159~301 y 609~684
+  { cls: 'pump-3', tag: 'cooling_water_pump_1', label: 'NO.1 냉각수펌프' }, // x 607~749 y 322~397
+  { cls: 'pump-4', tag: 'cooling_water_pump_2', label: 'NO.2 냉각수펌프' }, // x 609~751 y 433~508
+];
+
+export const pumpTitle = (cls) => {
+  const p = PUMPS.find((x) => x.cls === cls);
+  return `${p.label} / ${p.tag} — 값이 1이면 초록 / 0이면 그대로 / 못 읽으면 회색`;
+};
+
+/* 펌프에 붙는 클래스. 상부 모터와 같은 색 규칙을 쓰지만 선택자는 따로 적는다. */
+export const pumpGreenClass = (cls) => `green-${cls}`;
+export const pumpGrayClass = (cls) => `gray-${cls}`;
+
 /* 냉각수 흐름 화살표 아홉. 값이 1이면 깜빡이고 아니면 가만히 있는다 — 색은 안 바뀐다.
    깜빡임은 <img> 요소 자체에 거는 CSS 애니메이션이라 무대에 클래스만 붙이면 된다
    (SVG 안의 애니메이션을 쓰는 롤러·팬·컨트롤밸브와 다르다).
