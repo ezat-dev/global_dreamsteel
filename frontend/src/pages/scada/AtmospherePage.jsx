@@ -4,10 +4,10 @@ import AtmosConditionPanel from '../../components/scada/AtmosConditionPanel';
 import AtmosValvePanel from '../../components/scada/AtmosValvePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import {
-  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_UNKNOWN,
+  lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
 import {
-  FITTING_TAGS, fittingOffClass, fittingOnClass,
+  BEACON, FITTING_TAGS, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
@@ -68,10 +68,16 @@ const DEVICE_PANELS = [
     offCmd: 'add_gas_close_cmd',  // M323 / 램프 M623
   },
   {
-    // 발생기는 아직 태그가 없어서 표시 전용이다. 오면 gen_gas_open_cmd로 넣는다.
+    /* 발생기는 램프 태그만 있고 명령 태그가 없어서 누를 수 없는 표시 전용이다.
+       누르는 버튼으로 만들려면 gen_gas_open_cmd / gen_gas_close_cmd가 필요하고,
+       그러면 위 둘처럼 onCmd/offCmd로 옮기면 된다.
+
+       두 칸의 규칙이 서로 다르다 — OPEN은 0일 때 초록, CLOSE는 1일 때 빨강이다. */
     key: 'gen', tone: 'gen', title: '발 생 기',
     plate: { left: 1500, top: 100, width: 172 },
     state: { left: 1495, top: 158, width: 182 },
+    openTag: 'generator_open_lamp',
+    closeTag: 'generator_close_lamp',
   },
 ];
 
@@ -141,14 +147,6 @@ export default function AtmospherePage() {
      나머지 칸(조건 램프·밸브 패널)은 아직 더미다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(AT_FOLDER_ID);
 
-  /* 왼쪽 위 배관 부속 다섯 — 값이 1이면 초록, 0이거나 못 읽으면 회색.
-     구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
-     않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 AtmospherePage.css가 맡는다.
-
-     켜짐·꺼짐 둘 다 클래스를 붙인다 — 둘 다 filter가 필요해서다(꺼짐은 회색으로 만들고
-     켜짐은 초록으로 물들인다). 한쪽만 붙이면 0일 때 가스 밸브의 주황이 그대로 남는다.
-
-     tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
   /** 압력계·솔밸브 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
       늘 초록 아니면 빨강이고, 못 읽을 때만 점선이다. */
   const pipeClass = (l) => {
@@ -157,6 +155,14 @@ export default function AtmospherePage() {
     return st === TAG_ON ? ' is-on' : ' is-alarm';
   };
 
+  /* 왼쪽 위 배관 부속 다섯 — 값이 1이면 초록, 0이거나 못 읽으면 회색.
+     구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
+     않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 AtmospherePage.css가 맡는다.
+
+     켜짐·꺼짐 둘 다 클래스를 붙인다 — 둘 다 filter가 필요해서다(꺼짐은 회색으로 만들고
+     켜짐은 초록으로 물들인다). 한쪽만 붙이면 0일 때 가스 밸브의 주황이 그대로 남는다.
+
+     tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
   const fittingClasses = Object.entries(FITTING_TAGS)
     .map(([cls, t]) => (tagState(tagValues?.[t.tag]) === TAG_ON
       ? ` ${fittingOnClass(cls)}`
@@ -172,9 +178,20 @@ export default function AtmospherePage() {
 
   const [conditions] = useState(() => CONDITIONS.map((c) => ({ ...c, on: false })));
 
-  /* 아직 태그가 없는 설비(발생기)의 OPEN/CLOSE 색. 사진처럼 열림으로 고정해 둔다.
-     ADDTION 블로워·가스는 램프 태그로 넘어가서 여기서 빠졌다. */
-  const [devices] = useState({ gen: true });
+  /** 발생기 OPEN/CLOSE — 명령 태그가 없는 표시 램프라 값을 바로 읽는다.
+      켜지는 값이 두 칸에서 다르다(OPEN은 0, CLOSE는 1). 못 읽으면 점선. */
+  const genLampClass = (tag, litWhen, onClassName) => {
+    const st = tagState(tagValues?.[tag]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === litWhen ? onClassName : '';
+  };
+
+  /* 발생기 위 경광등 — 0이면 초록(정상), 1이면 그림 그대로 빨강, 못 읽으면 회색.
+     밸브·모터와 달리 1일 때 아무것도 안 건다 — 원래 빨간 경광등이라 그게 맞다. */
+  const beaconState = tagState(tagValues?.[BEACON.tag]);
+  const beaconClass = beaconState === TAG_OFF
+    ? ' beacon-green'
+    : (beaconState === TAG_UNKNOWN ? ' beacon-gray' : '');
 
   /* ── ADDTION 블로워·가스 OPEN/CLOSE ───────────────────────────────────
      모멘터리가 아니다. AT_HOLD_MS를 채우면 누른 쪽 태그에 1, 반대쪽 태그에 0을 주고
@@ -343,7 +360,7 @@ export default function AtmospherePage() {
             줄이기 때문에, 배율이 바뀌어도 가운데에 머문다.
             배율을 재기 전(0) 한 프레임은 원본 크기로 번쩍이지 않게 숨긴다. */}
         <div
-          className={`at-stage-inner${fittingClasses}`}
+          className={`at-stage-inner${fittingClasses}${beaconClass}`}
           style={{
             width: STAGE_W,
             height: STAGE_H,
@@ -395,8 +412,20 @@ export default function AtmospherePage() {
                     ))
                   ) : (
                     <>
-                      <em className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>OPEN</em>
-                      <em className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>CLOSE</em>
+                      <em
+                        className={`hmi-lampbox${genLampClass(d.openTag, TAG_OFF, ' is-on')}`}
+                        data-tag={d.openTag}
+                        title={`발생기 OPEN — 읽기 전용 / ${d.openTag} — 0이면 초록`}
+                      >
+                        OPEN
+                      </em>
+                      <em
+                        className={`hmi-lampbox${genLampClass(d.closeTag, TAG_ON, ' is-alarm')}`}
+                        data-tag={d.closeTag}
+                        title={`발생기 CLOSE — 읽기 전용 / ${d.closeTag} — 1이면 빨강`}
+                      >
+                        CLOSE
+                      </em>
                     </>
                   )}
                 </span>

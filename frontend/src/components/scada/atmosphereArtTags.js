@@ -38,6 +38,14 @@ export const fittingTitle = (cls) => {
   return `${t.label} / ${t.tag} — ${RULE}`;
 };
 
+/* 발생기 위 경광등(작화 alarm-1, x 1565~1605 / y 36~80).
+   위 다섯과 규칙이 반대다 — 0이 정상(초록)이고 1이 이상(빨강)이다.
+   그림이 원래 빨간 경광등이라 1일 때는 아무것도 걸지 않는다. */
+export const BEACON = { cls: 'alarm-1', tag: 'generator_lamp', label: '발생기 경광등' };
+
+export const beaconTitle = () =>
+  `${BEACON.label} / ${BEACON.tag} — 값이 0이면 초록 / 1이면 빨강 / 못 읽으면 회색`;
+
 /* 무대에 붙는 클래스. AtmospherePage.css의 선택자와 짝이 맞아야 한다.
    초록·회색 둘 다 클래스를 붙인다 — 둘 다 filter를 걸어야 해서, 한쪽만 붙이고
    나머지를 '규칙 없음'으로 두면 0일 때 가스 밸브의 주황이 그대로 남는다. */

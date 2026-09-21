@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { fittingTitle } from './atmosphereArtTags';
+import { beaconTitle, fittingTitle } from './atmosphereArtTags';
 
 /* ===========================================================================
    분위기제어 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -67,7 +67,7 @@ function AtmosphereOverview() {
       <img className="gas-sol" src="/scada/atmosphere/at-solenoid-gas.svg" title={fittingTitle('gas-sol')} />
       <img className="down-1" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="down-2" src="/scada/atmosphere/at-arrow-down.svg" />
-      <img className="alarm-1" src="/scada/atmosphere/at-beacon.svg" />
+      <img className="alarm-1" src="/scada/atmosphere/at-beacon.svg" title={beaconTitle()} />
     </div>
   );
 }

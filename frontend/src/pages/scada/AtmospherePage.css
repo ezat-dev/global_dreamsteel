@@ -61,6 +61,16 @@
   filter: contrast(1.8) url(#at-green);
 }
 
+/* 발생기 위 경광등 — 그림이 원래 빨간 경광등이라 1(이상)일 때는 아무것도 안 건다.
+   0이면 위 부속과 같은 초록으로 물들이고, 못 읽으면 회색으로 죽인다. */
+.at-stage-inner.beacon-green .alarm-1 {
+  filter: contrast(1.8) url(#at-green);
+}
+
+.at-stage-inner.beacon-gray .alarm-1 {
+  filter: grayscale(1);
+}
+
 .at-stage-inner.off-motor-1 .motor-1,
 .at-stage-inner.off-blowe-pre .blowe-pre,
 .at-stage-inner.off-blowe-sol .blowe-sol,
