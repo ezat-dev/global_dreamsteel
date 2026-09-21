@@ -3,7 +3,10 @@ import AtmosphereOverview from '../../components/scada/AtmosphereOverview';
 import AtmosConditionPanel from '../../components/scada/AtmosConditionPanel';
 import AtmosValvePanel from '../../components/scada/AtmosValvePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
-import { lampClassOf, lampOf, writeTag } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, tagState, writeTag, TAG_ON } from '../../api/scada/foldertagApi';
+import {
+  FITTING_TAGS, fittingOffClass, fittingOnClass,
+} from '../../components/scada/atmosphereArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
 import './AtmospherePage.css';
@@ -134,6 +137,20 @@ export default function AtmospherePage() {
      나머지 칸(조건 램프·밸브 패널)은 아직 더미다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(AT_FOLDER_ID);
 
+  /* 왼쪽 위 배관 부속 다섯 — 값이 1이면 초록, 0이거나 못 읽으면 회색.
+     구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
+     않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 AtmospherePage.css가 맡는다.
+
+     켜짐·꺼짐 둘 다 클래스를 붙인다 — 둘 다 filter가 필요해서다(꺼짐은 회색으로 만들고
+     켜짐은 초록으로 물들인다). 한쪽만 붙이면 0일 때 가스 밸브의 주황이 그대로 남는다.
+
+     tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
+  const fittingClasses = Object.entries(FITTING_TAGS)
+    .map(([cls, t]) => (tagState(tagValues?.[t.tag]) === TAG_ON
+      ? ` ${fittingOnClass(cls)}`
+      : ` ${fittingOffClass(cls)}`))
+    .join('');
+
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다 — 읽지 못한 값을 0으로 그리면
      실제로 0인 것과 구분되지 않는다. */
   const o2Text = (() => {
@@ -245,12 +262,35 @@ export default function AtmospherePage() {
     /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
        작화(파이프·밸브·모터)는 배경이 비어 있는 그림이라 그대로 얹힌다. */
     <div className="at-page hmi-dark">
+      {/* 배관 부속을 초록으로 물들이는 색 행렬. CSS의 filter: url(#at-green)이 이걸 부른다.
+
+          기성 필터로는 안 된다 — grayscale·sepia 따위에는 '초록으로'가 없고, hue-rotate로
+          맞추면 원래 색(은회색·주황)마다 다른 색이 나온다. 그래서 밝기(luminance)만 남기고
+          그 밝기를 화면의 초록(#15803d)과 같은 비율로 R·G·B에 나눠 싣는다. 명암이 남아서
+          초록이 되어도 밸브·모터 모양으로 보인다.
+
+          가로줄이 결과의 R·G·B·A다. G줄이 밝기 계수(0.2126/0.7152/0.0722)의 1.3배이고
+          R·B줄은 그 초록의 색 비율(R 0.164 / B 0.476)만큼 줄인 것이다.
+          A줄은 그대로 둔다 — 투명한 곳이 채워지면 그림이 상자가 된다.
+          (연소화면의 #cb-red와 같은 방식이다. 거기는 빨강 한 축에 싣는다) */}
+      <svg className="at-filter-defs" aria-hidden="true">
+        <filter id="at-green" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.04528 0.15234 0.01538 0 0
+                    0.27638 0.92976 0.09386 0 0
+                    0.13160 0.44271 0.04469 0 0
+                    0       0       0       1 0"
+          />
+        </filter>
+      </svg>
+
       <div className="at-stage" ref={stageRef}>
         {/* left:50% + 음수 margin으로 가운데를 맞춰 두고 transform-origin: top center로
             줄이기 때문에, 배율이 바뀌어도 가운데에 머문다.
             배율을 재기 전(0) 한 프레임은 원본 크기로 번쩍이지 않게 숨긴다. */}
         <div
-          className="at-stage-inner"
+          className={`at-stage-inner${fittingClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_H,

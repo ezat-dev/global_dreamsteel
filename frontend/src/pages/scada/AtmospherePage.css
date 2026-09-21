@@ -38,6 +38,44 @@
   transform-origin: top center;
 }
 
+/* ===== 왼쪽 위 배관 부속 다섯 ==============================================
+
+   값이 1이면 초록, 0이거나 못 읽으면 회색이다.
+   무대에 on-, off- 클래스만 붙고(AtmospherePage.jsx의 FITTING_TAGS) 색을 바꾸는 일은
+   여기서 한다 — 그래야 작화가 memo로 묶인 채 남아 1초마다 다시 그려지지 않는다.
+
+   꺼짐에도 규칙이 필요한 이유: 이 다섯은 원래 은회색이지만 가스 밸브에 주황 손잡이가
+   있어서, 아무것도 안 걸면 0인데도 색이 남는다. grayscale로 채도를 빼야 회색이 된다.
+
+   #at-green은 AtmospherePage.jsx가 그려 두는 색 행렬이다. 밝기만 남기고 화면의
+   초록(#15803d) 비율로 실어서, 원래 색이 달라도 같은 초록이 된다.
+
+   .at-stage-inner로 좁히므로 연소화면의 같은 이름(.gas-pre / .gas-sol)과 겹치지 않는다. */
+.at-stage-inner.on-motor-1 .motor-1,
+.at-stage-inner.on-blowe-pre .blowe-pre,
+.at-stage-inner.on-blowe-sol .blowe-sol,
+.at-stage-inner.on-gas-pre .gas-pre,
+.at-stage-inner.on-gas-sol .gas-sol {
+  filter: url(#at-green);
+}
+
+.at-stage-inner.off-motor-1 .motor-1,
+.at-stage-inner.off-blowe-pre .blowe-pre,
+.at-stage-inner.off-blowe-sol .blowe-sol,
+.at-stage-inner.off-gas-pre .gas-pre,
+.at-stage-inner.off-gas-sol .gas-sol {
+  filter: grayscale(1);
+}
+
+/* 색 행렬만 담는 그림. 자리를 차지하면 안 되므로 크기를 0으로 둔다
+   (display: none으로 숨기면 브라우저가 필터를 못 찾는 경우가 있다). */
+.at-filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 /* 판들이 얹히는 층. 층 자체는 클릭을 가로채지 않고, 조작할 것만 다시 켠다. */
 .at-overlay {
   position: absolute;

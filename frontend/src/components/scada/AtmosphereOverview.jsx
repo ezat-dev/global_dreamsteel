@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { fittingTitle } from './atmosphereArtTags';
 
 /* ===========================================================================
    분위기제어 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -59,11 +60,11 @@ function AtmosphereOverview() {
       <img className="obj-4" src="/scada/atmosphere/obj-40.png" />
       <img className="valve-1" src="/scada/atmosphere/at-valve-spin.svg" />
       <img className="valve-2" src="/scada/atmosphere/at-ballvalve.svg" />
-      <img className="motor-1" src="/scada/atmosphere/at-blower.svg" />
-      <img className="blowe-pre" src="/scada/atmosphere/at-regulator-air.svg" />
-      <img className="blowe-sol" src="/scada/atmosphere/at-solenoid-air.svg" />
-      <img className="gas-pre" src="/scada/atmosphere/at-regulator-gas.svg" />
-      <img className="gas-sol" src="/scada/atmosphere/at-solenoid-gas.svg" />
+      <img className="motor-1" src="/scada/atmosphere/at-blower.svg" title={fittingTitle('motor-1')} />
+      <img className="blowe-pre" src="/scada/atmosphere/at-regulator-air.svg" title={fittingTitle('blowe-pre')} />
+      <img className="blowe-sol" src="/scada/atmosphere/at-solenoid-air.svg" title={fittingTitle('blowe-sol')} />
+      <img className="gas-pre" src="/scada/atmosphere/at-regulator-gas.svg" title={fittingTitle('gas-pre')} />
+      <img className="gas-sol" src="/scada/atmosphere/at-solenoid-gas.svg" title={fittingTitle('gas-sol')} />
       <img className="down-1" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="down-2" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="alarm-1" src="/scada/atmosphere/at-beacon.svg" />
