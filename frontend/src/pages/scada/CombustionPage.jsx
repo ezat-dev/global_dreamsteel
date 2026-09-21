@@ -6,7 +6,7 @@ import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
 import { FITTING_TAGS, fittingRedClass } from '../../components/scada/combustionArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
@@ -162,12 +162,17 @@ const DEVICE_PANELS = [
 ];
 
 /* 배관 부속 아래에 붙는 상태 램프. cx는 그 부속이 그려지는 가운데 x다.
-   tone은 켜진 색 — 'on' 초록(정상), 'alarm' 빨강(이상·닫힘). */
+
+   이 셋은 켜지고 꺼지는 램프가 아니라 늘 초록 아니면 빨강이다. greenWhen이 초록이 되는
+   값이고 나머지 값이 빨강이다 — 셋이 서로 다르다. 값을 못 읽으면 점선(모름)이다.
+
+   압력 정상만 0에서 초록인 것이 눈에 거슬리지만 PLC가 그렇게 준다. 거꾸로 보이면
+   여기 greenWhen부터 확인할 것. */
 const PIPE_LABELS = [
-  { key: 'gasPre', cx: 273, top: 44, text: '압력 정상', tone: 'on' },
-  { key: 'gasSol', cx: 332, top: 44, text: 'SOL닫힘', tone: 'alarm' },
+  { key: 'gasPre', cx: 273, top: 44, text: '압력 정상', tag: 'main_gas_pressure_normal_lamp', greenWhen: TAG_OFF },
+  { key: 'gasSol', cx: 332, top: 44, text: 'SOL닫힘', tag: 'main_gas_sol_close_lamp', greenWhen: TAG_ON },
   // 블로워 압력계(blower-pre, x 920~957 / y 4~43) 바로 아래
-  { key: 'blowPre', cx: 938, top: 48, text: '압력 이상', tone: 'alarm' },
+  { key: 'blowPre', cx: 938, top: 48, text: '압력 이상', tag: 'combustion_blower_pressure_abnormal_lamp', greenWhen: TAG_ON },
 ];
 
 /* 좌측 하단 경보 목록 — 경보이력·구동화면과 같은 API(getAlarmList)를 그대로 쓴다.
@@ -292,6 +297,14 @@ export default function CombustionPage() {
   /** 명령 태그의 램프 상태 → 클래스. 켜졌을 때 무슨 색인지, 몇일 때 켜지는지는 부르는 쪽이 정한다. */
   const lampClass = (cmdName, onClassName, litWhen) =>
     lampClassOf(tagValues, cmdName, onClassName, litWhen);
+
+  /** 배관 부속 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
+      늘 초록 아니면 빨강이고, 못 읽을 때만 점선이다. */
+  const pipeClass = (l) => {
+    const st = tagState(tagValues?.[l.tag]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === l.greenWhen ? ' is-on' : ' is-alarm';
+  };
 
   /* 누르는 순간에는 아무것도 보내지 않는다 — HOLD_MS를 채워야 1이 나간다.
      그 뒤로는 싸이몬의 Bit_Momentary와 같다(떼면 0). */
@@ -497,9 +510,11 @@ export default function CombustionPage() {
 
             {PIPE_LABELS.map((l) => (
               <span
-                className={`cb-pipe-label hmi-lampbox is-${l.tone}`}
+                className={`cb-pipe-label hmi-lampbox${pipeClass(l)}`}
                 key={l.key}
                 style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
+                data-tag={l.tag}
+                title={`${l.text} — 읽기 전용 / ${l.tag} — 값이 ${l.greenWhen === TAG_ON ? 1 : 0}이면 초록, 아니면 빨강`}
               >
                 {l.text}
               </span>
