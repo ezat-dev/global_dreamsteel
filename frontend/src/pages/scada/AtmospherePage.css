@@ -546,6 +546,21 @@
   border-color: #15803d;
 }
 
+/* 조건이 안 걸린 줄. 꺼진 회색이 아니라 빨강이다 — 이 판은 "자동모드로 넘어갈 수
+   있는가"를 보는 곳이라, 막고 있는 줄이 눈에 띄어야 한다. */
+.at-cond-lamp.alarm {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* 값을 못 받은 줄 — 걸린 것도 아니고 막힌 것도 아니다.
+   다른 화면의 .hmi-lampbox.is-unknown과 같은 규칙(점선)이다. */
+.at-cond-lamp.unknown {
+  border-style: dashed;
+  border-color: var(--hmi-text-faint);
+  background: var(--hmi-panel-dark);
+}
+
 .at-cond-text {
   font-size: 15px;
   font-weight: 600;

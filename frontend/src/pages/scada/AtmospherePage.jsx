@@ -114,16 +114,22 @@ const AT_FOLDER_ID = 10;
    CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
 const AT_HOLD_MS = 2000;
 
-// 자동모드 전환 조건 — 순서와 문구는 현장 HMI 화면 그대로.
-// on은 PLC 상태라 지금은 전부 꺼짐으로 두고, 연동 때 폴링 값으로 채운다.
+/* 자동모드 전환 조건 — 순서와 문구는 현장 HMI 화면 그대로.
+
+   일곱 줄 다 늘 초록 아니면 빨강이다(켜지고 꺼지는 램프가 아니다).
+   greenWhen이 초록이 되는 값이고 나머지 값이 빨강, 못 읽으면 점선이다.
+
+   대부분 1에서 초록인데 GAS PRESSURE 정상과 발생기 GAS OPEN 둘만 0에서 초록이다.
+   바로 위 AIR PRESSURE 정상은 1에서 초록이라 나란히 놓고 보면 거꾸로처럼 보이는데,
+   PLC가 그렇게 준다. 램프가 반대로 보이면 여기 greenWhen부터 확인할 것. */
 const CONDITIONS = [
-  { key: 'blower', label: 'ADDTION AIR BLOWER ON' },
-  { key: 'airSol', label: 'ADDTION AIR SOL VLAVE ON' },
-  { key: 'airPress', label: 'ADDTION AIR PRESSURE 정상' },
-  { key: 'gasSol', label: 'ADDTION GAS SOL VLAVE ON' },
-  { key: 'gasPress', label: 'ADDTION GAS PRESSURE 정상' },
-  { key: 'refTemp', label: '허용 기준온도 도달' },
-  { key: 'genGas', label: '발생기 GAS OPEN' },
+  { key: 'blower', label: 'ADDTION AIR BLOWER ON', tag: 'add_air_blower_on_lamp', greenWhen: TAG_ON },
+  { key: 'airSol', label: 'ADDTION AIR SOL VLAVE ON', tag: 'add_air_sol_valve_lamp', greenWhen: TAG_ON },
+  { key: 'airPress', label: 'ADDTION AIR PRESSURE 정상', tag: 'add_air_pressure_normal_lamp', greenWhen: TAG_ON },
+  { key: 'gasSol', label: 'ADDTION GAS SOL VLAVE ON', tag: 'add_gas_sol_valve_on_lamp', greenWhen: TAG_ON },
+  { key: 'gasPress', label: 'ADDTION GAS PRESSURE 정상', tag: 'add_gas_pressure_normal_lamp', greenWhen: TAG_OFF },
+  { key: 'refTemp', label: '허용 기준온도 도달', tag: 'allow_temp_reach_lamp', greenWhen: TAG_ON },
+  { key: 'genGas', label: '발생기 GAS OPEN', tag: 'generator_gas_open_lamp', greenWhen: TAG_OFF },
 ];
 
 export default function AtmospherePage() {
@@ -176,7 +182,12 @@ export default function AtmospherePage() {
     return v == null || v === '' ? '---' : String(v);
   })();
 
-  const [conditions] = useState(() => CONDITIONS.map((c) => ({ ...c, on: false })));
+  /* 자동모드 동작 조건 일곱 줄 — 줄마다 초록이 되는 값이 다르다(greenWhen). */
+  const conditions = CONDITIONS.map((c) => {
+    const st = tagState(tagValues?.[c.tag]);
+    const lamp = st === TAG_UNKNOWN ? ' unknown' : (st === c.greenWhen ? ' on' : ' alarm');
+    return { ...c, lamp };
+  });
 
   /** 발생기 OPEN/CLOSE — 명령 태그가 없는 표시 램프라 값을 바로 읽는다.
       켜지는 값이 두 칸에서 다르다(OPEN은 0, CLOSE는 1). 못 읽으면 점선. */
