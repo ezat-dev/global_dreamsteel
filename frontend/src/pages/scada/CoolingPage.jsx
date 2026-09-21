@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import CoolingOverview from '../../components/scada/CoolingOverview';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
-import { tagState, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
+import { tagState, writeTag, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
 import {
   ARROW_TAGS, PUMPS, TOWER_MOTOR, arrowBlinkClass, pumpGrayClass, pumpGreenClass,
 } from '../../components/scada/coolingArtTags';
@@ -21,8 +21,8 @@ import './CoolingPage.css';
    맞추면 높이가 화면을 넘친다. 얹는 것들도 같이 줄어들어야 하므로 스케일 안쪽에 두고,
    위치는 전부 그림 원본 좌표계(1496x708) 기준 px로 적는다.
 
-   그림 위 기기(상부 모터·펌프·화살표)와 집수조 경보 띠는 PLC 값을 본다.
-   냉각수 알람 지연시간 두 칸만 아직 화면 안에만 있는 더미다.
+   화면의 모든 값이 PLC에서 온다 — 그림 위 기기(상부 모터·펌프·화살표), 집수조 경보 띠,
+   냉각수 알람 지연시간. 지연시간 두 칸만 쓰기도 한다(읽는 태그와 같은 태그).
    =========================================================================== */
 
 /* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '쿨링타워').
@@ -77,13 +77,19 @@ const LEVEL_BANNERS = [
    이 숫자도 같이 고쳐야 한다. */
 const DELAY_PANEL = { left: 1140, top: 556, width: 171 };
 
-/* 두 칸의 허용 범위가 같다. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다. */
-const DELAY_MIN = 0;
-const DELAY_MAX = 60;
+/* 위쪽 한계를 두지 않는다 — 실제 범위를 아직 모른다. 0~60으로 잡아 두었다가
+   "그 범위가 아니다"라고 확인받아 뺐다. 값을 알게 되면 LedInput에 max를 주면 된다
+   (숫자패드가 범위를 벗어난 값을 확정하지 못하게 막는다).
 
+   min은 0으로 남긴다 — 지연시간에 음수는 뜻이 없다. 숫자패드는 이 값이 0 이상이면
+   빼기 키를 막고 "음수는 입력할 수 없습니다"를 띄운다. min·max가 둘 다 있어야
+   범위 안내가 뜨므로, 이것만으로는 화면에 0~ 같은 문구가 생기지 않는다.
+
+   읽는 태그와 쓰는 태그가 같다 — 숫자패드로 넣은 값이 이 태그로 나가고,
+   화면에 보이는 값도 다음 폴링에서 이 태그로 돌아온다. */
 const DELAY_ROWS = [
-  { key: 'high', label: 'HIGH' },
-  { key: 'low', label: 'LOW' },
+  { key: 'high', label: 'HIGH', tag: 'cooling_alarm_delay_time_high' },
+  { key: 'low', label: 'LOW', tag: 'cooling_alarm_delay_time_low' },
 ];
 
 export default function CoolingPage() {
@@ -103,11 +109,11 @@ export default function CoolingPage() {
     return () => ro.disconnect();
   }, []);
 
-  const [delays, setDelays] = useState({ high: '0', low: '0' });
 
-  /* 이 화면의 PLC 값 — 상부 모터·펌프 넷·흐름 화살표 아홉·집수조 경보 띠가 여기서 온다.
-     아직 태그가 없는 것은 냉각수 알람 지연시간(아래 delays) 두 칸뿐이다. */
+  /* 이 화면의 PLC 값 — 상부 모터·펌프 넷·흐름 화살표 아홉·집수조 경보 띠·알람 지연시간이
+     전부 여기서 온다. 태그 없이 그려지는 것은 배관과 화살표 셋(arrow-3~5)뿐이다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CT_FOLDER_ID);
+  const [writeError, setWriteError] = useState('');
 
   /* 쿨링타워 상부 모터 — 1이면 초록, 0이면 작화 그대로, 못 읽으면 회색.
      구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
@@ -127,6 +133,22 @@ export default function CoolingPage() {
       return st === TAG_UNKNOWN ? ` ${pumpGrayClass(cls)}` : '';
     })
     .join('');
+
+  /* 냉각수 알람 지연시간 — 읽기와 쓰기가 같은 태그다.
+     값을 못 받았으면 0이 아니라 '---'다. 0으로 그리면 "지연 없음"으로 읽힌다. */
+  const delayText = (tag) => {
+    const v = tagValues?.[tag];
+    return v == null || v === '' ? '---' : String(v);
+  };
+
+  const handleDelayChange = (tag, value) => {
+    const num = Math.round(Number(value));
+    if (!Number.isFinite(num)) return;
+
+    setWriteError('');
+    writeTag(CT_FOLDER_ID, tag, num)
+      .catch((e) => setWriteError(`${tag} — ${e.message}`));
+  };
 
   /* 냉각수 흐름 화살표 — 값이 1인 것만 깜빡인다. 0이거나 못 읽으면 가만히 있는다.
      아홉이 한 렌더에서 같이 붙으므로 애니메이션도 같이 시작해 박자가 맞는다. */
@@ -217,14 +239,14 @@ export default function CoolingPage() {
                 <div className="ct-delay-row" key={r.key}>
                   <span className="ct-plate ct-delay-label">{r.label}</span>
                   <LedInput
-                    value={delays[r.key]}
-                    onChange={(v) => setDelays((prev) => ({ ...prev, [r.key]: v }))}
+                    value={delayText(r.tag)}
+                    onChange={(v) => handleDelayChange(r.tag, v)}
                     color="red"
                     size="sm"
                     unit="min"
+                    title={`냉각수 알람 지연시간 ${r.label} / ${r.tag} — 읽기·쓰기 같은 태그`}
                     label={`냉각수 알람 지연시간 ${r.label}`}
-                    min={DELAY_MIN}
-                    max={DELAY_MAX}
+                    min={0}
                   />
                 </div>
               ))}
@@ -235,7 +257,9 @@ export default function CoolingPage() {
 
       {/* 값을 못 받고 있으면 알린다 — 다른 화면과 같은 자리(.hmi-toast)다.
           이게 없으면 램프가 회색인 것이 "안 돈다"인지 "못 읽는다"인지 화면만 보고 모른다. */}
-      {tagValueError && <div className="hmi-toast">{tagValueError}</div>}
+      {(writeError || tagValueError) && (
+        <div className="hmi-toast">{writeError || tagValueError}</div>
+      )}
     </div>
   );
 }

@@ -91,7 +91,21 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
   const overMax = isNumber && max != null && num > max;
   const canCommit = isNumber && !underMin && !overMax;
 
+  /* min이 0 이상이면 음수를 받지 않는다. 지연시간·개도처럼 음수가 뜻이 없는 칸이다. */
+  const allowNegative = min == null || min < 0;
+
+  /* 못 누르는 키를 눌렀을 때 뜨는 문구. 다음 입력에서 지운다.
+     키를 disabled로만 두면 터치 화면에서는 눌러도 아무 일이 없어서 고장으로 읽힌다 —
+     왜 안 되는지 글로 알려 줘야 한다(설명이 title에만 있으면 마우스에서만 보인다). */
+  const [blockMsg, setBlockMsg] = useState('');
+
   const press = (key) => {
+    if (key === '-' && !allowNegative) {
+      setBlockMsg('음수는 입력할 수 없습니다');
+      return;
+    }
+    setBlockMsg('');
+
     setDraft((prev) => {
       const base = fresh ? '' : prev;
       if (key === '.') {
@@ -110,11 +124,13 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
   };
 
   const backspace = () => {
+    setBlockMsg('');
     setDraft((prev) => (fresh ? '' : prev.slice(0, -1)));
     setFresh(false);
   };
 
   const clear = () => {
+    setBlockMsg('');
     setDraft('');
     setFresh(false);
   };
@@ -138,10 +154,10 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
   });
 
   const rangeText = min != null && max != null ? `${min} ~ ${max}` : null;
-  const allowNegative = min == null || min < 0;
 
   let hint = rangeText ? `범위 ${rangeText}` : '';
-  if (underMin) hint = `${min} 이상만 입력할 수 있습니다`;
+  if (blockMsg) hint = blockMsg;
+  else if (underMin) hint = `${min} 이상만 입력할 수 있습니다`;
   else if (overMax) hint = `${max} 이하만 입력할 수 있습니다`;
   else if (isBlank) hint = rangeText ? `범위 ${rangeText}` : '값을 입력하세요';
 
@@ -169,7 +185,7 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
           {unit && <span className="hmi-pad-unit">{unit}</span>}
         </div>
 
-        <div className={`hmi-pad-hint${underMin || overMax ? ' error' : ''}`}>{hint}</div>
+        <div className={`hmi-pad-hint${blockMsg || underMin || overMax ? ' error' : ''}`}>{hint}</div>
 
         <div className="hmi-pad-keys">
           {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((k) => (
@@ -179,7 +195,6 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
             type="button"
             className="hmi-pad-key"
             onClick={() => press('-')}
-            disabled={!allowNegative}
             title={allowNegative ? '부호 바꾸기' : '음수는 입력할 수 없습니다'}
           >
             −
