@@ -21,7 +21,8 @@ import './CoolingPage.css';
    맞추면 높이가 화면을 넘친다. 얹는 것들도 같이 줄어들어야 하므로 스케일 안쪽에 두고,
    위치는 전부 그림 원본 좌표계(1496x708) 기준 px로 적는다.
 
-   값은 아직 더미다. PLC 연동 때 state 자리만 폴링 결과로 바꾸면 된다.
+   그림 위 기기(상부 모터·펌프·화살표)와 집수조 경보 띠는 PLC 값을 본다.
+   냉각수 알람 지연시간 두 칸만 아직 화면 안에만 있는 더미다.
    =========================================================================== */
 
 /* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '쿨링타워').
@@ -61,11 +62,12 @@ const PUMP_PLATES = [
   { key: 'circ2', cx: 230, top: 608, text: 'NO.2 순환펌프' },
 ];
 
-/* 집수조 안의 빨간 경보 띠. 지금은 항상 켜진 모양으로 그리고, 연동 때 PLC 값에 따라
-   on/off를 붙이면 된다. */
+/* 집수조 안의 빨간 경보 띠. 값이 1일 때만 보이고, 0이거나 못 읽으면 아예 안 그린다.
+   못 읽을 때 숨기는 쪽으로 정한 이유: 확인할 수 없는 경보를 띄우면 오보가 된다.
+   대신 값을 못 받고 있다는 것 자체는 화면 아래 토스트가 알린다. */
 const LEVEL_BANNERS = [
-  { key: 'high', left: 868, top: 560, width: 228, text: '집수조 LEVEL HIGH' },
-  { key: 'low', left: 868, top: 618, width: 228, text: '집수조 LEVEL LOW' },
+  { key: 'high', left: 868, top: 560, width: 228, text: '집수조 LEVEL HIGH', tag: 'sump_tank_level_high_lamp' },
+  { key: 'low', left: 868, top: 618, width: 228, text: '집수조 LEVEL LOW', tag: 'sump_tank_level_low_lamp' },
 ];
 
 /* 냉각수 알람 지연시간 — HIGH/LOW를 분 단위로 넣는다.
@@ -103,8 +105,8 @@ export default function CoolingPage() {
 
   const [delays, setDelays] = useState({ high: '0', low: '0' });
 
-  /* 이 화면의 PLC 값. 지금 붙어 있는 것은 상부 모터 램프 하나뿐이고,
-     알람 지연시간·수위 배너·펌프는 아직 태그가 없다. */
+  /* 이 화면의 PLC 값 — 상부 모터·펌프 넷·흐름 화살표 아홉·집수조 경보 띠가 여기서 온다.
+     아직 태그가 없는 것은 냉각수 알람 지연시간(아래 delays) 두 칸뿐이다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CT_FOLDER_ID);
 
   /* 쿨링타워 상부 모터 — 1이면 초록, 0이면 작화 그대로, 못 읽으면 회색.
@@ -191,15 +193,19 @@ export default function CoolingPage() {
               </span>
             ))}
 
-            {LEVEL_BANNERS.map((b) => (
-              <span
-                className="ct-banner"
-                key={b.key}
-                style={{ left: b.left, top: b.top, width: b.width }}
-              >
-                {b.text}
-              </span>
-            ))}
+            {LEVEL_BANNERS
+              .filter((b) => tagState(tagValues?.[b.tag]) === TAG_ON)
+              .map((b) => (
+                <span
+                  className="ct-banner"
+                  key={b.key}
+                  data-tag={b.tag}
+                  title={`${b.text} — 읽기 전용 / ${b.tag} — 1일 때만 보인다`}
+                  style={{ left: b.left, top: b.top, width: b.width }}
+                >
+                  {b.text}
+                </span>
+              ))}
 
             <div
               className="ct-delay"
