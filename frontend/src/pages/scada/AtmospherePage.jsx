@@ -254,20 +254,50 @@ export default function AtmospherePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [valve, setValve] = useState({
-    pv: '0',
-    sv: '1050',
-    mv: '0',
-    p: '3.0',
-    i: '120',
-    d: '30',
-    refTemp: '800',
-    refTempReached: false,
-    manualMv: '0',
-  });
+  /* ADDTION CONTROL MOTOR VALVE — 자동/수동 두 칸만 명령 태그(add_valve_*_cmd)이고
+     나머지는 여기 있는 값 태그다. 쓰는 칸도 읽는 태그와 같은 이름을 쓴다
+     (온도제어의 SV처럼 표시용·입력용이 갈리지 않는다). */
+  const VALVE_TAGS = {
+    pv: 'add_control_motor_valve_pv',
+    sv: 'add_control_motor_valve_sv',
+    mv: 'add_control_motor_valve_mv',
+    p: 'add_control_motor_valve_p',
+    i: 'add_control_motor_valve_i',
+    d: 'add_control_motor_valve_d',
+    refTemp: 'add_control_motor_allow_temp',
+    manualMv: 'add_control_motor_valve_manual_mv',
+  };
+  const VALVE_LAMP = 'add_control_motor_allow_temp_lamp';
+
+  /* 값을 못 받았으면 0이 아니라 '---'다 — 읽지 못한 설정값을 0으로 그리면
+     실제로 0인 것과 구분되지 않는다. */
+  const valveText = (field) => {
+    const v = tagValues?.[VALVE_TAGS[field]];
+    return v == null || v === '' ? '---' : String(v);
+  };
+
+  const refTempState = tagState(tagValues?.[VALVE_LAMP]);
+  const valve = {
+    pv: valveText('pv'),
+    sv: valveText('sv'),
+    mv: valveText('mv'),
+    p: valveText('p'),
+    i: valveText('i'),
+    d: valveText('d'),
+    refTemp: valveText('refTemp'),
+    manualMv: valveText('manualMv'),
+    /* 도달 램프는 세 갈래다 — 도달(초록) / 아직(꺼짐) / 못 읽음(점선).
+       못 읽은 것을 '아직'으로 그리면 도달했는데 안 한 것으로 보게 된다. */
+    refTempLamp: refTempState === TAG_UNKNOWN ? ' unknown' : (refTempState === TAG_ON ? ' on' : ''),
+  };
 
   const handleValveChange = (field, value) => {
-    setValve((prev) => ({ ...prev, [field]: value }));
+    const num = Number(value);
+    if (!Number.isFinite(num)) return;
+
+    setWriteError('');
+    writeTag(AT_FOLDER_ID, VALVE_TAGS[field], num)
+      .catch((e) => setWriteError(`${VALVE_TAGS[field]} — ${e.message}`));
   };
 
   return (
@@ -411,9 +441,11 @@ export default function AtmospherePage() {
 
             <div className="at-slot at-slot--valve" style={SLOTS.valve}>
               {/* 자동/수동 모드는 위 OPEN/CLOSE와 같은 래치 버튼이라 누름 처리를
-                  그대로 넘긴다(handlePress). 나머지 칸은 아직 더미다. */}
+                  그대로 넘긴다(handlePress). 나머지 칸은 VALVE_TAGS의 값 태그를 읽고 쓴다. */}
               <AtmosValvePanel
                 data={valve}
+                tags={VALVE_TAGS}
+                lampTag={VALVE_LAMP}
                 onChange={handleValveChange}
                 values={tagValues}
                 onPress={handlePress}

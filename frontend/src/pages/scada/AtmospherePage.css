@@ -390,6 +390,14 @@
   border-color: #15803d;
 }
 
+/* 값을 못 받은 램프 — 꺼진 것(아직 도달 안 함)과 반드시 구분해야 한다.
+   다른 화면의 .hmi-lampbox.is-unknown과 같은 규칙(점선)이다. */
+.at-reftemp-lamp.unknown {
+  border-style: dashed;
+  border-color: var(--hmi-text-faint);
+  background: var(--hmi-panel-dark);
+}
+
 /* ===== 자동 / 수동 표시 =====
    이 화면에서는 조작하지 않는다. PLC가 주는 모드에 따라 걸린 쪽만 검게 두고
    나머지에 .off를 붙여 회색으로 죽일 예정이라, 지금은 둘 다 검은 글씨다. */

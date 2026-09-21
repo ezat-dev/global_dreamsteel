@@ -32,8 +32,11 @@ const RANGE = {
  *  - 나머지       : 작업자 설정값 → 숫자패드로 입력
  *  - 자동모드에서는 MANUAL MV를 잠근다(제어기가 출력을 정하므로)
  *
- * @param data     { pv, sv, mv, p, i, d, refTemp, refTempReached, manualMv }
- * @param onChange (field, value) => void
+ * @param data     { pv, sv, mv, p, i, d, refTemp, refTempLamp, manualMv }
+ *                 값은 전부 화면에 그대로 찍는 문자열이다('---' 포함).
+ *                 refTempLamp는 도달 램프에 붙일 클래스(' on' / '' / ' unknown').
+ * @param tags     칸 이름 → 태그 이름. 툴팁에 어느 태그인지 적는 데 쓴다
+ * @param onChange (field, value) => void — 숫자패드로 넣은 값을 그 태그에 쓴다
  * @param values   폴링으로 받은 { 태그이름: 값 }
  * @param onPress  (자기태그, 반대태그) => void — 모드 칸 누름
  * @param heldTag  지금 누르고 있는 태그. 진행 바를 그리는 데 쓴다
@@ -41,9 +44,14 @@ const RANGE = {
  * @param holdMs   눌러야 하는 시간(ms)
  */
 export default function AtmosValvePanel({
-  data, onChange, values, onPress, heldTag = '', armedTag = '', holdMs = 2000,
+  data, tags = {}, lampTag = '', onChange, values, onPress, heldTag = '', armedTag = '', holdMs = 2000,
 }) {
   const set = (field) => (value) => onChange(field, value);
+
+  /* 툴팁 — 화면의 다른 칸들과 같은 꼴로 어느 태그인지 적는다.
+     PV·MV는 읽기만 하고, 나머지는 같은 태그를 읽고 쓴다. */
+  const title = (field, label, readOnly = false) =>
+    `${label} / ${tags[field] ?? '태그 없음'}${readOnly ? ' — 읽기 전용' : ' — 읽기·쓰기 같은 태그'}`;
 
   /* 자동모드인지. 자동 램프(M626)가 1이면 자동이다.
      못 읽었으면 null — 어느 모드인지 모르는 상태와 자동을 구분해야 한다. */
@@ -60,18 +68,18 @@ export default function AtmosValvePanel({
           <div className="at-box">
             <div className="at-field">
               <label>PV</label>
-              <LedInput value={data.pv} color="red" unit="mmV" title="현재값(PV) — PLC 읽기 전용" readOnly />
+              <LedInput value={data.pv} color="red" unit="mmV" title={title('pv', '현재값(PV)', true)} readOnly />
             </div>
             <div className="at-field">
               <label>SV</label>
               <LedInput
                 value={data.sv} onChange={set('sv')} color="green" unit="mmV"
-                title="설정값(SV)" label="ADDTION VALVE 설정값 (SV)" {...RANGE.sv}
+                title={title('sv', '설정값(SV)')} label="ADDTION VALVE 설정값 (SV)" {...RANGE.sv}
               />
             </div>
             <div className="at-field">
               <label>MV</label>
-              <LedInput value={data.mv} color="orange" unit="%" title="출력(MV) — PLC 읽기 전용" readOnly />
+              <LedInput value={data.mv} color="orange" unit="%" title={title('mv', '출력(MV)', true)} readOnly />
             </div>
           </div>
 
@@ -79,17 +87,17 @@ export default function AtmosValvePanel({
           <div className="at-box">
             <div className="at-field">
               <label>P</label>
-              <LedInput value={data.p} onChange={set('p')} color="blue"
+              <LedInput value={data.p} onChange={set('p')} color="blue" title={title('p', '비례대(P)')}
                 label="ADDTION VALVE 비례대 (P)" {...RANGE.p} />
             </div>
             <div className="at-field">
               <label>I</label>
-              <LedInput value={data.i} onChange={set('i')} color="orange"
+              <LedInput value={data.i} onChange={set('i')} color="orange" title={title('i', '적분시간(I)')}
                 label="ADDTION VALVE 적분시간 (I)" {...RANGE.i} />
             </div>
             <div className="at-field">
               <label>D</label>
-              <LedInput value={data.d} onChange={set('d')} color="violet"
+              <LedInput value={data.d} onChange={set('d')} color="violet" title={title('d', '미분시간(D)')}
                 label="ADDTION VALVE 미분시간 (D)" {...RANGE.d} />
             </div>
           </div>
@@ -97,11 +105,14 @@ export default function AtmosValvePanel({
 
         {/* 허용 기준온도 — 램프는 도달 여부(PLC), 값은 작업자 설정 */}
         <div className="at-reftemp">
-          <span className={`at-reftemp-lamp${data.refTempReached ? ' on' : ''}`} title="허용 기준온도 도달" />
+          <span
+            className={`at-reftemp-lamp${data.refTempLamp ?? ''}`}
+            title={`허용 기준온도 도달 / ${lampTag} — 1이면 초록, 못 읽으면 점선`}
+          />
           <span className="at-reftemp-label">허용 기준온도</span>
           <LedInput
             value={data.refTemp} onChange={set('refTemp')} color="green" unit="℃"
-            title="허용 기준온도" label="분위기제어 허용 기준온도" {...RANGE.refTemp}
+            title={title('refTemp', '허용 기준온도')} label="분위기제어 허용 기준온도" {...RANGE.refTemp}
           />
         </div>
 
@@ -136,7 +147,7 @@ export default function AtmosValvePanel({
           <span className="at-manual-label">MANUAL MV</span>
           <LedInput
             value={data.manualMv} onChange={set('manualMv')} color="green" unit="%"
-            title="수동 출력량"
+            title={title('manualMv', '수동 출력량')}
             label="ADDTION VALVE 수동 출력량 (MANUAL MV)"
             disabled={isAuto === true}
             {...RANGE.manualMv}
