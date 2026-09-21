@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { fittingTitle } from './combustionArtTags';
 
 /* ===========================================================================
    연소화면 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -192,8 +193,8 @@ function CombustionOverview() {
         <div className="pipe130"></div>
         <div className="pipe131"></div>
         <div className="pipe132"></div>
-        <img className="gas-pre" src="/scada/combustion/gas-pre0.svg" />
-        <img className="gas-sol" src="/scada/combustion/gas-sol0.svg" />
+        <img className="gas-pre" src="/scada/combustion/gas-pre0.svg" title={fittingTitle('gas-pre')} />
+        <img className="gas-sol" src="/scada/combustion/gas-sol0.svg" title={fittingTitle('gas-sol')} />
       </div>
       <div className="main-blower">
         <img className="main-blower2" src="/scada/combustion/main-blower1.png" />
@@ -201,8 +202,8 @@ function CombustionOverview() {
         <div className="pipe134"></div>
         <div className="pipe135"></div>
         <div className="pipe136"></div>
-        <img className="blower-pre" src="/scada/combustion/blower-pre0.svg" />
-        <img className="blower-pump" src="/scada/combustion/blower-pump0.svg" />
+        <img className="blower-pre" src="/scada/combustion/blower-pre0.svg" title={fittingTitle('blower-pre')} />
+        <img className="blower-pump" src="/scada/combustion/blower-pump0.svg" title={fittingTitle('blower-pump')} />
       </div>
       <div className="zon-box-1"></div>
       <div className="zon-box-2"></div>

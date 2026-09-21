@@ -6,7 +6,8 @@ import ZoneBurnerModal from '../../components/scada/ZoneBurnerModal';
 import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { lampClassOf, lampOf, writeTag, TAG_OFF } from '../../api/scada/foldertagApi';
+import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON } from '../../api/scada/foldertagApi';
+import { FITTING_TAGS, fittingRedClass } from '../../components/scada/combustionArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -247,6 +248,16 @@ export default function CombustionPage() {
      모달이 따로 폴링하면 창을 열 때마다 요청이 하나 더 붙는다. */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
 
+  /* 위쪽 배관 부속 넷 — 값이 1이면 작화 그대로, 0이거나 못 읽으면 빨강.
+     구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
+     않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 CombustionPage.css가 맡는다.
+
+     tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
+  const fittingRedClasses = Object.entries(FITTING_TAGS)
+    .filter(([, t]) => tagState(tagValues?.[t.tag]) !== TAG_ON)
+    .map(([cls]) => ` ${fittingRedClass(cls)}`)
+    .join('');
+
   const [writeError, setWriteError] = useState('');
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데 쓴다(비활성화에는 쓰지 않는다)
   const [heldTag, setHeldTag] = useState('');
@@ -373,12 +384,35 @@ export default function CombustionPage() {
     /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다.
        작화(노란 가스관·흰 공기관·불꽃)는 배경이 비어 있어 그대로 얹힌다. */
     <div className="cb-page hmi-dark">
+      {/* 배관 부속을 빨갛게 만드는 색 행렬. CSS의 filter: url(#cb-red)가 이걸 부른다.
+
+          기성 필터로는 안 된다 — grayscale·sepia 따위에는 '빨강으로'가 없고, hue-rotate로
+          맞추면 원래 색(주황·파랑·은색)마다 다른 색이 나온다. 그래서 밝기(luminance)만
+          남기고 그 밝기를 빨강 한 축에 싣는다. 어떤 색에서 출발하든 같은 빨강이 되고
+          명암이 남아서, 빨개져도 밸브·송풍기 모양으로 보인다.
+
+          가로줄이 결과의 R·G·B·A다. R줄은 밝기 계수(0.2126/0.7152/0.0722)에 1.4를 곱해
+          조금 밝은 빨강으로 띄우고, G·B줄은 같은 계수의 0.25배만 남겨 붉은 기를 준다.
+          A줄은 그대로 둔다 — 투명한 곳이 검게 채워지면 그림이 상자가 된다.
+          (예: 가스 배관의 주황 #ffb300 → 약 #ff2d2d) */}
+      <svg className="cb-filter-defs" aria-hidden="true">
+        <filter id="cb-red" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.29764 1.00128 0.10108 0 0
+                    0.05315 0.17880 0.01805 0 0
+                    0.05315 0.17880 0.01805 0 0
+                    0       0       0       1 0"
+          />
+        </filter>
+      </svg>
+
       {/* 줄인 뒤의 실제 높이만큼만 자리를 차지하게 한다 */}
       {/* 높이를 인라인으로 못박지 않는다 — 남는 세로를 그대로 차지해야 그 크기를 재서
           배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}
       <div className="cb-stage" ref={stageRef}>
         <div
-          className="cb-stage-inner"
+          className={`cb-stage-inner${fittingRedClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_TOTAL_H,

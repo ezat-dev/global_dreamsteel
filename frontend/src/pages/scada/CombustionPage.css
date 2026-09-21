@@ -40,6 +40,34 @@
   transform-origin: top left;
 }
 
+/* ===== 위쪽 배관 부속 넷 ====================================================
+
+   값이 1이면 작화 그대로의 제 색, 0이거나 못 읽으면 빨강이다.
+   무대에 red-* 클래스만 붙고(CombustionPage.jsx의 FITTING_TAGS) 색을 바꾸는 일은
+   여기서 한다 — 그래야 작화가 memo로 묶인 채 남아 1초마다 다시 그려지지 않는다.
+
+   #cb-red는 CombustionPage.jsx가 그려 두는 색 행렬이다. 밝기만 남기고 빨강에 실어서,
+   넷의 원래 색(가스 쪽 주황, 블로워 쪽 파랑·은색)이 달라도 같은 빨강이 된다.
+
+   화면 이름(.combustion)을 앞에 붙이는 작화 CSS와 달리 여기는 무대 클래스로 좁히므로
+   분위기제어의 같은 이름(.gas-pre / .gas-sol)과 겹치지 않는다 — 그 화면에는 이 무대가
+   없기 때문이다. */
+.cb-stage-inner.red-gas-pre .gas-pre,
+.cb-stage-inner.red-gas-sol .gas-sol,
+.cb-stage-inner.red-blower-pre .blower-pre,
+.cb-stage-inner.red-blower-pump .blower-pump {
+  filter: url(#cb-red);
+}
+
+/* 색 행렬만 담는 그림. 자리를 차지하면 안 되므로 크기를 0으로 둔다
+   (display: none으로 숨기면 브라우저가 필터를 못 찾는 경우가 있다). */
+.cb-filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
 /* ===== 존 이름표 + 개별연소 판 (무대 밖) ================================ */
 
 /* 무대와 똑같이 좌우로 꽉 채운다(flex column의 기본 stretch).
