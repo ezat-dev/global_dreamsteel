@@ -349,8 +349,8 @@ const NOTES = [
     valueTag: 'facility_off_temp',
     valueLabel: '설비 OFF 기준 온도',
     /* 뒤의 'OFF'는 글씨가 아니라 누르는 버튼이다. 읽는 태그와 쓰는 태그가 같다.
-       2초를 채우면 1을 보내고, 떼도 0을 보내지 않는다 — 걸어 두는 자리다.
-       이미 1이면 보낼 것이 없다(다시 0으로 내리는 조작은 없다). */
+       2초를 채우면 지금 값의 반대가 나가고 그대로 남는다(토글). 떼는 것으로는
+       아무 값도 보내지 않는다 — 걸어 두는 자리라 손을 떼면 풀리면 안 된다. */
     lampTag: 'facility_off_temp_toggle_button',
   },
   // ent-motor-4(x 332~356, y 360~401) 오른쪽 옆. 모터 세로 가운데에 맞춘다.
@@ -824,13 +824,13 @@ export default function DrivePage() {
       .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
   };
 
-  /* ── 설비 OFF 버튼 (누르면 1을 걸어 둔다) ─────────────────────────────
-     위 ON/OFF와 달리 모멘터리가 아니다. 2초를 채우면 1을 보내고, 떼도 0을 보내지
-     않는다 — 값을 걸어 두는 자리라 해제 조작이 따로 없다.
+  /* ── 설비 OFF 버튼 (토글) ─────────────────────────────────────────────
+     위 ON/OFF와 달리 모멘터리가 아니다. 2초를 채우면 지금 값의 반대를 보내고
+     그대로 남는다 — 떼는 것은 아무 값도 보내지 않는다.
 
-     이미 1이면 누름 자체를 시작하지 않는다. 눌러도 아무 일이 없는 것을 진행 바가
-     차오르다 마는 것으로 보여 주면 고장으로 읽히므로, 처음부터 반응하지 않게 둔다.
-     값을 못 읽는 동안도 같다 — 지금 값을 모르는 채로 쓰지 않는다. */
+     값을 못 읽는 동안은 누름 자체를 시작하지 않는다. 반대값을 보내는 조작이라
+     지금 값을 모르면 무엇을 보낼지 정할 수 없다. 눌러도 아무 일이 없는 것을 진행 바가
+     차오르다 마는 것으로 보여 주면 고장으로 읽히므로, 처음부터 반응하지 않게 둔다. */
   const offBtnState = tagState(tagValues?.[FACILITY_OFF_BTN_TAG]);
   const offBtnClass = offBtnState === TAG_UNKNOWN
     ? ' is-unknown'
@@ -840,18 +840,23 @@ export default function DrivePage() {
   const offBtnTimerRef = useRef(null);
 
   const handleOffBtnPress = () => {
-    if (offBtnHeldRef.current || offBtnState !== TAG_OFF) return;
+    if (offBtnHeldRef.current || offBtnState === TAG_UNKNOWN) return;
     offBtnHeldRef.current = true;
     setOffBtnHeld(true);
     setWriteError('');
 
+    /* 보낼 값을 누르는 순간의 값으로 정한다. 2초 사이에 폴링이 값을 바꾸더라도
+       작업자가 보고 누른 그 값의 반대가 나가야 한다 — 타이머 안에서 다시 읽으면
+       손이 떠난 뒤의 값을 뒤집게 된다. */
+    const next = offBtnState === TAG_ON ? 0 : 1;
+
     offBtnTimerRef.current = setTimeout(() => {
-      writeTag(DR_FOLDER_ID, FACILITY_OFF_BTN_TAG, 1)
+      writeTag(DR_FOLDER_ID, FACILITY_OFF_BTN_TAG, next)
         .catch((e) => setWriteError(`${FACILITY_OFF_BTN_TAG} — ${e.message}`));
     }, DRIVE_HOLD_MS);
   };
 
-  /* 보낸 뒤에도 0을 보내지 않으므로 여기서는 타이머만 거둔다. */
+  /* 떼는 것으로는 아무 값도 보내지 않으므로 여기서는 타이머만 거둔다. */
   const handleOffBtnRelease = () => {
     if (!offBtnHeldRef.current) return;
     offBtnHeldRef.current = false;
@@ -1143,14 +1148,14 @@ export default function DrivePage() {
               >
                 {n.valueTag && <span className="dr-note-val">{noteValue(n.valueTag)}</span>}
                 {n.text}
-                {/* 0이면 빨강, 1이면 초록, 못 읽으면 점선. 1일 때는 보낼 것이 없어
-                    눌러도 반응하지 않는다(위 handleOffBtnPress 참고). */}
+                {/* 0이면 빨강, 1이면 초록, 못 읽으면 점선. 점선일 때는 보낼 값을
+                    정할 수 없어 눌러도 반응하지 않는다(위 handleOffBtnPress 참고). */}
                 {n.lamp && (
                   <button
                     type="button"
                     className={`dr-note-lamp hmi-lampbox${offBtnClass}${offBtnHeld ? ' is-held' : ''}`}
                     onPointerDown={handleOffBtnPress}
-                    title={`설비 OFF / ${n.lampTag} — 값이 0일 때 ${DRIVE_HOLD_MS / 1000}초 누르면 1`}
+                    title={`설비 OFF / ${n.lampTag} — ${DRIVE_HOLD_MS / 1000}초 누르면 0↔1 뒤집힘`}
                   >
                     {n.lamp}
                     {offBtnHeld && (
