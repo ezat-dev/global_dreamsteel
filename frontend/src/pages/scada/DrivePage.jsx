@@ -836,6 +836,9 @@ export default function DrivePage() {
     ? ' is-unknown'
     : (offBtnState === TAG_ON ? ' is-on' : ' is-alarm');
   const [offBtnHeld, setOffBtnHeld] = useState(false);
+  /* 시간을 채워 실제로 값이 나갔다는 표시(.is-armed 테두리). 위 ON/OFF의 armedTag와 같은
+     것이고, 손을 뗄 때까지만 남는다 — "웹이 보냈다"이지 PLC가 받았다는 뜻은 아니다. */
+  const [offBtnArmed, setOffBtnArmed] = useState(false);
   const offBtnHeldRef = useRef(false);
   const offBtnTimerRef = useRef(null);
 
@@ -843,6 +846,7 @@ export default function DrivePage() {
     if (offBtnHeldRef.current || offBtnState === TAG_UNKNOWN) return;
     offBtnHeldRef.current = true;
     setOffBtnHeld(true);
+    setOffBtnArmed(false);
     setWriteError('');
 
     /* 보낼 값을 누르는 순간의 값으로 정한다. 2초 사이에 폴링이 값을 바꾸더라도
@@ -851,6 +855,7 @@ export default function DrivePage() {
     const next = offBtnState === TAG_ON ? 0 : 1;
 
     offBtnTimerRef.current = setTimeout(() => {
+      setOffBtnArmed(true);
       writeTag(DR_FOLDER_ID, FACILITY_OFF_BTN_TAG, next)
         .catch((e) => setWriteError(`${FACILITY_OFF_BTN_TAG} — ${e.message}`));
     }, DRIVE_HOLD_MS);
@@ -861,6 +866,7 @@ export default function DrivePage() {
     if (!offBtnHeldRef.current) return;
     offBtnHeldRef.current = false;
     setOffBtnHeld(false);
+    setOffBtnArmed(false);
     clearTimeout(offBtnTimerRef.current);
     offBtnTimerRef.current = null;
   };
@@ -1153,7 +1159,9 @@ export default function DrivePage() {
                 {n.lamp && (
                   <button
                     type="button"
-                    className={`dr-note-lamp hmi-lampbox${offBtnClass}${offBtnHeld ? ' is-held' : ''}`}
+                    className={`dr-note-lamp hmi-lampbox${offBtnClass}`
+                      + (offBtnHeld ? ' is-held' : '')
+                      + (offBtnArmed ? ' is-armed' : '')}
                     onPointerDown={handleOffBtnPress}
                     title={`설비 OFF / ${n.lampTag} — ${DRIVE_HOLD_MS / 1000}초 누르면 0↔1 뒤집힘`}
                   >
