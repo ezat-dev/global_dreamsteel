@@ -1086,12 +1086,22 @@ export default function DrivePage() {
                 그림과 같은 좌표계라 배율이 바뀌어도 옆 롤러와 어긋나지 않는다.
                 이 하나만 겉면이 매쉬다(roller-mesh.svg) — 제품 감지 자리라 작화에도
                 옆의 매끈한 롤러들과 다르게 그려져 있다. */}
+            {/* 두 장을 겹친다. 아래는 원본 그대로고, 위는 같은 그림을 몸통만 오려내
+                물들인 것이다 — 바깥에서 건 filter는 그림 전체에 걸려서, 위·아래 축(고정부)만
+                빼고 칠할 방법이 이것뿐이다(오려내는 자리는 DrivePage.css가 갖고 있다). */}
             <img
-              className={`dr-end-roller${endRollerClass}`}
+              className="dr-end-roller"
               src="/scada/drive/roller-mesh.svg"
               alt=""
               data-tag={END_ROLLER.tag}
               title={`제품 감지 매쉬 롤러 — 읽기 전용 / ${END_ROLLER.tag} — 1이면 초록 / 0이면 빨강`}
+              style={{ left: END_ROLLER.left, top: END_ROLLER.top, width: END_ROLLER.width, height: END_ROLLER.height }}
+            />
+            <img
+              className={`dr-end-roller dr-end-roller-body${endRollerClass}`}
+              src="/scada/drive/roller-mesh.svg"
+              alt=""
+              aria-hidden="true"
               style={{ left: END_ROLLER.left, top: END_ROLLER.top, width: END_ROLLER.width, height: END_ROLLER.height }}
             />
 

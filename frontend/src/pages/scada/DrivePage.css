@@ -649,16 +649,32 @@
    옆의 매끈한 롤러들은 도느냐 마느냐(그림 교체)만 바뀐다.
 
    #dr-green / #dr-red는 DrivePage.jsx가 그려 두는 색 행렬이다. contrast를 먼저 걸고
-   물들인다(필터는 적힌 순서대로 걸린다) — 바로 물들이면 매쉬 무늬가 뭉개져 덩어리가 된다. */
-.dr-end-roller.is-on {
+   물들인다(필터는 적힌 순서대로 걸린다) — 바로 물들이면 매쉬 무늬가 뭉개져 덩어리가 된다.
+
+   색은 몸통에만 든다. 위·아래 축(고정부)은 쇠 색 그대로 남는다 — 돌아가는 몸통과
+   가만히 있는 축은 다른 것이라, 축까지 같이 빨개지면 축이 이상이 난 것으로 보인다.
+   바깥 filter는 그림 전체에 걸리므로, JSX가 같은 그림을 두 장 겹쳐 두고 위 장만
+   몸통 높이로 오려낸다.
+
+   오려내는 값은 그림 좌표에서 나온다(roller-mesh.svg):
+     viewBox y 2.5 ~ 137.5 (135칸)  /  몸통 y 10.4 ~ 128.6
+     위  (10.4 - 2.5) / 135 = 5.85%      아래 (137.5 - 128.6) / 135 = 6.59%
+   SVG를 고쳐 몸통 높이가 바뀌면 이 두 값도 같이 고쳐야 한다. */
+.dr-end-roller-body {
+  clip-path: inset(5.85% 0 6.59% 0);
+  /* 툴팁은 아래 깔린 원본이 맡는다 — 겹친 장이 마우스를 가로채면 안 뜬다. */
+  pointer-events: none;
+}
+
+.dr-end-roller-body.is-on {
   filter: contrast(1.8) url(#dr-green);
 }
 
-.dr-end-roller.is-alarm {
+.dr-end-roller-body.is-alarm {
   filter: contrast(1.8) url(#dr-red);
 }
 
-.dr-end-roller.is-unknown {
+.dr-end-roller-body.is-unknown {
   filter: grayscale(1);
 }
 
