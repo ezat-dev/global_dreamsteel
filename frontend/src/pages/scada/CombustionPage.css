@@ -210,7 +210,8 @@
 .cb-onoff > button,
 .cb-zmodal-state > button,
 .cb-zmodal-purge,
-button.cb-action-lamp {
+button.cb-action-lamp,
+.cb-action-btn {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -221,7 +222,8 @@ button.cb-action-lamp {
 .cb-onoff > button,
 .cb-zmodal-state > button,
 .cb-zmodal-purge,
-button.cb-action-lamp {
+button.cb-action-lamp,
+.cb-action-btn {
   position: relative;
   overflow: hidden;
 }
@@ -241,7 +243,8 @@ button.cb-action-lamp {
 .cb-onoff > button.is-held,
 .cb-zmodal-state > button.is-held,
 .cb-zmodal-purge.is-held,
-button.cb-action-lamp.is-held {
+button.cb-action-lamp.is-held,
+.cb-action-btn.is-held {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45);
 }
 
@@ -646,8 +649,9 @@ button.cb-action-lamp.is-held {
   flex: 1 1 auto;
 }
 
-/* RESET만 조작 버튼이다 — 사진처럼 노란 바탕. PLC 쓰기 API가 없어 아직 disabled고,
-   연동되면 disabled만 풀면 된다. */
+/* RESET만 조작 버튼이다 — 사진처럼 노란 바탕.
+   다른 momentary 버튼과 달리 색이 PLC 값을 따르지 않는다. 늘 이 노랑이고, 지금 눌려
+   있는지만 .is-held와 진행 바로 알린다(위 momentary 공통 규칙에 같이 묶여 있다). */
 .cb-action-btn {
   padding: 7px 14px;
   border-radius: 3px;
@@ -658,7 +662,7 @@ button.cb-action-lamp.is-held {
   font-size: 15px;
   font-weight: 800;
   white-space: nowrap;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
 /* ===== 배관 입체감 ========================================================

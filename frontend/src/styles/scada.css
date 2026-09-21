@@ -472,6 +472,7 @@ button {
    꺼지면 회색으로 남고, 켜지면 색이 들어온다:
      .is-on     초록 — 정상·운전·열림
      .is-alarm  빨강 — 이상·정지·닫힘
+     .is-warn   노랑 — 진행 중·대기
 
    크기(padding·font-size)와 배치는 화면마다 달라서 쓰는 쪽에서 덮는다.
    .cb-lamp / .at-lamp / .dr-onoff / .dr-detect / .dr-note-lamp 가 각자 갖고 있던
@@ -502,6 +503,14 @@ button {
   background: #dc2626;
   border-color: #dc2626;
   color: #ffffff;
+}
+
+/* .is-warn 노랑 — 진행 중·대기처럼 정상도 이상도 아닌 단계(연소화면 'PURGE 중').
+   여기만 글자가 검다. 노랑 위의 흰 글씨는 현장 조명에서 읽기 어렵다. */
+.hmi-lampbox.is-warn {
+  background: #eab308;
+  border-color: #eab308;
+  color: #422006;
 }
 
 /* 값을 못 받은 램프 — 꺼진 것과 반드시 구분해야 한다.

@@ -222,30 +222,38 @@ const ZONE_BURN_BUTTONS = [
 ];
 
 /* 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지.
-   RESET만 누르는 버튼(btn)이고 나머지는 PLC 상태를 비추는 램프(lamp)다.
-   램프의 tone은 켜졌을 때의 색이고, 지금은 PLC가 없어 전부 꺼진 회색으로 나온다. */
+
+   칸이 세 종류다.
+     kind: 'btn'  RESET — 누르는 버튼. 색은 값과 무관하게 늘 노랑이다(.cb-action-btn).
+     cmd          램프이면서 버튼(ALL PURGE의 ON). 색은 _cmd_lamp가 정한다.
+     tag          누를 수 없는 표시 램프. 값이 1이면 lit 색, 0이면 회색, 못 읽으면 점선.
+
+   lit이 칸마다 다르다 — 퍼지 단계는 준비(빨강) → 중(노랑) → 완료(초록)로 넘어간다. */
 const ACTION_PANELS = [
   {
     key: 'misfire',
     title: '실화 ALARM',
-    items: [{ text: '실화', tone: 'alarm' }, { text: 'RESET', kind: 'btn' }],
+    items: [
+      { text: '실화', tag: 'misfire_alarm_misfire_lamp', lit: ' is-alarm' },
+      { text: 'RESET', kind: 'btn', cmd: 'misfire_alarm_reset_cmd' },
+    ],
   },
   {
     key: 'burner',
     title: 'BURNER ALARM',
-    items: [{ text: '이상', tone: 'alarm' }, { text: 'RESET', kind: 'btn' }],
+    items: [
+      { text: '이상', tag: 'burner_alarm_abnormal_lamp', lit: ' is-alarm' },
+      { text: 'RESET', kind: 'btn', cmd: 'burner_alarm_reset_cmd' },
+    ],
   },
   {
     key: 'purge',
     title: 'ALL PURGE',
     items: [
-      /* ON만 누르는 버튼이다 — 2초 누르면 all_purge_on_cmd에 1, 떼면 0.
-         색은 램프(all_purge_on_cmd_lamp)가 정한다. 나머지 셋은 퍼지 단계를 보여주는
-         표시 램프인데 아직 태그가 없어서 꺼진 회색으로만 나온다. */
-      { text: 'ON', tone: 'on', cmd: 'all_purge_on_cmd' },
-      { text: 'PURGE 준비', tone: 'on' },
-      { text: 'PURGE 중', tone: 'on' },
-      { text: 'PURGE 완료', tone: 'on' },
+      { text: 'ON', cmd: 'all_purge_on_cmd' },
+      { text: 'PURGE 준비', tag: 'all_purge_ready_lamp', lit: ' is-alarm' },
+      { text: 'PURGE 중', tag: 'all_purge_doing_lamp', lit: ' is-warn' },
+      { text: 'PURGE 완료', tag: 'all_purge_complete_lamp', lit: ' is-on' },
     ],
   },
 ];
@@ -304,6 +312,13 @@ export default function CombustionPage() {
     const st = tagState(tagValues?.[l.tag]);
     if (st === TAG_UNKNOWN) return ' is-unknown';
     return st === l.greenWhen ? ' is-on' : ' is-alarm';
+  };
+
+  /** 하단 조작판의 표시 램프 — 1이면 그 칸의 lit 색, 0이면 회색, 못 읽으면 점선. */
+  const actionLampClass = (it) => {
+    const st = tagState(tagValues?.[it.tag]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === TAG_ON ? it.lit : '';
   };
 
   /* 누르는 순간에는 아무것도 보내지 않는다 — HOLD_MS를 채워야 1이 나간다.
@@ -671,10 +686,25 @@ export default function CombustionPage() {
             <span className="cb-plate cb-plate--action">{p.title}</span>
             <div className="cb-action-row">
               {p.items.map((it) => {
+                {/* RESET — 다른 momentary 버튼과 같다(2초 누르면 1, 떼면 0).
+                    다른 점은 색이 값을 따르지 않고 늘 노랑이라는 것뿐이다. 눌렀는지는
+                    누름 표시(is-held)와 진행 바로만 알린다. */}
                 if (it.kind === 'btn') {
                   return (
-                    <button type="button" className="cb-action-btn" key={it.text} disabled>
+                    <button
+                      type="button"
+                      key={it.text}
+                      className={'cb-action-btn'
+                        + (heldTag === it.cmd ? ' is-held' : '')
+                        + (armedTag === it.cmd ? ' is-armed' : '')}
+                      onPointerDown={() => handlePress(it.cmd)}
+                      data-tag={it.cmd}
+                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${HOLD_MS / 1000}초 누르면 전송 (색은 늘 노랑)`}
+                    >
                       {it.text}
+                      {heldTag === it.cmd && (
+                        <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                      )}
                     </button>
                   );
                 }
@@ -704,9 +734,17 @@ export default function CombustionPage() {
                   );
                 }
 
-                /* 나머지는 눌리는 것이 아니라 상태 표시라 button이 아닌 span이다.
-                   아직 태그가 없어 꺼진 상태(회색)로만 나온다. */
-                return <span className="cb-action-lamp hmi-lampbox" key={it.text}>{it.text}</span>;
+                /* 나머지는 눌리는 것이 아니라 상태 표시라 button이 아닌 span이다. */
+                return (
+                  <span
+                    className={`cb-action-lamp hmi-lampbox${actionLampClass(it)}`}
+                    key={it.text}
+                    data-tag={it.tag}
+                    title={`${it.text} — 읽기 전용 / ${it.tag} — 1이면 켜짐`}
+                  >
+                    {it.text}
+                  </span>
+                );
               })}
             </div>
           </div>
