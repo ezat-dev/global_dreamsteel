@@ -3,7 +3,9 @@ import AtmosphereOverview from '../../components/scada/AtmosphereOverview';
 import AtmosConditionPanel from '../../components/scada/AtmosConditionPanel';
 import AtmosValvePanel from '../../components/scada/AtmosValvePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
-import { lampClassOf, lampOf, tagState, writeTag, TAG_ON } from '../../api/scada/foldertagApi';
+import {
+  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_UNKNOWN,
+} from '../../api/scada/foldertagApi';
 import {
   FITTING_TAGS, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
@@ -76,11 +78,13 @@ const DEVICE_PANELS = [
 /* 압력계·솔밸브 아래에 붙는 상태 글씨. cx는 그 부품이 그려지는 가운데 x다.
      blowe-pre x 328~405 → 366    blowe-sol x 454~533 → 494
      gas-pre   x 232~300 → 266    gas-sol   x 368~446 → 407 */
+/* 넷 다 켜지고 꺼지는 램프가 아니라 늘 빨강 아니면 초록이다 — 0이면 빨강, 1이면 초록.
+   값을 못 읽으면 점선(모름)이다. */
 const PIPE_LABELS = [
-  { key: 'bPre', cx: 368, top: 82, text: '압력 이상' },
-  { key: 'bSol', cx: 495, top: 82, text: 'SOL닫힘' },
-  { key: 'gPre', cx: 266, top: 244, text: '압력 이상' },
-  { key: 'gSol', cx: 407, top: 244, text: 'SOL닫힘' },
+  { key: 'bPre', cx: 368, top: 82, text: '압력 이상', tag: 'add_blowe_pressure_abnormal_lamp' },
+  { key: 'bSol', cx: 495, top: 82, text: 'SOL닫힘', tag: 'add_blowe_sol_close_lamp' },
+  { key: 'gPre', cx: 266, top: 244, text: '압력 이상', tag: 'add_gas_pressure_abnormal_lamp' },
+  { key: 'gSol', cx: 407, top: 244, text: 'SOL닫힘', tag: 'add_gas_sol_close_lamp' },
 ];
 
 /* 로(obj-4, y 600~742)로 내려가는 관 끝에 붙는 이름판.
@@ -145,6 +149,14 @@ export default function AtmospherePage() {
      켜짐은 초록으로 물들인다). 한쪽만 붙이면 0일 때 가스 밸브의 주황이 그대로 남는다.
 
      tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
+  /** 압력계·솔밸브 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
+      늘 초록 아니면 빨강이고, 못 읽을 때만 점선이다. */
+  const pipeClass = (l) => {
+    const st = tagState(tagValues?.[l.tag]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === TAG_ON ? ' is-on' : ' is-alarm';
+  };
+
   const fittingClasses = Object.entries(FITTING_TAGS)
     .map(([cls, t]) => (tagState(tagValues?.[t.tag]) === TAG_ON
       ? ` ${fittingOnClass(cls)}`
@@ -364,8 +376,10 @@ export default function AtmospherePage() {
             {/* 압력 이상·SOL닫힘 — 설명 글씨가 아니라 이상을 알리는 램프다 */}
             {PIPE_LABELS.map((l) => (
               <span
-                className="at-pipe-label hmi-lampbox is-alarm"
+                className={`at-pipe-label hmi-lampbox${pipeClass(l)}`}
                 key={l.key}
+                data-tag={l.tag}
+                title={`${l.text} — 읽기 전용 / ${l.tag} — 1이면 초록, 0이면 빨강`}
                 /* 가운데 맞춤(translateX(-50%))은 CSS(.at-pipe-label)가 한다 —
                    인라인 transform으로 두면 좁은 화면에서 판을 키우는 규칙이 먹지 않는다
                    (인라인이 스타일시트를 이긴다). */
