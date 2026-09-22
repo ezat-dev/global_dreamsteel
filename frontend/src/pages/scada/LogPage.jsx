@@ -41,6 +41,13 @@ const LOG_OPTIONS = {
   paginationSizeSelector: false,
 };
 
+/* 실패사유 열에서 걸러 볼 이름들. 자바가 넣는 문구 그대로여야 한다
+   (ScadaServiceImpl의 FAIL_* 상수). 글자가 하나라도 다르면 골라도 아무것도 안 걸린다.
+
+   각각이 무슨 상황인지는 저쪽 상수 옆에 적어 두었다. 화면에는 설명을 두지 않는다 —
+   작업자가 보고 조치할 수 있는 내용이 아니고, 개발자는 코드를 보면 된다. */
+const FAIL_REASONS = ['연결 실패', '응답 시간 초과', '서버 오류', '쓰기 거부', '응답 없음'];
+
 export default function LogPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -177,15 +184,9 @@ export default function LogPage() {
            예외 원문은 저장하지 않는다 — 그건 누를 때 화면에 뜨는 안내에만 붙는다. */
         title: '실패사유', field: 'failReason', width: 120, hozAlign: 'center',
         headerFilter: 'list',
+        // 고르는 목록은 위 배열에서 만든다 — 분류가 늘면 그 배열만 고치면 따라온다
         headerFilterParams: {
-          values: {
-            '': '전체',
-            '연결 실패': '연결 실패',
-            '응답 시간 초과': '응답 시간 초과',
-            '서버 오류': '서버 오류',
-            '쓰기 거부': '쓰기 거부',
-            '응답 없음': '응답 없음',
-          },
+          values: { '': '전체', ...Object.fromEntries(FAIL_REASONS.map((k) => [k, k])) },
         },
         // 성공한 줄은 비어 있다 — 빈 칸이 줄줄이 보이면 표가 지저분해서 '—'로 채운다
         formatter: (cell) => cell.getValue() || '—',

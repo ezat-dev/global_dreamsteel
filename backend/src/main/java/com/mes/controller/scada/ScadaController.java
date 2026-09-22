@@ -210,8 +210,8 @@ public class ScadaController {
     @PostMapping("/updateTrendMemo")
     public ResponseEntity<ApiResponse<Boolean>> updateTrendMemo(@RequestBody ScadaTrend scadaTrend,
             HttpSession session) {
-                String loginId = String.valueOf(session.getAttribute("loginId"));
-                String loginUserName = (String)session.getAttribute("loginUserName");
+        String loginId = String.valueOf(session.getAttribute("loginId"));
+        String loginUserName = (String) session.getAttribute("loginUserName");
         if (session.getAttribute("loginId") == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
@@ -224,6 +224,15 @@ public class ScadaController {
     @PostMapping("/deleteTrendMemo")
     public ResponseEntity<ApiResponse<Boolean>> deleteTrendMemo(@RequestBody ScadaTrend scadaTrend) {
         return ResponseEntity.ok(ApiResponse.success(scadaService.deleteTrendMemo(scadaTrend)));
+    }
+
+    // 로그인 세션 확인
+    @GetMapping("/checkSession")
+    public ApiResponse<Boolean> checkSession(HttpSession session) {
+        if (session.getAttribute("loginUserId") == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
+        }
+        return ApiResponse.success(true);
     }
 
 }

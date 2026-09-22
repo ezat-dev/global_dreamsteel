@@ -36,11 +36,11 @@ public class ScadaServiceImpl implements ScadaService {
      *
      * 문구를 고치면 이미 쌓인 로그와 갈라진다 — 화면 필터도 같이 봐야 한다.
      */
-    private static final String FAIL_CONNECT = "연결 실패";
-    private static final String FAIL_TIMEOUT = "응답 시간 초과";
-    private static final String FAIL_SERVER = "서버 오류";
-    private static final String FAIL_REJECT = "쓰기 거부";
-    private static final String FAIL_EMPTY = "응답 없음";
+    private static final String FAIL_CONNECT = "연결 실패"; //C# 꺼져있거나 네트워크 끊김, 주소 다름, 5050 포트 안 열림 등
+    private static final String FAIL_TIMEOUT = "응답 시간 초과"; // C#이 2초 안에 응답을 못 줌, C# 멈춤
+    private static final String FAIL_SERVER = "서버 오류"; //C# 서버오류
+    private static final String FAIL_REJECT = "쓰기 거부"; //folders_tags에 태그 없음, 쓰기 금지 영역, MC 프로토콜 오류
+    private static final String FAIL_EMPTY = "응답 없음"; //200 반환하는데 비어있음, C# 버그
 
     @Autowired
     private ScadaDao scadaDao;
