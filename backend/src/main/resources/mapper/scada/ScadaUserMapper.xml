@@ -92,9 +92,9 @@
 
     <insert id="insertLog" parameterType="com.mes.domain.scada.ScadaUser">
         INSERT INTO scada_log (
-    user_id, user_name, address, send_value, write_success
+    user_id, user_name, address, send_value, write_success, fail_reason
     ) VALUES (
-    #{userId}, #{userName}, #{address}, #{sendValue}, #{writeSuccess}
+    #{userId}, #{userName}, #{address}, #{sendValue}, #{writeSuccess}, #{failReason}
     )
     </insert>
 

@@ -45,4 +45,6 @@ public interface ScadaService {
     boolean updateTrendMemo(ScadaTrend scadaTrend);
 
     boolean deleteTrendMemo(ScadaTrend scadaTrend);
+    
+    String findAddress(ScadaUser scadaUser);
 }

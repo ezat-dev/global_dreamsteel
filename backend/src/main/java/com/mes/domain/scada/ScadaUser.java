@@ -35,4 +35,5 @@ public class ScadaUser {
     private String tagName;
     private Boolean writeLog;
     private Boolean writeSuccess;
+    private String failReason;
 }

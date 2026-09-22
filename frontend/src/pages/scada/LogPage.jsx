@@ -172,6 +172,25 @@ export default function LogPage() {
         },
       },
       {
+        /* 실패한 줄에만 값이 있다. 자바가 정해진 문구 몇 개 중 하나로 분류해 넣으므로
+           (ScadaServiceImpl의 FAIL_* 상수) 고르는 칸으로 걸러 볼 수 있다.
+           예외 원문은 저장하지 않는다 — 그건 누를 때 화면에 뜨는 안내에만 붙는다. */
+        title: '실패사유', field: 'failReason', width: 120, hozAlign: 'center',
+        headerFilter: 'list',
+        headerFilterParams: {
+          values: {
+            '': '전체',
+            '연결 실패': '연결 실패',
+            '응답 시간 초과': '응답 시간 초과',
+            '서버 오류': '서버 오류',
+            '쓰기 거부': '쓰기 거부',
+            '응답 없음': '응답 없음',
+          },
+        },
+        // 성공한 줄은 비어 있다 — 빈 칸이 줄줄이 보이면 표가 지저분해서 '—'로 채운다
+        formatter: (cell) => cell.getValue() || '—',
+      },
+      {
         // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭. 더 주면 가운데만 비어 보인다.
         title: '기록시각', field: 'insertDate', width: 180, hozAlign: 'center',
         /* TIMESTAMP를 String으로 받기 때문에 드라이버에 따라 '2026-09-02 15:21:07.0'처럼
