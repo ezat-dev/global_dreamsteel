@@ -6,7 +6,7 @@ import {
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
-import { getAlarmList } from '../../api/scada/alarmHistApi';
+import useAlarmList from '../../components/scada/useAlarmList';
 import {
   lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
@@ -360,17 +360,17 @@ const NOTES = [
 ];
 
 /* ---------------------------------------------------------------------------
-   하단 경보 목록 — 경보이력 화면과 같은 API(getAlarmList)를 그대로 쓴다.
-   여기서는 조회 조건 없이 전부 받아 최근 것만 훑어보는 용도라 컬럼이 더 적다.
+   하단 경보 목록 — 경보이력 화면과 같은 API(getAlarmList)를 최근 100건만 받아 쓴다.
+   지나가며 훑어보는 자리라 컬럼이 더 적다. 범위 조회는 경보이력 화면 몫이다.
 
    컬럼이 바뀌면 표를 통째로 다시 만들기 때문에 모듈 상수로 둔다(매 렌더 새로
-   만들면 표가 계속 재생성된다).
+   만들면 표가 계속 재생성된다). 컬럼을 더하거나 빼면 useAlarmList의 SHOWN_FIELDS도
+   같이 손봐야 한다 — 거기 없는 값은 바뀌어도 화면이 갱신되지 않는다.
    ------------------------------------------------------------------------- */
 const ALARM_COLUMNS = [
   { title: '발생시각', field: 'occurTimeStr', width: 145, hozAlign: 'center' },
   { title: '태그이름', field: 'tagName', minWidth: 120, widthGrow: 2, tooltip: true, hozAlign: 'center' },
   { title: '경보주석', field: 'alarmMsg', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
-  { title: '태그값', field: 'valueAtOccur', width: 80, hozAlign: 'center' },
       {
         title: '경보상태', field: 'alarmStatus', width: 95, hozAlign: 'center',
         /* DB(vw_alarm_history)는 ACTIVE / CLEARED로 주는데 현장에서 읽을 말로 바꿔 보여준다.
@@ -640,25 +640,9 @@ export default function DrivePage() {
     return () => ro.disconnect();
   }, []);
 
-  /* 하단 경보 목록. 조회 조건 없이 전부 받는다 — 범위 지정이 필요하면 경보이력 화면을 쓴다.
-     화면을 벗어난 뒤 응답이 도착해도 state를 건드리지 않게 한다
-     (개발 모드의 StrictMode는 effect를 두 번 실행한다). */
-  const [alarms, setAlarms] = useState([]);
-  const [alarmError, setAlarmError] = useState('');
-
-  useEffect(() => {
-    let alive = true;
-
-    getAlarmList()
-      .then((res) => {
-        if (alive) setAlarms(res.data ?? []);
-      })
-      .catch((e) => {
-        if (alive) setAlarmError(e.response?.data?.message ?? '경보를 불러오지 못했습니다.');
-      });
-
-    return () => { alive = false; };
-  }, []);
+  /* 하단 경보 목록. 최근 100건을 5초마다 다시 받는다 — 화면을 켜 둔 채로 새 경보가
+     떠야 하기 때문이다. 범위 지정이 필요하면 경보이력 화면을 쓴다. */
+  const { alarms, error: alarmError } = useAlarmList();
 
 
   /* 출구 TIME 설정 세 칸의 표시값 — 폴링으로 받은 PLC 값을 그대로 보여준다.

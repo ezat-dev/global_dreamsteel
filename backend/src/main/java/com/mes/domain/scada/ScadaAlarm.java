@@ -20,6 +20,21 @@ public class ScadaAlarm {
     private String alarmTime;
     private String startTime;
     private String endTime;
+
+    /**
+     * 조회 건수 상한. 안 주면(null) 전부 내린다 — 경보이력 화면은 그렇게 쓴다.
+     *
+     * <p>
+     * 구동·연소화면은 하단 목록을 5초마다 다시 받기 때문에 최근 것만 필요하고,
+     * 행이 쌓인 뒤에도 매번 전체를 내리는 일이 없도록 100을 넘긴다.
+     * </p>
+     *
+     * <p>
+     * 여기만 String이 아니라 Integer다. {@code LIMIT #{limit}}은 프리페어드
+     * 파라미터로 나가는데, 문자열로 바인딩되면 {@code LIMIT '100'}이 되어 DB가 거부한다.
+     * </p>
+     */
+    private Integer limit;
     private String alarmTagValue;
     private String historyId;
     private String tagId;

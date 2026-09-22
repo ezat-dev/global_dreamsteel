@@ -15,6 +15,12 @@
             </if>
         </where>
         ORDER BY occur_time_str DESC
+        <!-- 건수 상한. 안 주면 전부 내린다(경보이력 화면). 구동·연소화면은 하단 목록을
+             5초마다 다시 받으므로 최근 100건만 달라고 한다 — 안 걸면 행이 쌓인 뒤에
+             5초마다 이력 전체가 오간다. -->
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <select id="getAlarmTagList" parameterType="com.mes.domain.scada.ScadaAlarm"
