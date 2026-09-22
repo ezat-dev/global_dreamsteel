@@ -19,6 +19,9 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    // 컨트롤러 요청·응답을 로그 파일에 남기는 ControllerLogAspect가 쓴다.
+    // spring-boot-starter-web에 spring-aop은 딸려 오지만 @Aspect를 엮으려면 이것이 필요하다.
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.5.10'
 
