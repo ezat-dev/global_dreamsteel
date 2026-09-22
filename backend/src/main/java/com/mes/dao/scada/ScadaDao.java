@@ -73,6 +73,20 @@ public class ScadaDao {
         return sqlSession.selectList("ScadaAlarmMapper.getAlarmTagList", scadaAlarm);
     }
 
+    /**
+     * 태그 주소 조회(ez_scada.folders_tags). folderId + tagName으로 찾는다.
+     *
+     * <p>
+     * 쓰기가 성공하면 주소가 C# 응답에 들어 있어 이걸 부를 일이 없다. 실패했을 때만 쓴다 —
+     * 어느 주소에 쓰려 했는지가 로그에서 빠지면 나중에 추적이 안 되기 때문이다.
+     * </p>
+     *
+     * @return address만 채워진 객체, 그런 태그가 없으면 null
+     */
+    public ScadaUser getTagAddress(ScadaUser param) {
+        return sqlSession.selectOne("ScadaUserMapper.getTagAddress", param);
+    }
+
     public boolean insertLog(ScadaUser scadaUser) {
         int result = sqlSession.insert("ScadaUserMapper.insertLog", scadaUser);
         if (result <= 0) {

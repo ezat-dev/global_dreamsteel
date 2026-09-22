@@ -34,4 +34,5 @@ public class ScadaUser {
     private String folderId;
     private String tagName;
     private Boolean writeLog;
+    private Boolean writeSuccess;
 }

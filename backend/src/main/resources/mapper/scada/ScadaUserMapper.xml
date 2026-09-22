@@ -92,10 +92,23 @@
 
     <insert id="insertLog" parameterType="com.mes.domain.scada.ScadaUser">
         INSERT INTO scada_log (
-    user_id, user_name, address, send_value
+    user_id, user_name, address, send_value, write_success
     ) VALUES (
-    #{userId}, #{userName}, #{address}, #{sendValue}
+    #{userId}, #{userName}, #{address}, #{sendValue}, #{writeSuccess}
     )
     </insert>
+
+    <!-- 태그 주소 조회.
+         쓰기가 성공하면 주소가 C# 응답에 들어 있어서 이 쿼리를 타지 않는다. 실패했을 때만
+         쓴다 — 어느 주소에 쓰려 했는지가 로그에서 빠지면 나중에 추적이 안 되기 때문이다.
+         태그는 ez_scada 스키마에 있다(이 매퍼의 나머지는 global_dreamsteel을 본다). -->
+    <select id="getTagAddress" parameterType="com.mes.domain.scada.ScadaUser"
+            resultType="com.mes.domain.scada.ScadaUser">
+        SELECT address
+          FROM ez_scada.folders_tags
+         WHERE folder_id = #{folderId}
+           AND name = #{tagName}
+         LIMIT 1
+    </select>
 
 </mapper>

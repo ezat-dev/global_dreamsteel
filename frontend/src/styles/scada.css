@@ -1103,6 +1103,13 @@ button {
   background: var(--hmi-panel-dark);
 }
 
+/* 초록 배지 — 로그 화면의 쓰기 성공. .on(빨강)이 '경보 발생'과 '쓰기 실패' 둘 다에
+   쓰이는 것과 짝이 맞는다(둘 다 눈에 걸려야 하는 쪽이라 같은 색이다). */
+.hmi-table-wrap .ht-badge.ok {
+  color: #ffffff;
+  background: #15803d;
+}
+
 /* 표 */
 /* Tabulator를 쓰지 않는 짧은 표의 껍데기 */
 .hmi-table-wrap {

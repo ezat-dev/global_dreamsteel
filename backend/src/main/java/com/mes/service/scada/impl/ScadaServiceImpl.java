@@ -3,6 +3,8 @@ package com.mes.service.scada.impl;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import com.mes.service.scada.ScadaService;
 
 @Service
 public class ScadaServiceImpl implements ScadaService {
+
+    private static final Logger log = LoggerFactory.getLogger(ScadaServiceImpl.class);
 
     @Autowired
     private ScadaDao scadaDao;
@@ -114,37 +118,79 @@ public class ScadaServiceImpl implements ScadaService {
         String url = plcApiBaseUrl + "/api/foldertag/write/by-name"
                 + "?folderId={f}&name={n}&value={v}";
 
-        Map<String, Object> res;
+        /*
+         * 실패해도 로그를 남겨야 하므로 여기서 바로 예외를 던지지 않는다. 사유를 변수에 모아
+         * 두고, 로그를 남긴 뒤 맨 끝에서 던진다 — 그래야 성공·실패가 같은 자리에서 기록된다.
+         */
+        Map<String, Object> res = null;
+        String failReason = null;
+
         try {
             res = restTemplate.getForObject(url, Map.class,
                     scadaUser.getFolderId(), scadaUser.getTagName(), scadaUser.getSendValue());
         } catch (RestClientException e) {
-            // C#이 꺼져 있거나 타임아웃(2초) — 여기서 잡아 화면에 이유를 보여준다
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR,
-                    "PLC 서버에 연결할 수 없습니다. " + e.getMessage());
+            // C#이 꺼져 있거나 타임아웃(2초)
+            failReason = "PLC 서버에 연결할 수 없습니다. " + e.getMessage();
         }
 
         /*
          * C#은 실패도 HTTP 200 + success:false 로 준다(태그를 못 찾음, PLC 연결 실패 등).
          * 그래서 RestTemplate은 예외를 던지지 않는다 — 여기서 직접 확인해야 한다.
-         * 확인하지 않으면 쓰기가 실패했는데 아래에서 로그를 남겨, 기록을 믿을 수 없게 된다.
          */
-        if (res == null || !Boolean.TRUE.equals(res.get("success"))) {
-            String reason = res == null ? "응답이 비어 있습니다." : String.valueOf(res.get("error"));
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, reason);
+        if (failReason == null && (res == null || !Boolean.TRUE.equals(res.get("success")))) {
+            failReason = res == null ? "응답이 비어 있습니다." : String.valueOf(res.get("error"));
         }
+
+        boolean ok = (failReason == null);
 
         /*
          * writeLog가 false인 경우는 momentary 버튼을 뗄 때 나가는 0이다 — 사람이 한 조작이
          * 아니라 누름의 자동 해제라서, 기록하면 버튼 한 번에 로그가 두 줄씩 쌓인다.
+         * 실패해도 마찬가지로 남기지 않는다(사람이 시킨 조작이 아니다).
          */
         if (Boolean.TRUE.equals(scadaUser.getWriteLog())) {
-            // 주소는 C# 응답에 들어 있다(R100 등) — folders_tags를 다시 조회할 필요가 없다
-            scadaUser.setAddress(String.valueOf(res.get("address")));
-            scadaDao.insertLog(scadaUser);
+            scadaUser.setWriteSuccess(ok);
+            scadaUser.setAddress(ok
+                    // 성공이면 주소가 C# 응답에 들어 있다(R100 등) — DB를 다시 조회할 필요가 없다
+                    ? String.valueOf(res.get("address"))
+                    // 실패면 응답이 없거나 주소가 빠져 있어 DB에서 찾는다
+                    : findAddress(scadaUser));
+
+            /*
+             * 로그를 남기다 실패해도 PLC 쓰기 결과는 그대로 화면에 알려야 한다.
+             * 여기서 터지면 "PLC는 거부했는데 화면에는 DB 오류가 뜨는" 상황이 된다.
+             */
+            try {
+                scadaDao.insertLog(scadaUser);
+            } catch (RuntimeException e) {
+                log.error("scada_log 기록 실패 (tag={}, success={})", scadaUser.getTagName(), ok, e);
+            }
+        }
+
+        if (!ok) {
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, failReason);
         }
 
         return true;
+    }
+
+    /**
+     * 쓰기가 실패했을 때 로그에 넣을 주소를 DB에서 찾는다.
+     *
+     * <p>
+     * 여기서 또 터지면 원래 실패 사유가 묻히므로 삼켜서 null로 둔다 — 주소가 없는 로그가
+     * 주소 때문에 사라진 로그보다 낫다.
+     * </p>
+     */
+    private String findAddress(ScadaUser scadaUser) {
+        try {
+            ScadaUser found = scadaDao.getTagAddress(scadaUser);
+            return found == null ? null : found.getAddress();
+        } catch (RuntimeException e) {
+            log.warn("태그 주소 조회 실패 (folderId={}, tag={})",
+                    scadaUser.getFolderId(), scadaUser.getTagName(), e);
+            return null;
+        }
     }
 
     @Override

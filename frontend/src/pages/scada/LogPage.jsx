@@ -151,6 +151,27 @@ export default function LogPage() {
       },
       { title: '전송값', field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center', headerFilter: 'input' },
       {
+        /* PLC 쓰기 결과. 자바가 C# 응답을 확인해서 넣는다 — "웹이 값을 보냈고 C#이 썼다"는
+           뜻이지, PLC 프로그램이 그 값을 받아 설비를 움직였다는 뜻은 아니다. */
+        title: '성공여부', field: 'writeSuccess', width: 96, hozAlign: 'center',
+        /* 값이 boolean이라 고르는 칸의 값은 문자열('true')로 들어온다 — String()으로
+           맞춰 비교하지 않으면 골라도 아무것도 안 걸린다. */
+        headerFilter: 'list',
+        headerFilterParams: { values: { '': '전체', true: '성공', false: '실패' } },
+        headerFilterFunc: (headerValue, rowValue) => String(rowValue) === headerValue,
+        // 화면에는 배지지만 파일에는 글자로 남아야 한다(경보이력의 경보상태와 같은 규칙)
+        excelValue: (v) => (v == null ? '' : (v ? '성공' : '실패')),
+        /* 세 갈래다. 이 컬럼이 생기기 전에 쌓인 행은 값이 비어 있는데, 그걸 '실패'로
+           그리면 멀쩡히 나간 조작이 전부 실패로 보인다 — 빈 값은 '—'로 따로 둔다. */
+        formatter: (cell) => {
+          const v = cell.getValue();
+          if (v == null) return '<span class="ht-badge off">—</span>';
+          return v
+            ? '<span class="ht-badge ok">성공</span>'
+            : '<span class="ht-badge on">실패</span>';
+        },
+      },
+      {
         // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭. 더 주면 가운데만 비어 보인다.
         title: '기록시각', field: 'insertDate', width: 180, hozAlign: 'center',
         /* TIMESTAMP를 String으로 받기 때문에 드라이버에 따라 '2026-09-02 15:21:07.0'처럼
