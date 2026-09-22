@@ -112,6 +112,10 @@ public class ScadaController {
     // 사용자 수정
     @PostMapping("/updateUser")
     public ResponseEntity<ApiResponse<Boolean>> updateUser(@RequestBody ScadaUser scadaUser) {
+        if (scadaService.getId(scadaUser) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error("COMMON_409", "중복된 ID 입니다."));
+        }
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateUser(scadaUser)));
     }
 

@@ -1525,16 +1525,6 @@ button {
   font-weight: 700;
 }
 
-/* 삭제 표시된 사용자 — 목록에는 남기되 흐리게 보여 준다(상태를 되돌릴 수 있어야 한다) */
-.hmi-ulist tbody tr.is-deleted td {
-  color: var(--hmi-text-faint);
-  text-decoration: line-through;
-}
-
-.hmi-ulist tbody tr.is-deleted.is-selected td {
-  color: #d0d0d0;
-}
-
 /* 비어 있을 때 안내 줄 — 클릭 대상이 아니다 */
 .hmi-ulist tbody tr.hmi-ulist-empty {
   cursor: default;
@@ -2452,12 +2442,6 @@ button {
 /* 고른 줄은 하늘색으로 채워진다 — 그 위의 흰 글자는 안 읽히므로 짙은 남색으로 */
 .hmi-dark.hmi-dark .hmi-ulist tbody tr.is-selected td {
   color: var(--g-accent-ink);
-}
-
-/* 지워진 사용자를 고른 줄 — 채운 하늘색 위에서 '흐린 글자'를 표현해야 하므로
-   밝은 회색이 아니라 바탕에 가까운 어두운 쪽으로 흐린다. */
-.hmi-dark.hmi-dark .hmi-ulist tbody tr.is-deleted.is-selected td {
-  color: rgba(6, 18, 31, .55);
 }
 
 /* 안내 띠 — 연한 하늘색 바탕이라 밝은 화면 전용이다 */

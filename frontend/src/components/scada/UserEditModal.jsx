@@ -7,8 +7,12 @@ import ScreenAuthGrid, { pickScreenAuth } from './ScreenAuthGrid';
 
    위쪽 목록에서 행을 고르면 아래 폼에 값이 채워지고, 고친 뒤 [수정]을 누르면
    그 한 행을 통째로 덮어쓴다. 삭제도 여기서 한다 — 상태를 '삭제'로 바꿔 저장하면
-   delete_yn이 'Y'가 되고, 다시 '사용'으로 되돌리면 복구다. 그래서 삭제 버튼을
-   따로 두지 않았다(복구가 같은 자리에서 되는 편이 헷갈리지 않는다).
+   delete_yn이 'Y'가 된다. 그래서 삭제 버튼을 따로 두지 않았다.
+
+   DB에서는 지우지 않지만(소프트 삭제) 화면에서는 지운 것과 같다 — getUserList가
+   delete_yn = 'Y'인 행을 안 내려서 목록에 다시 나타나지 않고, 따라서 '사용'으로
+   되돌리는 복구도 이 화면에서는 못 한다. 되살리려면 DB에서 직접 고쳐야 한다.
+   그래서 삭제한 뒤에는 폼을 비운다 — 남겨 두면 화면에 없는 사용자를 계속 고칠 수 있다.
 
    목록은 Tabulator(HmiTable) 대신 평범한 표로 그린다 — 모달 안의 짧은 목록이라
    페이징·정렬이 필요 없고, 조건부로 열리고 닫히는 자리에 표 인스턴스를 만들고
@@ -64,6 +68,13 @@ export default function UserEditModal({ onClose, onSaved }) {
         if (keep) {
           setSelectedId(keep.id);
           setForm(toForm(keep));
+        } else if (keepId != null) {
+          /* 저장한 사용자가 목록에서 사라졌다 = 삭제 처리된 것이다(getUserList가
+             delete_yn = 'Y'인 행을 안 내린다). 폼을 비워야 한다 — 안 비우면 방금 지운
+             사용자의 값이 그대로 남고, 그 상태에서 수정을 누르면 소프트 삭제라 행이
+             DB에 그대로 있어서 UPDATE가 성공한다. 화면에는 없는 사용자가 고쳐진다. */
+          setSelectedId(null);
+          setForm(null);
         }
       })
       .catch((e) => {
@@ -171,29 +182,25 @@ export default function UserEditModal({ onClose, onSaved }) {
                 <th>아이디</th>
                 <th>이름</th>
                 <th>권한</th>
-                <th>상태</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr
                   key={row.id}
-                  className={
-                    (row.id === selectedId ? 'is-selected' : '') +
-                    (row.deleteYn === 'Y' ? ' is-deleted' : '')
-                  }
+                  // 삭제된 행은 목록에 오지 않으므로 그것을 구분하는 표시는 두지 않는다
+                  className={row.id === selectedId ? 'is-selected' : ''}
                   onClick={() => selectRow(row)}
                 >
                   <td>{row.userId}</td>
                   <td>{row.userName}</td>
                   <td>{roleLabel(row.userRole)}</td>
-                  <td>{row.deleteYn === 'Y' ? '삭제' : '사용'}</td>
                 </tr>
               ))}
 
               {rows.length === 0 && (
                 <tr className="hmi-ulist-empty">
-                  <td colSpan={4}>{loading ? '불러오는 중...' : '사용자가 없습니다.'}</td>
+                  <td colSpan={3}>{loading ? '불러오는 중...' : '사용자가 없습니다.'}</td>
                 </tr>
               )}
             </tbody>
