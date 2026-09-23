@@ -79,6 +79,10 @@ const QUICK_HOURS = [1, 3, 6, 12, 24];
 
 const DEFAULT_HOURS = 24;
 
+/* 자동갱신 주기. C#의 TempMonitorService가 30초마다 스냅샷 한 행을 넣으므로
+   그보다 자주 물어도 새 데이터가 없다. */
+const FOLLOW_MS = 30000;
+
 /* mmV 값은 ℃와 자릿수가 달라서 한 축에 같이 그리면 한쪽이 납작해진다.
    단위별로 y축을 나누고, 이 표로 어느 축에 붙일지 정한다.
    0번이 왼쪽(mmV = O2), 1번이 오른쪽(℃ = 존 온도)이다. */
@@ -196,6 +200,51 @@ export default function TrendPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  /* 자동갱신 — 켜져 있으면 30초마다 구간을 지금까지 밀어서 다시 조회한다.
+     화면에 들어오면 켜진 채로 시작한다(기본 구간이 '최근 24시간'이라 그대로 따라간다).
+
+     ref를 같이 두는 이유는 아래 조회 effect에서 이 값을 읽어야 하는데, 의존성에
+     following을 넣으면 켜고 끌 때마다 조회가 한 번씩 더 나가기 때문이다.
+     state는 화면 표시용, ref는 타이머 판단용이다. */
+  const [following, setFollowing] = useState(true);
+  const followingRef = useRef(true);
+
+  /* 다음 갱신 타이머. 끌 때 지워야 해서 들고 있는다 —
+     ref만 false로 바꾸면 이미 걸린 타이머는 그대로 살아서 한 번 더 갱신된다. */
+  const followTimerRef = useRef();
+
+  /* 보고 있던 구간의 길이를 지키면서 끝만 지금으로 당긴다 —
+     24시간을 보고 있었으면 '최근 24시간'이 계속 따라온다.
+
+     입력칸(start/end)도 같이 맞춘다. range만 밀면 왼쪽 위에 적힌 기간은 그대로인데
+     차트만 움직여서, 지금 무엇을 보고 있는지가 화면에서 어긋난다. */
+  const followNow = (prev) => {
+    const now = new Date();
+    const from = new Date(now.getTime() - (prev.end - prev.start));
+    setStart(from);
+    setEnd(now);
+    setRange({ start: from, end: now });
+  };
+
+  /* 자동갱신을 끈다. ref를 state보다 먼저 바꾸는 것은, 이 뒤에 setRange가 이어질 때
+     조회 effect가 곧바로 새 값을 보게 하기 위함이다(state는 다음 렌더에나 반영된다). */
+  const stopFollow = () => {
+    followingRef.current = false;
+    clearTimeout(followTimerRef.current);
+    setFollowing(false);
+  };
+
+  const toggleFollow = () => {
+    if (following) {
+      stopFollow();
+      return;
+    }
+    followingRef.current = true;
+    setFollowing(true);
+    // 켜는 순간 지금까지 당겨 온다 — 첫 갱신을 30초나 기다리지 않게 한다
+    followNow(range);
+  };
+
   /* 메모. memoSeq는 저장·삭제 뒤 같은 구간을 다시 부르기 위한 방아쇠다 —
      range는 그대로인데 목록만 새로 받아야 하므로 의존성 하나를 더 둔다. */
   const [memos, setMemos] = useState([]);
@@ -208,7 +257,11 @@ export default function TrendPage() {
   const lastRow = rows.length ? rows[rows.length - 1] : undefined;
 
   /* 조회한 구간이 바뀔 때만 서버에 묻는다. 날짜 입력칸을 만지는 것으로는 안 나간다 —
-     range는 조회 버튼을 눌러야 바뀌기 때문이다(입력값 start/end와 분리해 둔 이유). */
+     range는 조회 버튼을 눌러야 바뀌기 때문이다(입력값 start/end와 분리해 둔 이유).
+
+     자동갱신도 이 effect를 그대로 탄다 — 30초 뒤 range를 밀면 여기가 다시 돌면서
+     조회한다. 따로 조회하는 길을 두지 않는 이유는 그러면 같은 요청이 두 군데에서
+     나가게 되고, 응답 처리도 둘로 갈리기 때문이다. */
   useEffect(() => {
     let alive = true;
     setLoading(true);
@@ -229,10 +282,23 @@ export default function TrendPage() {
         setError(e.response?.data?.message ?? '트랜드를 불러오지 못했습니다.');
       })
       .finally(() => {
-        if (alive) setLoading(false);
+        if (!alive) return;
+        setLoading(false);
+
+        /* 다음 갱신은 setInterval이 아니라 응답을 받은 뒤에 건다 — 조회가 주기보다
+           느려지면 요청이 겹쳐 쌓인다. 24시간 구간은 응답이 600KB를 넘어서,
+           태블릿처럼 받고 그리는 데 오래 걸리는 기기에서 실제로 겹칠 수 있다.
+
+           실패해도 똑같이 건다. 한 번 못 받았다고 자동갱신이 꺼지면, 잠깐 끊겼다
+           돌아왔을 때 화면이 멈춘 채로 남는다. */
+        if (followingRef.current) {
+          followTimerRef.current = setTimeout(() => followNow(range), FOLLOW_MS);
+        }
       });
 
-    return () => { alive = false; };
+    return () => { alive = false; clearTimeout(followTimerRef.current); };
+    // followNow는 매 렌더 새로 만들어지지만 하는 일이 같아서 의존성에 넣지 않는다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range]);
 
   /* 메모도 같은 구간으로 부른다. 값 조회와 따로 두는 이유:
@@ -259,6 +325,9 @@ export default function TrendPage() {
     return () => { alive = false; };
   }, [range, memoSeq]);
 
+  /* 구간을 직접 정하면 자동갱신을 끈다(조회·빠른 버튼 둘 다).
+     지난 구간을 들여다보는 중에 30초마다 지금으로 끌려가면 볼 수가 없다.
+     다시 따라가려면 자동갱신 버튼을 누르면 된다. */
   const search = (s, e) => {
     if (!s || !e) {
       setError('시작·종료 시각을 모두 넣어주세요.');
@@ -268,6 +337,7 @@ export default function TrendPage() {
       setError('시작시각이 종료시각보다 뒤입니다.');
       return;
     }
+    stopFollow();
     setError('');
     setRange({ start: s, end: e });
   };
@@ -275,6 +345,7 @@ export default function TrendPage() {
   const applyQuick = (hours) => {
     const now = new Date();
     const from = subHours(now, hours);
+    stopFollow();
     setStart(from);
     setEnd(now);
     setQuick(hours);
@@ -584,6 +655,21 @@ export default function TrendPage() {
           ))}
         </div>
 
+        {/* 자동갱신 — 켜져 있으면 30초마다 보고 있는 구간을 지금까지 밀어서 다시 받는다.
+            조회나 빠른 버튼으로 구간을 직접 정하면 꺼지고, 여기를 눌러 다시 켠다. */}
+        <div className="tr-follow">
+          <button
+            type="button"
+            className={`tr-btn tr-follow-btn${following ? ' is-on' : ''}`}
+            onClick={toggleFollow}
+            title={following
+              ? '30초마다 지금까지의 구간을 다시 받고 있습니다. 누르면 멈춥니다.'
+              : '누르면 30초마다 지금까지의 구간을 다시 받습니다.'}
+          >
+            {following ? '자동갱신 중' : '자동갱신'}
+          </button>
+        </div>
+
         {/* 메모 — 추가는 여기서, 수정·삭제는 차트의 깃발을 눌러서 한다 */}
         <div className="tr-memo">
           <button
@@ -637,10 +723,11 @@ export default function TrendPage() {
             기다리는 중인지 / 구간에 데이터가 없는지를 구분해서 알린다 —
             빈 차트만 보이면 조회가 느린 건지 값이 없는 건지 알 수 없다.
             제대로 그려진 경우에는 아무 말도 붙이지 않는다(차트가 곧 답이다). */}
+        {/* 조회 상태만 띄운다. 구간은 왼쪽 입력칸에 그대로 적혀 있고 차트 x축도
+            그 구간에 못박혀 있어서, 여기에 또 적으면 같은 글자가 두 번 나온다. */}
         <span className="tr-range">
-          {`${format(range.start, TIME_FORMAT)} ~ ${format(range.end, TIME_FORMAT)}`}
-          {loading && ' · 조회 중...'}
-          {!loading && !error && rows.length === 0 && ' · 이 구간에 데이터가 없습니다'}
+          {loading && '조회 중...'}
+          {!loading && !error && rows.length === 0 && '이 구간에 데이터가 없습니다'}
         </span>
       </div>
 

@@ -33,14 +33,16 @@
 }
 
 .tr-filter,
-.tr-quick {
+.tr-quick,
+.tr-follow {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-/* 빠른 버튼 묶음은 입력칸과 시각적으로 떼어 놓는다 */
-.tr-quick {
+/* 빠른 버튼 묶음과 자동갱신은 앞 묶음과 시각적으로 떼어 놓는다 */
+.tr-quick,
+.tr-follow {
   padding-left: 14px;
   border-left: 1px solid var(--hmi-shadow-dark);
 }
@@ -113,14 +115,18 @@
   cursor: not-allowed;
 }
 
-/* 지금 걸려 있는 구간만 액센트로 채운다 */
-.tr-quick-btn.is-on {
+/* 지금 걸려 있는 구간만 액센트로 채운다.
+   자동갱신도 켜진 것을 같은 방식으로 보인다 — 이 줄에서 '지금 걸려 있는 것'은
+   한 가지 표시로 읽히는 편이 낫다. */
+.tr-quick-btn.is-on,
+.tr-follow-btn.is-on {
   border-color: var(--hmi-blue-edge);
   background: var(--hmi-blue-edge);
   color: #ffffff;
 }
 
-.tr-quick-btn.is-on:hover {
+.tr-quick-btn.is-on:hover,
+.tr-follow-btn.is-on:hover {
   background: #1a538f;
 }
 
