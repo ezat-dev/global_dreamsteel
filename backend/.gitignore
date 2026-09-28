@@ -1,5 +1,8 @@
 .gradle
 build
+# VS Code의 Java 확장(Eclipse JDT)이 만드는 컴파일 산출물.
+# Gradle은 build/에 넣는데 JDT는 bin/에 따로 넣어서, 편집기를 띄우면 .class가 한 벌 더 생긴다.
+bin
 !gradle/wrapper/gradle-wrapper.jar
 *.log
 HELP.md

@@ -285,34 +285,69 @@ function CombustionOverview() {
         <img className="for-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-fire-group">
-        <img className="for-thun-1" src="/scada/combustion/for-thun-10.png" />
-        <img className="for-fire-1" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-2" src="/scada/combustion/for-thun-20.png" />
-        <img className="for-fire-2" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-3" src="/scada/combustion/for-thun-30.png" />
-        <img className="for-fire-3" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-4" src="/scada/combustion/for-thun-40.png" />
-        <img className="for-fire-4" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-5" src="/scada/combustion/for-thun-50.png" />
-        <img className="for-fire-5" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-6" src="/scada/combustion/for-thun-60.png" />
-        <img className="for-fire-6" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-7" src="/scada/combustion/for-thun-70.png" />
-        <img className="for-fire-7" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-8" src="/scada/combustion/for-thun-80.png" />
-        <img className="for-fire-8" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-9" src="/scada/combustion/for-thun-90.png" />
-        <img className="for-fire-9" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-10" src="/scada/combustion/for-thun-100.png" />
-        <img className="for-fire-10" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-11" src="/scada/combustion/for-thun-110.png" />
-        <img className="for-fire-11" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-12" src="/scada/combustion/for-thun-120.png" />
-        <img className="for-fire-12" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-13" src="/scada/combustion/for-thun-130.png" />
-        <img className="for-fire-13" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="for-thun-14" src="/scada/combustion/for-thun-140.png" />
-        <img className="for-fire-14" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 버너 25개 — 존마다 개수가 다르다(1·2·3·7존 4개, 4·5·6존 3개).
+            자리는 combustionOverview.css의 for-fire-N, for-thun-N에 left로만 있고,
+            크기·높이는 zone-fire-up / zone-thun-up이 한 번에 맡는다.
+
+            번개는 원래 존마다 다른 PNG(for-thun-10~140.png)를 달고 있었는데 14개가
+            전부 같은 그림이라(작화 도구가 같은 파일을 복사해 내보냈다) 한 장만 쓴다. */}
+        {/* 1존 */}
+        <img className="zone-thun-up for-thun-1" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-1" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-2" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-2" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-3" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-3" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-4" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-4" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 2존 */}
+        <img className="zone-thun-up for-thun-5" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-5" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-6" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-6" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-7" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-7" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-8" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-8" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 3존 */}
+        <img className="zone-thun-up for-thun-9" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-9" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-10" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-10" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-11" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-11" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-12" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-12" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 4존 — 3개 */}
+        <img className="zone-thun-up for-thun-13" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-13" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-14" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-14" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-15" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-15" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 5존 — 3개 */}
+        <img className="zone-thun-up for-thun-16" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-16" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-17" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-17" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-18" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-18" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 6존 — 3개 */}
+        <img className="zone-thun-up for-thun-19" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-19" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-20" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-20" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-21" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-21" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 7존 */}
+        <img className="zone-thun-up for-thun-22" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-22" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-23" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-23" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-24" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-24" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-up for-thun-25" src="/scada/combustion/for-thun-10.png" />
+        <img className="zone-fire-up for-fire-25" src="/scada/combustion/zone-fire.svg?v=2" />
       </div>
       <div className="rev-1-zone-obj">
         <div className="rev-1-zone-box"></div>
@@ -392,34 +427,72 @@ function CombustionOverview() {
         <img className="rev-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-fire-group">
-        <img className="rev-thun-1" src="/scada/combustion/rev-thun-10.png" />
-        <img className="rev-fire-1" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-2" src="/scada/combustion/rev-thun-20.png" />
-        <img className="rev-fire-2" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-3" src="/scada/combustion/rev-thun-30.png" />
-        <img className="rev-fire-3" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-4" src="/scada/combustion/rev-thun-40.png" />
-        <img className="rev-fire-4" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-5" src="/scada/combustion/rev-thun-50.png" />
-        <img className="rev-fire-5" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-6" src="/scada/combustion/rev-thun-60.png" />
-        <img className="rev-fire-6" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-7" src="/scada/combustion/rev-thun-70.png" />
-        <img className="rev-fire-7" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-8" src="/scada/combustion/rev-thun-80.png" />
-        <img className="rev-fire-8" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-9" src="/scada/combustion/rev-thun-90.png" />
-        <img className="rev-fire-9" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-10" src="/scada/combustion/rev-thun-100.png" />
-        <img className="rev-fire-10" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-11" src="/scada/combustion/rev-thun-110.png" />
-        <img className="rev-fire-11" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-12" src="/scada/combustion/rev-thun-120.png" />
-        <img className="rev-fire-12" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-13" src="/scada/combustion/rev-thun-130.png" />
-        <img className="rev-fire-13" src="/scada/combustion/zone-fire.svg?v=2" />
-        <img className="rev-thun-14" src="/scada/combustion/rev-thun-140.png" />
-        <img className="rev-fire-14" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 버너 28개 — 아래쪽은 존마다 4개씩이다.
+            위쪽과 달리 존1이 오른쪽 끝이다(CSS의 rotate(-180deg) 때문에 left가
+            그림의 오른쪽 끝을 가리킨다 — combustionOverview.css 주석 참고). */}
+        {/* 1존 */}
+        <img className="zone-thun-down rev-thun-1" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-1" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-2" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-2" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-3" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-3" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-4" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-4" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 2존 */}
+        <img className="zone-thun-down rev-thun-5" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-5" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-6" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-6" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-7" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-7" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-8" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-8" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 3존 */}
+        <img className="zone-thun-down rev-thun-9" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-9" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-10" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-10" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-11" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-11" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-12" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-12" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 4존 */}
+        <img className="zone-thun-down rev-thun-13" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-13" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-14" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-14" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-15" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-15" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-16" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-16" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 5존 */}
+        <img className="zone-thun-down rev-thun-17" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-17" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-18" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-18" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-19" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-19" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-20" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-20" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 6존 */}
+        <img className="zone-thun-down rev-thun-21" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-21" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-22" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-22" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-23" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-23" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-24" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-24" src="/scada/combustion/zone-fire.svg?v=2" />
+        {/* 7존 */}
+        <img className="zone-thun-down rev-thun-25" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-25" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-26" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-26" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-27" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-27" src="/scada/combustion/zone-fire.svg?v=2" />
+        <img className="zone-thun-down rev-thun-28" src="/scada/combustion/rev-thun-10.png" />
+        <img className="zone-fire-down rev-fire-28" src="/scada/combustion/zone-fire.svg?v=2" />
       </div>
     </div>
   );

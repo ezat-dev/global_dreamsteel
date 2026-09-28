@@ -2082,258 +2082,91 @@
   height: 36px;
   position: static;
 }
-.combustion .for-thun-1 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 148px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-1 {
+/* ---------------------------------------------------------------------------
+   존 불꽃·번개 (위쪽 25개)
+
+   버너는 존마다 개수가 다르다 — 1·2·3·7존이 위 4개, 4·5·6존이 위 3개다.
+   자리는 존 폭(99px) 안에 균등하게 나눈 값이고, 존은 147px 간격으로 놓인다.
+   양 끝(존 첫째·마지막)은 개수와 상관없이 항상 같은 자리다.
+
+   공통 모양을 zone-fire-up / zone-thun-up에 모으고 여기서는 left만 준다 —
+   규칙마다 width·height·top을 되풀이하면 53개가 되면서 같은 줄이 400번 넘게
+   반복되어 어느 값이 자리인지 읽을 수가 없다.
+   ------------------------------------------------------------------------- */
+.combustion .zone-fire-up {
   width: 17px;
   height: 36px;
   position: absolute;
-  left: 149px;
   top: 195px;
   object-fit: cover;
   aspect-ratio: 17/36;
 }
-.combustion .for-thun-2 {
+.combustion .zone-thun-up {
   width: 21px;
   height: 14px;
   position: absolute;
-  left: 230px;
   top: 197px;
   object-fit: cover;
   aspect-ratio: 3/2;
 }
-.combustion .for-fire-2 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 231px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-3 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 295px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-3 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 296px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-4 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 377px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-4 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 378px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-5 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 442px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-5 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 443px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-6 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 524px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-6 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 525px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-7 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 589px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-7 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 590px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-8 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 671px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-8 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 672px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-9 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 736px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-9 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 737px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-10 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 818px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-10 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 819px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-11 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 883px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-11 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 884px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-12 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 965px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-12 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 966px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-13 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 1030px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-13 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 1031px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .for-thun-14 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 1112px;
-  top: 197px;
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .for-fire-14 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 1113px;
-  top: 195px;
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
+
+/* 1존 */
+.combustion .for-thun-1 { left: 148px; }
+.combustion .for-fire-1 { left: 149px; }
+.combustion .for-thun-2 { left: 175px; }
+.combustion .for-fire-2 { left: 176px; }
+.combustion .for-thun-3 { left: 203px; }
+.combustion .for-fire-3 { left: 204px; }
+.combustion .for-thun-4 { left: 230px; }
+.combustion .for-fire-4 { left: 231px; }
+/* 2존 */
+.combustion .for-thun-5 { left: 295px; }
+.combustion .for-fire-5 { left: 296px; }
+.combustion .for-thun-6 { left: 322px; }
+.combustion .for-fire-6 { left: 323px; }
+.combustion .for-thun-7 { left: 350px; }
+.combustion .for-fire-7 { left: 351px; }
+.combustion .for-thun-8 { left: 377px; }
+.combustion .for-fire-8 { left: 378px; }
+/* 3존 */
+.combustion .for-thun-9 { left: 442px; }
+.combustion .for-fire-9 { left: 443px; }
+.combustion .for-thun-10 { left: 469px; }
+.combustion .for-fire-10 { left: 470px; }
+.combustion .for-thun-11 { left: 497px; }
+.combustion .for-fire-11 { left: 498px; }
+.combustion .for-thun-12 { left: 524px; }
+.combustion .for-fire-12 { left: 525px; }
+/* 4존 — 3개 */
+.combustion .for-thun-13 { left: 589px; }
+.combustion .for-fire-13 { left: 590px; }
+.combustion .for-thun-14 { left: 630px; }
+.combustion .for-fire-14 { left: 631px; }
+.combustion .for-thun-15 { left: 671px; }
+.combustion .for-fire-15 { left: 672px; }
+/* 5존 — 3개 */
+.combustion .for-thun-16 { left: 736px; }
+.combustion .for-fire-16 { left: 737px; }
+.combustion .for-thun-17 { left: 777px; }
+.combustion .for-fire-17 { left: 778px; }
+.combustion .for-thun-18 { left: 818px; }
+.combustion .for-fire-18 { left: 819px; }
+/* 6존 — 3개 */
+.combustion .for-thun-19 { left: 883px; }
+.combustion .for-fire-19 { left: 884px; }
+.combustion .for-thun-20 { left: 924px; }
+.combustion .for-fire-20 { left: 925px; }
+.combustion .for-thun-21 { left: 965px; }
+.combustion .for-fire-21 { left: 966px; }
+/* 7존 */
+.combustion .for-thun-22 { left: 1030px; }
+.combustion .for-fire-22 { left: 1031px; }
+.combustion .for-thun-23 { left: 1057px; }
+.combustion .for-fire-23 { left: 1058px; }
+.combustion .for-thun-24 { left: 1085px; }
+.combustion .for-fire-24 { left: 1086px; }
+.combustion .for-thun-25 { left: 1112px; }
+.combustion .for-fire-25 { left: 1113px; }
 .combustion .rev-1-zone-obj {
   width: 124px;
   height: 107px;
@@ -3039,311 +2872,93 @@
   height: 36px;
   position: static;
 }
-.combustion .rev-thun-1 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 1132px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-1 {
+/* ---------------------------------------------------------------------------
+   존 불꽃·번개 (아래쪽 28개) — 존마다 4개씩.
+
+   rotate(-180deg) + transform-origin: 0 0이라 left가 그림의 오른쪽 끝이다.
+   그래서 존1이 오른쪽(1131)이고 존7이 왼쪽(167)으로, 위쪽과 좌표 방향이 반대다.
+   ------------------------------------------------------------------------- */
+.combustion .zone-fire-down {
   width: 17px;
   height: 36px;
   position: absolute;
-  left: 1131px;
   top: 363px;
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
   object-fit: cover;
   aspect-ratio: 17/36;
 }
-.combustion .rev-thun-2 {
+.combustion .zone-thun-down {
   width: 21px;
   height: 14px;
   position: absolute;
-  left: 1050px;
   top: 361px;
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
   object-fit: cover;
   aspect-ratio: 3/2;
 }
-.combustion .rev-fire-2 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 1049px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-3 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 985px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-3 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 984px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-4 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 903px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-4 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 902px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-5 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 838px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-5 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 837px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-6 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 756px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-6 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 755px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-7 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 691px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-7 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 690px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-8 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 609px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-8 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 608px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-9 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 544px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-9 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 543px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-10 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 462px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-10 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 461px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-11 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 397px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-11 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 396px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-12 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 315px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-12 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 314px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-13 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 250px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-13 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 249px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
-.combustion .rev-thun-14 {
-  width: 21px;
-  height: 14px;
-  position: absolute;
-  left: 168px;
-  top: 361px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 3/2;
-}
-.combustion .rev-fire-14 {
-  width: 17px;
-  height: 36px;
-  position: absolute;
-  left: 167px;
-  top: 363px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 17/36;
-}
+
+/* 1존 */
+.combustion .rev-thun-1 { left: 1132px; }
+.combustion .rev-fire-1 { left: 1131px; }
+.combustion .rev-thun-2 { left: 1105px; }
+.combustion .rev-fire-2 { left: 1104px; }
+.combustion .rev-thun-3 { left: 1077px; }
+.combustion .rev-fire-3 { left: 1076px; }
+.combustion .rev-thun-4 { left: 1050px; }
+.combustion .rev-fire-4 { left: 1049px; }
+/* 2존 */
+.combustion .rev-thun-5 { left: 985px; }
+.combustion .rev-fire-5 { left: 984px; }
+.combustion .rev-thun-6 { left: 958px; }
+.combustion .rev-fire-6 { left: 957px; }
+.combustion .rev-thun-7 { left: 930px; }
+.combustion .rev-fire-7 { left: 929px; }
+.combustion .rev-thun-8 { left: 903px; }
+.combustion .rev-fire-8 { left: 902px; }
+/* 3존 */
+.combustion .rev-thun-9 { left: 838px; }
+.combustion .rev-fire-9 { left: 837px; }
+.combustion .rev-thun-10 { left: 811px; }
+.combustion .rev-fire-10 { left: 810px; }
+.combustion .rev-thun-11 { left: 783px; }
+.combustion .rev-fire-11 { left: 782px; }
+.combustion .rev-thun-12 { left: 756px; }
+.combustion .rev-fire-12 { left: 755px; }
+/* 4존 */
+.combustion .rev-thun-13 { left: 691px; }
+.combustion .rev-fire-13 { left: 690px; }
+.combustion .rev-thun-14 { left: 664px; }
+.combustion .rev-fire-14 { left: 663px; }
+.combustion .rev-thun-15 { left: 636px; }
+.combustion .rev-fire-15 { left: 635px; }
+.combustion .rev-thun-16 { left: 609px; }
+.combustion .rev-fire-16 { left: 608px; }
+/* 5존 */
+.combustion .rev-thun-17 { left: 544px; }
+.combustion .rev-fire-17 { left: 543px; }
+.combustion .rev-thun-18 { left: 517px; }
+.combustion .rev-fire-18 { left: 516px; }
+.combustion .rev-thun-19 { left: 489px; }
+.combustion .rev-fire-19 { left: 488px; }
+.combustion .rev-thun-20 { left: 462px; }
+.combustion .rev-fire-20 { left: 461px; }
+/* 6존 */
+.combustion .rev-thun-21 { left: 397px; }
+.combustion .rev-fire-21 { left: 396px; }
+.combustion .rev-thun-22 { left: 370px; }
+.combustion .rev-fire-22 { left: 369px; }
+.combustion .rev-thun-23 { left: 342px; }
+.combustion .rev-fire-23 { left: 341px; }
+.combustion .rev-thun-24 { left: 315px; }
+.combustion .rev-fire-24 { left: 314px; }
+/* 7존 */
+.combustion .rev-thun-25 { left: 250px; }
+.combustion .rev-fire-25 { left: 249px; }
+.combustion .rev-thun-26 { left: 223px; }
+.combustion .rev-fire-26 { left: 222px; }
+.combustion .rev-thun-27 { left: 195px; }
+.combustion .rev-fire-27 { left: 194px; }
+.combustion .rev-thun-28 { left: 168px; }
+.combustion .rev-fire-28 { left: 167px; }
