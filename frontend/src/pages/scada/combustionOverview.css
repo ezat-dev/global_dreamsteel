@@ -1553,26 +1553,12 @@
   left: 165px;
   top: 92px;
 }
-.combustion .for-1-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 137px;
-  top: 175px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-1-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 261px;
-  top: 175px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 1존 밸브 4개 — 모양은 .zone-valve-up이, 뒤집기는 .is-flip이 맡고 여기는 자리만 준다.
+   양 끝(137·261)이 배관에 물리는 자리다 — 고치지 말 것. 가운데 둘만 그 사이를 나눈다. */
+.combustion .for-1-zone-valve-1 { left: 140.5px; }
+.combustion .for-1-zone-valve-2 { left: 167.5px; }
+.combustion .for-1-zone-valve-3 { left: 229.5px; }
+.combustion .for-1-zone-valve-4 { left: 256.5px; }
 .combustion .for-2-zone-obj {
   width: 124px;
   height: 107px;
@@ -1637,26 +1623,11 @@
   left: 312px;
   top: 92px;
 }
-.combustion .for-2-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 284px;
-  top: 175px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-2-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 408px;
-  top: 175px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 2존 밸브 4개 */
+.combustion .for-2-zone-valve-1 { left: 287.5px; }
+.combustion .for-2-zone-valve-2 { left: 314.5px; }
+.combustion .for-2-zone-valve-3 { left: 376.5px; }
+.combustion .for-2-zone-valve-4 { left: 403.5px; }
 .combustion .for-3-zone-obj {
   width: 124px;
   height: 107px;
@@ -1721,26 +1692,11 @@
   left: 459px;
   top: 92px;
 }
-.combustion .for-3-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 431px;
-  top: 175px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-3-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 555px;
-  top: 175px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 3존 밸브 4개 */
+.combustion .for-3-zone-valve-1 { left: 434.5px; }
+.combustion .for-3-zone-valve-2 { left: 461.5px; }
+.combustion .for-3-zone-valve-3 { left: 523.5px; }
+.combustion .for-3-zone-valve-4 { left: 550.5px; }
 .combustion .for-4-zone-obj {
   width: 124px;
   height: 107px;
@@ -1805,26 +1761,10 @@
   left: 606px;
   top: 92px;
 }
-.combustion .for-4-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 578px;
-  top: 175px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-4-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 702px;
-  top: 175px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 4존 밸브 3개 — 이 존은 버너가 3개다 */
+.combustion .for-4-zone-valve-1 { left: 581.5px; }
+.combustion .for-4-zone-valve-2 { left: 622.5px; }
+.combustion .for-4-zone-valve-3 { left: 697.5px; }
 .combustion .for-5-zone-obj {
   width: 124px;
   height: 107px;
@@ -1889,26 +1829,10 @@
   left: 753px;
   top: 91px;
 }
-.combustion .for-5-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 725px;
-  top: 174px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-5-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 849px;
-  top: 174px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 5존 밸브 3개 */
+.combustion .for-5-zone-valve-1 { left: 728.5px; }
+.combustion .for-5-zone-valve-2 { left: 769.5px; }
+.combustion .for-5-zone-valve-3 { left: 844.5px; }
 .combustion .for-6-zone-obj {
   width: 124px;
   height: 107px;
@@ -1973,26 +1897,10 @@
   left: 900px;
   top: 91px;
 }
-.combustion .for-6-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 872px;
-  top: 174px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-6-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 996px;
-  top: 174px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 6존 밸브 3개 */
+.combustion .for-6-zone-valve-1 { left: 875.5px; }
+.combustion .for-6-zone-valve-2 { left: 916.5px; }
+.combustion .for-6-zone-valve-3 { left: 991.5px; }
 .combustion .for-7-zone-obj {
   width: 124px;
   height: 107px;
@@ -2057,26 +1965,11 @@
   left: 1047px;
   top: 91px;
 }
-.combustion .for-7-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 1019px;
-  top: 174px;
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .for-7-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 1143px;
-  top: 174px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(-1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 7존 밸브 4개 */
+.combustion .for-7-zone-valve-1 { left: 1022.5px; }
+.combustion .for-7-zone-valve-2 { left: 1049.5px; }
+.combustion .for-7-zone-valve-3 { left: 1111.5px; }
+.combustion .for-7-zone-valve-4 { left: 1138.5px; }
 .combustion .for-fire-group {
   width: 985px;
   height: 36px;
@@ -2108,6 +2001,59 @@
   top: 197px;
   object-fit: cover;
   aspect-ratio: 3/2;
+}
+
+/* 존 가스 밸브 — 버너 하나에 하나씩이라 불꽃과 개수가 같다.
+   세로로는 불꽃보다 바깥(위쪽 존은 위, 아래쪽 존은 아래)에 있다. 가스가 밸브를 지나
+   버너로 들어가고 불꽃이 로 안쪽을 향하는 순서다.
+
+   가로 자리는 그림 전체가 아니라 본체(가스가 흐르는 파이프 부분)를 불꽃 중심에 맞춘다.
+   zone-valve.svg는 본체가 x 28~46이고 돔이 그 옆 x 3~14으로 튀어나와 있어서, 그림
+   전체의 가운데와 본체의 가운데가 다르다 — 폭의 절반이 아니라 폭 x (37-3)/44 만큼
+   떨어진 자리가 본체 중심이다(폭 22면 11이 아니라 17).
+
+   이게 원본 작화의 방식이다. 원본 밸브 2개의 본체 중심이 157.9 / 240.1이고 그때
+   불꽃 중심이 157.5 / 239.5로, 본체가 버너 바로 위에 오게 그려져 있었다. 전체 중심을
+   맞추면 오히려 9~10px씩 어긋나고 양 끝이 배관에서 떨어진다.
+
+   그래서 틈이 [5, 18, 5]처럼 고르지 않게 보이는데, 본체 간격은 불꽃과 똑같이 고르다 —
+   가운데 둘은 돔이 서로 바깥을 향해서 사이가 벌어져 보이는 것뿐이다.
+
+   크기는 27x22 → 22x17.9. 버너가 4개인 존은 27이면 밸브가 맞닿아 몇 개인지 알아보기
+   어렵다. 높이는 원본 비율(27:22)을 지킨 값이다 — object-fit: cover라 비율이 어긋나면
+   잘린다. top(177.05/380.95)은 줄어든 높이의 절반만큼 옮겨 원래 세로 가운데(186/372)를
+   지킨다. 원본 작화에서 5~7존만 1px씩 달랐는데(174/384) 같은 배관 높이라 통일했다. */
+.combustion .zone-valve-up {
+  width: 22px;
+  height: 17.9px;
+  position: absolute;
+  top: 177.05px;
+  object-fit: cover;
+  aspect-ratio: 22/17.9;
+}
+.combustion .zone-valve-down {
+  width: 22px;
+  height: 17.9px;
+  position: absolute;
+  top: 380.95px;
+  transform-origin: 0 0;
+  /* 아래쪽은 기본이 상하 뒤집기다 — 그림 원본이 위쪽 존 기준(돔 왼쪽)이라서다 */
+  transform: rotate(0deg) scale(1, -1);
+  object-fit: cover;
+  aspect-ratio: 22/17.9;
+}
+
+/* 존의 오른쪽 절반 — 돔이 바깥(오른쪽)을 보게 좌우를 뒤집는다.
+   zone-valve.svg 주석 참고: 원본은 돔이 왼쪽이고 방향은 전부 여기서 만든다.
+
+   뒤집으면 transform-origin: 0 0 때문에 left가 그림의 오른쪽 끝이 된다 —
+   그래서 아래 개별 규칙의 left 값이 왼쪽 절반과 셈법이 다르다. */
+.combustion .zone-valve-up.is-flip {
+  transform-origin: 0 0;
+  transform: rotate(0deg) scale(-1, 1);
+}
+.combustion .zone-valve-down.is-flip {
+  transform: rotate(-180deg) scale(1, 1);
 }
 
 /* 1존 */
@@ -2245,28 +2191,12 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-1-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 1143px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-1-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 1019px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 1존 밸브 4개 — 아래쪽은 존1이 화면 오른쪽이라 번호가 오른쪽에서 왼쪽으로 간다.
+   양 끝(1143·1019)이 배관에 물리는 자리다 — 고치지 말 것. */
+.combustion .rev-1-zone-valve-1 { left: 1139.5px; }
+.combustion .rev-1-zone-valve-2 { left: 1112.5px; }
+.combustion .rev-1-zone-valve-3 { left: 1050.5px; }
+.combustion .rev-1-zone-valve-4 { left: 1023.5px; }
 .combustion .rev-2-zone-obj {
   width: 124px;
   height: 107px;
@@ -2345,28 +2275,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-2-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 996px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-2-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 872px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 2존 밸브 4개 */
+.combustion .rev-2-zone-valve-1 { left: 992.5px; }
+.combustion .rev-2-zone-valve-2 { left: 965.5px; }
+.combustion .rev-2-zone-valve-3 { left: 903.5px; }
+.combustion .rev-2-zone-valve-4 { left: 876.5px; }
 .combustion .rev-3-zone-obj {
   width: 124px;
   height: 107px;
@@ -2445,28 +2358,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-3-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 849px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-3-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 725px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 3존 밸브 4개 */
+.combustion .rev-3-zone-valve-1 { left: 845.5px; }
+.combustion .rev-3-zone-valve-2 { left: 818.5px; }
+.combustion .rev-3-zone-valve-3 { left: 756.5px; }
+.combustion .rev-3-zone-valve-4 { left: 729.5px; }
 .combustion .rev-4-zone-obj {
   width: 124px;
   height: 107px;
@@ -2545,28 +2441,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-4-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 702px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-4-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 578px;
-  top: 383px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 4존 밸브 4개 — 아래쪽은 4·5·6존도 버너가 4개다(위쪽만 3개) */
+.combustion .rev-4-zone-valve-1 { left: 698.5px; }
+.combustion .rev-4-zone-valve-2 { left: 671.5px; }
+.combustion .rev-4-zone-valve-3 { left: 609.5px; }
+.combustion .rev-4-zone-valve-4 { left: 582.5px; }
 .combustion .rev-5-zone-obj {
   width: 124px;
   height: 107px;
@@ -2645,28 +2524,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-5-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 555px;
-  top: 384px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-5-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 431px;
-  top: 384px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 5존 밸브 4개 */
+.combustion .rev-5-zone-valve-1 { left: 551.5px; }
+.combustion .rev-5-zone-valve-2 { left: 524.5px; }
+.combustion .rev-5-zone-valve-3 { left: 462.5px; }
+.combustion .rev-5-zone-valve-4 { left: 435.5px; }
 .combustion .rev-6-zone-obj {
   width: 124px;
   height: 107px;
@@ -2745,28 +2607,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-6-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 408px;
-  top: 384px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-6-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 284px;
-  top: 384px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 6존 밸브 4개 */
+.combustion .rev-6-zone-valve-1 { left: 404.5px; }
+.combustion .rev-6-zone-valve-2 { left: 377.5px; }
+.combustion .rev-6-zone-valve-3 { left: 315.5px; }
+.combustion .rev-6-zone-valve-4 { left: 288.5px; }
 .combustion .rev-7-zone-obj {
   width: 124px;
   height: 107px;
@@ -2845,28 +2690,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-.combustion .rev-7-zone-valve-1 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 261px;
-  top: 384px;
-  transform-origin: 0 0;
-  transform: rotate(-180deg) scale(1, 1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
-.combustion .rev-7-zone-valve-2 {
-  width: 27px;
-  height: 22px;
-  position: absolute;
-  left: 137px;
-  top: 384px;
-  transform-origin: 0 0;
-  transform: rotate(0deg) scale(1, -1);
-  object-fit: cover;
-  aspect-ratio: 27/22;
-}
+/* 7존 밸브 4개 */
+.combustion .rev-7-zone-valve-1 { left: 257.5px; }
+.combustion .rev-7-zone-valve-2 { left: 230.5px; }
+.combustion .rev-7-zone-valve-3 { left: 168.5px; }
+.combustion .rev-7-zone-valve-4 { left: 141.5px; }
 .combustion .rev-fire-group {
   width: 985px;
   height: 36px;
