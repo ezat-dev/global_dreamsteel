@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 36" width="22" height="36">
-  <!-- 존 버너 불꽃. 28개 자리에 이 파일 하나만 쓴다.
+  <!-- 존 버너 불꽃. 53개 자리에 이 파일 하나만 쓴다.
+       (존마다 버너 수가 달라 위 25 + 아래 28이다. 자리는 combustionOverview.css 참고)
 
        ── 칸 크기 ──
        작화 기본 칸은 17x36이다. 폭이 좁아 갈래진 불꽃이 안 들어가서 22로 넓혔고,
@@ -20,8 +21,11 @@
        각 겹의 transform-origin(50% 100%)은 제 도형 기준이라 뒤집어도 뿌리를 붙박는다.
 
        ── 모양 ──
-       갈래진 불혀가 여럿 솟는 모양. 네 겹을 포개서 속으로 갈수록 밝아진다.
-         바깥(짙은 주황·빨강) → 가운데(주황) → 속불(노랑) → 밑동(흰빛)
+       갈래진 불혀가 여럿 솟는 모양. 다섯 겹을 포개서 속으로 갈수록 밝아진다.
+         바깥(짙은 주황·빨강) → 가운데(주황) → 속불(노랑) → 밑동(흰빛) → 푸른 심지
+       맨 끝의 푸른 심지는 공기가 충분해 잘 타는 표시다(청염). 흰빛 위에 얹어야
+       파란 기가 보이고, 작고 옅게 둬야 한다 — 크거나 진하면 불꽃 전체가 파랗게
+       읽혀서 오히려 불이 덜 붙은 것처럼 보인다.
        불혀는 골(들어간 곳)과 마루(뾰족한 끝)를 번갈아 두어 만든다. 마루에서 제어점을
        한 직선 위에 두지 않아야 끝이 뾰족해진다 — 나란히 두면 둥글어져 풍선이 된다.
        골은 충분히 깊게 파야 갈래가 갈래로 보인다. 얕으면 한 덩어리로 뭉쳐 보인다.
@@ -34,10 +38,12 @@
        폭은 길이와 반대로 준다(길어질 때 살짝 홀쭉, 짧아질 때 통통) — 같은 양이
        움직이는 것처럼 보여야 불꽃이 앞으로 뿜는 느낌이 난다.
 
-       주기는 셋 다 .9초로 같게 두고 시작 시각만 조금씩(-.06 / -.12초) 어긋냈다.
+       주기는 겹마다 같게 두고 시작 시각만 조금씩(-.05 / -.1초) 어긋냈다.
        주기를 다르게 두면 위상이 벌어지는 순간 속불이 바깥 불꽃을 뚫고 나온다 —
        같은 주기에 조금만 어긋내면 겹 순서가 늘 유지된다.
        늘어나는 쪽 한계(1.02)는 칸에 맞춰 잡았다. 더 키우면 끝이 viewBox 밖으로 잘린다.
+       줄어드는 쪽(.40)은 잘릴 걱정이 없으니 여기서 차이를 크게 번다 — 짧을 때 충분히
+       뭉쳐야 뻗는 순간이 "활활" 타오르는 것으로 보인다.
        <img>로 띄워도 SVG 안의 CSS 애니메이션은 돈다(스크립트만 막힌다).
 
        주의 — 태그를 연결할 때: 이 파일은 보이기만 하면 늘 흔들린다. 값이 1일 때만
@@ -67,6 +73,15 @@
       <stop offset=".45" stop-color="#fff6bf"/>
       <stop offset="1" stop-color="#ffd94a" stop-opacity="0"/>
     </radialGradient>
+    <!-- 뿌리의 푸른 심지. 공기가 충분해 잘 타면 버너 바로 위가 파랗게 선다.
+         위로 갈수록 투명해져 노란 불꽃에 녹아들게 한다 — 경계가 지면 파란 혀를
+         따로 붙여 놓은 것처럼 보인다. -->
+    <linearGradient id="blue" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#d7f2ff" stop-opacity=".80"/>
+      <stop offset=".35" stop-color="#6cc0ff" stop-opacity=".66"/>
+      <stop offset=".75" stop-color="#3d94e6" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#3d94e6" stop-opacity="0"/>
+    </linearGradient>
   </defs>
 
   <style>
@@ -79,9 +94,14 @@
        주기를 2.1초로 길게 잡고 그 안에 크기가 다른 네 번의 뿜기를 넣었다 — 같은 크기로
        규칙적으로 뛰면 기계가 펌프질하는 것처럼 보인다. 크게 한 번, 작게, 크게, 작게가
        섞여야 "화르륵" 하고 타오르는 것처럼 들쭉날쭉해진다. */
-    .f1 { animation: shoot 2.1s infinite; }
-    .f2 { animation: shoot 2.1s infinite; animation-delay: -.05s; }
-    .f3 { animation: shoot 2.1s infinite; animation-delay: -.1s; }
+    .f1 { animation: shoot 2s infinite; }
+    .f2 { animation: shoot 2s infinite; }
+    .f3 { animation: shoot 2s infinite; }
+
+    /* 푸른 심지는 뿌리에 붙어 있는 부분이라 노란 불꽃만큼 뻗지 않는다.
+       같은 박자로 뛰되 폭을 훨씬 좁게 잡는다(.82~1.0) — 이게 크게 움직이면
+       파란 혀가 노란 불꽃을 뚫고 나와 따로 노는 것처럼 보인다. */
+    .f4 { animation: core 2s infinite; }
 
     /* 위의 느린 뿜기 위에 얹는 빠른 떨림. 세 겹을 감싼 묶음(.gust)에 걸어서 셋이 똑같이
        흔들리게 한다 — 겹마다 따로 흔들면 위상이 벌어지는 순간 속불이 바깥으로 삐져나온다.
@@ -90,59 +110,94 @@
     .gust {
       transform-box: fill-box;
       transform-origin: 50% 100%;
-      animation: gust .23s infinite alternate, flicker .41s infinite alternate;
+      /* 잔떨림(gust)과 밝기 떨림(flicker)은 뺐다. 큰 뿜기가 step-end로 뚝뚝 끊기는데
+         그 위에 빠른 떨림까지 얹으니 화면이 깜빡이는 것처럼 보여 눈이 아팠다.
+         움직임은 shoot 하나로 충분하고, 떨림은 그 아래에서 따로 놀 뿐이었다.
+         되살리려면 아래 @keyframes gust / flicker를 여기에 다시 걸면 된다. */
     }
     /* 밑동은 쏘는 박자에 맞춰 같이 터진다 — 불이 실제로 뿜어 나오는 곳이 여기다 */
-    .hot { animation: hot-flash 1.05s infinite; animation-delay: -.12s; }
+    .hot { animation: hot-flash 2s infinite; }
 
     /* 쏘는 모양 — 뿌리에 뭉쳤다가(.58) 한 번에 뻗고(1.02), 도로 당겨졌다가 다시 뻗는다.
        alternate(왔다갔다)가 아니라 한 방향으로 도는 이유가 이것이다: 나가는 구간은
-       빠르게, 당겨지는 구간은 느리게 해야 "쏜다"로 보인다. 구간마다 가속을 따로 준다.
+       빠르게, 당겨지는 구간은 느리게 해야 "쏜다"로 보인다.
+
+       그런데 가속을 아무리 손봐도 부드럽다는 말이 계속 나왔다. 원인은 가속 곡선이
+       아니라 보간 자체였다 — 두 값 사이를 CSS가 채워 주는 한, 커지고 작아지는 것이
+       늘 물 흐르듯 이어진다. 그래서 timing-function을 전부 step-end로 바꿨다.
+       값이 채워지지 않고 그 시점에 딱 바뀌어서, 장면이 한 칸씩 넘어가는 옛날 도트
+       불꽃처럼 뚝뚝 끊긴다. 부드럽게 되돌리려면 이 step-end만 cubic-bezier로 바꾸면 된다.
 
        폭(scaleX)은 길이와 반대로 간다 — 뭉쳐 있을 땐 통통하고 뻗을 땐 홀쭉해져서
        같은 양의 불이 앞으로 뿜어 나가는 것처럼 보인다.
 
        늘어나는 쪽 한계는 1.02다. 더 키우면 끝이 칸 밖으로 잘린다.
-       줄어드는 쪽은 얼마든 내려도 안 잘리므로 극적인 차이는 이쪽에서 번다. */
+       줄어드는 쪽은 얼마든 내려도 안 잘리므로 극적인 차이는 이쪽에서 번다.
+
+       장면이 바뀌는 간격은 지점 사이의 거리다(2.1초에 13지점, 0.1~0.3초씩 제각각).
+       고르게 두면 초시계처럼 규칙적으로 튀므로 일부러 들쭉날쭉하게 잡았다. */
     @keyframes shoot {
-      0%   { transform: scale(1.18, .54); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
-      9%   { transform: scale(.92, .99);  animation-timing-function: ease-in; }   /* 크게 한 번 */
-      24%  { transform: scale(1.12, .62); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
-      31%  { transform: scale(1.0, .82);  animation-timing-function: ease-in; }   /* 작게 */
-      43%  { transform: scale(1.14, .58); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
-      52%  { transform: scale(.94, .96);  animation-timing-function: ease-in; }   /* 다시 크게 */
-      67%  { transform: scale(1.1, .66);  animation-timing-function: cubic-bezier(.05, .85, .25, 1); }
-      75%  { transform: scale(1.02, .86); animation-timing-function: ease-in; }   /* 작게 */
-      88%  { transform: scale(1.15, .56); animation-timing-function: cubic-bezier(.03, .9, .2, 1); }
-      95%  { transform: scale(.96, .92);  animation-timing-function: ease-in; }   /* 짧게 한 번 더 */
-      100% { transform: scale(1.18, .54); }
+      0%   { transform: scale(1.24, .44); animation-timing-function: step-end; }
+      25%  { transform: scale(.92, 1.02); animation-timing-function: step-end; }
+      50%  { transform: scale(1.18, .56); animation-timing-function: step-end; }
+      75%  { transform: scale(.95, .90);  animation-timing-function: step-end; }
+      100% { transform: scale(1.24, .44); }
     }
 
-    /* 잔떨림 — 느린 뿜기에 곱해진다. 폭이 길이보다 크게 흔들려 일렁이는 느낌을 준다. */
+    /* 푸른 심지 — 위 shoot과 박자는 같고 폭만 좁다. 뿌리에 붙어 있는 불이라
+       길이 차이가 크면 안 된다. */
+    @keyframes core {
+      0%   { transform: scale(1.09, .84); animation-timing-function: step-end; }
+      25%  { transform: scale(.95, 1.0);  animation-timing-function: step-end; }
+      50%  { transform: scale(1.06, .88); animation-timing-function: step-end; }
+      75%  { transform: scale(.98, .97);  animation-timing-function: step-end; }
+      100% { transform: scale(1.09, .84); }
+    }
+
+    /* 잔떨림 — 느린 뿜기에 곱해진다. 폭이 길이보다 크게 흔들려 일렁이는 느낌을 준다.
+
+       alternate(갔다가 그대로 되돌아오기)를 쓰지 않는다. 두 점 사이를 오가면 아무리
+       빨라도 시계추처럼 매끄러워서, 불이 아니라 무언가 흔들리는 것으로 보인다.
+       대신 한 바퀴 안에 크기가 제각각인 여섯 지점을 두고 step-end로 돌려, 다음에
+       어디로 튈지 모르게 만든다. 값을 고르게 두지 않는 것이 요점이다.
+
+       주기(.3초)는 위 shoot보다 짧지만 너무 짧으면 안 된다 — 지점이 여섯이라
+       .19초로 두면 한 장면이 .03초밖에 안 남아서, 끊어 놓아도 눈에는 도로 매끄럽게
+       이어져 보인다. 끊긴 티가 나려면 한 장면이 .04초는 버텨야 한다. */
     @keyframes gust {
-      from { transform: scale(.97, 1.0); }
-      to   { transform: scale(1.04, 1.03); }
+      0%   { transform: scale(1.0, 1.0); }
+      19%  { transform: scale(1.03, .99); }
+      37%  { transform: scale(.98, 1.02); }
+      56%  { transform: scale(1.02, 1.0); }
+      71%  { transform: scale(.99, 1.01); }
+      88%  { transform: scale(1.02, .99); }
+      100% { transform: scale(1.0, 1.0); }
     }
 
-    /* 밝기 떨림 — 불빛이 흔들리는 것처럼. 모양과 다른 주기라 박자가 겹치지 않는다. */
+    /* 밝기 떨림 — 불빛이 흔들리는 것처럼. 모양과 다른 주기라 박자가 겹치지 않는다.
+       여기도 오르내림을 고르지 않게 두어야 숨쉬듯 부드러워지지 않는다. */
     @keyframes flicker {
-      from { opacity: .86; }
-      to   { opacity: 1; }
+      0%   { opacity: 1; }
+      23%  { opacity: .93; }
+      41%  { opacity: .99; }
+      58%  { opacity: .94; }
+      79%  { opacity: 1; }
+      100% { opacity: .96; }
     }
 
     /* 밑동은 뻗는 순간 하얗게 커지고, 당겨질 때 잦아든다 */
     @keyframes hot-flash {
-      0%   { transform: scale(1.1, .72);  opacity: .55; animation-timing-function: cubic-bezier(.05, .85, .25, 1); }
-      17%  { transform: scale(.92, 1.25); opacity: 1;   animation-timing-function: ease-in; }
-      42%  { transform: scale(1.05, .82); opacity: .6;  animation-timing-function: cubic-bezier(.05, .85, .25, 1); }
-      58%  { transform: scale(.95, 1.12); opacity: .95; animation-timing-function: ease-in; }
-      100% { transform: scale(1.1, .72);  opacity: .55; }
+      0%   { transform: scale(1.05, .86); opacity: .84; animation-timing-function: step-end; }
+      25%  { transform: scale(.96, 1.1);  opacity: 1;   animation-timing-function: step-end; }
+      50%  { transform: scale(1.03, .9);  opacity: .88; animation-timing-function: step-end; }
+      75%  { transform: scale(.98, 1.04); opacity: .98; animation-timing-function: step-end; }
+      100% { transform: scale(1.05, .86); opacity: .84; }
     }
 
     /* 움직임을 꺼 달라는 설정이면 멈춘다. 현장 패널에서 계속 흔들리는 게
        거슬린다는 사람도 있어서, 그 설정을 존중한다. */
     @media (prefers-reduced-motion: reduce) {
-      .f1, .f2, .f3, .hot { animation: none; }
+      .f1, .f2, .f3, .f4, .hot, .gust { animation: none; }
     }
   </style>
 
@@ -181,6 +236,22 @@
 
     <!-- 밑동의 흰빛 -->
     <ellipse class="lick hot" cx="11" cy="20.4" rx="4" ry="3.6" fill="url(#hot)"/>
+
+    <!-- 푸른 심지 — 뿌리에서 조금만 솟는 작은 3갈래.
+         흰빛 위에 얹어야 파란 기가 보인다(아래에 두면 흰빛에 덮여 사라진다).
+         속불(f3)보다 확실히 작게 둔다 — 크면 불꽃 전체가 파랗게 보여서
+         불완전연소한 찬 불처럼 읽힌다. 뿌리께에 파란 기가 도는 정도가 맞다. -->
+    <path class="lick f4" fill="url(#blue)"
+          d="M11 23.2
+             C10.0 23.1 9.4 22.3 9.35 21.0
+             C9.32 20.4 9.4 20.0 9.58 19.6
+             C9.78 20.2 9.92 20.8 10.06 21.3
+             C9.96 20.4 10.2 19.5 10.66 18.9
+             C11.0 19.7 11.2 20.6 11.34 21.2
+             C11.48 20.6 11.72 20.0 12.0 19.7
+             C12.2 20.4 12.3 21.1 12.3 21.6
+             C12.46 21.95 12.55 22.2 12.55 22.35
+             C12.4 22.95 11.88 23.15 11 23.2 Z"/>
     </g>
    </g>
   </g>

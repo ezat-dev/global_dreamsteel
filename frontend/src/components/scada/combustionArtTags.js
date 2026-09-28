@@ -36,3 +36,48 @@ export const fittingTitle = (cls) => {
 
 /* 빨강으로 만들 때 무대에 붙는 클래스. CombustionPage.css의 선택자와 짝이 맞아야 한다. */
 export const fittingRedClass = (cls) => `red-${cls}`;
+
+/* ---------------------------------------------------------------------------
+   불꽃 뒤의 번개(점화 표시) 53개.
+
+   위 부속들과 값 규칙이 다르다 — 이쪽은 1이면 보이고 0이거나 못 읽으면 숨긴다.
+   빨강으로 두지 않는 이유는 번개가 '있다/없다'를 알리는 표시라서다. 꺼진 것을
+   빨갛게 두면 점화 이상으로 읽힌다.
+
+   번호는 화면 왼쪽부터 오른쪽으로 1~53이다. 위쪽 줄(for-thun-1~25)은 작화 번호가
+   이미 왼→오 순서라 그대로 쓰지만, 아래쪽 줄(rev-thun-1~28)은 rotate(-180deg) 탓에
+   작화 번호가 오→왼이라 거꾸로 짝지었다 — thunder26이 rev-thun-28(화면 맨 왼쪽),
+   thunder53이 rev-thun-1(화면 맨 오른쪽)이다.
+
+   주소는 53개가 전부 M300으로 같다(임시). 그래서 지금은 다 같이 켜지고 꺼진다.
+   실주소가 나오면 DB의 address만 UPDATE 하면 되고 이 파일은 손대지 않는다.
+   ------------------------------------------------------------------------- */
+const THUNDER_RULE = '값이 1일 때만 보임 / 0이거나 못 읽으면 숨김';
+
+/* 작화 클래스 → 태그 번호. 위 25개 + 아래 28개. */
+export const THUNDER_TAGS = {
+  'for-thun-1': 1, 'for-thun-2': 2, 'for-thun-3': 3, 'for-thun-4': 4,
+  'for-thun-5': 5, 'for-thun-6': 6, 'for-thun-7': 7, 'for-thun-8': 8,
+  'for-thun-9': 9, 'for-thun-10': 10, 'for-thun-11': 11, 'for-thun-12': 12,
+  'for-thun-13': 13, 'for-thun-14': 14, 'for-thun-15': 15, 'for-thun-16': 16,
+  'for-thun-17': 17, 'for-thun-18': 18, 'for-thun-19': 19, 'for-thun-20': 20,
+  'for-thun-21': 21, 'for-thun-22': 22, 'for-thun-23': 23, 'for-thun-24': 24,
+  'for-thun-25': 25,
+  'rev-thun-28': 26, 'rev-thun-27': 27, 'rev-thun-26': 28, 'rev-thun-25': 29,
+  'rev-thun-24': 30, 'rev-thun-23': 31, 'rev-thun-22': 32, 'rev-thun-21': 33,
+  'rev-thun-20': 34, 'rev-thun-19': 35, 'rev-thun-18': 36, 'rev-thun-17': 37,
+  'rev-thun-16': 38, 'rev-thun-15': 39, 'rev-thun-14': 40, 'rev-thun-13': 41,
+  'rev-thun-12': 42, 'rev-thun-11': 43, 'rev-thun-10': 44, 'rev-thun-9': 45,
+  'rev-thun-8': 46, 'rev-thun-7': 47, 'rev-thun-6': 48, 'rev-thun-5': 49,
+  'rev-thun-4': 50, 'rev-thun-3': 51, 'rev-thun-2': 52, 'rev-thun-1': 53,
+};
+
+/** 작화 클래스 → 태그 이름. 예: 'for-thun-1' → 'combustion_thunder1_lamp' */
+export const thunderTag = (cls) => `combustion_thunder${THUNDER_TAGS[cls]}_lamp`;
+
+/** 그림 위에 뜨는 글. 위 부속들과 같은 꼴이되 값 규칙만 다르다. */
+export const thunderTitle = (cls) =>
+  `번개 ${THUNDER_TAGS[cls]} / ${thunderTag(cls)} — ${THUNDER_RULE}`;
+
+/* 숨길 때 무대에 붙는 클래스. combustionOverview.css의 선택자와 짝이 맞아야 한다. */
+export const thunderHideClass = (cls) => `hide-${cls}`;

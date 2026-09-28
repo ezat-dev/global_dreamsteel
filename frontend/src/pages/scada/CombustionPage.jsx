@@ -7,7 +7,9 @@ import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
-import { FITTING_TAGS, fittingRedClass } from '../../components/scada/combustionArtTags';
+import {
+  FITTING_TAGS, THUNDER_TAGS, fittingRedClass, thunderHideClass, thunderTag,
+} from '../../components/scada/combustionArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
 import './CombustionPage.css';
@@ -289,6 +291,17 @@ export default function CombustionPage() {
     .map(([cls]) => ` ${fittingRedClass(cls)}`)
     .join('');
 
+  /* 불꽃 뒤 번개 53개 — 1이면 보이고 0이거나 못 읽으면 숨긴다.
+     위 부속과 달리 색이 아니라 숨김이라, 꺼진 것들의 클래스를 모아 무대에 붙이고
+     실제로 감추는 일은 combustionOverview.css가 맡는다.
+
+     지금은 53개가 같은 주소(M300)라 다 같이 켜지고 꺼진다. 실주소가 나뉘면
+     DB만 고치면 되고 이 코드는 그대로다. */
+  const thunderHideClasses = Object.keys(THUNDER_TAGS)
+    .filter((cls) => tagState(tagValues?.[thunderTag(cls)]) !== TAG_ON)
+    .map((cls) => ` ${thunderHideClass(cls)}`)
+    .join('');
+
   const [writeError, setWriteError] = useState('');
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데 쓴다(비활성화에는 쓰지 않는다)
   const [heldTag, setHeldTag] = useState('');
@@ -442,7 +455,7 @@ export default function CombustionPage() {
           배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}
       <div className="cb-stage" ref={stageRef}>
         <div
-          className={`cb-stage-inner${fittingRedClasses}`}
+          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_TOTAL_H,

@@ -2855,3 +2855,62 @@
 .combustion .rev-fire-27 { left: 194px; }
 .combustion .rev-thun-28 { left: 168px; }
 .combustion .rev-fire-28 { left: 167px; }
+
+/* ---------------------------------------------------------------------------
+   번개 숨기기 — 값이 1인 것만 보인다.
+   CombustionPage가 꺼진 번개의 hide-<작화 클래스>를 무대에 모아 붙이고,
+   실제로 감추는 일은 여기서 한다. 작화 클래스와 짝이 눈으로 맞도록 이름을 지었다.
+   ------------------------------------------------------------------------- */
+.cb-stage-inner.hide-for-thun-1 .for-thun-1 { display: none; }
+.cb-stage-inner.hide-for-thun-2 .for-thun-2 { display: none; }
+.cb-stage-inner.hide-for-thun-3 .for-thun-3 { display: none; }
+.cb-stage-inner.hide-for-thun-4 .for-thun-4 { display: none; }
+.cb-stage-inner.hide-for-thun-5 .for-thun-5 { display: none; }
+.cb-stage-inner.hide-for-thun-6 .for-thun-6 { display: none; }
+.cb-stage-inner.hide-for-thun-7 .for-thun-7 { display: none; }
+.cb-stage-inner.hide-for-thun-8 .for-thun-8 { display: none; }
+.cb-stage-inner.hide-for-thun-9 .for-thun-9 { display: none; }
+.cb-stage-inner.hide-for-thun-10 .for-thun-10 { display: none; }
+.cb-stage-inner.hide-for-thun-11 .for-thun-11 { display: none; }
+.cb-stage-inner.hide-for-thun-12 .for-thun-12 { display: none; }
+.cb-stage-inner.hide-for-thun-13 .for-thun-13 { display: none; }
+.cb-stage-inner.hide-for-thun-14 .for-thun-14 { display: none; }
+.cb-stage-inner.hide-for-thun-15 .for-thun-15 { display: none; }
+.cb-stage-inner.hide-for-thun-16 .for-thun-16 { display: none; }
+.cb-stage-inner.hide-for-thun-17 .for-thun-17 { display: none; }
+.cb-stage-inner.hide-for-thun-18 .for-thun-18 { display: none; }
+.cb-stage-inner.hide-for-thun-19 .for-thun-19 { display: none; }
+.cb-stage-inner.hide-for-thun-20 .for-thun-20 { display: none; }
+.cb-stage-inner.hide-for-thun-21 .for-thun-21 { display: none; }
+.cb-stage-inner.hide-for-thun-22 .for-thun-22 { display: none; }
+.cb-stage-inner.hide-for-thun-23 .for-thun-23 { display: none; }
+.cb-stage-inner.hide-for-thun-24 .for-thun-24 { display: none; }
+.cb-stage-inner.hide-for-thun-25 .for-thun-25 { display: none; }
+.cb-stage-inner.hide-rev-thun-28 .rev-thun-28 { display: none; }
+.cb-stage-inner.hide-rev-thun-27 .rev-thun-27 { display: none; }
+.cb-stage-inner.hide-rev-thun-26 .rev-thun-26 { display: none; }
+.cb-stage-inner.hide-rev-thun-25 .rev-thun-25 { display: none; }
+.cb-stage-inner.hide-rev-thun-24 .rev-thun-24 { display: none; }
+.cb-stage-inner.hide-rev-thun-23 .rev-thun-23 { display: none; }
+.cb-stage-inner.hide-rev-thun-22 .rev-thun-22 { display: none; }
+.cb-stage-inner.hide-rev-thun-21 .rev-thun-21 { display: none; }
+.cb-stage-inner.hide-rev-thun-20 .rev-thun-20 { display: none; }
+.cb-stage-inner.hide-rev-thun-19 .rev-thun-19 { display: none; }
+.cb-stage-inner.hide-rev-thun-18 .rev-thun-18 { display: none; }
+.cb-stage-inner.hide-rev-thun-17 .rev-thun-17 { display: none; }
+.cb-stage-inner.hide-rev-thun-16 .rev-thun-16 { display: none; }
+.cb-stage-inner.hide-rev-thun-15 .rev-thun-15 { display: none; }
+.cb-stage-inner.hide-rev-thun-14 .rev-thun-14 { display: none; }
+.cb-stage-inner.hide-rev-thun-13 .rev-thun-13 { display: none; }
+.cb-stage-inner.hide-rev-thun-12 .rev-thun-12 { display: none; }
+.cb-stage-inner.hide-rev-thun-11 .rev-thun-11 { display: none; }
+.cb-stage-inner.hide-rev-thun-10 .rev-thun-10 { display: none; }
+.cb-stage-inner.hide-rev-thun-9 .rev-thun-9 { display: none; }
+.cb-stage-inner.hide-rev-thun-8 .rev-thun-8 { display: none; }
+.cb-stage-inner.hide-rev-thun-7 .rev-thun-7 { display: none; }
+.cb-stage-inner.hide-rev-thun-6 .rev-thun-6 { display: none; }
+.cb-stage-inner.hide-rev-thun-5 .rev-thun-5 { display: none; }
+.cb-stage-inner.hide-rev-thun-4 .rev-thun-4 { display: none; }
+.cb-stage-inner.hide-rev-thun-3 .rev-thun-3 { display: none; }
+.cb-stage-inner.hide-rev-thun-2 .rev-thun-2 { display: none; }
+.cb-stage-inner.hide-rev-thun-1 .rev-thun-1 { display: none; }
