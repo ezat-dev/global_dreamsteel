@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ROLLER_TAGS, artTitle, arrowTitle, motorTitle } from './driveArtTags';
+import { ROLLER_TAGS, artTitle, arrowTitle, doorTitle, motorTitle, zoneTitle } from './driveArtTags';
 
 /* ===========================================================================
    구동화면 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -361,16 +361,16 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" title={motorTitle('ent-motor-2')} />
         <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" title={motorTitle('ent-motor-3')} />
         <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" title={motorTitle('ent-motor-4')} />
-        <img className="ent-door-1" src="/scada/drive/ent-door-10.png" />
+        <img className="ent-door-1" src="/scada/drive/ent-door-10.png" title={doorTitle()} />
       </div>
       <div className="main-drive">
-        <img className="main-1-zone" src="/scada/drive/main-1-zone0.png" />
-        <img className="main-2-zone" src="/scada/drive/main-2-zone0.png" />
-        <img className="main-3-zone" src="/scada/drive/main-3-zone0.png" />
-        <img className="main-4-zone" src="/scada/drive/main-4-zone0.png" />
-        <img className="main-5-zone" src="/scada/drive/main-5-zone0.png" />
-        <img className="main-6-zone" src="/scada/drive/main-6-zone0.png" />
-        <img className="main-7-zone" src="/scada/drive/main-7-zone0.png" />
+        <img className="main-1-zone" src="/scada/drive/main-1-zone0.png" title={zoneTitle('main-1-zone')} />
+        <img className="main-2-zone" src="/scada/drive/main-2-zone0.png" title={zoneTitle('main-2-zone')} />
+        <img className="main-3-zone" src="/scada/drive/main-3-zone0.png" title={zoneTitle('main-3-zone')} />
+        <img className="main-4-zone" src="/scada/drive/main-4-zone0.png" title={zoneTitle('main-4-zone')} />
+        <img className="main-5-zone" src="/scada/drive/main-5-zone0.png" title={zoneTitle('main-5-zone')} />
+        <img className="main-6-zone" src="/scada/drive/main-6-zone0.png" title={zoneTitle('main-6-zone')} />
+        <img className="main-7-zone" src="/scada/drive/main-7-zone0.png" title={zoneTitle('main-7-zone')} />
         <img className="main-obj-2" src="/scada/drive/main-obj-20.png" />
         <img className="main-obj-1" src="/scada/drive/main-obj-10.png" />
         <img className="main-motor-1" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-1')} />

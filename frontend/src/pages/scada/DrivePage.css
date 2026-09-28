@@ -828,3 +828,34 @@
     height: 150px;
   }
 }
+
+/* ===== 입구문 / MAIN 존 구획 ==========================================
+   둘 다 값이 1일 때만 무대에 클래스가 붙는다. 0과 '못 읽음'을 같게 두기로 해서,
+   아무것도 안 붙은 상태가 곧 0이다.
+
+   입구문은 세 갈래다 — 0이 빨강이라 기본 규칙에 filter를 걸어 두고, 1일 때 초록으로,
+   못 읽을 때 회색으로 덮는다. 빨강·초록이 닫힘·열림이라 '모름'을 둘 중 하나로 뭉개면
+   문 상태를 잘못 읽게 되어 회색을 따로 뒀다(모터가 꺼졌을 때와 같은 grayscale이다).
+   존 구획은 두 갈래다 — 0이 작화 그대로라 기본 규칙이 없고 1일 때만 오렌지를 건다.
+
+   모터 회색과 같은 사정이다 — filter는 겹쳐 쌓이지 않고 나중 것 하나만 남으므로,
+   작화나 다크 테마가 이 자리에 filter를 걸게 되면 한 줄에 같이 적어야 한다. */
+.dr-stage-inner .overview-1 .ent-door-1 {
+  filter: url(#dr-red);
+}
+.dr-stage-inner.green-ent-door .overview-1 .ent-door-1 {
+  filter: url(#dr-green);
+}
+.dr-stage-inner.gray-ent-door .overview-1 .ent-door-1 {
+  filter: grayscale(1);
+}
+
+.dr-stage-inner.hot-main-1-zone .overview-1 .main-1-zone,
+.dr-stage-inner.hot-main-2-zone .overview-1 .main-2-zone,
+.dr-stage-inner.hot-main-3-zone .overview-1 .main-3-zone,
+.dr-stage-inner.hot-main-4-zone .overview-1 .main-4-zone,
+.dr-stage-inner.hot-main-5-zone .overview-1 .main-5-zone,
+.dr-stage-inner.hot-main-6-zone .overview-1 .main-6-zone,
+.dr-stage-inner.hot-main-7-zone .overview-1 .main-7-zone {
+  filter: url(#dr-orange);
+}

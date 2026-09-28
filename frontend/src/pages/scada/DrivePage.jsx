@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import DriveOverview from '../../components/scada/DriveOverview';
 import {
-  ARROW_TAGS, FAN_TAGS, MOTOR_TAGS, ROLLER_TAGS, artTitle, motorGrayClass,
+  ARROW_TAGS, DOOR_TAG, FAN_TAGS, MOTOR_TAGS, ROLLER_TAGS, ZONE_TAGS,
+  artTitle, doorGrayClass, doorGreenClass, motorGrayClass, zoneHotClass,
 } from '../../components/scada/driveArtTags';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
@@ -704,6 +705,23 @@ export default function DrivePage() {
     .map(({ grayClass }) => ` ${grayClass}`)
     .join('');
 
+  /* 입구문과 MAIN 존 구획 — 모터·화살표와 같은 방식이다(무대에 클래스만 붙이고
+     색은 DrivePage.css가 입힌다).
+
+     입구문은 세 갈래다. 빨강·초록이 닫힘·열림이라 못 읽은 것을 둘 중 하나로
+     뭉개면 문 상태를 잘못 읽게 되어, 회색을 따로 둔다.
+       0 → 클래스 없음 = 빨강(CSS 기본) / 1 → 초록 / 못 읽음 → 회색
+     존 구획은 두 갈래다 — 1일 때만 오렌지가 붙고, 0과 못 읽음은 작화 그대로다. */
+  const doorState = tagState(tagValues?.[DOOR_TAG.tag]);
+  const doorClass = doorState === TAG_UNKNOWN
+    ? ` ${doorGrayClass()}`
+    : (doorState === TAG_ON ? ` ${doorGreenClass()}` : '');
+
+  const zoneHot = Object.entries(ZONE_TAGS)
+    .filter(([, t]) => tagState(tagValues?.[t.tag]) === TAG_ON)
+    .map(([cls]) => ` ${zoneHotClass(cls)}`)
+    .join('');
+
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다.
      읽지 못한 온도를 0으로 그리면 노가 식은 것으로 오해한다. */
   const zoneText = (n, suffix) => {
@@ -909,6 +927,19 @@ export default function DrivePage() {
                     0       0       0       1 0"
           />
         </filter>
+        {/* MAIN 존 구획이 달궈졌을 때(값 1). 목표색 #ea580c에 위와 같은 공식
+            (목표색 x (0.45 + 0.85 x 밝기))을 쓴 값이다. 존 그림은 원본이 이미
+            색과 명암을 갖고 있어서 contrast를 앞에 걸지 않는다 — 매쉬 롤러처럼
+            밝은 은회색 좁은 범위가 아니라 그럴 필요가 없다. */}
+        <filter id="dr-orange" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.16583 0.55786 0.05632 0 0.41294
+                    0.06236 0.20979 0.02118 0 0.15529
+                    0.00850 0.02861 0.00289 0 0.02118
+                    0       0       0       1 0"
+          />
+        </filter>
       </svg>
 
       {/* ===== 상단 조작·상태 패널 ===== */}
@@ -991,7 +1022,7 @@ export default function DrivePage() {
         {/* 왼쪽 위를 고정점으로 줄인다(transform-origin: top left). 배율이 가로 기준이라
             줄인 폭이 곧 무대 폭이 되어 좌우 양끝에 딱 맞는다. */}
         <div
-          className={`dr-stage-inner${arrowHideClass}${motorGray}`}
+          className={`dr-stage-inner${arrowHideClass}${motorGray}${doorClass}${zoneHot}`}
           style={{
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,

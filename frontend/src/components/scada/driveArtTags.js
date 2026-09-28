@@ -92,3 +92,49 @@ export const motorTitle = (cls) => artTitle(MOTOR_TAGS[cls]);
 
 /* 회색으로 만들 때 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다. */
 export const motorGrayClass = (cls) => `gray-${cls}`;
+
+/* ---------------------------------------------------------------------------
+   입구문과 MAIN 존 구획 8개. 위 요소들과 값 규칙이 다르고, 둘끼리도 다르다.
+
+   입구문은 세 갈래다 — 0이면 빨강, 1이면 초록, 못 읽으면 회색. 빨강·초록이 각각
+   닫힘·열림이라 '모름'을 둘 중 하나로 뭉개면 문 상태를 잘못 읽게 된다.
+   존 구획은 두 갈래다 — 1이면 오렌지, 0이거나 못 읽으면 작화 그대로. 이쪽은 꺼진
+   모습이 곧 원래 색이라 '모름'을 위한 색을 따로 둘 자리가 마땅치 않다.
+   ------------------------------------------------------------------------- */
+
+/* 입구문 — 0이면 빨강, 1이면 초록, 못 읽으면 회색.
+   주의: 작화 모터 ent-motor-3이 이미 charge_door_open_lamp(입구문 열림)를 보고 있다.
+   같은 문을 두 태그가 보는 셈인데, 그쪽은 '열림 감지'이고 이쪽은 문 그림 자체다. */
+export const DOOR_TAG = {
+  cls: 'ent-door-1',
+  tag: 'ent_door_open_close_lamp',
+  label: '입구문',
+};
+const DOOR_RULE = '값이 1이면 초록 / 0이면 빨강 / 못 읽으면 회색';
+export const doorTitle = () => `${DOOR_TAG.label} / ${DOOR_TAG.tag} — ${DOOR_RULE}`;
+
+/* MAIN 존 구획 7칸 — 0이거나 못 읽으면 작화 그대로, 1이면 오렌지.
+   키는 작화 클래스 이름 그대로다(main-1-zone ~ main-7-zone). 왼쪽부터 1~7존이고,
+   x는 609부터 75px 칸이 나란히 붙는다. */
+export const ZONE_TAGS = {
+  'main-1-zone': { tag: 'main_zone1_lamp', label: 'MAIN 1존' },
+  'main-2-zone': { tag: 'main_zone2_lamp', label: 'MAIN 2존' },
+  'main-3-zone': { tag: 'main_zone3_lamp', label: 'MAIN 3존' },
+  'main-4-zone': { tag: 'main_zone4_lamp', label: 'MAIN 4존' },
+  'main-5-zone': { tag: 'main_zone5_lamp', label: 'MAIN 5존' },
+  'main-6-zone': { tag: 'main_zone6_lamp', label: 'MAIN 6존' },
+  'main-7-zone': { tag: 'main_zone7_lamp', label: 'MAIN 7존' },
+};
+const ZONE_RULE = '값이 1이면 오렌지 / 0이거나 못 읽으면 지금 색';
+export const zoneTitle = (cls) => {
+  const t = ZONE_TAGS[cls];
+  return `${t.label} / ${t.tag} — ${ZONE_RULE}`;
+};
+
+/* 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다.
+   입구문은 1이면 초록, 못 읽으면 회색이 붙고 0이면 아무것도 안 붙는다 —
+   붙지 않은 상태가 빨강이라 CSS 기본 규칙에 그 색이 적혀 있다.
+   존은 오렌지일 때만 붙고, 안 붙은 상태가 작화 그대로다. */
+export const doorGreenClass = () => 'green-ent-door';
+export const doorGrayClass = () => 'gray-ent-door';
+export const zoneHotClass = (cls) => `hot-${cls}`;
