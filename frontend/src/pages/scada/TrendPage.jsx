@@ -213,6 +213,12 @@ export default function TrendPage() {
      ref만 false로 바꾸면 이미 걸린 타이머는 그대로 살아서 한 번 더 갱신된다. */
   const followTimerRef = useRef();
 
+  /* 이번 조회를 자동갱신이 걸었는지. 자동갱신이면 '조회 중' 표시를 띄우지 않는다.
+     띄우면 엑셀·저장 버튼이 disabled가 되면서 30초마다 흐려졌다 돌아와, 아무도
+     누르지 않았는데 화면이 깜빡인다. 자동갱신은 뒤에서 도는 것이라 그동안
+     버튼을 잠글 이유도 없다 — 받아 둔 값으로 내려받는 것은 그대로 된다. */
+  const autoQueryRef = useRef(false);
+
   /* 보고 있던 구간의 길이를 지키면서 끝만 지금으로 당긴다 —
      24시간을 보고 있었으면 '최근 24시간'이 계속 따라온다.
 
@@ -221,6 +227,7 @@ export default function TrendPage() {
   const followNow = (prev) => {
     const now = new Date();
     const from = new Date(now.getTime() - (prev.end - prev.start));
+    autoQueryRef.current = true;
     setStart(from);
     setEnd(now);
     setRange({ start: from, end: now });
@@ -264,7 +271,8 @@ export default function TrendPage() {
      나가게 되고, 응답 처리도 둘로 갈리기 때문이다. */
   useEffect(() => {
     let alive = true;
-    setLoading(true);
+    // 자동갱신이 건 조회면 표시를 띄우지 않는다(위 autoQueryRef 주석 참고)
+    if (!autoQueryRef.current) setLoading(true);
 
     getTrend({
       startTime: format(range.start, QUERY_FORMAT),
@@ -338,6 +346,7 @@ export default function TrendPage() {
       return;
     }
     stopFollow();
+    autoQueryRef.current = false;   // 사람이 누른 조회라 '조회 중'을 띄운다
     setError('');
     setRange({ start: s, end: e });
   };
@@ -346,6 +355,7 @@ export default function TrendPage() {
     const now = new Date();
     const from = subHours(now, hours);
     stopFollow();
+    autoQueryRef.current = false;   // 사람이 누른 조회라 '조회 중'을 띄운다
     setStart(from);
     setEnd(now);
     setQuick(hours);
