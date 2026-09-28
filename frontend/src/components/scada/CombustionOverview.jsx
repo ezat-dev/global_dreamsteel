@@ -219,9 +219,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop for-1-gas-drop-2"></div>
         <div className="zone-gas-drop for-1-gas-drop-3"></div>
         <img className="zone-valve-up for-1-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-1-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-1-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-1-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-1-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-1-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-1-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-1-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-2-zone-obj">
         <div className="for-2-zone-box"></div>
@@ -234,9 +238,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop for-2-gas-drop-2"></div>
         <div className="zone-gas-drop for-2-gas-drop-3"></div>
         <img className="zone-valve-up for-2-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-2-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-2-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-2-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-2-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-2-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-2-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-2-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-3-zone-obj">
         <div className="for-3-zone-box"></div>
@@ -249,9 +257,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop for-3-gas-drop-2"></div>
         <div className="zone-gas-drop for-3-gas-drop-3"></div>
         <img className="zone-valve-up for-3-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-3-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-3-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-3-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-3-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-3-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-3-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-3-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-4-zone-obj">
         <div className="for-4-zone-box"></div>
@@ -264,8 +276,11 @@ function CombustionOverview() {
         {/* 4존은 버너가 3개다 */}
         <div className="zone-gas-drop for-4-gas-drop-2"></div>
         <img className="zone-valve-up for-4-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-4-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-4-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-4-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-4-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-4-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-5-zone-obj">
         <div className="for-5-zone-box"></div>
@@ -277,8 +292,11 @@ function CombustionOverview() {
         <div className="for-5-zone-per"></div>
         <div className="zone-gas-drop for-5-gas-drop-2"></div>
         <img className="zone-valve-up for-5-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-5-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-5-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-5-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-5-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-5-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-6-zone-obj">
         <div className="for-6-zone-box"></div>
@@ -290,8 +308,11 @@ function CombustionOverview() {
         <div className="for-6-zone-per"></div>
         <div className="zone-gas-drop for-6-gas-drop-2"></div>
         <img className="zone-valve-up for-6-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-6-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-6-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-6-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-6-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-6-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-7-zone-obj">
         <div className="for-7-zone-box"></div>
@@ -304,9 +325,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop for-7-gas-drop-2"></div>
         <div className="zone-gas-drop for-7-gas-drop-3"></div>
         <img className="zone-valve-up for-7-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-7-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up for-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-outer for-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-7-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-7-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-up is-flip for-7-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-up is-flip is-outer for-7-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="for-fire-group">
         {/* 버너 25개 — 존마다 개수가 다르다(1·2·3·7존 4개, 4·5·6존 3개).
@@ -385,9 +410,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-1-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-1-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-1-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-1-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-1-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-1-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-1-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-1-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-1-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-1-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-2-zone-obj">
         <div className="rev-2-zone-box"></div>
@@ -400,9 +429,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-2-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-2-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-2-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-2-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-2-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-2-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-2-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-2-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-2-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-2-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-3-zone-obj">
         <div className="rev-3-zone-box"></div>
@@ -415,9 +448,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-3-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-3-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-3-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-3-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-3-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-3-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-3-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-3-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-3-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-3-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-4-zone-obj">
         <div className="rev-4-zone-box"></div>
@@ -430,9 +467,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-4-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-4-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-4-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-4-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-4-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-4-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-4-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-4-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-4-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-4-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-5-zone-obj">
         <div className="rev-5-zone-box"></div>
@@ -445,9 +486,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-5-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-5-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-5-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-5-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-5-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-5-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-5-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-5-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-5-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-5-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-6-zone-obj">
         <div className="rev-6-zone-box"></div>
@@ -460,9 +505,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-6-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-6-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-6-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-6-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-6-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-6-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-6-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-6-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-6-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-6-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-7-zone-obj">
         <div className="rev-7-zone-box"></div>
@@ -475,9 +524,13 @@ function CombustionOverview() {
         <div className="zone-gas-drop is-down rev-7-gas-drop-2"></div>
         <div className="zone-gas-drop is-down rev-7-gas-drop-3"></div>
         <img className="zone-valve-down is-flip rev-7-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-7-zone-valve-1" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down is-flip rev-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-flip is-outer rev-7-zone-valve-2" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-7-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-7-zone-valve-3" src="/scada/combustion/zone-valve.svg" />
         <img className="zone-valve-down rev-7-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
+        <img className="zone-valve-down is-outer rev-7-zone-valve-4" src="/scada/combustion/zone-valve.svg" />
       </div>
       <div className="rev-fire-group">
         {/* 버너 28개 — 아래쪽은 존마다 4개씩이다.
