@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="3 2.57 44 35.86" width="44" height="35.86">
+  <!-- 존 버너 공기 밸브 — zone-valve.svg(가스)와 같은 그림이고 색만 다르다.
+
+       버너 하나에 밸브가 둘이다. 가스관 쪽(불꽃에서 먼 쪽)이 가스라 노란색이고,
+       불꽃에 가까운 쪽이 공기라 흰색이다. 둘이 만나 불꽃이 된다.
+       작화의 배관 색과 같은 규칙이다 — 노란 관이 가스, 흰 관이 공기.
+
+       바꾼 것은 본체·플랜지·스템·보닛·돔의 노란 계열 여덟 가지뿐이다.
+       구동부(steel)는 원래 금속이라 두 파일이 같다. 명도 순서는 원본 그대로 두고
+       무채색으로만 옮겨서, 같은 자리에 놓았을 때 입체가 같게 보인다.
+         #e08c00 → #9a9a9a   #ffc12a → #d6d6d6   #ffeaa6 → #fafafa
+         #e89400 → #a0a0a0   #ffc42f → #d8d8d8   #ffbb1c → #d0d0d0
+         #dd8a00 → #969696   테두리 #d98800 → #8f8f8f
+
+       나머지(viewBox, 좌표, 뒤집기 규칙)는 zone-valve.svg의 주석을 그대로 따른다. -->
+  <defs>
+    <!-- 가로로 누운 부품: 위아래가 어둡고 가운데가 밝은 원통 음영 -->
+    <linearGradient id="h" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a9a9a"/>
+      <stop offset=".22" stop-color="#d6d6d6"/>
+      <stop offset=".52" stop-color="#fafafa"/>
+      <stop offset=".8" stop-color="#d6d6d6"/>
+      <stop offset="1" stop-color="#9a9a9a"/>
+    </linearGradient>
+    <!-- 세로로 선 부품: 왼쪽이 어둡고 가운데쯤이 밝다 -->
+    <linearGradient id="v" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a0a0a0"/>
+      <stop offset=".35" stop-color="#d8d8d8"/>
+      <stop offset=".6" stop-color="#fafafa"/>
+      <stop offset=".85" stop-color="#d0d0d0"/>
+      <stop offset="1" stop-color="#969696"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8d8d8d"/>
+      <stop offset=".45" stop-color="#6e6e6e"/>
+      <stop offset="1" stop-color="#555555"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 위·아래 목 — 본체보다 먼저 그려 플랜지와 본체 사이로 들어간다.
+       원본은 좌우에 검은 세로 레일이 있다. -->
+  <g fill="url(#steel)" stroke="#141414" stroke-width=".9">
+    <rect x="33.4" y="7.6" width="8.8" height="5.4"/>
+    <rect x="33.4" y="26.8" width="8.8" height="5.4"/>
+  </g>
+
+  <!-- 축 2개 -->
+  <rect x="18.8" y="15" width="2" height="10" fill="url(#steel)"/>
+  <rect x="26.6" y="15.4" width="1.6" height="9.2" fill="url(#steel)"/>
+
+  <!-- 본체와 플랜지 -->
+  <rect x="28.2" y="13" width="18.4" height="13.6" rx=".8" fill="url(#h)" stroke="#8f8f8f" stroke-width=".7"/>
+  <rect x="28.8" y="3" width="17.8" height="4.8" rx=".7" fill="url(#h)" stroke="#8f8f8f" stroke-width=".7"/>
+  <rect x="28.2" y="31.4" width="18.4" height="6.2" rx=".7" fill="url(#h)" stroke="#8f8f8f" stroke-width=".7"/>
+
+  <!-- 스템 블록 -->
+  <rect x="20" y="12.2" width="6.8" height="15" rx=".7" fill="url(#v)" stroke="#8f8f8f" stroke-width=".7"/>
+
+  <!-- 보닛 판 — 위아래로 뾰족한 얇은 판 -->
+  <ellipse cx="16.5" cy="19.6" rx="2.1" ry="13.5" fill="url(#v)" stroke="#8f8f8f" stroke-width=".6"/>
+
+  <!-- 구동부 돔 — 오른쪽은 평평하고 왼쪽으로 부푼다.
+       rx는 부푸는 폭(14.2 - 3 = 11.2), ry는 세로 길이의 절반(23.2 / 2)이다.
+       ry를 절반보다 크게 잡으면 호가 덜 휘어서 돔이 얄팍한 잎사귀처럼 나온다. -->
+  <path d="M14.2 8 A11.2 11.6 0 0 0 14.2 31.2 Z" fill="url(#v)" stroke="#8f8f8f" stroke-width=".7"/>
+</svg>
