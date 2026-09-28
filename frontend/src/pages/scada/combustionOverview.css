@@ -1559,6 +1559,8 @@
 .combustion .for-1-zone-valve-2 { left: 167.5px; }
 .combustion .for-1-zone-valve-3 { left: 229.5px; }
 .combustion .for-1-zone-valve-4 { left: 256.5px; }
+.combustion .for-1-gas-drop-2 { left: 179.5px; }
+.combustion .for-1-gas-drop-3 { left: 207.5px; }
 .combustion .for-2-zone-obj {
   width: 124px;
   height: 107px;
@@ -1628,6 +1630,8 @@
 .combustion .for-2-zone-valve-2 { left: 314.5px; }
 .combustion .for-2-zone-valve-3 { left: 376.5px; }
 .combustion .for-2-zone-valve-4 { left: 403.5px; }
+.combustion .for-2-gas-drop-2 { left: 326.5px; }
+.combustion .for-2-gas-drop-3 { left: 354.5px; }
 .combustion .for-3-zone-obj {
   width: 124px;
   height: 107px;
@@ -1697,6 +1701,8 @@
 .combustion .for-3-zone-valve-2 { left: 461.5px; }
 .combustion .for-3-zone-valve-3 { left: 523.5px; }
 .combustion .for-3-zone-valve-4 { left: 550.5px; }
+.combustion .for-3-gas-drop-2 { left: 473.5px; }
+.combustion .for-3-gas-drop-3 { left: 501.5px; }
 .combustion .for-4-zone-obj {
   width: 124px;
   height: 107px;
@@ -1765,6 +1771,7 @@
 .combustion .for-4-zone-valve-1 { left: 581.5px; }
 .combustion .for-4-zone-valve-2 { left: 622.5px; }
 .combustion .for-4-zone-valve-3 { left: 697.5px; }
+.combustion .for-4-gas-drop-2 { left: 634.5px; }
 .combustion .for-5-zone-obj {
   width: 124px;
   height: 107px;
@@ -1833,6 +1840,7 @@
 .combustion .for-5-zone-valve-1 { left: 728.5px; }
 .combustion .for-5-zone-valve-2 { left: 769.5px; }
 .combustion .for-5-zone-valve-3 { left: 844.5px; }
+.combustion .for-5-gas-drop-2 { left: 781.5px; }
 .combustion .for-6-zone-obj {
   width: 124px;
   height: 107px;
@@ -1901,6 +1909,7 @@
 .combustion .for-6-zone-valve-1 { left: 875.5px; }
 .combustion .for-6-zone-valve-2 { left: 916.5px; }
 .combustion .for-6-zone-valve-3 { left: 991.5px; }
+.combustion .for-6-gas-drop-2 { left: 928.5px; }
 .combustion .for-7-zone-obj {
   width: 124px;
   height: 107px;
@@ -1970,6 +1979,8 @@
 .combustion .for-7-zone-valve-2 { left: 1049.5px; }
 .combustion .for-7-zone-valve-3 { left: 1111.5px; }
 .combustion .for-7-zone-valve-4 { left: 1138.5px; }
+.combustion .for-7-gas-drop-2 { left: 1061.5px; }
+.combustion .for-7-gas-drop-3 { left: 1089.5px; }
 .combustion .for-fire-group {
   width: 985px;
   height: 36px;
@@ -2019,6 +2030,12 @@
    그래서 틈이 [5, 18, 5]처럼 고르지 않게 보이는데, 본체 간격은 불꽃과 똑같이 고르다 —
    가운데 둘은 돔이 서로 바깥을 향해서 사이가 벌어져 보이는 것뿐이다.
 
+   아래쪽(rev) 밸브만 불꽃 중심에서 1px 왼쪽에 둔다. 원본 작화의 아래쪽 불꽃이 위쪽보다
+   1px 오른쪽에 그려져 있어서다(같은 가로 영역인 위 1존과 아래 7존을 견주면 149~166 대
+   150~167로 넷 다 +1이다). 짧은 가스관은 위아래가 같은 자리라, 불꽃에 그대로 맞추면
+   아래쪽 밸브만 배관에서 1px 벗어난다. 불꽃을 옮기는 쪽이 근본이지만 그건 원본 그림의
+   자리라 두고, 밸브를 배관에 맞췄다. 아래쪽 세로 토막도 같은 이유로 1px 따라간다.
+
    크기는 27x22 → 22x17.9. 버너가 4개인 존은 27이면 밸브가 맞닿아 몇 개인지 알아보기
    어렵다. 높이는 원본 비율(27:22)을 지킨 값이다 — object-fit: cover라 비율이 어긋나면
    잘린다. top(177.05/380.95)은 줄어든 높이의 절반만큼 옮겨 원래 세로 가운데(186/372)를
@@ -2041,6 +2058,26 @@
   transform: rotate(0deg) scale(1, -1);
   object-fit: cover;
   aspect-ratio: 22/17.9;
+}
+
+/* 가운데 밸브를 긴 가스관에 잇는 세로 토막.
+
+   존의 양 끝 밸브는 원본 작화에서 배관에 직접 물려 있는데, 버너를 4개로 늘리면서
+   더한 가운데 밸브들은 이어진 데가 없어 공중에 뜬 것처럼 보인다. 긴 가스관(세로
+   161~171 / 387~397)에서 밸브(177.05~194.95 / 363.05~380.95)까지 6px이 비어서,
+   양쪽으로 3px씩 물리도록 12px짜리 토막을 놓는다.
+
+   가로 자리는 밸브의 본체 중심이다 — 돔이 아니라 가스가 흐르는 쪽에 붙어야 한다.
+   폭 10px은 짧은 가스관(pipe38 등)의 두께와 맞춘 값이다. */
+.combustion .zone-gas-drop {
+  position: absolute;
+  width: 10px;
+  height: 12px;
+  top: 168px;
+  background: #ffcc00;
+}
+.combustion .zone-gas-drop.is-down {
+  top: 378px;
 }
 
 /* 존의 오른쪽 절반 — 돔이 바깥(오른쪽)을 보게 좌우를 뒤집는다.
@@ -2193,10 +2230,12 @@
 }
 /* 1존 밸브 4개 — 아래쪽은 존1이 화면 오른쪽이라 번호가 오른쪽에서 왼쪽으로 간다.
    양 끝(1143·1019)이 배관에 물리는 자리다 — 고치지 말 것. */
-.combustion .rev-1-zone-valve-1 { left: 1139.5px; }
-.combustion .rev-1-zone-valve-2 { left: 1112.5px; }
-.combustion .rev-1-zone-valve-3 { left: 1050.5px; }
-.combustion .rev-1-zone-valve-4 { left: 1023.5px; }
+.combustion .rev-1-zone-valve-1 { left: 1138.5px; }
+.combustion .rev-1-zone-valve-2 { left: 1111.5px; }
+.combustion .rev-1-zone-valve-3 { left: 1049.5px; }
+.combustion .rev-1-zone-valve-4 { left: 1022.5px; }
+.combustion .rev-1-gas-drop-2 { left: 1089.5px; }
+.combustion .rev-1-gas-drop-3 { left: 1061.5px; }
 .combustion .rev-2-zone-obj {
   width: 124px;
   height: 107px;
@@ -2276,10 +2315,12 @@
   transform: rotate(-180deg) scale(1, 1);
 }
 /* 2존 밸브 4개 */
-.combustion .rev-2-zone-valve-1 { left: 992.5px; }
-.combustion .rev-2-zone-valve-2 { left: 965.5px; }
-.combustion .rev-2-zone-valve-3 { left: 903.5px; }
-.combustion .rev-2-zone-valve-4 { left: 876.5px; }
+.combustion .rev-2-zone-valve-1 { left: 991.5px; }
+.combustion .rev-2-zone-valve-2 { left: 964.5px; }
+.combustion .rev-2-zone-valve-3 { left: 902.5px; }
+.combustion .rev-2-zone-valve-4 { left: 875.5px; }
+.combustion .rev-2-gas-drop-2 { left: 942.5px; }
+.combustion .rev-2-gas-drop-3 { left: 914.5px; }
 .combustion .rev-3-zone-obj {
   width: 124px;
   height: 107px;
@@ -2359,10 +2400,12 @@
   transform: rotate(-180deg) scale(1, 1);
 }
 /* 3존 밸브 4개 */
-.combustion .rev-3-zone-valve-1 { left: 845.5px; }
-.combustion .rev-3-zone-valve-2 { left: 818.5px; }
-.combustion .rev-3-zone-valve-3 { left: 756.5px; }
-.combustion .rev-3-zone-valve-4 { left: 729.5px; }
+.combustion .rev-3-zone-valve-1 { left: 844.5px; }
+.combustion .rev-3-zone-valve-2 { left: 817.5px; }
+.combustion .rev-3-zone-valve-3 { left: 755.5px; }
+.combustion .rev-3-zone-valve-4 { left: 728.5px; }
+.combustion .rev-3-gas-drop-2 { left: 795.5px; }
+.combustion .rev-3-gas-drop-3 { left: 767.5px; }
 .combustion .rev-4-zone-obj {
   width: 124px;
   height: 107px;
@@ -2442,10 +2485,12 @@
   transform: rotate(-180deg) scale(1, 1);
 }
 /* 4존 밸브 4개 — 아래쪽은 4·5·6존도 버너가 4개다(위쪽만 3개) */
-.combustion .rev-4-zone-valve-1 { left: 698.5px; }
-.combustion .rev-4-zone-valve-2 { left: 671.5px; }
-.combustion .rev-4-zone-valve-3 { left: 609.5px; }
-.combustion .rev-4-zone-valve-4 { left: 582.5px; }
+.combustion .rev-4-zone-valve-1 { left: 697.5px; }
+.combustion .rev-4-zone-valve-2 { left: 670.5px; }
+.combustion .rev-4-zone-valve-3 { left: 608.5px; }
+.combustion .rev-4-zone-valve-4 { left: 581.5px; }
+.combustion .rev-4-gas-drop-2 { left: 648.5px; }
+.combustion .rev-4-gas-drop-3 { left: 620.5px; }
 .combustion .rev-5-zone-obj {
   width: 124px;
   height: 107px;
@@ -2525,10 +2570,12 @@
   transform: rotate(-180deg) scale(1, 1);
 }
 /* 5존 밸브 4개 */
-.combustion .rev-5-zone-valve-1 { left: 551.5px; }
-.combustion .rev-5-zone-valve-2 { left: 524.5px; }
-.combustion .rev-5-zone-valve-3 { left: 462.5px; }
-.combustion .rev-5-zone-valve-4 { left: 435.5px; }
+.combustion .rev-5-zone-valve-1 { left: 550.5px; }
+.combustion .rev-5-zone-valve-2 { left: 523.5px; }
+.combustion .rev-5-zone-valve-3 { left: 461.5px; }
+.combustion .rev-5-zone-valve-4 { left: 434.5px; }
+.combustion .rev-5-gas-drop-2 { left: 501.5px; }
+.combustion .rev-5-gas-drop-3 { left: 473.5px; }
 .combustion .rev-6-zone-obj {
   width: 124px;
   height: 107px;
@@ -2608,10 +2655,12 @@
   transform: rotate(-180deg) scale(1, 1);
 }
 /* 6존 밸브 4개 */
-.combustion .rev-6-zone-valve-1 { left: 404.5px; }
-.combustion .rev-6-zone-valve-2 { left: 377.5px; }
-.combustion .rev-6-zone-valve-3 { left: 315.5px; }
-.combustion .rev-6-zone-valve-4 { left: 288.5px; }
+.combustion .rev-6-zone-valve-1 { left: 403.5px; }
+.combustion .rev-6-zone-valve-2 { left: 376.5px; }
+.combustion .rev-6-zone-valve-3 { left: 314.5px; }
+.combustion .rev-6-zone-valve-4 { left: 287.5px; }
+.combustion .rev-6-gas-drop-2 { left: 354.5px; }
+.combustion .rev-6-gas-drop-3 { left: 326.5px; }
 .combustion .rev-7-zone-obj {
   width: 124px;
   height: 107px;
@@ -2691,10 +2740,12 @@
   transform: rotate(-180deg) scale(1, 1);
 }
 /* 7존 밸브 4개 */
-.combustion .rev-7-zone-valve-1 { left: 257.5px; }
-.combustion .rev-7-zone-valve-2 { left: 230.5px; }
-.combustion .rev-7-zone-valve-3 { left: 168.5px; }
-.combustion .rev-7-zone-valve-4 { left: 141.5px; }
+.combustion .rev-7-zone-valve-1 { left: 256.5px; }
+.combustion .rev-7-zone-valve-2 { left: 229.5px; }
+.combustion .rev-7-zone-valve-3 { left: 167.5px; }
+.combustion .rev-7-zone-valve-4 { left: 140.5px; }
+.combustion .rev-7-gas-drop-2 { left: 207.5px; }
+.combustion .rev-7-gas-drop-3 { left: 179.5px; }
 .combustion .rev-fire-group {
   width: 985px;
   height: 36px;
