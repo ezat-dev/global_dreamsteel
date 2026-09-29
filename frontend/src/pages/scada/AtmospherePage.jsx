@@ -59,14 +59,14 @@ const DEVICE_PANELS = [
     plate: { left: 4, top: 8, width: 220 },
     state: { left: 16, top: 70, width: 170 },
     onCmd: 'add_air_open_cmd',    // M324 / 램프 M624 — 1이면 초록
-    offCmd: 'add_air_close_cmd',  // M325 / 램프 M625 — 1이면 빨강
+    offCmd: 'add_air_close_cmd',  // M325 / 램프 M625 — 0이면 빨강
   },
   {
     key: 'gas', tone: 'gas', title: 'ADDTION GAS',
     plate: { left: 4, top: 168, width: 178 },
     state: { left: 16, top: 228, width: 170 },
-    onCmd: 'add_gas_open_cmd',    // M322 / 램프 M622
-    offCmd: 'add_gas_close_cmd',  // M323 / 램프 M623
+    onCmd: 'add_gas_open_cmd',    // M322 / 램프 M622 — 1이면 초록
+    offCmd: 'add_gas_close_cmd',  // M323 / 램프 M623 — 0이면 빨강
   },
   {
     /* 발생기는 램프 태그만 있고 명령 태그가 없어서 누를 수 없는 표시 전용이다.
@@ -414,14 +414,20 @@ export default function AtmospherePage() {
                     /* other = 반대쪽 버튼의 태그. 누를 때 이쪽에 1, 반대쪽에 0을 준다. */
                     [
                       { cmd: d.onCmd, other: d.offCmd, text: 'OPEN', onClassName: ' is-on' },
-                      { cmd: d.offCmd, other: d.onCmd, text: 'CLOSE', onClassName: ' is-alarm' },
+                      /* CLOSE만 켜지는 값이 반대다 — 램프가 0일 때 빨강이고 1이면 회색이다.
+                         PLC가 그렇게 주는 것이라 화면에서 맞춘다(연소화면 MAIN GAS CLOSE와 같다). */
+                      {
+                        cmd: d.offCmd, other: d.onCmd, text: 'CLOSE',
+                        onClassName: ' is-alarm', litWhen: TAG_OFF,
+                      },
                     ].map((b) => (
                       /* disabled를 걸지 않는다 — 비활성 요소는 뗌 이벤트를 못 받아서
                          시간을 채우기 전에 떼도 취소가 안 된다. */
                       <button
                         type="button"
                         key={b.cmd}
-                        className={`hmi-lampbox${lampClassOf(tagValues, b.cmd, b.onClassName)}`
+                        /* litWhen이 없으면(OPEN) lampClassOf의 기본값인 TAG_ON이 쓰인다. */
+                        className={`hmi-lampbox${lampClassOf(tagValues, b.cmd, b.onClassName, b.litWhen)}`
                           + (heldTag === b.cmd ? ' is-held' : '')
                           + (armedTag === b.cmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(b.cmd, b.other)}
