@@ -6,6 +6,7 @@ import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import {
   lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
+import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import {
   BEACON, FITTING_TAGS, ROTATE_VALVE, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
@@ -152,7 +153,11 @@ export default function AtmospherePage() {
   /* 이 화면의 PLC 값 — 램프·밸브 패널·조건판이 전부 여기서 온다.
      작화 위 그림 중 볼밸브(valve-2)와 로내 투입 화살표(down-1 / down-2)는 태그가 없다 —
      맞는 PLC 값이 없어서 그냥 그려만 둔다. */
-  const { values: tagValues, error: tagValueError } = useFolderTagValues(AT_FOLDER_ID);
+  /* OPEN/CLOSE를 누른 직후에는 그 두 램프 태그만 PLC에서 직접 읽어 얹는다. 폴링이 보는
+     C# 캐시는 최악 2초 늦어서, 2초를 눌러 값을 보내도 램프가 바로 안 바뀌기 때문이다.
+     아래는 얹힌 뒤의 tagValues만 보면 된다. */
+  const { values: polledValues, error: tagValueError } = useFolderTagValues(AT_FOLDER_ID);
+  const { values: tagValues, readAndHold } = useLiveTagRead(AT_FOLDER_ID, polledValues);
 
   /** 압력계·솔밸브 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
       늘 초록 아니면 빨강이고, 못 읽을 때만 점선이다. */
@@ -240,6 +245,12 @@ export default function AtmospherePage() {
      scada_log는 태그 값이 언제 무엇으로 바뀌었는지를 보는 곳이라 빠지면 안 된다. */
   const sendPair = (selfCmd, otherCmd) => writeTag(AT_FOLDER_ID, otherCmd, 0)
     .then(() => writeTag(AT_FOLDER_ID, selfCmd, 1))
+    /* 두 램프를 같이 읽는다. 누른 쪽만 읽으면 반대쪽이 한동안 켜진 채로 남아
+       OPEN과 CLOSE가 둘 다 켜진 것처럼 보인다 — 서로 반대라 그럴 수 없는 상태다.
+
+       위 모멘터리 버튼들과 달리 떼도 값이 남으므로(래치) 뗌을 해제 신호로 쓸 수 없다.
+       폴링이 같은 값을 가져올 때까지 붙들고, 그래도 안 오면 3초에서 끊는다. */
+    .then(() => readAndHold([lampOf(selfCmd), lampOf(otherCmd)]))
     .catch((e) => setWriteError(`${selfCmd} — ${e.message}`));
 
   const handlePress = (selfCmd, otherCmd) => {

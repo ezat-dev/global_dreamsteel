@@ -7,6 +7,7 @@ import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
+import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import {
   FITTING_TAGS, THUNDER_TAGS, fittingRedClass, thunderHideClass, thunderTag,
 } from '../../components/scada/combustionArtTags';
@@ -278,8 +279,13 @@ export default function CombustionPage() {
   const [burnerZone, setBurnerZone] = useState(null);
 
   /* PLC 태그 값 — 이 화면이 한 번만 폴링해서 모달까지 같이 쓴다.
-     모달이 따로 폴링하면 창을 열 때마다 요청이 하나 더 붙는다. */
-  const { values: tagValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
+     모달이 따로 폴링하면 창을 열 때마다 요청이 하나 더 붙는다.
+
+     조작 버튼을 누른 직후에는 그 버튼의 램프 태그 하나만 PLC에서 직접 읽어 얹는다.
+     폴링이 보는 C# 캐시는 최악 2초 늦어서, 2초를 눌러 값을 보내도 램프가 바로
+     안 바뀌기 때문이다. 아래는 얹힌 뒤의 tagValues만 보면 된다. */
+  const { values: polledValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
+  const { values: tagValues, readWhileHeld, clearLive } = useLiveTagRead(CB_FOLDER_ID, polledValues);
 
   /* 위쪽 배관 부속 넷 — 값이 1이면 작화 그대로, 0이거나 못 읽으면 빨강.
      구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
@@ -350,6 +356,11 @@ export default function CombustionPage() {
       armedRef.current = true;
       setArmedTag(name);
       chainRef.current = writeTag(CB_FOLDER_ID, name, 1)
+        /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
+           버튼 색은 짝이 되는 _lamp가 정하므로 그쪽을 읽는다. 그 램프는 우리가 쓴
+           값이 아니라 PLC 래더가 만들어 주는 것이라, 설비 로직이 조건을 보고 늦게
+           켜면 0이 읽힐 수 있다 — 그때는 폴링을 기다리던 지금까지와 같아질 뿐이다. */
+        .then(() => readWhileHeld(lampOf(name), () => heldRef.current === name))
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, HOLD_MS);
   };
@@ -363,6 +374,10 @@ export default function CombustionPage() {
 
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
+
+    /* 직접 읽어 둔 램프 값을 버리고 폴링에 맡긴다 — 떼면 0이 나가므로 꺼지는 것이 맞다.
+       아직 안 읽었으면 예약만 취소한다(뗀 뒤에는 읽을 이유가 없다). */
+    clearLive();
 
     // 누름 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;

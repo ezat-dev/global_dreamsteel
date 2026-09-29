@@ -9,8 +9,9 @@ import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import {
-  lampClassOf, lampOf, readTagLive, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
+  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
+import useLiveTagRead from '../../components/scada/useLiveTagRead';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './driveOverview.css';
 import './DrivePage.css';
@@ -137,19 +138,8 @@ const ALARM_SWITCHES = [
   { tag: 'alarm_horn_stop', text: 'HORN STOP' },
 ];
 
-/* 1을 보낸 뒤 이만큼 있다가 PLC에서 값을 직접 읽는다. 알람화면의 같은 버튼과 같은 처리다.
-
-   폴링이 보는 것은 C#이 2초마다 채우는 캐시라, 2초를 눌러 1을 보내도 버튼이 바로
-   초록으로 안 바뀐다. 눌렀는데 아무 반응이 없는 것으로 보여서 한 번 더 누르게 된다.
-
-   곧바로 읽지 않고 조금 두는 이유는 두 가지다. 쓰기 직후에는 C#도 "제대로 쓰였나"를
-   확인하려고 PLC를 한 번 읽는다 — 같은 순간에 요청을 겹쳐 보내지 않으려는 것이고,
-   PLC 래더가 그 입력을 반영할 시간도 준다. 0.2초는 사람 눈에는 즉시로 보인다.
-
-   이 판의 두 버튼에만 쓴다. 다른 조작 버튼들은 자기 값이 아니라 짝이 되는 _lamp를
-   보고 색을 정하는데, 그 램프는 우리가 쓴 값이 아니라 PLC 래더가 만들어 주는 것이라
-   같은 방식으로 다룰 수 없다. */
-const LIVE_READ_DELAY_MS = 200;
+/* 이 판의 두 버튼은 쓰는 태그가 곧 상태 태그다 — 다른 조작 버튼처럼 _lamp를 보지
+   않으므로, 누른 뒤 값을 직접 읽을 때도 그 태그를 그대로 읽는다. */
 const isAlarmSwitch = (name) => ALARM_SWITCHES.some((b) => b.tag === name);
 
 /* 구동부 ON/OFF 태그. 화면 이름은 입구/출구지만 태그는 현장 용어인 장입/배출을 쓴다.
@@ -690,8 +680,14 @@ export default function DrivePage() {
       .catch((e) => setWriteError(`${tag} — ${e.message}`));
   };
 
-  /* 이 화면의 PLC 값 — 램프·PV/SV·조작 상태가 전부 여기서 온다. */
-  const { values: tagValues, error: tagValueError } = useFolderTagValues(DR_FOLDER_ID);
+  /* 이 화면의 PLC 값 — 램프·PV/SV·조작 상태가 전부 여기서 온다.
+     조작 버튼을 누른 직후에는 그 태그 하나만 PLC에서 직접 읽어 얹는다. 폴링이 보는
+     C# 캐시는 최악 2초 늦어서, 2초를 눌러 값을 보내도 램프가 바로 안 바뀌기 때문이다.
+     아래 렌더는 얹힌 뒤의 tagValues만 보면 된다. */
+  const { values: polledValues, error: tagValueError } = useFolderTagValues(DR_FOLDER_ID);
+  const {
+    values: tagValues, readWhileHeld, readAndHold, clearLive,
+  } = useLiveTagRead(DR_FOLDER_ID, polledValues);
   const [writeError, setWriteError] = useState('');
 
   /* SIDE CONVEYOR 화살표 — 값이 1인 방향만 보인다(0이거나 못 읽으면 숨긴다).
@@ -803,21 +799,11 @@ export default function DrivePage() {
      도착해서 비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
   const chainRef = useRef(Promise.resolve());
 
-  /* PLC에서 직접 읽어 온 값 — { tag, value }. 누르고 있는 동안만 폴링값 대신 이걸 쓴다.
-     떼면 버리므로 따로 만료 시각을 둘 필요가 없다. 떼고 나서 램프가 늦게 꺼지는 것은
-     지금까지와 같고, 문제였던 것은 누르는 동안 안 켜지는 쪽이다. */
-  const [liveValue, setLiveValue] = useState(null);
-  const liveTimerRef = useRef(null);
-
   /* ALARM SWITCH 두 버튼의 색 — 이 태그들은 이름 자체가 상태값이라(_lamp가 없다)
-     lampClassOf 대신 값을 바로 읽는다. 1이면 켜짐, 못 읽으면 모름(점선).
-
-     누르고 있는 동안에는 PLC에서 직접 읽어 온 값이 폴링값보다 최신이다 —
-     폴링은 최대 2초 늦은 캐시를 보므로 방금 보낸 1이 아직 안 보인다. */
+     lampClassOf 대신 값을 바로 읽는다. 1이면 켜짐, 못 읽으면 모름(점선). */
   const switchLampClass = (name) => {
-    const live = liveValue && liveValue.tag === name;
-    if (!live && !tagValues) return ' is-unknown';
-    const st = tagState(live ? liveValue.value : tagValues[name]);
+    if (!tagValues) return ' is-unknown';
+    const st = tagState(tagValues[name]);
     if (st === TAG_UNKNOWN) return ' is-unknown';
     return st === TAG_ON ? ' is-on' : '';
   };
@@ -835,21 +821,15 @@ export default function DrivePage() {
       setArmedTag(name);
       chainRef.current = writeTag(DR_FOLDER_ID, name, 1)
         .then(() => {
-          /* ALARM SWITCH 두 버튼만 해당한다. 1이 실제로 나갔을 때만 읽는다 —
-             쓰기가 실패했으면 읽어 봐야 0이다. */
-          if (!isAlarmSwitch(name)) return;
-          liveTimerRef.current = setTimeout(() => {
-            /* 그새 뗐으면 읽지 않는다 — 뗄 때 0을 보내므로 어차피 0이 돌아오고,
-               PLC 왕복만 한 번 더 늘어난다. */
-            if (heldRef.current !== name) return;
-            readTagLive(DR_FOLDER_ID, name)
-              .then((value) => {
-                if (heldRef.current === name) setLiveValue({ tag: name, value });
-              })
-              /* 못 읽어도 알리지 않는다 — 폴링이 곧 같은 값을 가져오니
-                 이 기능이 없던 때와 같아질 뿐이고, 조작 자체는 이미 성공했다. */
-              .catch(() => {});
-          }, LIVE_READ_DELAY_MS);
+          /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
+
+             읽을 태그가 버튼마다 다르다. ALARM SWITCH는 쓰는 태그가 곧 상태라
+             그대로 읽고, 구동부 ON/OFF는 짝이 되는 _lamp를 봐야 색이 정해진다.
+             후자는 우리가 쓴 값이 아니라 PLC 래더가 만들어 주는 값이라, 설비 로직이
+             조건을 보고 늦게 켜면 0이 읽힐 수 있다 — 그때는 폴링을 기다리던
+             지금까지와 같아질 뿐이다. */
+          const watchTag = isAlarmSwitch(name) ? name : lampOf(name);
+          readWhileHeld(watchTag, () => heldRef.current === name);
         })
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, DRIVE_HOLD_MS);
@@ -865,11 +845,9 @@ export default function DrivePage() {
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
 
-    /* 직접 읽어 둔 값을 버리고 폴링에 맡긴다 — 뗌과 동시에 해제되므로 만료 타이머가 없다.
+    /* 직접 읽어 둔 값을 버리고 폴링에 맡긴다 — 떼면 0이 나가므로 꺼지는 것이 맞다.
        아직 안 읽었으면 예약만 취소한다(뗀 뒤에는 읽을 이유가 없다). */
-    clearTimeout(liveTimerRef.current);
-    liveTimerRef.current = null;
-    setLiveValue(null);
+    clearLive();
 
     // 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;
@@ -915,6 +893,9 @@ export default function DrivePage() {
     offBtnTimerRef.current = setTimeout(() => {
       setOffBtnArmed(true);
       writeTag(DR_FOLDER_ID, FACILITY_OFF_BTN_TAG, next)
+        /* 위 ON/OFF와 달리 떼도 값이 남는 버튼이라, 뗌을 해제 신호로 쓸 수 없다.
+           폴링이 같은 값을 가져올 때까지 붙들고 그래도 안 오면 3초에서 끊는다. */
+        .then(() => readAndHold(FACILITY_OFF_BTN_TAG))
         .catch((e) => setWriteError(`${FACILITY_OFF_BTN_TAG} — ${e.message}`));
     }, DRIVE_HOLD_MS);
   };
@@ -944,7 +925,6 @@ export default function DrivePage() {
       window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', release);
       window.removeEventListener('blur', release);
-      clearTimeout(liveTimerRef.current);
       release();   // 화면을 떠날 때 누르고 있던 것이 있으면 내린다
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
