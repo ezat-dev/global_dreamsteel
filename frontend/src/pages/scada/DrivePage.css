@@ -850,6 +850,55 @@
   filter: grayscale(1);
 }
 
+/* ===== SIDE CONVEYOR 레일이 구르는 모양 ==================================
+   레일 12줄(입구 6 · 출구 6) 안에 10x6px 막대(mini-rail)가 39개씩 7px 간격으로
+   세로로 쌓여 있다. 막대 사이 간격이 일정하므로 딱 한 칸(7px)만 움직이고 되돌리면
+   다음 막대가 앞 막대 자리를 채워서, 이음매 없이 끝없이 흐르는 것처럼 보인다.
+   실제로 작화 여유가 있어 양 끝에서 막대가 삐져나오거나 빈 자리가 생기지 않는다.
+
+   입구는 아래로, 출구는 위로 구른다(제품이 흐르는 방향).
+
+   막대(자식)에 거는 이유: 레일 묶음(.ent-rail-N)은 position: static이라 거기에
+   transform을 걸면 그 요소가 자식 absolute의 기준(containing block)이 되어 버린다.
+   막대 468개의 left/top이 통째로 다시 계산되어 화면이 깨진다. 묶음은 크기만 있는
+   껍데기라 옮길 대상이 아니다.
+
+   롤러·팬과 같은 규칙이다 — 값이 1일 때만 구르고 0이거나 못 읽으면 선다.
+   무대에 roll-ent-rail / roll-exit-rail이 붙었을 때만 애니메이션이 걸리므로,
+   아무것도 안 붙은 기본 상태가 '멈춤'이다. 화면에 늘 보이는 것이라 서 있는 쪽을
+   기본으로 두는 편이 안전하다(통신이 끊겼는데 흐르면 설비가 도는 줄로 읽힌다). */
+.dr-stage-inner.roll-ent-rail [class^="ent-rail-"] > div {
+  animation: dr-rail-down .7s linear infinite;
+}
+.dr-stage-inner.roll-exit-rail [class^="exit-rail-"] > div {
+  animation: dr-rail-up .7s linear infinite;
+}
+
+@keyframes dr-rail-down {
+  from { transform: translateY(0); }
+  to   { transform: translateY(7px); }
+}
+
+/* 출구 막대에는 작화가 이미 scale(-1, 1)(좌우 뒤집기)을 걸어 두었다. transform은
+   겹쳐 쌓이지 않고 나중 것 하나만 남으므로, 여기서 translateY만 적으면 그 뒤집기가
+   사라진다 — transform-origin이 0 0이라 막대가 제 폭(10px)만큼 오른쪽으로 밀린다.
+   그래서 원래 값을 같이 적는다. 순서도 작화와 같게 둔다(뒤집은 뒤 옮기기). */
+@keyframes dr-rail-up {
+  from { transform: rotate(0deg) scale(-1, 1) translateY(0); }
+  to   { transform: rotate(0deg) scale(-1, 1) translateY(-7px); }
+}
+
+/* 움직임을 꺼 달라는 설정이면 멈춘다 — 작화의 롤러·팬 SVG와 같은 처리다. */
+/* 선택자를 위와 같은 무게로 맞춘다 — .roll-*가 붙은 규칙이 더 강해서,
+   여기를 .dr-stage-inner만으로 쓰면 특정성에 밀려 멈추지 않는다.
+   (미디어 쿼리는 특정성을 올려주지 않는다) */
+@media (prefers-reduced-motion: reduce) {
+  .dr-stage-inner.roll-ent-rail [class^="ent-rail-"] > div,
+  .dr-stage-inner.roll-exit-rail [class^="exit-rail-"] > div {
+    animation: none;
+  }
+}
+
 .dr-stage-inner.hot-main-1-zone .overview-1 .main-1-zone,
 .dr-stage-inner.hot-main-2-zone .overview-1 .main-2-zone,
 .dr-stage-inner.hot-main-3-zone .overview-1 .main-3-zone,

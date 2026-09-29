@@ -131,6 +131,22 @@ export const zoneTitle = (cls) => {
   return `${t.label} / ${t.tag} — ${ZONE_RULE}`;
 };
 
+/* SIDE CONVEYOR 레일. 한 줄에 막대(mini-rail) 39개씩 6줄이 한 구역을 이루고,
+   구역 전체가 한 축으로 움직이니 태그도 구역당 하나다(롤러와 같은 사정).
+   값이 1이면 구르고 0이거나 못 읽으면 선다 — 통신이 끊겼는데 계속 흐르면
+   설비가 도는 줄로 읽히므로 세우는 쪽이 안전하다.
+
+   주소가 아직 롤러(charge_side_conveyor_roller)와 같은 M300이라 지금은 롤러와
+   레일이 같이 돌고 같이 선다. 실제로도 같은 축이면 나중에 태그를 하나로 합칠 수 있다. */
+export const RAIL_TAGS = {
+  ent: { tag: 'charge_side_conveyor_rail', label: '입구 SIDE CONVEYOR 레일' },
+  exit: { tag: 'discharge_side_conveyor_rail', label: '출구 SIDE CONVEYOR 레일' },
+};
+
+/* 구를 때 무대에 붙는 클래스. 붙지 않은 상태가 '멈춤'이다 —
+   화면에 늘 보이는 것이라 서 있는 쪽을 기본으로 둔다. */
+export const railRollClass = (key) => `roll-${key}-rail`;
+
 /* 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다.
    입구문은 1이면 초록, 못 읽으면 회색이 붙고 0이면 아무것도 안 붙는다 —
    붙지 않은 상태가 빨강이라 CSS 기본 규칙에 그 색이 적혀 있다.

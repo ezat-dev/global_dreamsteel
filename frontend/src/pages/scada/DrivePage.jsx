@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import DriveOverview from '../../components/scada/DriveOverview';
 import {
-  ARROW_TAGS, DOOR_TAG, FAN_TAGS, MOTOR_TAGS, ROLLER_TAGS, ZONE_TAGS,
-  artTitle, doorGrayClass, doorGreenClass, motorGrayClass, zoneHotClass,
+  ARROW_TAGS, DOOR_TAG, FAN_TAGS, MOTOR_TAGS, RAIL_TAGS, ROLLER_TAGS, ZONE_TAGS,
+  artTitle, doorGrayClass, doorGreenClass, motorGrayClass, railRollClass, zoneHotClass,
 } from '../../components/scada/driveArtTags';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
@@ -699,6 +699,14 @@ export default function DrivePage() {
   const entRolling = tagState(tagValues?.[ROLLER_TAGS.ent.tag]) === TAG_ON;
   const exitRolling = tagState(tagValues?.[ROLLER_TAGS.exit.tag]) === TAG_ON;
 
+  /* 레일(mini-rail 468개)은 롤러와 규칙이 같지만 방식이 다르다. 이쪽은 작화가 CSS로
+     그린 div라 무대에 클래스를 붙여 DrivePage.css가 움직이게 한다.
+     1일 때만 클래스가 붙는다 — 안 붙은 상태가 '멈춤'이다. */
+  const railRoll = Object.entries(RAIL_TAGS)
+    .filter(([, t]) => tagState(tagValues?.[t.tag]) === TAG_ON)
+    .map(([key]) => ` ${railRollClass(key)}`)
+    .join('');
+
   /* 모터는 화살표와 같은 방식이다 — 무대에 클래스만 붙이고 회색으로 만드는 일은 CSS가 한다. */
   const motorGray = MOTOR_GRAY
     .filter(({ tag }) => tagState(tagValues?.[tag]) !== TAG_ON)
@@ -1022,7 +1030,7 @@ export default function DrivePage() {
         {/* 왼쪽 위를 고정점으로 줄인다(transform-origin: top left). 배율이 가로 기준이라
             줄인 폭이 곧 무대 폭이 되어 좌우 양끝에 딱 맞는다. */}
         <div
-          className={`dr-stage-inner${arrowHideClass}${motorGray}${doorClass}${zoneHot}`}
+          className={`dr-stage-inner${arrowHideClass}${motorGray}${doorClass}${zoneHot}${railRoll}`}
           style={{
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,
