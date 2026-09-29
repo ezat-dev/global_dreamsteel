@@ -147,6 +147,15 @@ export const RAIL_TAGS = {
    화면에 늘 보이는 것이라 서 있는 쪽을 기본으로 둔다. */
 export const railRollClass = (key) => `roll-${key}-rail`;
 
+/* 레일 툴팁. 막대(mini-rail) 하나하나에 같은 값을 단다 — 묶음(.ent-rail-N)은
+   position: static이라 자식 막대와 영역이 달라서, 거기 달면 엉뚱한 자리에서 뜬다.
+   롤러(ent-conv-*)도 같은 이유로 12개에 같은 값을 달고 있다. */
+const RAIL_RULE = '값이 1이면 구름 / 0이거나 못 읽으면 멈춤';
+export const railTitle = (key) => {
+  const t = RAIL_TAGS[key];
+  return `${t.label} / ${t.tag} — ${RAIL_RULE}`;
+};
+
 /* 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다.
    입구문은 1이면 초록, 못 읽으면 회색이 붙고 0이면 아무것도 안 붙는다 —
    붙지 않은 상태가 빨강이라 CSS 기본 규칙에 그 색이 적혀 있다.
