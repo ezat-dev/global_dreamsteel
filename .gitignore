@@ -21,6 +21,12 @@ logs/
 # 실제 DB 비밀번호가 들어있는 로컬 실행 스크립트 (run-backend.bat.example 참고해서 각자 생성)
 run-backend.bat
 
+# WinSW로 윈도우 서비스에 등록할 때 쓰는 배포 폴더.
+# 들어가는 것이 전부 공유하면 안 되는 것들이다 — 빌드한 jar(수십 MB, 매번 다시 만들 수 있다),
+# DB 비밀번호가 평문으로 적힌 설정 XML(run-backend.bat과 같은 취급), WinSW 실행 파일,
+# 그리고 서비스가 남기는 로그. 자바 경로와 로그 폴더도 PC마다 달라서 공유할 것이 못 된다.
+service/
+
 # sample_pro(레거시 참고용 복사본) 빌드 캐시/의존성/배포 산출물 — 코드가 아니라 매번 재생성 가능
 sample_pro/.m2/
 sample_pro/.m2repo/
