@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IconUserPlus, IconUserEdit } from '@tabler/icons-react';
 import { filterScadaMenu } from '../../constants/scadaMenu';
@@ -22,6 +22,24 @@ export default function MainPage() {
   const { isAdmin, canView } = useAuth();
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+
+  /* 이 화면에서만 본문 칸의 스크롤을 막는다.
+
+     타일 아홉 개짜리 이동판이라 굴려서 보는 자리가 아닌데, 기기에 따라 몇 px이 모자라
+     스크롤이 생기고 그러면 우측 상단 관리자 버튼이 스크롤바 폭만큼 왼쪽으로 밀린다.
+     클래스를 CSS가 아니라 여기서 붙이는 이유는, .hmi-body가 모든 화면이 함께 쓰는
+     칸이라 이 화면에 있을 때만 걸어야 하기 때문이다. 화면을 떠날 때 반드시 뗀다.
+
+     useEffect가 아니라 useLayoutEffect다. useEffect는 브라우저가 화면을 그린 뒤에
+     실행돼서, 타일이 그려져 넘친 순간과 클래스가 붙는 순간 사이에 한 프레임이 보인다 —
+     새로고침할 때마다 스크롤바가 번쩍 생겼다가 사라지고 버튼이 밀렸다 돌아왔다.
+     useLayoutEffect는 그리기 전에 실행되므로 그 중간 상태가 화면에 나오지 않는다
+     (숫자패드가 위치를 잡을 때 쓰는 것과 같은 이유다). */
+  useLayoutEffect(() => {
+    const body = document.querySelector('.hmi-body');
+    body?.classList.add('is-noscroll');
+    return () => body?.classList.remove('is-noscroll');
+  }, []);
 
   // 볼 권한이 있는 화면 중 자기 자신(메인화면)만 뺀다 —
   // 관리자 전용 타일과 권한 0으로 막아 둔 화면이 사라진다.
