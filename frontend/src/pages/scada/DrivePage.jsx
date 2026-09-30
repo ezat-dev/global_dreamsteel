@@ -625,7 +625,11 @@ function DrivePanel({
 
 export default function DrivePage() {
   const stageRef = useRef(null);
-  const [scale, setScale] = useState(1);
+  /* 0으로 시작한다 — 아직 재기 전이라는 뜻이고, 그동안은 무대를 숨긴다(아래 visibility).
+     1로 두면 배율을 재기 전 한 프레임이 원본 크기로 그려져서, 화면에 들어올 때마다
+     그림이 튄다(PC는 작았다가 커지고, 태블릿은 컸다가 작아진다).
+     연소·분위기·쿨링 화면과 useStageScale 훅이 전부 같은 방식이다. */
+  const [scale, setScale] = useState(0);
 
   /* 그림은 원본 크기 그대로 그려 두고 통째로 줄인다. 그래야 작화 CSS를 안 건드리고도
      창 크기에 맞고, 위에 얹은 라벨도 그림과 같은 비율로 따라 움직인다.
@@ -1064,6 +1068,9 @@ export default function DrivePage() {
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,
             transform: `scale(${scale})`,
+            /* 배율을 재기 전(0) 한 프레임은 숨긴다 — 원본 크기로 번쩍이지 않게.
+               다른 작화 화면들과 같은 처리다. */
+            visibility: scale ? 'visible' : 'hidden',
           }}
         >
           <DriveOverview entRolling={entRolling} exitRolling={exitRolling} />
