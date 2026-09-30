@@ -29,6 +29,11 @@ import jakarta.servlet.http.HttpSession;
  * </p>
  *
  * <p>
+ * 다만 <b>화면이 타이머로 되부르는 조회는 뺀다</b>(AUTO_POLL_PARAM). 사람이 보낸 요청이
+ * 아니라서 위 물음에 답해 주지 않는데, 양이 전체의 98%를 넘어 정작 조작 기록을 묻어 버린다.
+ * </p>
+ *
+ * <p>
  * 화면을 옮길 때마다 checkSession이 나가므로, 그 줄들이 사실상 화면 이동 기록이 된다.
  * </p>
  *
@@ -48,6 +53,45 @@ import jakarta.servlet.http.HttpSession;
 public class ControllerLogAspect {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerLogAspect.class);
+
+    /**
+     * 화면이 타이머로 스스로 되부르는 조회임을 알리는 파라미터. 붙어 있으면 로그를 남기지 않는다.
+     *
+     * <p>
+     * 이 로그는 "누가 언제 무엇을 했나"를 보는 자리인데, 폴링은 사람이 누른 것이 아니라
+     * 화면이 열려 있는 동안 타이머가 계속 부르는 것이라 그 물음에 답해 주지 않는다.
+     * 그런데 양은 압도적이다 — 2026-09-29 하루치 27,147줄 가운데 26,768줄(98.6%)이
+     * 경보 폴링이었고, 그날 사람이 실제로 조작한 writeTag는 8줄이었다. 조작 기록이
+     * 폴링 줄 사이에 묻혀서 찾을 수가 없다. 파일도 하루 5MB씩 쌓였다(화면을 두 대 켜면 그 배).
+     * </p>
+     *
+     * <p>
+     * <b>URI로 거르지 않는 이유</b>가 중요하다. 같은 API를 사람도 쓴다 —
+     * getAlarmList는 구동·연소화면의 5초 폴링과 <b>경보이력 화면의 조회</b>가 같이 쓰고,
+     * getTrend는 트렌드 화면의 자동갱신과 <b>조회 버튼</b>이 같은 코드를 탄다.
+     * URI만 보고 빼면 사람이 누른 조회까지 사라져서, 없애려던 것과 남겨야 할 것을 함께 잃는다.
+     * 그래서 부르는 쪽이 "이건 타이머가 보낸 것"이라고 알려 주게 했다.
+     * </p>
+     *
+     * <p>
+     * 헤더가 아니라 쿼리 파라미터인 이유는 둘이다. 프론트의 조회 함수들이 params만 받게
+     * 되어 있어서 헤더를 넘기려면 그 시그니처를 전부 열어야 하고, 커스텀 헤더는 CORS
+     * preflight(OPTIONS)를 부른다. 조회 조건이 아닌 값이 쿼리스트링에 섞이지만 컨트롤러의
+     * DTO에 없는 이름이라 그대로 무시된다.
+     * </p>
+     *
+     * <p>
+     * 붙이는 곳은 useAlarmList(5초)와 TrendPage의 자동갱신(30초)이다. 폴링이 하나 더
+     * 생기면 그쪽 params에 이 이름만 넣으면 되고 여기는 손대지 않는다.
+     * </p>
+     *
+     * <p>
+     * <b>빠져도 안 보이게 되는 것은 없다.</b> 실패는 GlobalExceptionHandler가 스택까지
+     * 따로 남기고, 조회라서 scada_log에 남길 조작도 아니다. 화면 이동 기록은 checkSession이
+     * 그대로 남겨 준다.
+     * </p>
+     */
+    private static final String AUTO_POLL_PARAM = "autoPoll";
 
     /**
      * 직렬화에만 쓴다. 스프링이 MVC용으로 만든 것과 섞이지 않게 여기서 따로 든다.
@@ -92,6 +136,13 @@ public class ControllerLogAspect {
     @Around("execution(* com.mes.controller..*(..))")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = currentRequest();
+
+        /* 화면이 타이머로 되부르는 조회는 그냥 통과시킨다(위 AUTO_POLL_PARAM 참고).
+           시간 측정도 하지 않는다 — 어차피 남기지 않을 값이다. */
+        if (request != null && request.getParameter(AUTO_POLL_PARAM) != null) {
+            return joinPoint.proceed();
+        }
+
         String who = loginUserId(request);
         String what = request == null
                 ? joinPoint.getSignature().toShortString()

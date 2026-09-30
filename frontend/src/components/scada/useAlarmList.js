@@ -52,7 +52,10 @@ export default function useAlarmList() {
     let timer;
 
     const tick = () => {
-      getAlarmList({ limit: LIMIT })
+      /* autoPoll — 사람이 누른 조회가 아니라서 백엔드가 접근 로그에 남기지 않는다.
+         같은 API를 경보이력 화면도 쓰는데 그쪽은 남아야 하므로 부르는 쪽에서 가른다.
+         조회 조건이 아니라 DTO에 없는 이름이고, 컨트롤러는 그대로 무시한다. */
+      getAlarmList({ limit: LIMIT, autoPoll: 1 })
         .then((res) => {
           if (!alive) return;
           setError('');

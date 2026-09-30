@@ -277,6 +277,11 @@ export default function TrendPage() {
     getTrend({
       startTime: format(range.start, QUERY_FORMAT),
       endTime: format(range.end, QUERY_FORMAT),
+      /* 자동갱신이 건 조회면 백엔드가 접근 로그에 남기지 않는다. autoQueryRef는 이 조회를
+         누가 걸었는지를 이미 들고 있다('조회 중' 표시를 가르는 데 쓰고 있다) — 조회 버튼과
+         빠른 버튼은 이 값을 false로 두므로 사람이 한 조회는 그대로 남는다.
+         axios는 값이 undefined인 params를 보내지 않아서 평소에는 붙지 않는다. */
+      autoPoll: autoQueryRef.current ? 1 : undefined,
     })
       .then((res) => {
         if (!alive) return;
@@ -318,6 +323,8 @@ export default function TrendPage() {
     getTrendMemoList({
       startTime: format(range.start, QUERY_FORMAT),
       endTime: format(range.end, QUERY_FORMAT),
+      // 값 조회와 같은 기준으로 가른다 — 자동갱신이 30초마다 둘을 함께 부른다
+      autoPoll: autoQueryRef.current ? 1 : undefined,
     })
       .then((res) => {
         if (!alive) return;
