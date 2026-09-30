@@ -337,7 +337,10 @@ export default function AtmospherePage() {
   };
 
   const handleValveChange = (field, value) => {
-    const num = Number(value);
+    /* 숫자패드가 문자열을 준다. C#은 PLC 워드를 정수로만 읽고 쓰므로 정수로 맞춘다 —
+       온도·연소·구동·쿨링 화면의 같은 자리와 맞춘 처리다. 숫자패드가 소수점을 막고
+       있어서 실제로 반올림될 일은 없지만, 값이 어디서 오든 정수가 나가게 둔다. */
+    const num = Math.round(Number(value));
     if (!Number.isFinite(num)) return;
 
     setWriteError('');

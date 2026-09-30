@@ -94,6 +94,21 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
   /* min이 0 이상이면 음수를 받지 않는다. 지연시간·개도처럼 음수가 뜻이 없는 칸이다. */
   const allowNegative = min == null || min < 0;
 
+  /* 소수점은 기본으로 막는다.
+
+     PLC에서 읽고 쓰는 값이 전부 정수다 — C#이 워드를 BitConverter.ToUInt16으로 읽고,
+     여러 워드짜리도 비트를 이어 붙여 정수로만 만든다(float 변환 코드가 아예 없다).
+     소수가 나오는 곳은 온도 태그뿐인데, 그것도 PLC가 소수를 주는 게 아니라 읽은 정수에
+     tb_temp_tag.scale의 식을 C#이 붙이는 것이고 화면이 쓰는 folders_tags에는 그 칸이 없다.
+
+     받아 놓고 반올림하지 않고 아예 막는 이유는, 30.5를 넣었는데 31이 들어가면
+     작업자가 그 사실을 모르기 때문이다. 담을 데가 없는 값이면 못 넣는다고 알려 주는
+     편이 낫다 — 위 음수 처리와 같은 생각이다.
+
+     소수가 필요한 칸이 생기면 이 값을 열어 주면 되지만, 그때는 화면만으로 끝나지 않는다.
+     C#이 읽기·쓰기 양쪽에서 자릿수를 다루게 해야 보이는 값과 들어가는 값이 맞는다. */
+  const allowDecimal = false;
+
   /* 못 누르는 키를 눌렀을 때 뜨는 문구. 다음 입력에서 지운다.
      키를 disabled로만 두면 터치 화면에서는 눌러도 아무 일이 없어서 고장으로 읽힌다 —
      왜 안 되는지 글로 알려 줘야 한다(설명이 title에만 있으면 마우스에서만 보인다). */
@@ -102,6 +117,10 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
   const press = (key) => {
     if (key === '-' && !allowNegative) {
       setBlockMsg('음수는 입력할 수 없습니다');
+      return;
+    }
+    if (key === '.' && !allowDecimal) {
+      setBlockMsg('소수점은 입력할 수 없습니다');
       return;
     }
     setBlockMsg('');
@@ -200,7 +219,16 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
             −
           </button>
           <button type="button" className="hmi-pad-key" onClick={() => press('0')}>0</button>
-          <button type="button" className="hmi-pad-key" onClick={() => press('.')}>.</button>
+          {/* 못 쓰는 키도 남겨 둔다 — 없애면 키 배치가 달라져 손이 기억한 자리가 어긋나고,
+              눌렀을 때 왜 안 되는지 알려 줄 자리도 없어진다(음수 키와 같은 처리). */}
+          <button
+            type="button"
+            className="hmi-pad-key"
+            onClick={() => press('.')}
+            title={allowDecimal ? '소수점' : '소수점은 입력할 수 없습니다'}
+          >
+            .
+          </button>
         </div>
 
         <div className="hmi-pad-edit">
