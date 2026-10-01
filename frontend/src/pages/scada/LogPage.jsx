@@ -260,6 +260,9 @@ export default function LogPage() {
           columns={columns}
           options={LOG_OPTIONS}
           height="100%"
+          /* 20행이 칸보다 짧으면 마지막 행과 페이지 버튼 사이가 벌어진다 —
+             행 수는 그대로 두고 높이를 늘려 칸을 꽉 채운다. */
+          fitRows
           onTableReady={(t) => { tableRef.current = t; }}
         />
       </div>

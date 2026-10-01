@@ -241,6 +241,8 @@ export default function AlarmHistPage() {
           columns={columns}
           options={ALARM_OPTIONS}
           height="100%"
+          // 로그 화면과 같은 이유 — 행 수는 두고 높이를 늘려 칸을 꽉 채운다
+          fitRows
           onTableReady={(t) => { tableRef.current = t; }}
         />
       </div>
