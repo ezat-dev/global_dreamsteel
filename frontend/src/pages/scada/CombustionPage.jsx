@@ -164,9 +164,14 @@ const DEVICE_PANELS = [
 
        왼쪽 한계는 1132다 — 그보다 왼쪽에는 7존 개도 상자(for-7-zone-box, x 1045~1117)와
        작은 조각들(obj21 x 1113~1132)이 있어서 가린다. 판을 더 넓히려면 무대를 넓히는
-       수밖에 없는데, 그러면 그림 전체가 그만큼 작아진다. */
-    plate: { left: 1145, top: 78, width: 118 },
-    state: { left: 1145, top: 100, width: 118 },
+       수밖에 없는데, 그러면 그림 전체가 그만큼 작아진다.
+
+       판을 한 단 줄였다(폭 118 → 96, 글자·여백은 CombustionPage.css의 .cb-dev--burnerCool).
+       좌우 여백이 9 → 7px으로 줄어 바깥 폭이 width+16이라, 오른쪽 끝을 전과 같은 1283에
+       맞추려고 left를 1171로 밀었다. state의 top은 제목판이 얇아진 만큼 같이 올렸다
+       — 두 판은 테두리를 맞대고 붙어 있어서 1px만 어긋나도 보인다. */
+    plate: { left: 1171, top: 78, width: 96 },
+    state: { left: 1171, top: 99, width: 96 },
     on: 'ON', off: 'OFF', stacked: true,
     /* 위 둘과 OFF 램프 규칙이 다르다 — 여기는 존 연소 ON/OFF와 같은 쪽이다.
        ON은 1이면 초록, OFF는 0이면 빨강(즉 '지금 꺼져 있다'를 빨강으로 알린다).
@@ -500,7 +505,9 @@ export default function CombustionPage() {
           <div className="cb-overlay">
             {/* ── 설비 제목판 + 상태 두 글자 ── */}
             {DEVICE_PANELS.map((d) => (
-              <span className="cb-dev" key={d.key}>
+              /* key별 클래스를 같이 준다 — 버너 쿨링만 글자·여백을 줄여야 해서
+                 CSS가 그 판을 집어낼 수 있어야 한다(ACTION_PANELS와 같은 방식). */
+              <span className={`cb-dev cb-dev--${d.key}`} key={d.key}>
                 <em className={`cb-plate cb-plate--${d.tone}`} style={d.plate}>{d.title}</em>
 
                 {/* 두 칸 다 램프다. 걸린 쪽만 켜진다 — on쪽은 초록, off쪽은 빨강.

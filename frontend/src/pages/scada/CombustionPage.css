@@ -168,13 +168,17 @@
   font-style: normal;
 }
 
-/* 버너 쿨링은 작화에 패널 바탕이 없어서(연소 BLOWER와 달리) 여기서 직접 그린다 */
+/* 버너 쿨링은 작화에 패널 바탕이 없어서(연소 BLOWER와 달리) 여기서 직접 그린다.
+   이 판은 버너 쿨링에만 쓰이므로 크기를 줄이는 값도 여기 같이 둔다
+   (제목판 쪽은 .cb-plate가 공용이라 .cb-dev--burnerCool로 따로 집는다). */
 .cb-onoff.is-stacked {
   flex-direction: column;
-  gap: 4px;
-  /* 좌우 9px은 위 제목판(.cb-plate)과 같은 값이다 — 둘 다 content-box라 이게 같아야
-     같은 width를 줬을 때 바깥 폭이 맞는다(제목판 아래에 딱 붙는 판이라 어긋나면 보인다). */
-  padding: 4px 9px 6px;
+  gap: 3px;
+  font-size: 13px;
+  /* 좌우 7px은 위 제목판(.cb-dev--burnerCool .cb-plate)과 같은 값이다 — 둘 다
+     content-box라 이게 같아야 같은 width를 줬을 때 바깥 폭이 맞는다
+     (제목판 아래에 딱 붙는 판이라 어긋나면 보인다). */
+  padding: 3px 7px 4px;
   /* 세로로 쌓이면 flex:1이 높이에만 걸려서 폭은 글자 수를 따라간다 — ON이 OFF보다
      좁아진다. stretch로 둘 다 판 폭에 맞춘다(위 .cb-onoff의 center를 덮는다). */
   align-items: stretch;
@@ -183,6 +187,15 @@
   background: #dcebfa;
   border: 1px solid #6ba3d8;
   border-top: none;
+}
+
+/* 버너 쿨링 제목판만 한 단 줄인다. .cb-plate는 MAIN GAS·연소 BLOWER도 쓰는 공용이라
+   여기서 판을 집어 덮어쓴다. 좌우 7px은 아래 상태판(.cb-onoff.is-stacked)과 같아야
+   하고, 글자가 작아진 만큼 판이 얇아지므로 state의 top도 같이 올려 두었다
+   (CombustionPage.jsx의 burnerCool). */
+.cb-dev--burnerCool .cb-plate {
+  padding: 2px 7px;
+  font-size: 13px;
 }
 
 /* 두 램프가 칸을 반씩 나눠 갖는다(사진처럼 좌우 폭이 같다).
