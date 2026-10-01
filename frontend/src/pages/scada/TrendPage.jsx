@@ -219,17 +219,22 @@ export default function TrendPage() {
      버튼을 잠글 이유도 없다 — 받아 둔 값으로 내려받는 것은 그대로 된다. */
   const autoQueryRef = useRef(false);
 
-  /* 보고 있던 구간의 길이를 지키면서 끝만 지금으로 당긴다 —
-     24시간을 보고 있었으면 '최근 24시간'이 계속 따라온다.
+  /* 구간을 '최근 24시간'으로 맞춘다. 켤 때와 30초마다 밀 때 둘 다 이걸 쓴다.
 
-     입력칸(start/end)도 같이 맞춘다. range만 밀면 왼쪽 위에 적힌 기간은 그대로인데
-     차트만 움직여서, 지금 무엇을 보고 있는지가 화면에서 어긋난다. */
-  const followNow = (prev) => {
+     보고 있던 구간의 길이를 물려받던 때가 있었는데, 그러면 무엇이 나올지 예측할 수가
+     없었다 — 2시간을 조회하고 켜면 2시간, 자동갱신이 돌던 중에 날짜칸을 만지다 켜면
+     엉뚱한 길이가 되었다. 자동갱신은 "지금 돌아가는 상황을 본다"는 뜻이라 길이를
+     고정해 두는 편이 낫다.
+
+     입력칸(start/end)과 빠른 버튼 표시(quick)도 같이 맞춘다. range만 밀면 왼쪽 위에
+     적힌 기간은 그대로인데 차트만 움직여서, 지금 무엇을 보고 있는지가 화면에서 어긋난다. */
+  const followNow = () => {
     const now = new Date();
-    const from = new Date(now.getTime() - (prev.end - prev.start));
+    const from = subHours(now, DEFAULT_HOURS);
     autoQueryRef.current = true;
     setStart(from);
     setEnd(now);
+    setQuick(DEFAULT_HOURS);
     setRange({ start: from, end: now });
   };
 
@@ -248,8 +253,8 @@ export default function TrendPage() {
     }
     followingRef.current = true;
     setFollowing(true);
-    // 켜는 순간 지금까지 당겨 온다 — 첫 갱신을 30초나 기다리지 않게 한다
-    followNow(range);
+    // 켜는 순간 최근 24시간으로 맞춘다 — 첫 갱신을 30초나 기다리지 않게 한다
+    followNow();
   };
 
   /* 메모. memoSeq는 저장·삭제 뒤 같은 구간을 다시 부르기 위한 방아쇠다 —
@@ -305,7 +310,7 @@ export default function TrendPage() {
            실패해도 똑같이 건다. 한 번 못 받았다고 자동갱신이 꺼지면, 잠깐 끊겼다
            돌아왔을 때 화면이 멈춘 채로 남는다. */
         if (followingRef.current) {
-          followTimerRef.current = setTimeout(() => followNow(range), FOLLOW_MS);
+          followTimerRef.current = setTimeout(followNow, FOLLOW_MS);
         }
       });
 
@@ -639,11 +644,14 @@ export default function TrendPage() {
       <div className="tr-toolbar">
         <div className="tr-filter">
           <label className="tr-label" htmlFor="tr-start">기간</label>
+          {/* 날짜를 직접 고르면 그 자리에서 자동갱신을 끈다.
+              켜 둔 채로 고르면 30초 타이머가 돌면서 입력칸을 최근 24시간으로 되돌려,
+              방금 넣은 시각이 조용히 날아간다(조회 버튼에서 끄는 것으로는 한 발 늦다). */}
           <DatePicker
             {...calProps}
             id="tr-start"
             selected={start}
-            onChange={(d) => { setStart(d); setQuick(null); }}
+            onChange={(d) => { stopFollow(); setStart(d); setQuick(null); }}
             maxDate={end ?? undefined}
             placeholderText="시작 시각"
           />
@@ -651,7 +659,7 @@ export default function TrendPage() {
           <DatePicker
             {...calProps}
             selected={end}
-            onChange={(d) => { setEnd(d); setQuick(null); }}
+            onChange={(d) => { stopFollow(); setEnd(d); setQuick(null); }}
             minDate={start ?? undefined}
             placeholderText="종료 시각"
           />
