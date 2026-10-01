@@ -363,7 +363,8 @@ function DriveOverview({ entRolling = true, exitRolling = true }) {
         <img className="ent-down-4" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
         <img className="ent-motor-1" src="/scada/drive/motor-h.svg" title={motorTitle('ent-motor-1')} />
         <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" title={motorTitle('ent-motor-2')} />
-        <img className="ent-motor-3" src="/scada/drive/motor-v1.svg" title={motorTitle('ent-motor-3')} />
+        {/* ent-motor-3(DOOR 바로 위 세로 기어드 모터)은 뺐다 — 현장에 없는 설비라
+            위에 붙던 '입구문 열림' 글귀와 함께 지웠다. */}
         <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" title={motorTitle('ent-motor-4')} />
         <img className="ent-door-1" src="/scada/drive/ent-door-10.png" title={doorTitle()} />
       </div>

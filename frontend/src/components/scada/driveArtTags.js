@@ -27,7 +27,8 @@ const RULE = '값이 1일 때만 표시 / 0이거나 못 읽으면 꺼짐';
    회전감지 셋은 전부 아래줄(y≈360)의 같은 모터 그림이라 짝이 갈린다.
      ent-motor-1   x   0 y 124  입구 왼쪽 끝(가로 기어드)
      ent-motor-2   x 170 y 175  그 오른쪽(통 모터)
-     ent-motor-3   x 497 y 160  DOOR(x 494~) 바로 위 — NOTES의 '입구문 열림'이 붙는 자리
+     (ent-motor-3  x 497 y 160  DOOR 바로 위에 있었는데 현장에 없는 설비라 지웠다.
+                                위에 붙던 NOTES의 '입구문 열림'도 같이 뺐다)
      ent-motor-4   x 332 y 360  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리
      main-motor-1  x 633 y 365  MAIN 존(x 609~1136) 아래
      main-motor-2  x1162 y 365  MAIN 존 오른쪽 밖 = CC 쪽 아래
@@ -39,7 +40,6 @@ const RULE = '값이 1일 때만 표시 / 0이거나 못 읽으면 꺼짐';
 export const MOTOR_TAGS = {
   'ent-motor-1': { tag: 'charge_motor1_lamp', label: '입구 모터 1' },
   'ent-motor-2': { tag: 'charge_motor2_lamp', label: '입구 모터 2' },
-  'ent-motor-3': { tag: 'charge_door_open_lamp', label: '입구문 열림' },
   'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp', label: 'STOPPER 하강 감지' },
   'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp', label: 'MAIN TABLE DRIVE 컨베이어 회전감지' },
   'main-motor-2': { tag: 'cc_table_drive_conveyor_rotate_detect_lamp', label: 'CC TABLE DRIVE 컨베이어 회전감지' },
@@ -105,8 +105,8 @@ export const motorGrayClass = (cls) => `gray-${cls}`;
    ------------------------------------------------------------------------- */
 
 /* 입구문 — 0이면 빨강, 1이면 초록, 못 읽으면 회색.
-   주의: 작화 모터 ent-motor-3이 이미 charge_door_open_lamp(입구문 열림)를 보고 있다.
-   같은 문을 두 태그가 보는 셈인데, 그쪽은 '열림 감지'이고 이쪽은 문 그림 자체다. */
+   예전에는 바로 위 모터(ent-motor-3)가 charge_door_open_lamp를 따로 보고 있어서 같은
+   문을 두 태그가 보는 꼴이었는데, 그 모터를 지우면서 이 하나만 남았다. */
 export const DOOR_TAG = {
   cls: 'ent-door-1',
   tag: 'ent_door_open_close_lamp',
