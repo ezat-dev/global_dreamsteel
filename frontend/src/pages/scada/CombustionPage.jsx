@@ -95,10 +95,24 @@ const botCx = (n) => BOT_CX0 + (n - 1) * ZONE_STEP;
 const PER_TOP = 96;    // 상단 개도 글씨 top (박스 y 91~121 안쪽)
 const PER_BOT = 442;   // 하단 개도 글씨 top (박스 y 437~467 안쪽 — 회전 반영 후 실제 자리)
 
-// 존 박스(y 191~369) 안에서 이름표·PV·SV가 놓이는 높이
-const ZONE_TITLE_TOP = 215;
-const ZONE_PV_TOP = 258;
-const ZONE_SV_TOP = 302;
+/* 존 박스(y 191~369) 안에서 이름표·PV·SV가 놓이는 높이.
+
+   기준은 박스가 아니라 위아래 불꽃 사이다 — 위 불꽃 195~231, 아래 불꽃 327~363.
+   (아래 불꽃은 rotate(-180deg) + transform-origin: 0 0 이라 CSS의 top:363이 아래 끝이고
+   실제로는 327부터 올라온다. 박스 기준으로 잡으면 값 칸이 불꽃을 덮는다.)
+
+   값 칸은 37px이다(CombustionPage.css의 padding 9px). 그래서
+     제목 217~237 / PV 247~284 / SV 288~325
+   가 되고, PV와 SV 사이 4px, SV 끝에서 아래 불꽃까지 2px이 남는다 — 여기가 한계다.
+   더 내리면 SV가 불꽃을 덮는다. 내리고 싶으면 padding을 같이 줄여야 한다.
+
+   칸 두께는 padding만 고치면 된다(top은 그대로 두고 아래로 자란다). 다만 더 키우면
+   불꽃을 덮는다. 제목이 위 불꽃 안쪽까지 들어가 있는 것은 일부러 그렇게 둔 것이다:
+   글자는 불꽃 위로 읽히지만 값 칸은 불투명 박스라 가린다.
+   값을 고칠 때는 이 셋과 padding을 같이 봐야 한다. */
+const ZONE_TITLE_TOP = 217;
+const ZONE_PV_TOP = 247;
+const ZONE_SV_TOP = 288;
 const ZONE_BOX_W = 128;   // 존 하나가 쓰는 폭(간격 147보다 좁게 잡아 여백을 둔다)
 
 /* 존 설정온도(SV) 허용 범위(℃) — 7개 존이 모두 같다.
