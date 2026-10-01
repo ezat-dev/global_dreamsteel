@@ -32,7 +32,8 @@ import { arrowTitle, pumpTitle, towerMotorTitle } from './coolingArtTags';
                                     깊이 음영 + 수면선 + 옅은 반사를 넣었다.
                                     작은 수조와 큰 수조의 물 색은 같은 값을 쓴다 —
                                     한쪽만 고치면 한 화면에서 따로 논다.
-     ct-vessel.svg       obj-19 / obj-20   COOLING CHAMBER 와 RX-발생기 탱크 (같은 그림)
+     ct-vessel.svg       obj-19            COOLING CHAMBER 탱크
+                                           (obj-20이 RX-발생기였는데 설비째로 지웠다)
                                     원본이 세로 그라데이션 한 장뿐이었고 그것도 위아래가
                                     희고 가운데가 어두워 홈처럼 보였다. 누운 원통 음영으로
                                     뒤집고 테두리·끝단·받침을 넣었다.
@@ -88,10 +89,11 @@ function CoolingOverview() {
       <img className="pipe-31" src="/scada/cooling/pipe-310.png" />
       <img className="pipe-32" src="/scada/cooling/pipe-320.png" />
       <img className="pipe-33" src="/scada/cooling/pipe-330.png" />
-      <img className="pipe-34" src="/scada/cooling/pipe-340.png" />
-      <img className="pipe-35" src="/scada/cooling/pipe-350.png" />
+      {/* pipe-34·35(가로 공급관에서 RX-발생기로 내려가던 분기)도 뺐다 */}
       <img className="pipe-36" src="/scada/cooling/pipe-360.png" />
-      <img className="pipe-37" src="/scada/cooling/pipe-370.png" />
+      {/* pipe-37(RX-발생기 세로 배관)은 뺐다 — 설비 자체를 화면에서 지웠다.
+          같이 뺀 것: obj-16·obj-18·obj-20, arrow-10·arrow-12, 이름판 RX-발생기.
+          COOLING CHAMBER 쪽(pipe-36, obj-15·17·19, arrow-9·11)은 그대로다. */}
       <img className="pipe-38" src="/scada/cooling/pipe-380.png" />
       <img className="pump-1" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-1')} />
       <img className="pump-2" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-2')} />
@@ -112,11 +114,8 @@ function CoolingOverview() {
       <img className="obj-13" src="/scada/cooling/obj-130.png" />
       <img className="obj-14" src="/scada/cooling/obj-140.png" />
       <img className="obj-15" src="/scada/cooling/obj-150.png" />
-      <img className="obj-16" src="/scada/cooling/obj-160.png" />
       <img className="obj-17" src="/scada/cooling/obj-170.png" />
-      <img className="obj-18" src="/scada/cooling/obj-180.png" />
       <img className="obj-19" src="/scada/cooling/ct-vessel.svg" />
-      <img className="obj-20" src="/scada/cooling/ct-vessel.svg" />
       <img className="motor-1" src="/scada/cooling/ct-motor.svg" title={towerMotorTitle()} />
       <img className="arrow-1" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-1')} />
       <img className="arrow-2" src="/scada/cooling/ct-arrow-up.svg" title={arrowTitle('arrow-2')} />
@@ -127,9 +126,7 @@ function CoolingOverview() {
       <img className="arrow-7" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-7')} />
       <img className="arrow-8" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-8')} />
       <img className="arrow-9" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-9')} />
-      <img className="arrow-10" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-10')} />
       <img className="arrow-11" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-11')} />
-      <img className="arrow-12" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-12')} />
     </div>
   );
 }

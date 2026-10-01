@@ -51,7 +51,8 @@ export const pumpGrayClass = (cls) => `gray-${cls}`;
    태그 이름이 작화 클래스 이름 그대로다(사용자가 정한 이름) — 이 화면의 다른 태그와
    달리 snake_case도 _lamp도 아니다. 어느 배관인지는 아래 좌표로 찾는다.
 
-   아래로 내려가는 화살표 셋(arrow-3~5, 타워에서 수조로 떨어지는 물)은 빠졌다. */
+   아래로 내려가는 화살표 셋(arrow-3~5, 타워에서 수조로 떨어지는 물)은 빠졌다.
+   arrow-10·12(RX-발생기 위아래)도 빠졌다 — 그 설비를 화면에서 통째로 지웠다. */
 export const ARROW_TAGS = [
   { cls: 'arrow-1', tag: 'arrow-1', label: '화살표 1 (타워 위 입구)' },
   { cls: 'arrow-2', tag: 'arrow-2', label: '화살표 2 (왼쪽 상승관)' },
@@ -59,9 +60,7 @@ export const ARROW_TAGS = [
   { cls: 'arrow-7', tag: 'arrow-7', label: '화살표 7 (큰 수조 출구)' },
   { cls: 'arrow-8', tag: 'arrow-8', label: '화살표 8 (가운데 상승관)' },
   { cls: 'arrow-9', tag: 'arrow-9', label: '화살표 9 (COOLING CHAMBER 위)' },
-  { cls: 'arrow-10', tag: 'arrow-10', label: '화살표 10 (RX-발생기 위)' },
   { cls: 'arrow-11', tag: 'arrow-11', label: '화살표 11 (COOLING CHAMBER 아래)' },
-  { cls: 'arrow-12', tag: 'arrow-12', label: '화살표 12 (RX-발생기 아래)' },
 ];
 
 export const arrowTitle = (cls) => {

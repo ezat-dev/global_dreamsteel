@@ -255,3 +255,37 @@
     transform-origin: left top;
   }
 }
+
+/* ===== COOLING CHAMBER 위치 옮김 =============================================
+
+   오른쪽에 나란히 있던 RX-발생기를 설비째로 지우면서(CoolingOverview 참고) 챔버 하나만
+   남아 왼쪽으로 쏠렸다. 두 설비가 쓰던 영역(x919~1496)의 가운데로 옮긴다 —
+   폭 262짜리를 거기 두면 left 1076이라 지금보다 157px 오른쪽이고, 그러면 좌우 여백이
+   157px씩으로 같아진다.
+
+   ── transform이 아니라 left를 다시 쓰는 이유 ──
+   arrow-9·obj-15·obj-17·arrow-11에는 작화가 넣어 둔 회전이 이미 걸려 있다
+   (rotate(-90deg) scale(-1,1) 같은 것). transform은 겹쳐 쌓이지 않고 나중 것 하나만
+   남기 때문에, translateX를 더하면 그 회전이 통째로 날아가 화살표가 엉뚱한 방향이 된다.
+   left는 그런 간섭이 없다.
+
+   좌표는 전부 원래 값 + 157이다. 한 묶음이라 하나만 어긋나도 눈에 띄므로 같이 적어 둔다.
+
+   .ct-stage-inner를 앞에 두면 원본(.cooling-tower .arrow-9)과 같은 단수이지만 이 파일이
+   뒤에 깔려서 이긴다. */
+.ct-stage-inner .arrow-9 { left: 1187px; }    /* 1030 + 157 — 챔버 위 화살표 */
+.ct-stage-inner .pipe-38 { left: 1194px; }    /* 1037 + 157 — 공급관에서 탱크로 내려가는 입구관 */
+.ct-stage-inner .obj-15 { left: 1225px; }     /* 1068 + 157 — 탱크 위 부속 */
+.ct-stage-inner .obj-19 { left: 1076px; }     /*  919 + 157 — 탱크 본체 */
+.ct-stage-inner .pipe-36 { left: 1195px; }    /* 1038 + 157 — 탱크에서 내려오는 세로관 */
+.ct-stage-inner .obj-17 { left: 1189px; }     /* 1032 + 157 — 세로관 아래 부속 */
+.ct-stage-inner .arrow-11 { left: 1188px; }   /* 1031 + 157 — 챔버 아래 화살표 */
+
+/* 가로 공급관. RX-발생기까지 뻗어 있던 것을 챔버 세로관(x1195~1219)까지로 줄인다.
+   object-fit으로 오른쪽을 잘라낸다 — width만 줄이면 그림이 가로로 눌려서 배관 단면이
+   다른 파이프와 달라진다. */
+.ct-stage-inner .pipe-33 {
+  width: 304px;
+  object-fit: cover;
+  object-position: left center;
+}

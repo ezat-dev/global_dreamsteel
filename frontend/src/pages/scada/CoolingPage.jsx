@@ -48,10 +48,11 @@ const STAGE_H = 708;
      NO.2 순환펌프         x  159~ 301, y 609~684
    ------------------------------------------------------------------------- */
 
-// 탱크 한가운데에 박히는 이름판
+/* 탱크 한가운데에 박히는 이름판.
+   오른쪽에 RX-발생기(cx 1365)가 하나 더 있었는데 설비째로 지웠다(CoolingOverview 참고). */
 const TANK_PLATES = [
-  { key: 'chamber', cx: 1050, top: 186, width: 200, text: 'COOLING CHAMBER' },
-  { key: 'rx', cx: 1365, top: 186, width: 200, text: 'RX-발생기' },
+  // cx는 탱크 가운데 — 탱크를 157px 오른쪽으로 옮겨서 같이 따라간다(1050 + 157)
+  { key: 'chamber', cx: 1207, top: 186, width: 200, text: 'COOLING CHAMBER' },
 ];
 
 // 펌프 바로 위에 붙는 이름판
