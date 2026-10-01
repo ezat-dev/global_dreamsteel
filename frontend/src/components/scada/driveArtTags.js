@@ -58,13 +58,15 @@ export const ROLLER_TAGS = {
   exit: { tag: 'discharge_side_conveyor_roller', label: '출구 SIDE CONVEYOR 롤러' },
 };
 
-/* 로 순환 팬 셋. 값이 1이면 돌고 0이거나 못 읽으면 선다.
-   키는 DrivePage의 FANS와 같다. 왼쪽부터 1·2·3이다.
-     door x 536   DOOR 오른쪽 판(main-obj-1) 가운데
-     cc1  x1161   쿨링챔버 판(main-obj-2) 왼쪽
-     cc2  x1266   쿨링챔버 판 오른쪽 */
+/* 로 순환 팬 둘. 값이 1이면 돌고 0이거나 못 읽으면 선다.
+   키는 DrivePage의 FANS와 같다.
+     cc1 x1161   쿨링챔버 판(main-obj-2) 왼쪽
+     cc2 x1266   쿨링챔버 판 오른쪽
+
+   DOOR 오른쪽 판에도 하나 있었는데(door, fan1_lamp) 그 자리에 팬이 없다고 확인받아
+   화면과 함께 뺐다. 이름은 fan2·fan3 그대로 둔다 — DB 태그 이름이라 여기서 바꿀 것이
+   아니고, 되살릴 일이 생기면 fan1_lamp를 다시 넣으면 된다. */
 export const FAN_TAGS = {
-  door: { tag: 'fan1_lamp', label: '로 순환 팬 1 (DOOR 옆)' },
   cc1: { tag: 'fan2_lamp', label: '로 순환 팬 2 (쿨링챔버 왼쪽)' },
   cc2: { tag: 'fan3_lamp', label: '로 순환 팬 3 (쿨링챔버 오른쪽)' },
 };
