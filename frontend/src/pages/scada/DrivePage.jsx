@@ -60,8 +60,10 @@ const LABELS = [
   { key: 'entSide', text: '입구 SIDE CONVEYOR', cx: 188, top: 70 },
   { key: 'entTable', text: '입구 TABLE DRIVE', cx: 190, top: 360 },
   { key: 'mainDrive', text: 'MAIN DRIVE', cx: 872, top: 168 },
-  // 사진처럼 두 줄로. \n은 .dr-tag의 white-space: pre-line이 살린다.
-  { key: 'coolTable', text: 'COOLING CHAMBER\nTABLE DRIVE', cx: 1245, top: 168 },
+  /* 사진처럼 두 줄로. \n은 .dr-tag의 white-space: pre-line이 살린다.
+     판을 폭 216 → 108로 줄이면서 오른쪽에 빈 자리(x1245~1353)가 생겼는데, 글자를
+     좁아진 판 위에 두면 양옆으로 비어져 나온다. 빈 자리 가운데(1299)로 옮겨 둔다. */
+  { key: 'coolTable', text: 'COOLING CHAMBER\nTABLE DRIVE', cx: 1299, top: 168 },
   { key: 'exitPocket', text: '출구 POCKET', cx: 1535, top: -2 },
   { key: 'exitSide', text: '출구 SIDE CONVEYOR', cx: 1535, top: 70 },
   { key: 'exitTable', text: '출구 TABLE DRIVE', cx: 1540, top: 357 },
@@ -170,19 +172,22 @@ const MOTOR_GRAY = Object.entries(MOTOR_TAGS).map(([cls, t]) => ({
    주소가 바뀌면 두 폴더를 함께 고쳐야 한다는 점만 주의. */
 const zoneTag = (n, suffix) => `tic_z${n}_${suffix}`;
 
-/* 로 순환 팬 둘 — 쿨링챔버 판(main-obj-2, x1137~1353, y200~368) 위에 나란히.
-   예전에는 이 자리에 PV 값칸이 있었고(값을 줄 태그가 없어 '####'로만 떠 있었다),
-   옛 칸의 가운데(x1193 / x1298)를 그대로 써서 간격이 전과 같다.
+/* 로 순환 팬 둘 — 쿨링챔버 판(main-obj-2) 위에 나란히.
 
-   DOOR 오른쪽 판(main-obj-1, x525~609)에도 하나 있었는데 지웠다 — 그 자리에 팬이
-   없다고 확인받았다. 태그(fan1_lamp)는 driveArtTags에서 같이 뺐다.
+   그 판을 폭 216 → 108로 줄이면서(DrivePage.css) 팬도 64 → 40으로 줄이고 다시 놓았다.
+   64짜리 둘은 128px이라 좁힌 판에 아예 안 들어간다. 지금은 판 가운데(x1191)를 기준으로
+   40+8+40 = 88px이 들어가고 좌우에 10px씩 남는다.
+   top은 판 세로 가운데(y200~368의 284)에서 팬 절반을 뺀 값이다.
+
+   DOOR 오른쪽 판(main-obj-1)에도 하나 있었는데 지웠다 — 그 자리에 팬이 없다고
+   확인받았다. 태그(fan1_lamp)는 driveArtTags에서 같이 뺐다.
    둘 다 같은 top을 쓴다 — 따로 두면 높이가 어긋난다. */
-const FAN_SIZE = 64;
-const FAN_TOP = 253;
+const FAN_SIZE = 40;
+const FAN_TOP = 264;
 
 const FANS = [
-  { key: 'cc1', left: 1161 },
-  { key: 'cc2', left: 1266 },
+  { key: 'cc1', left: 1147 },
+  { key: 'cc2', left: 1195 },
 ];
 
 /* 팬 그림 두 벌 — 도는 것과 멈춘 것. 롤러와 같은 이유로 파일을 바꿔 끼운다

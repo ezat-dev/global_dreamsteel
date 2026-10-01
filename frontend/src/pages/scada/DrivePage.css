@@ -908,3 +908,20 @@
 .dr-stage-inner.hot-main-7-zone .overview-1 .main-7-zone {
   filter: url(#dr-orange);
 }
+
+/* ===== COOLING CHAMBER 판 폭 줄이기 =========================================
+
+   작화의 쿨링챔버 판(main-obj-2)은 x1137~1353, 폭 216이었다. 실제 설비보다 넓어서
+   절반인 108로 줄인다 — 오른쪽에 생기는 빈 자리(1245~1353)는 그대로 둔다.
+
+   위에 얹히는 것들은 DrivePage.jsx에서 같이 옮겼다: 팬 둘(64 → 40으로 줄여 x1147·1195),
+   이름표(cx 1245 → 1191). 아래 모터(main-motor-2, x1162~1186)는 원래도 판 가운데가
+   아니라 왼쪽에 있었고 좁힌 판 안에 그대로 들어가서 두었다.
+
+   object-fit으로 오른쪽을 잘라낸다 — width만 줄이면 그림이 가로로 눌려서 판 테두리와
+   안쪽 무늬가 다른 판들과 달라진다. */
+.dr-stage-inner .overview-1 .main-obj-2 {
+  width: 108px;
+  object-fit: cover;
+  object-position: left center;
+}
