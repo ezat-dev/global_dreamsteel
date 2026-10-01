@@ -644,7 +644,9 @@ export default function CombustionPage() {
             key={`burn${n}`}
             style={{ left: `${(topCx(n) / STAGE_W) * 100}%`, width: ZONE_STEP * scale.x * 0.94 }}
           >
-            <span className="cb-plate cb-plate--zone">{`NO.${n}ZONE`}</span>
+            {/* 맨 위에 'NO.N ZONE' 이름표가 하나 더 있었는데 지웠다 — 바로 아래 개별연소
+                버튼에 같은 존 번호가 적혀 있어 같은 말을 두 번 하는 자리였다.
+                그만큼 연소 ON/OFF가 위로 올라오고 개별연소 버튼이 높아진다. */}
             {/* 사진처럼 "연소"와 "ON/OFF"를 두 줄로 — 칸이 좁아 한 줄로는 안 들어간다
                 (.hmi-lampbox에 white-space: pre-line이 걸려 있어 \n이 줄바꿈이 된다).
 

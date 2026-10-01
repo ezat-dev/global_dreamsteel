@@ -398,8 +398,15 @@ button.cb-action-lamp.is-held,
   font-size: 13px;
 }
 
+/* 개별연소 버튼. 위에 있던 'NO.N ZONE' 이름표를 지우면서 그 몫까지 쓴다 —
+   연소 ON/OFF가 그 자리로 올라오고 이 버튼이 남는 세로를 채운다.
+   flex: 1이라 판 높이가 바뀌어도 알아서 따라간다(높이를 px로 박으면 어긋난다). */
 .cb-burn .cb-plate--zone {
   width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 12.5px;
   padding: 3px 2px;
   white-space: nowrap;
@@ -439,7 +446,9 @@ button.cb-action-lamp.is-held,
 }
 
 .cb-zmodal {
-  width: 470px;
+  /* 버튼을 손가락에 맞게 키우면서 폭도 같이 늘렸다(470 → 520). 폭을 그대로 두고
+     버튼만 키우면 ON/OFF가 가로로 둘씩 들어가는 자리라 글자가 눌린다. */
+  width: 520px;
   border: 1px solid var(--hmi-shadow-dark);
   border-radius: 14px;
   background: var(--hmi-panel);
@@ -511,9 +520,11 @@ button.cb-action-lamp.is-held,
 /* 본판의 램프보다 크게 — 여기는 조작 화면이라 손가락으로 눌러 확인하는 자리다.
    모양은 램프 그대로 두고 누를 수 있게만 한다(누르면 명령, 걸린 쪽이 진하게 남음). */
 .cb-zmodal-state .hmi-lampbox {
-  padding: 14px 6px;
+  /* 높이가 약 54px이 된다(14px일 때 46px). 현장에서 장갑을 끼고 누르는 자리라
+     터치 권장 크기(44~48px)보다 넉넉하게 잡았다. */
+  padding: 18px 6px;
   border-radius: 4px;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
 }
 
@@ -521,7 +532,8 @@ button.cb-action-lamp.is-held,
 /* PURGE 시작 — 사진처럼 두 램프 칸을 합친 폭의 빨간 버튼 */
 .cb-zmodal-purge {
   width: 100%;
-  padding: 14px 6px;
+  /* 위 ON/OFF와 같은 높이로 맞춘다 — 한 줄에 나란히 보이는 칸들이라 어긋나면 눈에 띈다 */
+  padding: 18px 6px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, .4);
   background: #dc2626;
