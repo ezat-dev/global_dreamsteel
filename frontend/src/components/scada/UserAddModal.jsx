@@ -76,7 +76,7 @@ export default function UserAddModal({ onClose, onCreated }) {
       return;
     }
 
-    /* pickScreenAuth로 권한 8개만 걸러 담는다 — 폼에만 있는 passwordConfirm 같은 값이
+    /* pickScreenAuth로 화면 권한만 걸러 담는다 — 폼에만 있는 passwordConfirm 같은 값이
        섞여 나가지 않고, 화면이 감당 못 하는 레벨(조회 화면의 제어)도 여기서 잘린다. */
     const payload = {
       userId: form.userId.trim(),

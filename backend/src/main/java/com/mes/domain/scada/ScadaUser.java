@@ -36,4 +36,6 @@ public class ScadaUser {
     private Boolean writeLog;
     private Boolean writeSuccess;
     private String failReason;
+    private String authEngineering;
+    private String authLog;
 }

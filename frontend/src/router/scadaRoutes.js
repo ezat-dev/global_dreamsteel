@@ -14,8 +14,9 @@ import LogPage from '../pages/scada/LogPage';
 // path는 루트('/') 기준 상대 경로이고, constants/scadaMenu.js의 절대 경로와 짝을 이룬다.
 //
 // key: constants/scadaMenu.js의 같은 화면 key와 반드시 같아야 한다. App.jsx가 이 key로
-// RequireScreen을 감싸서 권한(0 없음 / 1 조회 / 2 제어)을 확인한다. 관리자 전용인 로그도
-// 별도 표시 없이 같은 길로 막힌다 — 권한 판정은 AuthContext 한 곳에 모여 있다.
+// RequireScreen을 감싸서 권한(0 없음 / 1 조회 / 2 제어)을 확인한다. 로그·엔지니어링도
+// 다른 화면과 같은 길로 막힌다(기본 권한이 없음이라 열어 준 사람만 들어온다) —
+// 권한 판정은 AuthContext 한 곳에 모여 있다.
 const scadaRoutes = [
   { index: true, key: 'main', element: MainPage },
   { path: 'drive', key: 'drive', element: DrivePage },

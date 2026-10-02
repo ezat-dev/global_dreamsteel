@@ -65,7 +65,12 @@ export function AuthProvider({ children }) {
    * 권한 컬럼이 없는 화면(메인화면)과, 응답에 값이 아예 실려 오지 않은 경우는 제어로 본다.
    * 백엔드가 아직 컬럼을 안 내려주는 동안에도 지금과 똑같이 동작하게 하려는 것이다 —
    * 반대로 두면 배포하는 순간 모든 화면이 사라져서 현장이 멈춘다.
-   * 그래서 로그인 응답에 auth_* 8개가 반드시 실려야 한다(빠지면 권한이 조용히 무시된다).
+   * 그래서 로그인 응답에 auth_* 10개가 반드시 실려야 한다(빠지면 권한이 조용히 무시된다).
+   *
+   * 다만 로그·엔지니어링은 값이 없으면 제어가 아니라 메뉴의 defaultAuth(없음)로 본다.
+   * 원래 관리자만 보던 화면이라, 제어로 두면 이 컬럼이 생기기 전에 로그인해 둔 사람
+   * (브라우저에 저장된 사용자 정보에 authLog가 없다)에게 두 화면이 열려 버린다.
+   * 다시 로그인하면 실제 값(DB 기본 0)이 실려 오므로 그때부터는 이 분기를 안 탄다.
    */
   const screenLevel = (key) => {
     const menu = MENU_BY_KEY.get(key);
@@ -74,7 +79,7 @@ export function AuthProvider({ children }) {
     if (isAdmin || !menu.authField) return AUTH_CONTROL;
 
     const raw = user?.[menu.authField];
-    if (raw == null || raw === '') return AUTH_CONTROL;
+    if (raw == null || raw === '') return menu.defaultAuth ?? AUTH_CONTROL;
     const level = Number(raw);
     return Number.isFinite(level) ? level : AUTH_CONTROL;
   };

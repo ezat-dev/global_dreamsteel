@@ -48,7 +48,7 @@ export default function UserEditModal({ onClose, onSaved }) {
 
   const busy = loading || saving;
 
-  /* 목록의 한 행을 폼 값으로 바꾼다. 권한 8개는 pickScreenAuth를 거치는데,
+  /* 목록의 한 행을 폼 값으로 바꾼다. 화면 권한은 pickScreenAuth를 거치는데,
      아직 auth_* 컬럼이 내려오지 않는 사용자(예전에 만든 행)도 기본값으로 채워져서
      격자가 빈 채로 뜨지 않게 하기 위함이다. */
   const toForm = (row) => ({ ...row, ...pickScreenAuth(row) });

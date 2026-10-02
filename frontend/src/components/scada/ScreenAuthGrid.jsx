@@ -24,15 +24,20 @@ export function clampLevel(menu, level) {
   return Math.min(Math.max(n, AUTH_NONE), max);
 }
 
+/** 화면 하나의 기본 권한 — 메뉴에 적힌 defaultAuth가 있으면 그것, 없으면 제어 화면 2·조회 화면 1. */
+const defaultLevel = (m) => m.defaultAuth ?? (m.control ? AUTH_CONTROL : AUTH_VIEW);
+
 /**
  * 새 사용자의 기본 권한 — DDL의 DEFAULT와 같은 값으로 맞춘다
- * (제어 화면 2, 조회 화면 1). 둘이 어긋나면 화면에 보이는 기본값과
- * 실제로 저장되는 값이 달라진다.
+ * (제어 화면 2, 조회 화면 1, 로그·엔지니어링은 0). 둘이 어긋나면 화면에 보이는
+ * 기본값과 실제로 저장되는 값이 달라진다.
+ *
+ * 화면마다 빠짐없이 값을 채워 보내는 것이 중요하다. 쿼리가 #{authLog}처럼 그대로
+ * 넣어서, 하나라도 빠지면 NULL이 들어가 NOT NULL 컬럼에 막히고 저장이 통째로 실패한다
+ * (DB의 DEFAULT는 컬럼을 아예 안 적었을 때만 쓰인다).
  */
 export function defaultScreenAuth() {
-  return Object.fromEntries(
-    AUTH_SCREENS.map((m) => [m.authField, m.control ? AUTH_CONTROL : AUTH_VIEW]),
-  );
+  return Object.fromEntries(AUTH_SCREENS.map((m) => [m.authField, defaultLevel(m)]));
 }
 
 /** 사용자 1행에서 권한 컬럼만 뽑아 폼 값으로 만든다. 값이 없는 컬럼은 기본값으로 채운다. */

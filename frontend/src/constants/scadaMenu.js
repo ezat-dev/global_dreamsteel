@@ -5,9 +5,9 @@
 // hideMenuBar: 그 화면에서는 하단 메뉴바를 감춘다. 메인화면은 화면 전체가 이미
 // 이동 버튼판이라 아래에 같은 메뉴가 또 깔리면 중복이다.
 //
-// adminOnly: 관리자(user_role '1')에게만 보인다. 메뉴에서 감추는 것만으로는
-// 주소를 직접 쳐서 들어갈 수 있어서, router/scadaRoutes.js에도 같은 표시를 달고
-// App.jsx에서 RequireScreen으로 막는다 — 두 곳을 같이 고쳐야 한다.
+// adminOnly: 관리자(user_role '1')에게만 보인다. 사용자별 권한으로 줄 수 없다.
+// 지금은 쓰는 화면이 없다 — 로그·엔지니어링도 사용자별 권한으로 옮겼다.
+// 판정은 AuthContext의 screenLevel 한 곳이 하고, 메뉴·타일·주소 직접 입력이 다 그걸 따른다.
 //
 // authField: 이 화면의 권한이 담긴 scada_user 컬럼(camelCase). 값은 0 없음 / 1 조회 / 2 제어.
 // 키에서 컬럼명을 유추하지 않고 적어 둔다 — alarmHistory ↔ authAlarmHist처럼 어긋나는
@@ -16,6 +16,19 @@
 // control: 이 화면에 "조작"이라 부를 것이 있는지. 트렌드·경보이력은 조회 화면이라
 // 1과 2가 같은 뜻이고, 여기에 제어 잠금을 걸면 조회 버튼까지 잠겨 화면이 무용지물이 된다.
 // 권한 편집 UI도 이 표시를 보고 2단계/3단계를 그린다.
+//
+// defaultAuth: 새 사용자의 기본 권한과, 권한 값이 아예 안 실려 왔을 때 쓸 값.
+// 적지 않으면 control 화면은 2, 조회 화면은 1이다(scada_user DDL의 DEFAULT와 같다).
+// 로그·엔지니어링은 원래 관리자만 보던 화면이라 0(없음)으로 둔다 — DDL도 DEFAULT 0이다.
+// 둘을 맞춰야 한다: 화면 기본값과 DB 기본값이 어긋나면 보이는 것과 저장되는 것이 달라진다.
+
+/** 권한 레벨 — 숫자로 두어 비교를 >= 하나로 끝낸다.
+    메뉴 배열보다 위에 둔다 — 아래 defaultAuth가 이 값을 쓰는데, const는 선언 전에
+    읽으면 오류라 순서가 바뀌면 이 파일을 불러오는 순간 화면 전체가 죽는다. */
+export const AUTH_NONE = 0;
+export const AUTH_VIEW = 1;
+export const AUTH_CONTROL = 2;
+
 const SCADA_MENU = [
   { key: 'main', label: '메인화면', title: '메인화면', path: '/', hideMenuBar: true },
   { key: 'drive', label: '구동화면', title: '구동화면', path: '/drive', authField: 'authDrive', control: true },
@@ -26,22 +39,21 @@ const SCADA_MENU = [
   { key: 'trend', label: '트렌드', title: '트렌드', path: '/trend', authField: 'authTrend' },
   { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm', authField: 'authAlarm', control: true },
   { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory', authField: 'authAlarmHist' },
-  /* 설비 설정값(시간·온도 기준·PV 보정)을 바꾸는 화면이라 관리자에게만 연다.
-     authField를 두지 않은 것도 그래서다 — 화면별 권한으로 열면 scada_user에 컬럼을
-     하나 더 만들어야 하는데, 작업자에게 맡길 화면이 아니라 그럴 이유가 없다. */
-  { key: 'engineering', label: '엔지니어링', title: '엔지니어링', path: '/engineering', adminOnly: true, control: true },
-  { key: 'log', label: '로그', title: '로그', path: '/log', adminOnly: true },
+  /* 설비 설정값(시간·온도 기준·PV 보정)을 바꾸는 화면이다. 처음엔 관리자 전용이었는데
+     사용자별로 열 수 있게 바꿨다 — 기본은 없음이라 관리자가 사용자 정보 수정에서 열어 줘야 보인다. */
+  {
+    key: 'engineering', label: '엔지니어링', title: '엔지니어링', path: '/engineering',
+    authField: 'authEngineering', control: true, defaultAuth: AUTH_NONE,
+  },
+  /* 조작 이력 화면. 조회만 하는 화면이라 control이 없다(없음/조회 두 단계).
+     예전에는 관리자 전용이었다 — 기본을 없음으로 두어 그 상태를 그대로 이어 간다. */
+  { key: 'log', label: '로그', title: '로그', path: '/log', authField: 'authLog', defaultAuth: AUTH_NONE },
 ];
 
 export default SCADA_MENU;
 
 /** 권한을 사용자별로 줄 수 있는 화면들 — 권한 편집 격자가 그리는 순서 그대로다. */
 export const AUTH_SCREENS = SCADA_MENU.filter((m) => m.authField);
-
-/** 권한 레벨 — 숫자로 두어 비교를 >= 하나로 끝낸다. */
-export const AUTH_NONE = 0;
-export const AUTH_VIEW = 1;
-export const AUTH_CONTROL = 2;
 
 /**
  * 로그인한 사용자에게 보여줄 메뉴만 걸러낸다(하단 메뉴바·메인화면 타일 공용).

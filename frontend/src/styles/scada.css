@@ -1364,6 +1364,64 @@ button {
 @media (min-width: 861px) {
   .hmi-mainmenu-grid.is-wide {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+    /* 다섯 칸이면 1280 안에서 한 칸이 238px로 좁아진다 — 넓은 화면에서는 판을 넓혀 준다 */
+    max-width: 1560px;
+  }
+
+  /* 두 줄이 되면서 세로가 남는다. 3열(세 줄) 기준으로 잡은 158px을 그대로 두면
+     타일이 화면 가운데 작게 몰려 보여서, 남는 높이만큼 타일·그림·글자를 키운다.
+
+     값은 화면 높이(vh)가 아니라 폭 구간으로 정한다 — 이 화면은 스크롤을 막아 두어
+     넘치면 잘리는데, 태블릿에서 vh가 실제로 보이는 높이를 안 가리킨다(주소창이 숨은
+     상태 기준이라 더 크게 잡힌다). 구간마다 넘치지 않는 값으로 박아 둔다:
+       1500px 초과(PC 모니터)  한 줄에 쓸 수 있는 높이 약 370px → 240
+       1101~1500(노트북·태블릿 가로, 1280x674 실측) 약 250px → 210
+       861~1100(좁은 태블릿) 약 200px → 150 */
+  .hmi-mainmenu-grid.is-wide .hmi-mainmenu-tile {
+    min-height: 240px;
+    gap: 18px;
+  }
+
+  .hmi-mainmenu-grid.is-wide .hmi-tile-art {
+    width: 84px;
+    height: 84px;
+  }
+
+  .hmi-mainmenu-grid.is-wide .hmi-tile-label {
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1500px) {
+  .hmi-mainmenu-grid.is-wide .hmi-mainmenu-tile {
+    min-height: 210px;
+    gap: 16px;
+  }
+
+  .hmi-mainmenu-grid.is-wide .hmi-tile-art {
+    width: 72px;
+    height: 72px;
+  }
+
+  .hmi-mainmenu-grid.is-wide .hmi-tile-label {
+    font-size: 26px;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1100px) {
+  .hmi-mainmenu-grid.is-wide .hmi-mainmenu-tile {
+    min-height: 150px;
+    gap: 10px;
+    padding: 14px 10px;
+  }
+
+  .hmi-mainmenu-grid.is-wide .hmi-tile-art {
+    width: 52px;
+    height: 52px;
+  }
+
+  .hmi-mainmenu-grid.is-wide .hmi-tile-label {
+    font-size: 21px;
   }
 }
 

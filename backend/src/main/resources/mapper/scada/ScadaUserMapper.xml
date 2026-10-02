@@ -13,7 +13,7 @@
             resultType="com.mes.domain.scada.ScadaUser">
         SELECT id, user_id, user_name, user_role,
         auth_drive, auth_combustion, auth_temp, auth_atmosphere,
-       auth_cooling, auth_alarm, auth_trend, auth_alarm_hist
+       auth_cooling, auth_alarm, auth_trend, auth_alarm_hist, auth_engineering, auth_log
         FROM scada_user
         WHERE user_id = #{userId}
           AND user_password = #{userPassword}
@@ -39,11 +39,11 @@
         INSERT INTO scada_user (
     user_id, user_password, user_name, user_role,
     auth_drive, auth_combustion, auth_temp, auth_atmosphere,
-    auth_cooling, auth_alarm, auth_trend, auth_alarm_hist
+    auth_cooling, auth_alarm, auth_trend, auth_alarm_hist, auth_engineering, auth_log
     ) VALUES (
     #{userId}, #{userPassword}, #{userName}, #{userRole},
     #{authDrive}, #{authCombustion}, #{authTemp}, #{authAtmosphere},
-    #{authCooling}, #{authAlarm}, #{authTrend}, #{authAlarmHist}
+    #{authCooling}, #{authAlarm}, #{authTrend}, #{authAlarmHist}, #{authEngineering}, #{authLog}
     )
     </insert>
 
@@ -91,7 +91,9 @@
             auth_cooling = #{authCooling},
             auth_alarm = #{authAlarm},
             auth_trend = #{authTrend},
-            auth_alarm_hist = #{authAlarmHist}
+            auth_alarm_hist = #{authAlarmHist},
+            auth_engineering = #{authEngineering},
+            auth_log = #{authLog}
         WHERE id = #{id}
     </update>
 
