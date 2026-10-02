@@ -13,6 +13,8 @@ const RANGE = {
   alarm_h: { min: 0, max: 200 },
   alarm_l: { min: 0, max: 200 },
   alarm_ll: { min: 0, max: 400 },
+  /* PID 셋은 화면에서 뺐지만(아래 tz-side 참고) 범위는 남겨 둔다 —
+     되살릴 때 이 값을 다시 찾아 적을 일이 없게. */
   pid_p: { min: 0, max: 1200 },
   pid_i: { min: 0, max: 2400 },
   pid_d: { min: 0, max: 600 },
@@ -28,7 +30,7 @@ const RANGE = {
  *   SV       tic_zN_sv         D100   읽기 — Working SV(제어기가 지금 실제로 쓰는 목표값)
  *            tic_zN_sv_cmd     R100   쓰기 — 작업자가 넣는 목표값
  *   MV       tic_zN_mv         D102   읽기 전용
- *   PID      tic_zN_pid_p/i/d  R101~103  읽기+쓰기(한 레지스터)
+ *   PID      tic_zN_pid_p/i/d  R101~103  읽기+쓰기 — 지금은 화면에 안 띄운다(아래 tz-side)
  *   MANUAL   tic_zN_manual_mv  R104      읽기+쓰기
  *   출력제한 tic_zN_range_hi/lo R105~106 읽기+쓰기
  *   경보기준 tic_zN_alarm_hh/h/l/ll R110~113 읽기+쓰기
@@ -170,7 +172,7 @@ export default function TempZonePanel({
         </div>
         </div>
 
-        {/* 우측 세로 열 — 경보 설정 / PID / 출력 제한 */}
+        {/* 우측 세로 열 — 경보 설정 / 출력 제한 (가운데 PID 묶음은 아래 주석 참고) */}
         <div className="tz-side">
           <div className="tz-side-group">
             <div className="tz-field"><label>HH</label>
@@ -183,14 +185,11 @@ export default function TempZonePanel({
               <LedInput {...rwProps('alarm_ll', '하하한 경보 (LL)')} color="yellow" size="sm" /></div>
           </div>
 
-          <div className="tz-side-group">
-            <div className="tz-field"><label>P</label>
-              <LedInput {...rwProps('pid_p', '비례대 (P)')} color="white" size="sm" /></div>
-            <div className="tz-field"><label>I</label>
-              <LedInput {...rwProps('pid_i', '적분시간 (I)')} color="white" size="sm" /></div>
-            <div className="tz-field"><label>D</label>
-              <LedInput {...rwProps('pid_d', '미분시간 (D)')} color="white" size="sm" /></div>
-          </div>
+          {/* PID(P·I·D) 묶음이 여기 있었는데 화면에서만 뺐다 — 현장에서 손댈 칸이
+              아니라고 확인받았다. DB 태그(tic_zN_pid_p/i/d, R101~103)와 아래 RANGE의
+              허용 범위는 그대로 둔다. 되살리려면 이 자리에 tz-side-group 하나를 두고
+              rwProps('pid_p'/'pid_i'/'pid_d')를 다시 넣으면 된다.
+              .tz-side-group이 flex:1이라 남은 둘이 알아서 높이를 나눠 갖는다. */}
 
           <div className="tz-side-group tz-limit">
             <div className="tz-limit-title">출력 LIMIT<br />(MV%)</div>

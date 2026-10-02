@@ -85,10 +85,16 @@
   gap: 6px;
 }
 
-/* 세 묶음이 남는 높이를 나눠 가져서, 마지막(출력 LIMIT)이 패널 아래끝에 닿는다.
-   칸 사이는 space-evenly로 벌려 늘어난 높이를 고르게 쓴다. */
+/* 두 묶음이 남는 높이를 나눠 가져서, 마지막(출력 LIMIT)이 패널 아래끝에 닿는다.
+   칸 사이는 space-evenly로 벌려 늘어난 높이를 고르게 쓴다.
+
+   비율이 10:7인 것은 담는 양이 달라서다 — 위는 칸 넷(HH·H·L·LL)이라 139px,
+   아래는 두 줄짜리 제목과 칸 둘(상한·하한)이라 97px이다(칸 30 + 간격 3 + 여백 10 기준).
+   그 비가 1.43:1이라 10:7로 뒀다. 똑같이 나누면(flex:1) 위는 칸이 다닥다닥 붙고
+   아래는 헐거워진다. 칸 높이나 제목 줄 수를 바꾸면 이 비율도 다시 봐야 한다.
+   (예전에는 가운데에 PID 묶음이 하나 더 있어서 셋이 균등하게 나눠 가졌다.) */
 .tz-side-group {
-  flex: 1;
+  flex: 10;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -110,30 +116,41 @@
    (게이지 아래·수동 출력량은 단위가 붙으니 기본값인 오른쪽 정렬 유지) */
 .tz-side .hmi-led-input {
   text-align: center;
-  padding-left: 4px;
-  padding-right: 4px;
+  /* PID 묶음을 화면에서 빼면서(TempZonePanel) 이 열에 40px 가까이 남았다. 그대로 두면
+     .tz-side-group의 space-evenly가 전부 칸 사이 간격으로 써서 칸은 18px 그대로다.
+     세로 여백을 늘려 남는 높이를 칸이 가져가게 한다(.led-sm의 padding 1px을 덮는다).
+     글자도 한 단 키운다 — 칸만 커지면 숫자가 가운데에 작게 떠 보인다. */
+  padding: 6px 4px;
+  font-size: 13px;
 }
 
+/* 칸 옆 이름(HH·H·L·LL). 칸을 29px로 키운 뒤 11px으로는 칸에 비해 작아 보여 12px로 올렸다 */
 .tz-field label {
   width: 20px;
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-align: center;
 }
 
+/* 아래 묶음은 담는 것이 적다 — 위 .tz-side-group의 10에 맞춘 7이다(이유는 거기 주석) */
+.tz-limit {
+  flex: 7;
+}
+
 .tz-limit-title {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1.15;
   text-align: center;
   margin-bottom: 2px;
 }
 
-/* 상한/하한은 라벨이 두 글자라 라벨 칸을 넓힌다 */
+/* 상한/하한은 라벨이 두 글자라 라벨 칸을 넓힌다. 12px 한글 두 자가 약 24px이라
+   딱 붙지 않게 26px로 둔다(열 폭 92px에서 칸이 그만큼 좁아지지만 숫자는 들어간다). */
 .tz-limit .tz-field label {
-  width: 24px;
-  font-size: 10px;
+  width: 26px;
+  font-size: 12px;
 }
 
 /* ===== 하단 (수동모드 / 수동 출력량) ===== */
