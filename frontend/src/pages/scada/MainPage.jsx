@@ -94,7 +94,7 @@ export default function MainPage() {
       {addOpen && (
         <UserAddModal
           onClose={() => setAddOpen(false)}
-          onCreated={(created) => window.alert(`사용자 '${created.userId}'를 등록했습니다.`)}
+          onCreated={(created) => window.alert(`사용자 '${created.userName}'를 등록했습니다.`)}
         />
       )}
 
@@ -102,7 +102,7 @@ export default function MainPage() {
       {editOpen && (
         <UserEditModal
           onClose={() => setEditOpen(false)}
-          onSaved={(saved) => window.alert(`사용자 '${saved.userId}' 정보를 수정했습니다.`)}
+          onSaved={(saved) => window.alert(`사용자 '${saved.userName}' 정보를 수정했습니다.`)}
         />
       )}
     </div>

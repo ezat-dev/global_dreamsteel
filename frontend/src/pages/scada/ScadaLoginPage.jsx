@@ -17,7 +17,6 @@ const PROCESS_STEPS = Array.from(
  * 성공하면 원래 가려던 화면으로, 없으면 메인화면으로 보낸다.
  */
 export default function ScadaLoginPage() {
-  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -53,13 +52,13 @@ export default function ScadaLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!userId.trim() || !password.trim()) {
-      setError('아이디와 비밀번호를 입력해주세요.');
+    if (!password.trim()) {
+      setError('비밀번호를 입력해주세요.');
       return;
     }
     setSubmitting(true);
     try {
-      const res = await loginApi(userId.trim(), password);
+      const res = await loginApi(password);
       login(res.data, true);
       navigate(location.state?.from?.pathname || '/', { replace: true });
     } catch (err) {
@@ -93,23 +92,13 @@ export default function ScadaLoginPage() {
 
           <form className="hmi-login-body" onSubmit={handleSubmit}>
             <div className="hmi-login-field">
-              <label htmlFor="scada-login-id">아이디</label>
-              <input
-                id="scada-login-id"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                autoFocus
-                autoComplete="username"
-              />
-            </div>
-
-            <div className="hmi-login-field">
               <label htmlFor="scada-login-pw">비밀번호</label>
               <input
                 id="scada-login-pw"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoFocus
                 autoComplete="current-password"
               />
             </div>

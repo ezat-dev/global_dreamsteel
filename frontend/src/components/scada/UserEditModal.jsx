@@ -123,10 +123,8 @@ export default function UserEditModal({ onClose, onSaved }) {
     e.preventDefault();
     if (!form) return;
 
-    const userId = (form.userId ?? '').trim();
     const userName = (form.userName ?? '').trim();
 
-    if (!userId) { setError('아이디를 입력해주세요.'); return; }
     if (!form.userPassword) { setError('비밀번호를 입력해주세요.'); return; }
     if (!userName) { setError('이름을 입력해주세요.'); return; }
 
@@ -134,12 +132,11 @@ export default function UserEditModal({ onClose, onSaved }) {
        이름·권한만 고치는 흔한 경우에는 막지 않는다. */
     const original = rows.find((u) => u.id === form.id);
     if (form.deleteYn === 'Y' && original?.deleteYn !== 'Y') {
-      if (!window.confirm(`'${userId}' 사용자를 삭제 처리하시겠습니까?\n로그인할 수 없게 됩니다.`)) return;
+      if (!window.confirm(`'${userName}' 사용자를 삭제 처리하시겠습니까?\n로그인할 수 없게 됩니다.`)) return;
     }
 
     const payload = {
       id: form.id,
-      userId,
       userPassword: form.userPassword,
       userName,
       userRole: form.userRole,
@@ -156,7 +153,7 @@ export default function UserEditModal({ onClose, onSaved }) {
         return loadList(payload.id);
       })
       .catch((err) => {
-        // 아이디 중복 같은 사유는 서버 메시지가 가장 정확하다.
+        // 비밀번호 중복 같은 사유는 서버 메시지가 가장 정확하다.
         setError(err.response?.data?.message ?? '사용자 정보를 수정하지 못했습니다.');
       })
       .finally(() => setSaving(false));
@@ -179,7 +176,6 @@ export default function UserEditModal({ onClose, onSaved }) {
           <table>
             <thead>
               <tr>
-                <th>아이디</th>
                 <th>이름</th>
                 <th>권한</th>
               </tr>
@@ -192,7 +188,6 @@ export default function UserEditModal({ onClose, onSaved }) {
                   className={row.id === selectedId ? 'is-selected' : ''}
                   onClick={() => selectRow(row)}
                 >
-                  <td>{row.userId}</td>
                   <td>{row.userName}</td>
                   <td>{roleLabel(row.userRole)}</td>
                 </tr>
@@ -200,7 +195,7 @@ export default function UserEditModal({ onClose, onSaved }) {
 
               {rows.length === 0 && (
                 <tr className="hmi-ulist-empty">
-                  <td colSpan={3}>{loading ? '불러오는 중...' : '사용자가 없습니다.'}</td>
+                  <td colSpan={2}>{loading ? '불러오는 중...' : '사용자가 없습니다.'}</td>
                 </tr>
               )}
             </tbody>
@@ -210,18 +205,6 @@ export default function UserEditModal({ onClose, onSaved }) {
         {/* ── 폼 ── 행을 고르기 전에는 안내만 띄운다 */}
         {form ? (
           <div className="hmi-umodal-body">
-            <div className="hmi-umodal-row">
-              <label htmlFor="ue-id">아이디</label>
-              <input
-                id="ue-id"
-                className="hmi-umodal-input"
-                value={form.userId ?? ''}
-                onChange={setField('userId')}
-                maxLength={MAX_LEN}
-                autoComplete="off"
-              />
-            </div>
-
             <div className="hmi-umodal-row">
               <label htmlFor="ue-pw">비밀번호</label>
               {/* 현재 비밀번호가 채워져 있다. 보이는 채로 두는 편이 관리자가

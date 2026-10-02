@@ -20,7 +20,7 @@ const ROLES = [
 ];
 
 const EMPTY = {
-  userId: '', userPassword: '', passwordConfirm: '', userName: '', userRole: '2',
+  userPassword: '', passwordConfirm: '', userName: '', userRole: '2',
   ...defaultScreenAuth(),
 };
 
@@ -54,13 +54,11 @@ export default function UserAddModal({ onClose, onCreated }) {
   const isAdminRole = form.userRole === '1';
 
   /* 보내기 전에 걸러낸다 — 서버도 검증하겠지만, 왕복 없이 바로 알려주는 게 낫다.
-     아이디는 로그인에 쓰는 값이라 공백을 털어내고, 비밀번호는 앞뒤 공백도 의도일
-     수 있으므로 그대로 보낸다. */
+     비밀번호는 앞뒤 공백도 의도일 수 있으므로 그대로 보낸다. 로그인이 비밀번호만으로
+     사용자를 찾아서 다른 사람과 겹치면 안 되는데, 그건 서버가 409로 알려 준다. */
   const validate = () => {
-    const userId = form.userId.trim();
     const userName = form.userName.trim();
 
-    if (!userId) return '아이디를 입력해주세요.';
     if (!form.userPassword) return '비밀번호를 입력해주세요.';
     if (form.userPassword !== form.passwordConfirm) return '비밀번호가 일치하지 않습니다.';
     if (!userName) return '이름을 입력해주세요.';
@@ -79,7 +77,6 @@ export default function UserAddModal({ onClose, onCreated }) {
     /* pickScreenAuth로 화면 권한만 걸러 담는다 — 폼에만 있는 passwordConfirm 같은 값이
        섞여 나가지 않고, 화면이 감당 못 하는 레벨(조회 화면의 제어)도 여기서 잘린다. */
     const payload = {
-      userId: form.userId.trim(),
       userPassword: form.userPassword,
       userName: form.userName.trim(),
       userRole: form.userRole,
@@ -95,7 +92,7 @@ export default function UserAddModal({ onClose, onCreated }) {
         onClose();
       })
       .catch((err) => {
-        // 아이디 중복 같은 사유는 서버 메시지가 가장 정확하다.
+        // 비밀번호 중복 같은 사유는 서버 메시지가 가장 정확하다.
         setError(err.response?.data?.message ?? '사용자를 등록하지 못했습니다.');
       })
       .finally(() => setSubmitting(false));
@@ -115,19 +112,6 @@ export default function UserAddModal({ onClose, onCreated }) {
 
         <div className="hmi-umodal-body">
           <div className="hmi-umodal-row">
-            <label htmlFor="ua-id">아이디</label>
-            <input
-              id="ua-id"
-              className="hmi-umodal-input"
-              value={form.userId}
-              onChange={setField('userId')}
-              maxLength={MAX_LEN}
-              autoFocus
-              autoComplete="off"
-            />
-          </div>
-
-          <div className="hmi-umodal-row">
             <label htmlFor="ua-pw">비밀번호</label>
             <input
               id="ua-pw"
@@ -136,6 +120,7 @@ export default function UserAddModal({ onClose, onCreated }) {
               value={form.userPassword}
               onChange={setField('userPassword')}
               maxLength={MAX_LEN}
+              autoFocus
               autoComplete="new-password"
             />
           </div>

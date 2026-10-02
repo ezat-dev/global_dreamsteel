@@ -15,7 +15,7 @@ import './AlarmHistPage.css';
 /* ===========================================================================
    로그 화면 — scada_log 조회
 
-   조작 이력이다: 누가(user_id, user_name) 어떤 PLC 주소(address)에 어떤 값(send_value)을
+   조작 이력이다: 누가(user_name) 어떤 PLC 주소(address)에 어떤 값(send_value)을
    언제(insert_date) 써 넣었는지. 컬럼 field는 DB 컬럼을 카멜케이스로 바꾼 이름 그대로 쓴다
    (send_value → sendValue). MyBatis에 mapUnderscoreToCamelCase가 켜져 있어서
    백엔드가 따로 매핑하지 않아도 이 이름으로 내려온다.
@@ -150,7 +150,6 @@ export default function LogPage() {
       /* 열 머리의 검색칸(headerFilter) — 조회는 기간으로 하고, 받아온 목록 안에서
          다시 좁힐 때 쓴다. 이 화면에서 제일 자주 찾는 건 '그 태그를 언제 건드렸나'라
          태그주소에 먼저 붙인다. */
-      { title: '아이디', field: 'userId', width: 120, hozAlign: 'center', headerFilter: 'input' },
       { title: '이름', field: 'userName', width: 110, hozAlign: 'center', headerFilter: 'input' },
       {
         title: '태그주소', field: 'address', minWidth: 160, widthGrow: 2, tooltip: true,

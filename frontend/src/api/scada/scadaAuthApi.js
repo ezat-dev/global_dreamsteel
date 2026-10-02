@@ -1,8 +1,9 @@
 import axiosInstance from '../axiosInstance';
 
-// 로그인 — global_dream.user를 조회한다.
-export function login(userId, userPassword) {
-  return axiosInstance.post('/api/scada/login', { userId, userPassword }).then((res) => res.data);
+/* 로그인 — 비밀번호만 보낸다. 아이디 없이 비밀번호로 사용자를 찾으므로,
+   비밀번호는 사용자마다 달라야 한다(추가·수정 때 서버가 중복을 409로 막는다). */
+export function login(userPassword) {
+  return axiosInstance.post('/api/scada/login', { userPassword }).then((res) => res.data);
 }
 
 /* 서버 세션이 살아 있는지만 확인한다. 화면을 옮길 때마다 ScadaLayout이 한 번씩 부른다.

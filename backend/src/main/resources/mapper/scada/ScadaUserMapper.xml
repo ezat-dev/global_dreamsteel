@@ -15,7 +15,7 @@
         auth_drive, auth_combustion, auth_temp, auth_atmosphere,
        auth_cooling, auth_alarm, auth_trend, auth_alarm_hist, auth_engineering, auth_log
         FROM scada_user
-        WHERE user_password = #{userPassword}
+        WHERE user_password COLLATE utf8_bin = #{userPassword}
           AND delete_yn = 'N'
     </select>
 
@@ -50,7 +50,7 @@
             resultType="com.mes.domain.scada.ScadaUser">
         SELECT id
         FROM scada_user
-        WHERE user_password = #{userPassword}
+        WHERE user_password COLLATE utf8_bin = #{userPassword}
           AND delete_yn = 'N'
     <if test="id != null">
         AND id != #{id}
@@ -70,7 +70,7 @@
         SELECT *
         FROM scada_user
         WHERE delete_yn != 'Y'
-        ORDER BY id
+        ORDER BY user_name
     </select>
 
     <!-- 사용자 수정. id로 한 행만 집는다(user_id는 바뀔 수 있으므로 키로 쓰지 않는다).
