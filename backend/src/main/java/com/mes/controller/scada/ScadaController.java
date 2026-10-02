@@ -54,9 +54,12 @@ public class ScadaController {
     // 로그인
     @PostMapping("/login")
     public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param, HttpSession session) {
+        if(param == null
+                || param.getUserPassword() == null || param.getUserPassword().isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "비밀번호를 입력해주세요.");
+        }
         ScadaUser data = scadaService.getUser(param);
         session.setAttribute("loginId", data.getId()); // pk
-        session.setAttribute("loginUserId", data.getUserId()); // 로그인 아이디
         session.setAttribute("loginUserName", data.getUserName()); // 로그인 이름
         session.setAttribute("loginUserRole", data.getUserRole()); // 로그인 권한
         return ApiResponse.success(data);
@@ -98,7 +101,7 @@ public class ScadaController {
     public ResponseEntity<ApiResponse<Boolean>> insertUser(@RequestBody ScadaUser scadaUser) {
         if (scadaService.getId(scadaUser) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(ApiResponse.error("COMMON_409", "중복된 ID 입니다."));
+                    .body(ApiResponse.error("COMMON_409", "중복된 비밀번호 입니다."));
         }
         return ResponseEntity.ok(ApiResponse.success(scadaService.insertUser(scadaUser)));
     }
@@ -114,7 +117,7 @@ public class ScadaController {
     public ResponseEntity<ApiResponse<Boolean>> updateUser(@RequestBody ScadaUser scadaUser) {
         if (scadaService.getId(scadaUser) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(ApiResponse.error("COMMON_409", "중복된 ID 입니다."));
+                    .body(ApiResponse.error("COMMON_409", "중복된 비밀번호 입니다."));
         }
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateUser(scadaUser)));
     }
@@ -155,7 +158,7 @@ public class ScadaController {
          * 로그에 남길 사람. 세션에만 있는 값이라 여기서 담아 넘긴다 —
          * 프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다.
          */
-        String userId = (String) session.getAttribute("loginUserId");
+        Object loginID = session.getAttribute("loginId");
 
         /*
          * 세션이 없으면 PLC에 값을 보내기 전에 막는다.
@@ -168,11 +171,9 @@ public class ScadaController {
          * (persistent: true), 강제 종료나 첫 기동에는 세션이 없다.
          * 조작 기록이 비는 것보다는 거부가 낫다.
          */
-        if (userId == null) {
+        if (loginID == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
-
-        scadaUser.setUserId(userId);
         scadaUser.setUserName((String) session.getAttribute("loginUserName"));
         return ResponseEntity.ok(ApiResponse.success(scadaService.writeTag(scadaUser)));
     }
@@ -233,7 +234,7 @@ public class ScadaController {
     // 로그인 세션 확인
     @GetMapping("/checkSession")
     public ApiResponse<Boolean> checkSession(HttpSession session) {
-        if (session.getAttribute("loginUserId") == null) {
+        if (session.getAttribute("loginId") == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
         return ApiResponse.success(true);

@@ -188,8 +188,8 @@ public class ControllerLogAspect {
         }
         // getSession(false) — 없으면 만들지 않는다. true로 두면 로그가 세션을 새로 만든다.
         HttpSession session = request.getSession(false);
-        Object userId = session == null ? null : session.getAttribute("loginUserId");
-        return userId == null ? "-" : String.valueOf(userId);
+        Object loginUserName = session == null ? null : session.getAttribute("loginUserName");
+        return loginUserName == null ? "-" : String.valueOf(loginUserName);
     }
 
     private String describeArgs(Object[] args) {

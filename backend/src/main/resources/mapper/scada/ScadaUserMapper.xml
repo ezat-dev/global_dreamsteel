@@ -11,12 +11,11 @@
          판단하는 데 쓴다. -->
     <select id="getUser" parameterType="com.mes.domain.scada.ScadaUser"
             resultType="com.mes.domain.scada.ScadaUser">
-        SELECT id, user_id, user_name, user_role,
+        SELECT id, user_name, user_role,
         auth_drive, auth_combustion, auth_temp, auth_atmosphere,
        auth_cooling, auth_alarm, auth_trend, auth_alarm_hist, auth_engineering, auth_log
         FROM scada_user
-        WHERE user_id = #{userId}
-          AND user_password = #{userPassword}
+        WHERE user_password = #{userPassword}
           AND delete_yn = 'N'
     </select>
 
@@ -37,11 +36,11 @@
     <!-- 사용자 추가. delete_yn은 DEFAULT 'N'이라 적지 않는다. -->
     <insert id="insertUser" parameterType="com.mes.domain.scada.ScadaUser">
         INSERT INTO scada_user (
-    user_id, user_password, user_name, user_role,
+    user_password, user_name, user_role,
     auth_drive, auth_combustion, auth_temp, auth_atmosphere,
     auth_cooling, auth_alarm, auth_trend, auth_alarm_hist, auth_engineering, auth_log
     ) VALUES (
-    #{userId}, #{userPassword}, #{userName}, #{userRole},
+    #{userPassword}, #{userName}, #{userRole},
     #{authDrive}, #{authCombustion}, #{authTemp}, #{authAtmosphere},
     #{authCooling}, #{authAlarm}, #{authTrend}, #{authAlarmHist}, #{authEngineering}, #{authLog}
     )
@@ -51,7 +50,7 @@
             resultType="com.mes.domain.scada.ScadaUser">
         SELECT id
         FROM scada_user
-        WHERE user_id = #{userId}
+        WHERE user_password = #{userPassword}
           AND delete_yn = 'N'
     <if test="id != null">
         AND id != #{id}
@@ -79,8 +78,7 @@
          'N'으로 되돌리면 복구다. 그래서 삭제 전용 쿼리를 따로 두지 않는다. -->
     <update id="updateUser" parameterType="com.mes.domain.scada.ScadaUser">
         UPDATE scada_user
-        SET user_id = #{userId},
-            user_password = #{userPassword},
+        SET user_password = #{userPassword},
             user_name = #{userName},
             user_role = #{userRole},
             delete_yn = #{deleteYn},
@@ -99,9 +97,9 @@
 
     <insert id="insertLog" parameterType="com.mes.domain.scada.ScadaUser">
         INSERT INTO scada_log (
-    user_id, user_name, address, send_value, write_success, fail_reason
+    user_name, address, send_value, write_success, fail_reason
     ) VALUES (
-    #{userId}, #{userName}, #{address}, #{sendValue}, #{writeSuccess}, #{failReason}
+    #{userName}, #{address}, #{sendValue}, #{writeSuccess}, #{failReason}
     )
     </insert>
 
