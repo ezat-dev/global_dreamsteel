@@ -149,7 +149,20 @@ function LogArt() {
   );
 }
 
+/** 엔지니어링 — 설정값을 맞추는 조절기(세로 슬라이더 셋). 가운데 손잡이를 굵게 */
+function EngineeringArt() {
+  return (
+    <svg {...BOX} aria-hidden="true">
+      <path {...LINE} d="M12 8v32M24 8v32M36 8v32" />
+      <rect {...LINE} x="8" y="26" width="8" height="5" rx="1.5" />
+      <rect {...KEY} x="20" y="14" width="8" height="5" rx="1.5" />
+      <rect {...LINE} x="32" y="31" width="8" height="5" rx="1.5" />
+    </svg>
+  );
+}
+
 const ART = {
+  engineering: EngineeringArt,
   drive: DriveArt,
   combustion: CombustionArt,
   temp: TempArt,

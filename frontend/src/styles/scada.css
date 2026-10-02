@@ -1358,6 +1358,15 @@ button {
   }
 }
 
+/* 타일이 열 개 이상이면 5열 두 줄로(MainPage가 is-wide를 붙인다).
+   폰 크기에서는 아래 860px·640px 규칙이 그대로 이겨야 하므로 범위를 861px 이상으로 묶는다 —
+   묶지 않으면 .is-wide가 선택자 하나만큼 더 강해서 폰에서도 다섯 칸이 비좁게 붙는다. */
+@media (min-width: 861px) {
+  .hmi-mainmenu-grid.is-wide {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
 /* 여기부터는 태블릿이 아니라 폰 크기다 — 셋은 이름이 눌려서 둘로, 다시 하나로 접는다 */
 @media (max-width: 860px) {
   .hmi-mainmenu-grid {

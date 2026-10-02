@@ -7,6 +7,7 @@ import CoolingPage from '../pages/scada/CoolingPage';
 import TrendPage from '../pages/scada/TrendPage';
 import AlarmPage from '../pages/scada/AlarmPage';
 import AlarmHistPage from '../pages/scada/AlarmHistPage';
+import EngineeringPage from '../pages/scada/EngineeringPage';
 import LogPage from '../pages/scada/LogPage';
 
 // ScadaLayout(상단 제목바 + 하단 메뉴바) 하위에서 렌더링되는 화면 목록.
@@ -25,6 +26,7 @@ const scadaRoutes = [
   { path: 'trend', key: 'trend', element: TrendPage },
   { path: 'alarm', key: 'alarm', element: AlarmPage },
   { path: 'alarmHistory', key: 'alarmHistory', element: AlarmHistPage },
+  { path: 'engineering', key: 'engineering', element: EngineeringPage },
   { path: 'log', key: 'log', element: LogPage },
 ];
 

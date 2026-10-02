@@ -26,6 +26,10 @@ const SCADA_MENU = [
   { key: 'trend', label: '트렌드', title: '트렌드', path: '/trend', authField: 'authTrend' },
   { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm', authField: 'authAlarm', control: true },
   { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory', authField: 'authAlarmHist' },
+  /* 설비 설정값(시간·온도 기준·PV 보정)을 바꾸는 화면이라 관리자에게만 연다.
+     authField를 두지 않은 것도 그래서다 — 화면별 권한으로 열면 scada_user에 컬럼을
+     하나 더 만들어야 하는데, 작업자에게 맡길 화면이 아니라 그럴 이유가 없다. */
+  { key: 'engineering', label: '엔지니어링', title: '엔지니어링', path: '/engineering', adminOnly: true, control: true },
   { key: 'log', label: '로그', title: '로그', path: '/log', adminOnly: true },
 ];
 

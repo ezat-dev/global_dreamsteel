@@ -74,7 +74,10 @@ export default function MainPage() {
         </div>
       )}
 
-      <div className="hmi-mainmenu-grid">
+      {/* 타일이 열 개를 넘으면(관리자 — 로그·엔지니어링이 보인다) 3열이 아니라 5열로 깐다.
+          3열이면 넷째 줄이 생기는데, 이 화면은 스크롤을 막아 두었기 때문에(아래
+          is-noscroll) 태블릿에서 넷째 줄이 그대로 잘린다. 5열이면 두 줄로 끝난다. */}
+      <div className={`hmi-mainmenu-grid${items.length > 9 ? ' is-wide' : ''}`}>
         {items.map((menu) => (
           <button
             key={menu.key}
