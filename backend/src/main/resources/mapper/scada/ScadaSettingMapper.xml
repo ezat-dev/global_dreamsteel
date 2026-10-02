@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ScadaSettingMapper">
+    <select id="getSettingList" parameterType="com.mes.domain.scada.ScadaSetting"
+            resultType="com.mes.domain.scada.ScadaSetting">
+        SELECT *
+        FROM scada_setting
+    </select>
+
+    <update id="updateSetting" parameterType="com.mes.domain.scada.ScadaSetting">
+        UPDATE scada_setting
+        SET setting_value = #{settingValue},
+            update_user = #{updateUser}
+        WHERE setting_key = #{settingKey}
+    </update>
+
+</mapper>

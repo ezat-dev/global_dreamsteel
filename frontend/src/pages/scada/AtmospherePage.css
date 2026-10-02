@@ -231,7 +231,7 @@
 
 /* 누름 진행 바. 누르는 순간 요소가 새로 생기므로(조건부 렌더) 연달아 눌러도
    애니메이션이 처음부터 돈다 — 클래스만 토글하면 다시 시작되지 않는다.
-   길이는 AtmospherePage.jsx의 AT_HOLD_MS를 inline style로 받는다. */
+   길이는 누름 시간(holdMs — 엔지니어링 화면에서 고친다)을 inline style로 받는다. */
 .at-hold-bar {
   position: absolute;
   left: 0;

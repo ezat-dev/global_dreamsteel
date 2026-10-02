@@ -2,11 +2,15 @@ import { useState } from 'react';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { LedInput } from '../../components/scada/HmiParts';
 import { writeTag } from '../../api/scada/foldertagApi';
+import { updateSetting } from '../../api/scada/scadaSettingApi';
+import {
+  HOLD_MS_KEY, HOLD_MS_MAX, HOLD_MS_MIN, useHoldMsControl,
+} from '../../components/scada/HoldMsContext';
 import './EngineeringPage.css';
 
 /* ===========================================================================
-   엔지니어링 — 설비 설정값과 온도 보정을 한 화면에서 고친다. 관리자 전용이다
-   (scadaMenu.js의 adminOnly).
+   엔지니어링 — 설비 설정값과 온도 보정, 화면 조작 설정(버튼 누름 시간)을 한 화면에서
+   고친다. 들어올 수 있는 사람은 사용자별 권한(scadaMenu.js의 authEngineering)으로 정한다.
 
    다른 화면처럼 값은 폴더 하나를 1초마다 폴링하고, 쓰기는 자바를 거쳐 scada_log에
    남는다. 태그 이름은 아래에 적어 두고 DB(ez_scada.folders_tags)에 같은 이름으로 넣으면
@@ -82,6 +86,28 @@ export default function EngineeringPage() {
   const { values: tagValues, error: tagValueError } = useFolderTagValues(ENG_FOLDER_ID);
   const [writeError, setWriteError] = useState('');
 
+  /* 버튼 누름 시간 — PLC 태그가 아니라 DB(scada_setting의 hold_ms)에 있는 화면 설정이다.
+     그래서 위 폴링이 아니라 HoldMsContext가 들고 있는 값을 보여 준다.
+     작업자는 초(소수 한 자리)로 보고 넣고, DB에는 ms 정수로 들어간다 — 1.5초 → 1500.
+     scada_log에는 남기지 않는다(PLC 조작이 아니다). */
+  const { holdMs, setHoldMs, refresh: refreshHoldMs } = useHoldMsControl();
+
+  const handleHoldWrite = (value) => {
+    /* 숫자패드가 소수 한 자리까지만 받으므로 ×1000 뒤의 반올림은 부동소수 오차
+       (1.1 × 1000 = 1100.0000000000002)를 지우는 것뿐이다 — 값이 바뀌지 않는다. */
+    const ms = Math.round(Number(value) * 1000);
+    if (!Number.isFinite(ms) || ms < HOLD_MS_MIN || ms > HOLD_MS_MAX) return;
+    setWriteError('');
+    updateSetting(HOLD_MS_KEY, ms)
+      // 이 기기는 바로 바꾼다. 다른 기기는 화면 이동이나 30초 안에 따라온다(HoldMsContext)
+      .then(() => setHoldMs(ms))
+      .catch((e) => {
+        setWriteError(`버튼 누름 시간 — ${e.response?.data?.message ?? e.message}`);
+        // 저장이 됐는지 모르는 채로 두지 않는다 — DB에 실제로 있는 값을 다시 받아 보여 준다
+        refreshHoldMs();
+      });
+  };
+
   /* 값을 못 받았으면 0이 아니라 '---'다 — 0으로 그리면 "설정이 0"으로 읽힌다 */
   const text = (tag) => {
     const v = tagValues?.[tag];
@@ -139,6 +165,37 @@ export default function EngineeringPage() {
           </section>
         ))}
       </div>
+
+      {/* 화면 조작 설정 — PLC가 아니라 웹이 쓰는 값이라 판을 따로 둔다.
+          위 판 셋에 끼우면 넷째 판이 생겨 칸이 좁아지고, PLC 설정값과 섞여 보인다. */}
+      <section className="hmi-group eng-section eng-section--operation">
+        <span className="hmi-group-title">조작 설정</span>
+        <ol className="eng-rows eng-rows--operation">
+          <li className="eng-row">
+            <span className="eng-no">1.</span>
+            <span className="eng-label">
+              버튼 누름 시간
+              <small className="eng-note">
+                모든 화면의 조작 버튼이 이 시간만큼 눌려야 값을 보냅니다 (0 ~ 5초, 0.1초 단위)
+              </small>
+            </span>
+            <span className="eng-value">
+              <LedInput
+                value={(holdMs / 1000).toFixed(1)}
+                onChange={handleHoldWrite}
+                color="green"
+                unit="sec"
+                size="sm"
+                label="버튼 누름 시간"
+                title={`버튼 누름 시간 / scada_setting.${HOLD_MS_KEY} = ${holdMs}ms`}
+                min={HOLD_MS_MIN / 1000}
+                max={HOLD_MS_MAX / 1000}
+                decimals={1}
+              />
+            </span>
+          </li>
+        </ol>
+      </section>
 
       <section className="hmi-group eng-tc">
         <span className="hmi-group-title">온도 보정</span>

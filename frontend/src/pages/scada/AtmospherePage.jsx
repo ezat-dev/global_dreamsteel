@@ -7,6 +7,7 @@ import {
   lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { useHoldMs } from '../../components/scada/HoldMsContext';
 import {
   BEACON, FITTING_TAGS, ROTATE_VALVE, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
@@ -109,12 +110,6 @@ const O2_PANEL = { left: 940, top: 620, titleWidth: 135, valueWidth: 100 };
    조용히 실패하니, 값이 '---'로 나오면 여기를 먼저 본다. */
 const AT_FOLDER_ID = 10;
 
-/* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다(다른 화면과 같은 2초).
-   설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 채우는 동안 버튼에
-   진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
-   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
-const AT_HOLD_MS = 2000;
-
 /* 자동모드 전환 조건 — 순서와 문구는 현장 HMI 화면 그대로.
 
    일곱 줄 다 늘 초록 아니면 빨강이다(켜지고 꺼지는 램프가 아니다).
@@ -216,7 +211,7 @@ export default function AtmospherePage() {
     : (beaconState === TAG_UNKNOWN ? ' beacon-gray' : '');
 
   /* ── ADDTION 블로워·가스 OPEN/CLOSE ───────────────────────────────────
-     모멘터리가 아니다. AT_HOLD_MS를 채우면 누른 쪽 태그에 1, 반대쪽 태그에 0을 주고
+     모멘터리가 아니다. holdMs를 채우면 누른 쪽 태그에 1, 반대쪽 태그에 0을 주고
      그대로 남는다(래치). 떼는 것은 아무 값도 보내지 않는다 — 손을 떼면 밸브가 원래대로
      돌아가 버리면 안 되니까. OPEN과 CLOSE는 서로 반대라 둘이 동시에 1이 될 수 없다.
 
@@ -224,6 +219,12 @@ export default function AtmospherePage() {
      되돌려 주지만, 여기는 화면이 두 태그를 직접 맞춰 줘야 한다. */
 
   const [writeError, setWriteError] = useState('');
+
+  /* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다(다른 화면과 같은 값 —
+     엔지니어링 화면의 누름 시간, 기본 2초). 설비 명령이라 스치듯 눌린 것으로 밸브가
+     움직이면 안 된다 — 채우는 동안 버튼에 진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
+     CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
+  const holdMs = useHoldMs();
 
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
   const [heldTag, setHeldTag] = useState('');
@@ -264,7 +265,7 @@ export default function AtmospherePage() {
       holdTimerRef.current = null;
       setArmedTag(selfCmd);
       sendPair(selfCmd, otherCmd);
-    }, AT_HOLD_MS);
+    }, holdMs);
   };
 
   /* 뗌은 값을 보내지 않는다. 시간을 채우기 전에 뗐을 때 예약된 쓰기를 취소하는 것이
@@ -435,14 +436,14 @@ export default function AtmospherePage() {
                           + (armedTag === b.cmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(b.cmd, b.other)}
                         data-tag={b.cmd}
-                        title={`${AT_HOLD_MS / 1000}초 누르면 ${b.other}=0, ${b.cmd}=1`
+                        title={`${holdMs / 1000}초 누르면 ${b.other}=0, ${b.cmd}=1`
                           + ` / 램프 ${lampOf(b.cmd)}`}
                       >
                         {b.text}
                         {heldTag === b.cmd && (
                           <span
                             className="at-hold-bar"
-                            style={{ animationDuration: `${AT_HOLD_MS}ms` }}
+                            style={{ animationDuration: `${holdMs}ms` }}
                           />
                         )}
                       </button>
@@ -517,7 +518,7 @@ export default function AtmospherePage() {
                 onPress={handlePress}
                 heldTag={heldTag}
                 armedTag={armedTag}
-                holdMs={AT_HOLD_MS}
+                holdMs={holdMs}
               />
             </div>
 

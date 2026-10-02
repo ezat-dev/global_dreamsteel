@@ -8,6 +8,7 @@ import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { useHoldMs } from '../../components/scada/HoldMsContext';
 import {
   FITTING_TAGS, THUNDER_TAGS, fittingRedClass, thunderHideClass, thunderTag,
 } from '../../components/scada/combustionArtTags';
@@ -74,12 +75,6 @@ const ZONES = [1, 2, 3, 4, 5, 6, 7];
    DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 값이 안 오는
    형태로 조용히 실패하니(태그 0개 응답), 값이 전부 '모름'으로 나오면 여기를 먼저 본다. */
 const CB_FOLDER_ID = 7;
-
-/* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다.
-   설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 이 시간을 채우는 동안
-   버튼에 진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
-   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적어 두면 어긋난다). */
-const HOLD_MS = 2000;
 
 const TOP_CX0 = 199;   // 상단 1존 중심
 /* 하단 개도 박스도 상단과 같은 x에 있다(199, 346, … 1081).
@@ -328,6 +323,13 @@ export default function CombustionPage() {
     .join('');
 
   const [writeError, setWriteError] = useState('');
+
+  /* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다(엔지니어링 화면의 누름 시간, 기본 2초).
+     설비 명령이라 스치듯 눌린 것으로 밸브가 움직이면 안 된다 — 이 시간을 채우는 동안
+     버튼에 진행 바가 차고, 그 전에 떼면 아무것도 보내지 않는다.
+     CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적어 두면 어긋난다). */
+  const holdMs = useHoldMs();
+
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데 쓴다(비활성화에는 쓰지 않는다)
   const [heldTag, setHeldTag] = useState('');
   // 누름 시간을 채워서 실제로 1이 나간 태그
@@ -361,7 +363,7 @@ export default function CombustionPage() {
     return st === TAG_ON ? it.lit : '';
   };
 
-  /* 누르는 순간에는 아무것도 보내지 않는다 — HOLD_MS를 채워야 1이 나간다.
+  /* 누르는 순간에는 아무것도 보내지 않는다 — holdMs를 채워야 1이 나간다.
      그 뒤로는 싸이몬의 Bit_Momentary와 같다(떼면 0). */
   const handlePress = (name) => {
     if (heldRef.current) return;   // 두 개를 동시에 누르는 상황은 만들지 않는다
@@ -381,7 +383,7 @@ export default function CombustionPage() {
            켜면 0이 읽힐 수 있다 — 그때는 폴링을 기다리던 지금까지와 같아질 뿐이다. */
         .then(() => readWhileHeld(lampOf(name), () => heldRef.current === name))
         .catch((e) => setWriteError(`${name} — ${e.message}`));
-    }, HOLD_MS);
+    }, holdMs);
   };
 
   const handleRelease = () => {
@@ -515,7 +517,7 @@ export default function CombustionPage() {
                 <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
                   {d.onCmd ? (
                     <>
-                      {/* HOLD_MS만큼 누르면 1, 떼면 0. 뗌은 window가 받는다.
+                      {/* holdMs만큼 누르면 1, 떼면 0. 뗌은 window가 받는다.
                           disabled를 걸지 않는 이유: 비활성 요소는 뗌 이벤트를 못 받아서
                           비트가 1로 남는다. */}
                       <button
@@ -525,11 +527,11 @@ export default function CombustionPage() {
                           + (armedTag === d.onCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.onCmd)}
                         data-tag={d.onCmd}
-                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
+                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)} — ${holdMs / 1000}초 누르면 전송`}
                       >
                         {d.on}
                         {heldTag === d.onCmd && (
-                          <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                          <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                         )}
                       </button>
                       <button
@@ -539,11 +541,11 @@ export default function CombustionPage() {
                           + (armedTag === d.offCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.offCmd)}
                         data-tag={d.offCmd}
-                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
+                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)} — ${holdMs / 1000}초 누르면 전송`}
                       >
                         {d.off}
                         {heldTag === d.offCmd && (
-                          <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                          <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                         )}
                       </button>
                     </>
@@ -671,7 +673,7 @@ export default function CombustionPage() {
             {/* 사진처럼 "연소"와 "ON/OFF"를 두 줄로 — 칸이 좁아 한 줄로는 안 들어간다
                 (.hmi-lampbox에 white-space: pre-line이 걸려 있어 \n이 줄바꿈이 된다).
 
-                본판의 MAIN GAS OPEN/CLOSE와 같은 모멘터리 버튼이다 — HOLD_MS만큼
+                본판의 MAIN GAS OPEN/CLOSE와 같은 모멘터리 버튼이다 — holdMs만큼
                 누르면 1이 나가고 떼면 0이 나간다(뗌은 window가 받는다). 색은 누른 것과
                 무관하게 PLC 램프가 정한다. disabled를 걸지 않는 이유는 위와 같다:
                 비활성 요소는 뗌 이벤트를 못 받아서 비트가 1로 남는다. */}
@@ -687,11 +689,11 @@ export default function CombustionPage() {
                       + (armedTag === cmd ? ' is-armed' : '')}
                     onPointerDown={() => handlePress(cmd)}
                     data-tag={cmd}
-                    title={`${cmd} / 램프 ${lampOf(cmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
+                    title={`${cmd} / 램프 ${lampOf(cmd)} — ${holdMs / 1000}초 누르면 전송`}
                   >
                     {b.text}
                     {heldTag === cmd && (
-                      <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                      <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                     )}
                   </button>
                 );
@@ -736,18 +738,18 @@ export default function CombustionPage() {
                         + (armedTag === it.cmd ? ' is-armed' : '')}
                       onPointerDown={() => handlePress(it.cmd)}
                       data-tag={it.cmd}
-                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${HOLD_MS / 1000}초 누르면 전송 (색은 늘 노랑)`}
+                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${holdMs / 1000}초 누르면 전송 (색은 늘 노랑)`}
                     >
                       {it.text}
                       {heldTag === it.cmd && (
-                        <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                        <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                       )}
                     </button>
                   );
                 }
 
                 /* 명령 태그가 붙은 칸(ALL PURGE의 ON)은 램프이면서 버튼이다.
-                   본판 OPEN/CLOSE와 같은 모멘터리다: HOLD_MS만큼 누르면 1, 떼면 0.
+                   본판 OPEN/CLOSE와 같은 모멘터리다: holdMs만큼 누르면 1, 떼면 0.
                    색은 누른 것과 무관하게 램프(_cmd_lamp)가 정한다.
                    disabled를 걸지 않는 이유도 같다 — 비활성 요소는 뗌 이벤트를 못 받아서
                    비트가 1로 남는다. */
@@ -761,11 +763,11 @@ export default function CombustionPage() {
                         + (armedTag === it.cmd ? ' is-armed' : '')}
                       onPointerDown={() => handlePress(it.cmd)}
                       data-tag={it.cmd}
-                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${HOLD_MS / 1000}초 누르면 전송`}
+                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${holdMs / 1000}초 누르면 전송`}
                     >
                       {it.text}
                       {heldTag === it.cmd && (
-                        <span className="cb-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                        <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                       )}
                     </button>
                   );
@@ -795,7 +797,7 @@ export default function CombustionPage() {
           onPress={handlePress}
           heldTag={heldTag}
           armedTag={armedTag}
-          holdMs={HOLD_MS}
+          holdMs={holdMs}
           onClose={() => setBurnerZone(null)}
         />
       )}

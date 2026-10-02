@@ -3,6 +3,7 @@ import TempZonePanel from '../../components/scada/TempZonePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { lampOf, writeTag } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { useHoldMs } from '../../components/scada/HoldMsContext';
 import './TempPage.css';
 
 const ZONE_COUNT = 7;
@@ -11,12 +12,6 @@ const ZONE_COUNT = 7;
    DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
    조용히 실패하니, 값이 전부 '---'로 나오면 여기를 먼저 본다. */
 const TC_FOLDER_ID = 8;
-
-/* 자동/수동 모드 버튼을 이만큼 누르고 있어야 전환 요청이 나간다.
-   momentary 비트라 누르는 동안 1, 떼면 0이다(싸이몬과 같다).
-   스치듯 눌린 것으로 제어 모드가 바뀌면 안 되니 시간을 둔다.
-   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
-const MODE_HOLD_MS = 2000;
 
 // 존 번호만 있으면 된다 — 값·모드가 전부 PLC 태그에서 오므로 화면이 들고 있을 상태가 없다.
 const ZONES = Array.from({ length: ZONE_COUNT }, (_, i) => i + 1);
@@ -43,8 +38,14 @@ export default function TempPage() {
   };
 
   /* ── 자동/수동 모드 버튼 (momentary) ──────────────────────────────────
-     누르고 MODE_HOLD_MS를 채우면 1, 떼면 0. PLC가 그 전환 요청을 받아 모드를 바꾸고,
+     누르고 holdMs를 채우면 1, 떼면 0. PLC가 그 전환 요청을 받아 모드를 바꾸고,
      결과는 램프 태그(_cmd_lamp)로 돌아온다. */
+
+  /* 자동/수동 모드 버튼을 이만큼 누르고 있어야 전환 요청이 나간다(엔지니어링 화면의
+     누름 시간, 기본 2초). momentary 비트라 누르는 동안 1, 떼면 0이다(싸이몬과 같다).
+     스치듯 눌린 것으로 제어 모드가 바뀌면 안 되니 시간을 둔다.
+     CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
+  const holdMs = useHoldMs();
 
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
   const [heldTag, setHeldTag] = useState('');
@@ -78,7 +79,7 @@ export default function TempPage() {
            있다 — 그때는 폴링을 기다리던 지금까지와 같아질 뿐이다. */
         .then(() => readWhileHeld(lampOf(name), () => heldRef.current === name))
         .catch((e) => setWriteError(`${name} — ${e.message}`));
-    }, MODE_HOLD_MS);
+    }, holdMs);
   };
 
   const handleModeRelease = () => {
@@ -138,7 +139,7 @@ export default function TempPage() {
           onModePress={handleModePress}
           heldTag={heldTag}
           armedTag={armedTag}
-          holdMs={MODE_HOLD_MS}
+          holdMs={holdMs}
         />
       ))}
 

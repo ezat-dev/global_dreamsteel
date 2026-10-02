@@ -18,6 +18,7 @@ import com.mes.common.exception.BusinessException;
 import com.mes.common.exception.ErrorCode;
 import com.mes.dao.scada.ScadaDao;
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 import com.mes.service.scada.ScadaService;
@@ -268,5 +269,15 @@ public class ScadaServiceImpl implements ScadaService {
     @Override
     public boolean deleteTrendMemo(ScadaTrend scadaTrend) {
         return scadaDao.deleteTrendMemo(scadaTrend);
+    }
+
+    @Override
+    public List<ScadaSetting> getSettingList(ScadaSetting scadaSetting) {
+        return scadaDao.getSettingList(scadaSetting);
+    }
+
+    @Override
+    public boolean updateSetting(ScadaSetting scadaSetting) {
+        return scadaDao.updateSetting(scadaSetting);
     }
 }

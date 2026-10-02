@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 
@@ -117,6 +118,18 @@ public class ScadaDao {
 
     public boolean deleteTrendMemo(ScadaTrend scadaTrend) {
         int result = sqlSession.delete("ScadaTrendMapper.deleteTrendMemo", scadaTrend);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public List<ScadaSetting> getSettingList(ScadaSetting scadaSetting) {
+        return sqlSession.selectList("ScadaSettingMapper.getSettingList", scadaSetting);
+    }
+
+    public boolean updateSetting(ScadaSetting scadaSetting) {
+        int result = sqlSession.update("ScadaSettingMapper.updateSetting", scadaSetting);
         if (result <= 0) {
             return false;
         }

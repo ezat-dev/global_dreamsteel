@@ -12,6 +12,7 @@ import {
   lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { useHoldMs } from '../../components/scada/HoldMsContext';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './driveOverview.css';
 import './DrivePage.css';
@@ -119,12 +120,6 @@ const ZONE_SV_MAX = 1000;
    DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
    조용히 실패하니, 값이 전부 '---'로 나오면 여기를 먼저 본다. */
 const DR_FOLDER_ID = 9;
-
-/* 구동부 ON/OFF 버튼을 이만큼 누르고 있어야 명령이 나간다.
-   컨베이어가 스치듯 눌린 것으로 돌거나 멈추면 안 되니 시간을 둔다.
-   연소·온도제어의 누름 버튼도 같은 2초다 — 화면마다 다르면 손이 헷갈린다.
-   CSS 애니메이션 길이도 이 값을 inline style로 받아 간다(두 곳에 적으면 어긋난다). */
-const DRIVE_HOLD_MS = 2000;
 
 /* MAIN DRIVE 아래 '####℃ 이하시 설비 OFF'의 OFF 버튼. 읽기와 쓰기가 같은 태그다. */
 const FACILITY_OFF_BTN_TAG = 'facility_off_temp_toggle_button';
@@ -791,8 +786,14 @@ export default function DrivePage() {
   };
 
   /* ── 구동부 ON/OFF (momentary) ────────────────────────────────────────
-     누르고 DRIVE_HOLD_MS를 채우면 1, 떼면 0. PLC가 그 순간을 받아 기동/정지하고
+     누르고 holdMs를 채우면 1, 떼면 0. PLC가 그 순간을 받아 기동/정지하고
      결과는 램프 태그로 돌아온다. */
+
+  /* 구동부 ON/OFF 버튼을 이만큼 누르고 있어야 명령이 나간다.
+     컨베이어가 스치듯 눌린 것으로 돌거나 멈추면 안 되니 시간을 둔다.
+     모든 화면의 누름 버튼이 같은 값이다(엔지니어링 화면의 누름 시간, 기본 2초) —
+     화면마다 다르면 손이 헷갈린다. CSS 애니메이션 길이도 이 값을 inline style로 받아 간다. */
+  const holdMs = useHoldMs();
 
   // 지금 누르고 있는 태그 — 진행 바를 그리는 데만 쓴다(버튼을 비활성화하지 않는다)
   const [heldTag, setHeldTag] = useState('');
@@ -841,7 +842,7 @@ export default function DrivePage() {
           readWhileHeld(watchTag, () => heldRef.current === name);
         })
         .catch((e) => setWriteError(`${name} — ${e.message}`));
-    }, DRIVE_HOLD_MS);
+    }, holdMs);
   };
 
   const handleDriveRelease = () => {
@@ -906,7 +907,7 @@ export default function DrivePage() {
            폴링이 같은 값을 가져올 때까지 붙들고 그래도 안 오면 3초에서 끊는다. */
         .then(() => readAndHold(FACILITY_OFF_BTN_TAG))
         .catch((e) => setWriteError(`${FACILITY_OFF_BTN_TAG} — ${e.message}`));
-    }, DRIVE_HOLD_MS);
+    }, holdMs);
   };
 
   /* 떼는 것으로는 아무 값도 보내지 않으므로 여기서는 타이머만 거둔다. */
@@ -1014,11 +1015,11 @@ export default function DrivePage() {
                 + (armedTag === b.tag ? ' is-armed' : '')}
               onPointerDown={() => handleDrivePress(b.tag)}
               data-tag={b.tag}
-              title={`${b.tag} — ${DRIVE_HOLD_MS / 1000}초 누르면 1, 떼면 0`}
+              title={`${b.tag} — ${holdMs / 1000}초 누르면 1, 떼면 0`}
             >
               {b.text}
               {heldTag === b.tag && (
-                <span className="dr-hold-bar" style={{ animationDuration: `${DRIVE_HOLD_MS}ms` }} />
+                <span className="dr-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
               )}
             </button>
           ))}
@@ -1105,7 +1106,7 @@ export default function DrivePage() {
                 onPress={handleDrivePress}
                 heldTag={heldTag}
                 armedTag={armedTag}
-                holdMs={DRIVE_HOLD_MS}
+                holdMs={holdMs}
                 svMin={p.svMin}
                 svMax={p.svMax}
               />
@@ -1227,11 +1228,11 @@ export default function DrivePage() {
                       + (offBtnHeld ? ' is-held' : '')
                       + (offBtnArmed ? ' is-armed' : '')}
                     onPointerDown={handleOffBtnPress}
-                    title={`설비 OFF / ${n.lampTag} — ${DRIVE_HOLD_MS / 1000}초 누르면 0↔1 뒤집힘`}
+                    title={`설비 OFF / ${n.lampTag} — ${holdMs / 1000}초 누르면 0↔1 뒤집힘`}
                   >
                     {n.lamp}
                     {offBtnHeld && (
-                      <span className="dr-hold-bar" style={{ animationDuration: `${DRIVE_HOLD_MS}ms` }} />
+                      <span className="dr-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                     )}
                   </button>
                 )}

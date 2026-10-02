@@ -6,6 +6,7 @@ import ScadaLogo from '../components/scada/ScadaLogo';
 import ScadaClock from '../components/scada/ScadaClock';
 import { useAuth } from '../context/AuthContext';
 import { checkSession } from '../api/scada/scadaAuthApi';
+import { HoldMsProvider } from '../components/scada/HoldMsContext';
 import '../styles/scada.css';
 
 /**
@@ -46,8 +47,10 @@ export default function ScadaLayout() {
      보내고, 그 밖의 실패(자바가 꺼짐 등)로 화면을 막을 이유는 없다 — 값 읽기는 C# 직통이라
      자바가 없어도 화면은 제 몫을 한다.
 
-     한 화면을 계속 켜두면 옮길 일이 없어 검사할 기회도 없다. 그 사이 세션이 죽으면 여전히
-     버튼을 누를 때 알게 되는데, 보고만 있는 동안은 조작도 없으니 그대로 둔다. */
+     한 화면을 계속 켜두는 동안은 HoldMsProvider의 30초 조회가 같은 역할을 한다 — 그 API도
+     세션이 없으면 401을 주므로, 세션이 죽으면 늦어도 30초 안에 로그인 화면으로 간다.
+     세션이 없으면 보고 있던 화면이라도 로그인으로 돌리는 것이 의도한 동작이다.
+     자바가 아예 꺼진 경우(응답 없음)는 401이 아니라서 화면이 그대로 남는다. */
   useEffect(() => {
     checkSession().catch(() => {});
   }, [location.pathname]);
@@ -59,8 +62,8 @@ export default function ScadaLayout() {
   };
 
   /* 안드로이드 태블릿에서 버튼을 1초쯤 누르고 있으면 브라우저의 롱프레스 메뉴
-     (다운로드·공유·인쇄)가 떠서 조작을 가로챈다. 이 화면의 조작 버튼은 2초를 눌러야
-     값이 나가는 모멘터리라, 정상 조작이 매번 그 메뉴에 막힌다.
+     (다운로드·공유·인쇄)가 떠서 조작을 가로챈다. 이 화면의 조작 버튼은 정해진 시간
+     (엔지니어링 화면의 누름 시간, 기본 2초)을 눌러야 값이 나가서, 정상 조작이 매번 그 메뉴에 막힌다.
 
      touch-action / user-select로는 막히지 않는다 — 롱프레스 메뉴는 contextmenu
      이벤트로 뜨므로 그 이벤트를 막아야 한다(작화 그림 위에서는 '이미지 다운로드'로 뜬다).
@@ -103,7 +106,11 @@ export default function ScadaLayout() {
             .hmi-body > * 선택자가 각 화면의 캔버스를 그리기 때문이다.
             사이에 한 겹을 넣으면 그 선택자가 fieldset을 잡아 9개 화면이 전부 깨진다. */}
         <fieldset className="hmi-body" disabled={locked}>
-          <Outlet />
+          {/* 버튼 누름 시간을 화면 전체에 나눠 준다. 화면을 옮길 때마다 DB에서 다시 받는다
+              (위 checkSession과 같은 때) — 엔지니어링 화면에서 고친 값이 다른 기기로 퍼지는 길이다. */}
+          <HoldMsProvider refreshKey={location.pathname}>
+            <Outlet />
+          </HoldMsProvider>
         </fieldset>
 
         {!current.hideMenuBar && (

@@ -5,6 +5,7 @@ import {
 } from '../../api/scada/alarmTagApi';
 import { writeTag } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { useHoldMs } from '../../components/scada/HoldMsContext';
 import './AlarmPage.css';
 
 /* ===========================================================================
@@ -53,10 +54,6 @@ const ACTION_BUTTONS = [
   { tag: 'alarm_horn_stop', text: 'HORN STOP' },
 ];
 
-/* 이만큼 누르고 있어야 1이 나간다. 다른 화면의 조작 버튼과 같은 2초다 —
-   경보를 지우는 조작이라 스치듯 눌려서 나가면 안 된다. */
-const HOLD_MS = 2000;
-
 function lampState(raw) {
   if (raw == null || raw === '') return UNKNOWN;
   const n = Number(raw);
@@ -86,6 +83,10 @@ export default function AlarmPage() {
   const heldRef = useRef(null);
   const armedRef = useRef(false);
   const holdTimerRef = useRef(null);
+
+  /* 이만큼 누르고 있어야 1이 나간다. 다른 화면의 조작 버튼과 같은 값이다(엔지니어링 화면의
+     누름 시간, 기본 2초) — 경보를 지우는 조작이라 스치듯 눌려서 나가면 안 된다. */
+  const holdMs = useHoldMs();
 
   /* 두 버튼은 자기 값이 곧 램프라(짝이 되는 _lamp가 없다) 누른 태그를 그대로 읽는다.
      values는 폴링값에 그 한 태그만 얹힌 것이고, 아래 렌더는 이것만 보면 된다. */
@@ -144,7 +145,7 @@ export default function AlarmPage() {
     return () => { alive = false; clearTimeout(timer); };
   }, []);
 
-  /* 누르는 순간에는 아무것도 보내지 않는다 — HOLD_MS를 채워야 1이 나간다.
+  /* 누르는 순간에는 아무것도 보내지 않는다 — holdMs를 채워야 1이 나간다.
      그 뒤로는 싸이몬의 Bit Momentary와 같다(떼면 0). 다른 화면과 같은 방식이다. */
   const handlePress = (name) => {
     if (heldRef.current) return;   // 두 개를 동시에 누르는 상황은 만들지 않는다
@@ -162,7 +163,7 @@ export default function AlarmPage() {
            폴링(최악 2초 지연)을 기다리지 않고 버튼이 바로 초록이 되게 하는 것이다. */
         .then(() => readWhileHeld(name, () => heldRef.current === name))
         .catch((e) => setWriteError(`${name} — ${e.message}`));
-    }, HOLD_MS);
+    }, holdMs);
   };
 
   const handleRelease = () => {
@@ -312,11 +313,11 @@ export default function AlarmPage() {
                   + (armedTag === b.tag ? ' is-armed' : '')}
                 onPointerDown={() => handlePress(b.tag)}
                 data-tag={b.tag}
-                title={`${b.tag} — ${HOLD_MS / 1000}초 누르면 1, 떼면 0`}
+                title={`${b.tag} — ${holdMs / 1000}초 누르면 1, 떼면 0`}
               >
                 {b.text}
                 {heldTag === b.tag && (
-                  <span className="al-hold-bar" style={{ animationDuration: `${HOLD_MS}ms` }} />
+                  <span className="al-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                 )}
               </button>
             );

@@ -27,6 +27,13 @@
 .eng-section--drive { --eng-tone: #e3a16a; }
 .eng-section--combustion { --eng-tone: #5eb7ff; }
 .eng-section--atmosphere { --eng-tone: #4fbf8f; }
+.eng-section--operation { --eng-tone: #c9a7ff; }
+
+/* 조작 설정 판은 한 줄뿐이라 화면 폭 전체로 늘이면 이름과 값칸이 양 끝으로 벌어진다.
+   위 판 하나 폭만큼만 쓴다 — 줄의 생김새(번호·이름·값칸)가 위 판들과 그대로 맞는다. */
+.eng-rows--operation {
+  max-width: calc((100% - 28px) / 3);
+}
 
 .eng-section .hmi-group-title {
   box-shadow: inset 0 -2px 0 var(--eng-tone);
@@ -154,6 +161,11 @@
 @media (max-width: 860px) {
   .eng-sections {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* 판이 한 줄에 하나씩 쌓이므로 조작 설정도 폭을 다 쓴다 */
+  .eng-rows--operation {
+    max-width: none;
   }
 
   .eng-zones {

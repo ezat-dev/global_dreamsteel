@@ -3,6 +3,7 @@ package com.mes.service.scada;
 import java.util.List;
 
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 
@@ -47,4 +48,8 @@ public interface ScadaService {
     boolean deleteTrendMemo(ScadaTrend scadaTrend);
     
     String findAddress(ScadaUser scadaUser);
+
+    List<ScadaSetting> getSettingList(ScadaSetting scadaSetting);
+
+    boolean updateSetting(ScadaSetting scadaSetting);
 }

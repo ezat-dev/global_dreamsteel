@@ -16,6 +16,7 @@ import com.mes.common.exception.BusinessException;
 import com.mes.common.exception.ErrorCode;
 import com.mes.common.response.ApiResponse;
 import com.mes.domain.scada.ScadaAlarm;
+import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 import com.mes.service.scada.ScadaService;
@@ -54,7 +55,7 @@ public class ScadaController {
     // 로그인
     @PostMapping("/login")
     public ApiResponse<ScadaUser> login(@RequestBody ScadaUser param, HttpSession session) {
-        if(param == null
+        if (param == null
                 || param.getUserPassword() == null || param.getUserPassword().isBlank()) {
             throw new BusinessException(ErrorCode.INVALID_PARAMETER, "비밀번호를 입력해주세요.");
         }
@@ -238,6 +239,38 @@ public class ScadaController {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
         }
         return ApiResponse.success(true);
+    }
+
+    // 세팅값 조회
+    @GetMapping("/getSettingList")
+    public ApiResponse<List<ScadaSetting>> getSettingList(HttpSession session,
+            @ModelAttribute ScadaSetting scadaSetting) {
+        if (session.getAttribute("loginId") == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
+        }
+        return ApiResponse.success(scadaService.getSettingList(scadaSetting));
+    }
+
+    // 세팅값 수정
+    @PostMapping("/updateSetting")
+    public ResponseEntity<ApiResponse<Boolean>> updateSetting(@RequestBody ScadaSetting scadaSetting,
+            HttpSession session) {
+        if (session.getAttribute("loginId") == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
+        }
+        if ("hold_ms".equals(scadaSetting.getSettingKey())) {
+            int ms;
+            try {
+                ms = Integer.parseInt(scadaSetting.getSettingValue());
+            } catch (NumberFormatException e) {
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 시간은 숫자여야 합니다.");
+            }
+            if (ms < 0 || ms > 5000) {
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 시간은 0~5초 사이여야 합니다.");
+            }
+        }
+        scadaSetting.setUpdateUser((String) session.getAttribute("loginUserName"));
+        return ResponseEntity.ok(ApiResponse.success(scadaService.updateSetting(scadaSetting)));
     }
 
 }

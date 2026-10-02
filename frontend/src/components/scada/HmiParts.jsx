@@ -25,13 +25,14 @@ export function toNumber(value) {
  * @param unit     숫자 오른쪽에 붙는 단위(℃, % 등). LED 박스 밖에 검은 글씨로 붙는다.
  * @param label    숫자패드 상단에 뜰 항목 이름. 없으면 title을 쓴다.
  * @param min/max  허용 범위. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다.
+ * @param decimals 소수 자릿수. 기본 0(정수만) — PLC로 가는 값은 정수라서다(NumPad 참고).
  * @param readOnly true면 표시 전용(PLC가 주는 값)
  * @param disabled true면 지금은 쓰지 않는 칸(예: 자동모드일 때의 수동 출력량).
  *                 값은 그대로 보이되 꺼진 LED처럼 어둡게 표시한다.
  */
 export function LedInput({
   value, onChange, color = 'red', unit, size = 'md', title, label,
-  min, max, readOnly = false, disabled = false,
+  min, max, decimals = 0, readOnly = false, disabled = false,
 }) {
   const inputRef = useRef(null);
   // 숫자패드를 어디에 띄울지 — 누른 칸의 화면상 위치. 닫혀 있으면 null.
@@ -70,6 +71,7 @@ export function LedInput({
           unit={unit}
           min={min}
           max={max}
+          decimals={decimals}
           anchor={anchor}
           onCommit={(v) => { onChange(v); setAnchor(null); }}
           onCancel={() => setAnchor(null)}

@@ -20,11 +20,14 @@ const MARGIN = 8;  // 화면 가장자리 최소 여백
  * @param value   현재 값(문자열)
  * @param unit    단위 표시(℃, % 등)
  * @param min/max 허용 범위. 벗어나면 "입력" 버튼이 잠긴다.
+ * @param decimals 소수 자릿수. 기본 0이면 소수점을 막는다(아래 allowDecimal 참고).
  * @param anchor  누른 칸의 화면상 위치 { left, top, bottom }
  * @param onCommit(value) 입력 확정
  * @param onCancel        취소
  */
-export default function NumPad({ label, value, unit, min, max, anchor, onCommit, onCancel }) {
+export default function NumPad({
+  label, value, unit, min, max, decimals = 0, anchor, onCommit, onCancel,
+}) {
   // 패드를 연 직후 첫 숫자를 누르면 기존 값을 지우고 새로 쓰기 시작한다(계장 패드 관행).
   // 지우기/백스페이스를 한 번이라도 쓰면 그때부턴 이어쓰기가 된다.
   const [draft, setDraft] = useState(String(value ?? ''));
@@ -105,9 +108,12 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
      작업자가 그 사실을 모르기 때문이다. 담을 데가 없는 값이면 못 넣는다고 알려 주는
      편이 낫다 — 위 음수 처리와 같은 생각이다.
 
-     소수가 필요한 칸이 생기면 이 값을 열어 주면 되지만, 그때는 화면만으로 끝나지 않는다.
-     C#이 읽기·쓰기 양쪽에서 자릿수를 다루게 해야 보이는 값과 들어가는 값이 맞는다. */
-  const allowDecimal = false;
+     PLC 값에 소수가 필요해지면 화면만으로 끝나지 않는다. C#이 읽기·쓰기 양쪽에서
+     자릿수를 다루게 해야 보이는 값과 들어가는 값이 맞는다.
+
+     decimals는 PLC가 아닌 값에만 연다 — 엔지니어링 화면의 버튼 누름 시간(초, 소수 한 자리)은
+     DB에 ms 정수로 들어가서, 화면이 1.5초를 1500으로 바꿔 넣으면 잘리는 자리가 없다. */
+  const allowDecimal = decimals > 0;
 
   /* 못 누르는 키를 눌렀을 때 뜨는 문구. 다음 입력에서 지운다.
      키를 disabled로만 두면 터치 화면에서는 눌러도 아무 일이 없어서 고장으로 읽힌다 —
@@ -122,6 +128,15 @@ export default function NumPad({ label, value, unit, min, max, anchor, onCommit,
     if (key === '.' && !allowDecimal) {
       setBlockMsg('소수점은 입력할 수 없습니다');
       return;
+    }
+    /* 자릿수를 넘는 숫자는 받지 않는다 — 받아 놓고 반올림하면 넣은 값과 들어간 값이 달라진다
+       (위 소수점 처리와 같은 생각). 패드를 막 연 상태(fresh)면 새로 쓰는 것이라 막지 않는다. */
+    if (allowDecimal && key >= '0' && key <= '9' && !fresh) {
+      const dot = draft.indexOf('.');
+      if (dot >= 0 && draft.length - dot - 1 >= decimals) {
+        setBlockMsg(`소수점 ${decimals}자리까지만 입력할 수 있습니다`);
+        return;
+      }
     }
     setBlockMsg('');
 
