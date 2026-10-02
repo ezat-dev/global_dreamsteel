@@ -9,6 +9,7 @@ import useAlarmList from '../../components/scada/useAlarmList';
 import { lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
+import { beginPress, endPress } from '../../components/scada/pressGuard';
 import {
   FITTING_TAGS, THUNDER_TAGS, fittingRedClass, thunderHideClass, thunderTag,
 } from '../../components/scada/combustionArtTags';
@@ -375,6 +376,8 @@ export default function CombustionPage() {
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      // 지금부터 이 버튼의 0이 나가야 한다 — 그 전에는 로그인 화면으로 넘어가지 않는다(pressGuard)
+      beginPress();
       setArmedTag(name);
       chainRef.current = writeTag(CB_FOLDER_ID, name, 1)
         /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
@@ -410,7 +413,8 @@ export default function CombustionPage() {
        버튼 한 번에 로그가 두 줄씩 쌓여서 "누가 무엇을 눌렀나"가 안 보인다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(CB_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
+      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .finally(endPress);
   };
 
   /* 뗌을 버튼이 아니라 window에서 받는다.

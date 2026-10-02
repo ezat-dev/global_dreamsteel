@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mes.common.config.SessionConfig;
 import com.mes.common.exception.BusinessException;
 import com.mes.common.exception.ErrorCode;
 import com.mes.common.response.ApiResponse;
@@ -39,6 +40,10 @@ public class ScadaController {
     @Autowired
     private ScadaService scadaService;
 
+    /** 세션을 보는 API는 전부 sessionConfig.requireLogin으로 확인한다 — 로그인 여부와 유지시간을 같이 본다. */
+    @Autowired
+    private SessionConfig sessionConfig;
+
     // ===================== 로그인 =====================
 
     /**
@@ -63,6 +68,8 @@ public class ScadaController {
         session.setAttribute("loginId", data.getId()); // pk
         session.setAttribute("loginUserName", data.getUserName()); // 로그인 이름
         session.setAttribute("loginUserRole", data.getUserRole()); // 로그인 권한
+        session.setAttribute("loginAt", System.currentTimeMillis()); // 로그인 시간
+
         return ApiResponse.success(data);
     }
 
@@ -156,25 +163,27 @@ public class ScadaController {
     public ResponseEntity<ApiResponse<Boolean>> writeTag(@RequestBody ScadaUser scadaUser,
             HttpSession session) {
         /*
+         * 세션이 없거나 로그인 유지시간이 지났으면 PLC에 값을 보내기 전에 막는다.
+         * 안 막으면 순서가 이렇게 된다: user_name이 null인 채로 C#에 값을 쓰고,
+         * 그 뒤 scada_log INSERT가 실패한다 — 설비는 이미 움직였는데 기록은 없다.
+         *
+         * application.yml에서 톰캣 만료를 없애고(timeout: -1) 정상 종료 시 복원되게 해뒀지만
+         * (persistent: true), 강제 종료나 첫 기동에는 세션이 없다.
+         * 조작 기록이 비는 것보다는 거부가 낫다.
+         *
+         * 예외는 모멘터리 버튼을 뗄 때 나가는 0(writeLog=false, 값 0)이다 — 로그인은 확인하되
+         * 유지시간은 보지 않는다. 1을 보낸 뒤 손을 떼기 전에 시간이 다 되면 그 0이 막혀
+         * PLC 비트가 1로 남기 때문이다. 화면도 그 0을 보낼 때까지 로그인 화면으로 넘어가지
+         * 않고 기다린다(프론트 pressGuard).
+         */
+        boolean isRelease = Boolean.FALSE.equals(scadaUser.getWriteLog())
+                && "0".equals(scadaUser.getSendValue());
+        sessionConfig.requireLogin(session, isRelease);
+
+        /*
          * 로그에 남길 사람. 세션에만 있는 값이라 여기서 담아 넘긴다 —
          * 프론트가 보낸 값을 쓰면 아무 이름으로나 기록을 남길 수 있다.
          */
-        Object loginID = session.getAttribute("loginId");
-
-        /*
-         * 세션이 없으면 PLC에 값을 보내기 전에 막는다.
-         * 안 막으면 순서가 이렇게 된다: user_id가 null인 채로 C#에 값을 쓰고,
-         * 그 뒤 scada_log INSERT가 NOT NULL 위반으로 실패한다 —
-         * 설비는 이미 움직였는데 기록은 없고, 화면에는 원인과 무관한
-         * "이미 존재하거나 참조 중인 데이터입니다"가 뜬다.
-         * 
-         * application.yml에서 만료를 없애고(timeout: -1) 정상 종료 시 복원되게 해뒀지만
-         * (persistent: true), 강제 종료나 첫 기동에는 세션이 없다.
-         * 조작 기록이 비는 것보다는 거부가 낫다.
-         */
-        if (loginID == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
-        }
         scadaUser.setUserName((String) session.getAttribute("loginUserName"));
         return ResponseEntity.ok(ApiResponse.success(scadaService.writeTag(scadaUser)));
     }
@@ -198,11 +207,8 @@ public class ScadaController {
     @PostMapping("/insertTrendMemo")
     public ResponseEntity<ApiResponse<Boolean>> insertTrendMemo(@RequestBody ScadaTrend scadaTrend,
             HttpSession session) {
-        Object loginId = session.getAttribute("loginId");
-        if (loginId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
-        }
-        scadaTrend.setTcUserCode(String.valueOf(loginId));
+        sessionConfig.requireLogin(session);
+        scadaTrend.setTcUserCode(String.valueOf(session.getAttribute("loginId")));
         scadaTrend.setTcUserName((String) session.getAttribute("loginUserName"));
         return ResponseEntity.ok(ApiResponse.success(scadaService.insertTrendMemo(scadaTrend)));
     }
@@ -216,13 +222,9 @@ public class ScadaController {
     @PostMapping("/updateTrendMemo")
     public ResponseEntity<ApiResponse<Boolean>> updateTrendMemo(@RequestBody ScadaTrend scadaTrend,
             HttpSession session) {
-        String loginId = String.valueOf(session.getAttribute("loginId"));
-        String loginUserName = (String) session.getAttribute("loginUserName");
-        if (session.getAttribute("loginId") == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
-        }
-        scadaTrend.setTcUserCode(loginId);
-        scadaTrend.setTcUserName(loginUserName);
+        sessionConfig.requireLogin(session);
+        scadaTrend.setTcUserCode(String.valueOf(session.getAttribute("loginId")));
+        scadaTrend.setTcUserName((String) session.getAttribute("loginUserName"));
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateTrendMemo(scadaTrend)));
     }
 
@@ -232,12 +234,10 @@ public class ScadaController {
         return ResponseEntity.ok(ApiResponse.success(scadaService.deleteTrendMemo(scadaTrend)));
     }
 
-    // 로그인 세션 확인
+    // 로그인 세션 확인 — 화면 이동 때와 5초마다 불린다. 로그인 유지시간도 여기서 걸린다.
     @GetMapping("/checkSession")
     public ApiResponse<Boolean> checkSession(HttpSession session) {
-        if (session.getAttribute("loginId") == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
-        }
+        sessionConfig.requireLogin(session);
         return ApiResponse.success(true);
     }
 
@@ -245,9 +245,7 @@ public class ScadaController {
     @GetMapping("/getSettingList")
     public ApiResponse<List<ScadaSetting>> getSettingList(HttpSession session,
             @ModelAttribute ScadaSetting scadaSetting) {
-        if (session.getAttribute("loginId") == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
-        }
+        sessionConfig.requireLogin(session);
         return ApiResponse.success(scadaService.getSettingList(scadaSetting));
     }
 
@@ -255,9 +253,7 @@ public class ScadaController {
     @PostMapping("/updateSetting")
     public ResponseEntity<ApiResponse<Boolean>> updateSetting(@RequestBody ScadaSetting scadaSetting,
             HttpSession session) {
-        if (session.getAttribute("loginId") == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다. 다시 로그인해주세요.");
-        }
+        sessionConfig.requireLogin(session);
         if ("hold_ms".equals(scadaSetting.getSettingKey())) {
             int ms;
             try {
@@ -267,6 +263,18 @@ public class ScadaController {
             }
             if (ms < 0 || ms > 5000) {
                 throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 시간은 0~5초 사이여야 합니다.");
+            }
+        }
+        // 로그인 유지시간(분). 0 = 무제한, 최대 24시간
+        if ("session_limit_min".equals(scadaSetting.getSettingKey())) {
+            int min;
+            try {
+                min = Integer.parseInt(scadaSetting.getSettingValue());
+            } catch (NumberFormatException e) {
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "로그인 유지 시간은 숫자여야 합니다.");
+            }
+            if (min < 0 || min > 1440) {
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "로그인 유지 시간은 0~24시간 사이여야 합니다.");
             }
         }
         scadaSetting.setUpdateUser((String) session.getAttribute("loginUserName"));

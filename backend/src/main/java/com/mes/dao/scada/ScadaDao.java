@@ -135,4 +135,8 @@ public class ScadaDao {
         }
         return true;
     }
+
+    public ScadaSetting getSessionLimitMin(ScadaSetting scadaSetting) {
+        return sqlSession.selectOne("ScadaSettingMapper.getSessionLimitMin", scadaSetting);
+    }
 }

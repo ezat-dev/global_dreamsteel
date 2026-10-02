@@ -37,11 +37,11 @@ public class ScadaServiceImpl implements ScadaService {
      *
      * 문구를 고치면 이미 쌓인 로그와 갈라진다 — 화면 필터도 같이 봐야 한다.
      */
-    private static final String FAIL_CONNECT = "연결 실패"; //C# 꺼져있거나 네트워크 끊김, 주소 다름, 5050 포트 안 열림 등
+    private static final String FAIL_CONNECT = "연결 실패"; // C# 꺼져있거나 네트워크 끊김, 주소 다름, 5050 포트 안 열림 등
     private static final String FAIL_TIMEOUT = "응답 시간 초과"; // C#이 2초 안에 응답을 못 줌, C# 멈춤
-    private static final String FAIL_SERVER = "서버 오류"; //C# 서버오류
-    private static final String FAIL_REJECT = "쓰기 거부"; //folders_tags에 태그 없음, 쓰기 금지 영역, MC 프로토콜 오류
-    private static final String FAIL_EMPTY = "응답 없음"; //200 반환하는데 비어있음, C# 버그
+    private static final String FAIL_SERVER = "서버 오류"; // C# 서버오류
+    private static final String FAIL_REJECT = "쓰기 거부"; // folders_tags에 태그 없음, 쓰기 금지 영역, MC 프로토콜 오류
+    private static final String FAIL_EMPTY = "응답 없음"; // 200 반환하는데 비어있음, C# 버그
 
     @Autowired
     private ScadaDao scadaDao;
@@ -141,8 +141,8 @@ public class ScadaServiceImpl implements ScadaService {
          * 두고, 로그를 남긴 뒤 맨 끝에서 던진다 — 그래야 성공·실패가 같은 자리에서 기록된다.
          */
         Map<String, Object> res = null;
-        String failReason = null;   // 로그에 남길 분류(위 상수 중 하나)
-        String failDetail = null;   // 화면에만 붙일 원문 — 저장하지 않는다
+        String failReason = null; // 로그에 남길 분류(위 상수 중 하나)
+        String failDetail = null; // 화면에만 붙일 원문 — 저장하지 않는다
 
         try {
             res = restTemplate.getForObject(url, Map.class,
@@ -239,7 +239,7 @@ public class ScadaServiceImpl implements ScadaService {
      * 주소 때문에 사라진 로그보다 낫다.
      * </p>
      */
-    @Override 
+    @Override
     public String findAddress(ScadaUser scadaUser) {
         try {
             ScadaUser found = scadaDao.getTagAddress(scadaUser);
@@ -279,5 +279,10 @@ public class ScadaServiceImpl implements ScadaService {
     @Override
     public boolean updateSetting(ScadaSetting scadaSetting) {
         return scadaDao.updateSetting(scadaSetting);
+    }
+
+    @Override
+    public ScadaSetting getSessionLimitMin(ScadaSetting scadaSetting) {
+        return scadaDao.getSessionLimitMin(scadaSetting);
     }
 }

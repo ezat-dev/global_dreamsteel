@@ -4,6 +4,7 @@ import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { lampOf, writeTag } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
+import { beginPress, endPress } from '../../components/scada/pressGuard';
 import './TempPage.css';
 
 const ZONE_COUNT = 7;
@@ -71,6 +72,8 @@ export default function TempPage() {
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      // 지금부터 이 버튼의 0이 나가야 한다 — 그 전에는 로그인 화면으로 넘어가지 않는다(pressGuard)
+      beginPress();
       setArmedTag(name);
       chainRef.current = writeTag(TC_FOLDER_ID, name, 1)
         /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
@@ -104,7 +107,8 @@ export default function TempPage() {
        쪽이 안전하다. log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(TC_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
+      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .finally(endPress);
   };
 
   /* 뗌을 버튼이 아니라 window에서 받는다.

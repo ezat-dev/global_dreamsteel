@@ -6,6 +6,7 @@ import {
 import { writeTag } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
+import { beginPress, endPress } from '../../components/scada/pressGuard';
 import './AlarmPage.css';
 
 /* ===========================================================================
@@ -157,6 +158,8 @@ export default function AlarmPage() {
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      // 지금부터 이 버튼의 0이 나가야 한다 — 그 전에는 로그인 화면으로 넘어가지 않는다(pressGuard)
+      beginPress();
       setArmedTag(name);
       chainRef.current = writeTag(ALARM_LAMP_FOLDER_ID, name, 1)
         /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
@@ -189,7 +192,8 @@ export default function AlarmPage() {
        log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(ALARM_LAMP_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
+      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .finally(endPress);
   };
 
   /* 뗌을 버튼이 아니라 window에서 받는다. 손가락이 버튼 밖으로 나가서 떼도, 창이
@@ -205,7 +209,10 @@ export default function AlarmPage() {
       window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', release);
       window.removeEventListener('blur', release);
-      clearTimeout(holdTimerRef.current);
+      /* 화면을 떠날 때 누르고 있던 것이 있으면 내린다(다른 화면과 같다). 타이머도 여기서 거둔다.
+         안 내리면 0이 안 나가 비트가 1로 남고, pressGuard의 "누르는 중"도 안 풀려
+         이후 로그인 화면으로 넘어가는 것이 매번 30초씩 늦어진다. */
+      release();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

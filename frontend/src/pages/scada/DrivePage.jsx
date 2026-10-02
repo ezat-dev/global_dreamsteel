@@ -13,6 +13,7 @@ import {
 } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
+import { beginPress, endPress } from '../../components/scada/pressGuard';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
 import './driveOverview.css';
 import './DrivePage.css';
@@ -828,6 +829,8 @@ export default function DrivePage() {
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      // 지금부터 이 버튼의 0이 나가야 한다 — 그 전에는 로그인 화면으로 넘어가지 않는다(pressGuard)
+      beginPress();
       setArmedTag(name);
       chainRef.current = writeTag(DR_FOLDER_ID, name, 1)
         .then(() => {
@@ -867,7 +870,8 @@ export default function DrivePage() {
        쪽이 안전하다. log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(DR_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`));
+      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .finally(endPress);
   };
 
   /* ── 설비 OFF 버튼 (토글) ─────────────────────────────────────────────

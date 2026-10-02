@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { STORAGE_KEY, SESSION_EXPIRED_KEY } from '../context/AuthContext';
+import { runWhenIdle } from '../components/scada/pressGuard';
 
 // VITE_API_BASE_URL이 없으면, 지금 프론트에 접속한 주소(호스트명)를 그대로 백엔드 주소로 쓴다.
 // localhost:5051로 열든 192.168.x.x:5051로 열든 백엔드(8081)도 같은 호스트를 보게 되어,
@@ -23,27 +24,35 @@ const axiosInstance = axios.create({
    드러난다. 그 시점에 저장해 둔 로그인 정보를 비우고 로그인 화면으로 보낸다.
 
    코드(COMMON_401)로 판단한다 — 메시지 문구로 비교하면 문구를 바꿀 때 조용히 깨진다.
-   React 밖이라 훅을 쓸 수 없어서 스토리지를 직접 지우고 주소를 바꾼다. */
+   React 밖이라 훅을 쓸 수 없어서 스토리지를 직접 지우고 주소를 바꾼다.
+
+   모멘터리 버튼을 누르고 있는 중이면 손을 떼고 0을 보낼 때까지 기다렸다가 넘어간다
+   (pressGuard) — 바로 넘어가면 0을 보낼 코드가 사라져 PLC 비트가 1로 남는다. */
 axiosInstance.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.data?.code === 'COMMON_401') {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-        sessionStorage.removeItem(STORAGE_KEY);
-        /* 왜 튕겼는지 로그인 화면에 알려준다. 이게 없으면 버튼을 눌렀는데 아무 말 없이
-           로그인 화면이 뜨는 것이라, 쓰는 사람은 버튼이 고장난 줄 안다. */
-        sessionStorage.setItem(SESSION_EXPIRED_KEY, '1');
-      } catch {
-        // 스토리지를 못 쓰는 환경이어도 아래 이동은 해야 한다
-      }
-      // 이미 로그인 화면이면 그대로 둔다(무한 새로고침 방지)
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+      runWhenIdle(goToLogin);
     }
     return Promise.reject(error);
   },
 );
+
+/* 저장해 둔 로그인 정보를 지우고 로그인 화면으로 간다. */
+function goToLogin() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
+    /* 왜 튕겼는지 로그인 화면에 알려준다. 이게 없으면 버튼을 눌렀는데 아무 말 없이
+       로그인 화면이 뜨는 것이라, 쓰는 사람은 버튼이 고장난 줄 안다. */
+    sessionStorage.setItem(SESSION_EXPIRED_KEY, '1');
+  } catch {
+    // 스토리지를 못 쓰는 환경이어도 아래 이동은 해야 한다
+  }
+  // 이미 로그인 화면이면 그대로 둔다(무한 새로고침 방지)
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login';
+  }
+}
 
 export default axiosInstance;

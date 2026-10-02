@@ -106,8 +106,11 @@ export default function ScadaLoginPage() {
             {/* 만료 안내는 로그인을 한 번이라도 시도하면 치운다 — 그때부터는 방금 시도한
                 결과(오류)가 알려줄 내용이고, 두 줄이 같이 떠 있으면 어느 쪽이 지금
                 상황인지 헷갈린다. */}
+            {/* 튕겨 온 이유는 둘 중 하나다 — 로그인 유지시간이 지났거나(엔지니어링 화면 설정),
+                서버가 강제로 꺼져 세션이 사라졌거나. 화면은 둘을 구분하지 못해(둘 다 401)
+                어느 쪽에도 맞는 문구로 둔다. */}
             {expired && !error && !submitting && (
-              <div className="hmi-login-notice">세션이 만료되었습니다. 다시 로그인해주세요.</div>
+              <div className="hmi-login-notice">로그인이 만료되었습니다. 다시 로그인해주세요.</div>
             )}
 
             {error && <div className="hmi-login-error">{error}</div>}

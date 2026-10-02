@@ -52,4 +52,6 @@ public interface ScadaService {
     List<ScadaSetting> getSettingList(ScadaSetting scadaSetting);
 
     boolean updateSetting(ScadaSetting scadaSetting);
+
+    ScadaSetting getSessionLimitMin(ScadaSetting scadaSetting);
 }

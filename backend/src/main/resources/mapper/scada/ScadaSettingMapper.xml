@@ -14,4 +14,10 @@
         WHERE setting_key = #{settingKey}
     </update>
 
+    <select id="getSessionLimitMin" resultType="com.mes.domain.scada.ScadaSetting">
+    SELECT setting_value
+    FROM scada_setting
+    WHERE setting_key = 'session_limit_min'
+    </select>
+
 </mapper>

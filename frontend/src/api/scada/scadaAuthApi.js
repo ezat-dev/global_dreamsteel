@@ -13,8 +13,15 @@ export function login(userPassword) {
    죽어도 화면은 멀쩡히 돌고 헤더에 이름도 그대로 보인다 — 버튼을 누를 때에야 드러난다.
    이 요청이 그 빈자리를 메운다.
 
-   응답은 쓰지 않는다. 세션이 없으면 자바가 COMMON_401을 주고, axiosInstance의 인터셉터가
-   저장해 둔 로그인 정보를 지우고 로그인 화면으로 보낸다 — 여기서 할 일이 없다. */
-export function checkSession() {
-  return axiosInstance.get('/api/scada/checkSession').then((res) => res.data);
+   응답은 쓰지 않는다. 세션이 없거나 로그인 유지시간이 지났으면 자바가 COMMON_401을 주고,
+   axiosInstance의 인터셉터가 저장해 둔 로그인 정보를 지우고 로그인 화면으로 보낸다 —
+   여기서 할 일이 없다.
+
+   @param autoPoll true면 타이머가 되부르는 확인이라고 알린다 — 접근 로그 파일에 남지 않는다
+                   (ControllerLogAspect의 AUTO_POLL_PARAM). 화면 이동 때 부르는 것은 남긴다 —
+                   그 줄들이 화면 이동 기록이 된다. */
+export function checkSession({ autoPoll = false } = {}) {
+  return axiosInstance
+    .get('/api/scada/checkSession', { params: autoPoll ? { autoPoll: 1 } : undefined })
+    .then((res) => res.data);
 }

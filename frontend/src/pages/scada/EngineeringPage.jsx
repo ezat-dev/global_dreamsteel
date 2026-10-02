@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { LedInput } from '../../components/scada/HmiParts';
 import { writeTag } from '../../api/scada/foldertagApi';
-import { updateSetting } from '../../api/scada/scadaSettingApi';
+import { getSettingList, updateSetting } from '../../api/scada/scadaSettingApi';
 import {
   HOLD_MS_KEY, HOLD_MS_MAX, HOLD_MS_MIN, useHoldMsControl,
 } from '../../components/scada/HoldMsContext';
@@ -22,6 +22,10 @@ import './EngineeringPage.css';
    폴더를 만들고 나온 id가 12가 아니면 이 숫자만 바꾸면 된다. 틀리면 오류가 아니라
    태그 0개 응답으로 조용히 실패해서 칸이 전부 '---'로 남으니 그때 여기를 먼저 본다. */
 const ENG_FOLDER_ID = 12;
+
+/* 로그인 유지 시간 — scada_setting의 키와 상한(분). 서버 updateSetting도 같은 0~1440으로 막는다. */
+const SESSION_LIMIT_KEY = 'session_limit_min';
+const SESSION_LIMIT_MAX_MIN = 1440;
 
 // 판 하나에 줄 여덟. 비어 있는 줄도 번호는 남긴다 — 나중에 항목이 늘 자리다.
 const ROWS = 8;
@@ -108,6 +112,44 @@ export default function EngineeringPage() {
       });
   };
 
+  /* 로그인 유지 시간 — DB(scada_setting의 session_limit_min)에 분 단위로 있다. 0 = 무제한.
+     로그인한 시각부터 세고, 지나면 서버(SessionConfig)가 막는다 — 화면은 5초 안에
+     로그인으로 간다(ScadaLayout). 화면도 분으로 보고 넣는다 — 시간 단위(0.1시간 = 6분)로 두면
+     1분 같은 값을 못 넣고, 6분이 "0.1"로 보여 헷갈렸다.
+
+     이 값은 이 화면만 쓰므로 HoldMsContext처럼 공유하지 않고, 열 때 한 번 받는다.
+     null = 아직 못 받음 — '---'로 보여 준다(0으로 그리면 "무제한"으로 읽힌다). */
+  const [sessionLimitMin, setSessionLimitMin] = useState(null);
+
+  const loadSessionLimit = () => {
+    getSettingList()
+      .then((res) => {
+        const row = (res.data ?? []).find((r) => r.settingKey === SESSION_LIMIT_KEY);
+        const min = Number(row?.settingValue);
+        setSessionLimitMin(row && Number.isInteger(min) ? min : null);
+      })
+      .catch(() => setSessionLimitMin(null));
+  };
+
+  useEffect(() => {
+    loadSessionLimit();
+    // 열 때 1회만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSessionLimitWrite = (value) => {
+    // 숫자패드가 정수만 받는다(decimals 기본 0). 반올림은 마지막 방어선이다
+    const min = Math.round(Number(value));
+    if (!Number.isFinite(min) || min < 0 || min > SESSION_LIMIT_MAX_MIN) return;
+    setWriteError('');
+    updateSetting(SESSION_LIMIT_KEY, min)
+      .then(() => setSessionLimitMin(min))
+      .catch((e) => {
+        setWriteError(`로그인 유지 시간 — ${e.response?.data?.message ?? e.message}`);
+        loadSessionLimit();
+      });
+  };
+
   /* 값을 못 받았으면 0이 아니라 '---'다 — 0으로 그리면 "설정이 0"으로 읽힌다 */
   const text = (tag) => {
     const v = tagValues?.[tag];
@@ -191,6 +233,29 @@ export default function EngineeringPage() {
                 min={HOLD_MS_MIN / 1000}
                 max={HOLD_MS_MAX / 1000}
                 decimals={1}
+              />
+            </span>
+          </li>
+          <li className="eng-row">
+            <span className="eng-no">2.</span>
+            <span className="eng-label">
+              로그인 유지 시간
+              <small className="eng-note">
+                로그인한 뒤 이 시간이 지나면 다시 로그인해야 합니다 (분 단위, 0 = 무제한, 최대 1440분 = 24시간)
+              </small>
+            </span>
+            <span className="eng-value">
+              <LedInput
+                value={sessionLimitMin == null ? '---' : String(sessionLimitMin)}
+                onChange={handleSessionLimitWrite}
+                color="green"
+                unit="min"
+                size="sm"
+                label="로그인 유지 시간 (분, 0 = 무제한)"
+                title={`로그인 유지 시간 / scada_setting.${SESSION_LIMIT_KEY} = `
+                  + `${sessionLimitMin == null ? '못 읽음' : `${sessionLimitMin}분`}`}
+                min={0}
+                max={SESSION_LIMIT_MAX_MIN}
               />
             </span>
           </li>

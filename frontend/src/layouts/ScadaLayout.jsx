@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { IconLogout } from '@tabler/icons-react';
 import { findScadaMenu, filterScadaMenu } from '../constants/scadaMenu';
@@ -47,13 +47,34 @@ export default function ScadaLayout() {
      보내고, 그 밖의 실패(자바가 꺼짐 등)로 화면을 막을 이유는 없다 — 값 읽기는 C# 직통이라
      자바가 없어도 화면은 제 몫을 한다.
 
-     한 화면을 계속 켜두는 동안은 HoldMsProvider의 30초 조회가 같은 역할을 한다 — 그 API도
-     세션이 없으면 401을 주므로, 세션이 죽으면 늦어도 30초 안에 로그인 화면으로 간다.
+     한 화면을 계속 켜두는 동안은 아래 5초 확인이 맡는다.
      세션이 없으면 보고 있던 화면이라도 로그인으로 돌리는 것이 의도한 동작이다.
      자바가 아예 꺼진 경우(응답 없음)는 401이 아니라서 화면이 그대로 남는다. */
   useEffect(() => {
     checkSession().catch(() => {});
   }, [location.pathname]);
+
+  /* 5초마다 세션 확인 — 세션이 끊기거나(서버 강제 종료 등) 로그인 유지시간(엔지니어링
+     화면, 서버의 SessionConfig)이 지나면 늦어도 5초 안에 로그인 화면으로 간다.
+     브라우저는 세션이 끝난 것을 스스로 알 수 없어서, 이 간격이 곧 늦어지는 최대 시간이다.
+
+     autoPoll — 접근 로그 파일에 남기지 않는다(5초마다 한 줄씩 쌓이면 조작 기록이 묻힌다).
+     서버가 하는 일은 세션 확인과 scada_setting 한 줄 조회라 기기 몇 대가 5초마다 불러도
+     부담이 없다. 화면을 옮겨도 이 타이머는 그대로 하나다 — 레이아웃이 다시 만들어지지 않는다.
+
+     앞 요청이 아직 안 끝났으면 건너뛴다. 서버 PC가 네트워크에서 빠지면 응답 대신
+     타임아웃(10초)을 기다리게 되는데, 그 사이 5초마다 새 요청을 쌓을 이유가 없다. */
+  const sessionPollingRef = useRef(false);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (sessionPollingRef.current) return;
+      sessionPollingRef.current = true;
+      checkSession({ autoPoll: true })
+        .catch(() => {})
+        .finally(() => { sessionPollingRef.current = false; });
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogout = () => {
     if (!window.confirm('로그아웃하시겠습니까?')) return;

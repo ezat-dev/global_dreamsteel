@@ -53,7 +53,8 @@ export function HoldMsProvider({ refreshKey, children }) {
       .catch(() => {
         /* 마지막으로 받은 값을 그대로 둔다(처음이면 기본 2초).
            401은 axiosInstance가 로그인 화면으로 보낸다 — 화면을 보고만 있어도 세션이 죽으면
-           30초 안에 로그인으로 돌아가는 것은 의도한 동작이다(ScadaLayout의 checkSession 참고). */
+           로그인으로 돌아가는 것은 의도한 동작이다. 그 일은 주로 ScadaLayout의 5초 checkSession이
+           맡고, 이 조회도 같은 401을 받으면 같은 길로 간다. */
       });
   }, []);
 
