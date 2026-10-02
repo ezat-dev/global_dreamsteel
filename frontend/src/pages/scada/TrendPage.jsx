@@ -90,11 +90,20 @@ const AXIS_BY_UNIT = { mmV: 0, '℃': 1 };
 
 /* y축 범위를 계기 범위로 고정한다. Highcharts에 맡기면 값의 최소·최대에 맞춰 축이
    늘었다 줄었다 하는데, 그러면 같은 온도가 조회 구간마다 다른 높이에 그려져서
-   눈으로 비교가 안 된다. 계기판처럼 눈금이 항상 같은 자리에 있어야 한다. */
+   눈으로 비교가 안 된다. 계기판처럼 눈금이 항상 같은 자리에 있어야 한다.
+
+   눈금(ticks)도 직접 정한다. min/max만 주면 눈금 간격은 Highcharts가 차트 높이를 보고
+   고르는데, 그러면 태블릿과 PC에서 눈금이 다르게 찍히고, 고른 간격이 범위를 딱 나누지
+   못하면 축 끝이 다음 눈금까지 늘어난다(endOnTick — 600~1200이 600~1250이 되는 식).
+   눈금 위치를 박아 두고 끝을 늘리지 않게 해서 어느 화면에서나 같은 축이 되게 한다. */
 const AXIS_RANGE = {
-  mmV: { min: 0, max: 1500 },   // O2 (왼쪽)
-  '℃': { min: 0, max: 1000 },   // 1~7존 온도 (오른쪽)
+  mmV: { min: 600, max: 1200, step: 100 },   // O2 (왼쪽)
+  '℃': { min: 0, max: 1000, step: 200 },     // 1~7존 온도 (오른쪽)
 };
+
+/** min~max를 step 간격으로 — [600, 700, …, 1200] */
+const axisTicks = ({ min, max, step }) =>
+  Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => min + i * step);
 
 /* 서버 응답 한 행을 차트가 먹는 형태로 바꾼다.
    Highcharts는 x에 숫자 타임스탬프를 원하고, 값도 숫자여야 한다 —
@@ -512,23 +521,30 @@ export default function TrendPage() {
         zIndex: 2,
       })),
     },
-    /* 축 둘 — 0번은 왼쪽 ℃, 1번은 오른쪽 mmV.
-       O2(mmV)를 온도와 같은 축에 그리면 자릿수가 달라 한쪽이 납작해진다. */
+    /* 축 둘 — 0번은 왼쪽 mmV, 1번은 오른쪽 ℃.
+       O2(mmV)를 온도와 같은 축에 그리면 자릿수가 달라 한쪽이 납작해진다.
+       범위와 눈금은 AXIS_RANGE에서 고정한다(화면 크기와 상관없이 같은 축). */
     yAxis: [
       {
-        // 0번 = 왼쪽 — O2(mmV) 0~1500
+        // 0번 = 왼쪽 — O2(mmV) 600~1200, 100 간격
         title: { text: 'mmV', style: { fontSize: '11px', color: AX_TEXT } },
         min: AXIS_RANGE.mmV.min,
         max: AXIS_RANGE.mmV.max,
+        tickPositions: axisTicks(AXIS_RANGE.mmV),
+        startOnTick: false,
+        endOnTick: false,
         gridLineColor: GRID_LINE,
         gridLineDashStyle: 'Dash',
         labels: { style: { fontSize: '11px', color: AX_TEXT } },
       },
       {
-        // 1번 = 오른쪽 — 존 온도(℃) 0~1000
+        // 1번 = 오른쪽 — 존 온도(℃) 0~1000, 200 간격
         title: { text: '℃', style: { fontSize: '11px', color: AX_TEXT } },
         min: AXIS_RANGE['℃'].min,
         max: AXIS_RANGE['℃'].max,
+        tickPositions: axisTicks(AXIS_RANGE['℃']),
+        startOnTick: false,
+        endOnTick: false,
         opposite: true,
         // 오른쪽 축 눈금선까지 그리면 왼쪽 것과 겹쳐 지저분해진다
         gridLineWidth: 0,
