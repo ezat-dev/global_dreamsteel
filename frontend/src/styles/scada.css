@@ -275,6 +275,39 @@ button {
   background: var(--g-glass-hi);
 }
 
+/* 한/영 전환 — 로그아웃 왼쪽의 작은 정사각 버튼. 로그아웃과 같은 유리 버튼이고,
+   폭을 고정해 둬서 글자(EN / 한)가 바뀌어도 옆 칸들이 흔들리지 않는다. */
+.hmi-lang {
+  flex-shrink: 0;
+  width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--g-glass-line);
+  background: var(--g-glass);
+  color: var(--g-ink);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  cursor: pointer;
+}
+
+.hmi-lang:hover {
+  background: var(--g-glass-hi);
+}
+
+/* 로그인 화면 — 판 오른쪽 위 구석에 띄운다(제목줄이 없는 화면이라) */
+.hmi-lang.is-login {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  height: 36px;
+}
+
 .hmi-logout:active {
   background: rgba(0, 0, 0, .18);
 }
@@ -415,6 +448,11 @@ button {
   white-space: nowrap;
   cursor: pointer;
   transition: background .12s, color .12s;
+}
+
+/* 영어는 글자 수가 많아 자간 1px만으로도 칸을 넘는다(Combustion·Atmosphere) */
+html[lang="en"] .hmi-menu-item {
+  letter-spacing: 0;
 }
 
 .hmi-menu-item:hover {
@@ -1279,6 +1317,13 @@ button {
   white-space: nowrap;
 }
 
+/* 영어 이름은 한글보다 두세 배 길어서(Cooling Tower, Alarm History) 자간을 벌리면
+   6열 타일 밖으로 나간다. 영어는 자간만 좁힌다 — 글자 크기는 한글과 같게 둔다. */
+html[lang="en"] .hmi-tile-label {
+  letter-spacing: 1px;
+  text-indent: 1px;
+}
+
 .hmi-mainmenu-tile:hover {
   background: var(--g-glass-hi);
   border-color: rgba(94, 183, 255, .55);
@@ -1686,6 +1731,20 @@ button {
   gap: 8px;
 }
 
+/* 영어는 라벨이 길어(Confirm password) 88px에서 두 줄로 꺾인다.
+   라벨 칸을 넓히는 만큼 창도 넓혀 입력칸 폭은 한글일 때와 비슷하게 둔다. */
+html[lang="en"] .hmi-umodal {
+  width: 400px;
+}
+
+html[lang="en"] .hmi-umodal--wide {
+  width: 480px;
+}
+
+html[lang="en"] .hmi-umodal-row {
+  grid-template-columns: 116px minmax(0, 1fr);
+}
+
 .hmi-umodal-row > label,
 .hmi-umodal-rowlabel {
   font-size: 12.5px;
@@ -1777,6 +1836,8 @@ button {
   font-size: 11px;
   font-weight: 700;
   color: var(--hmi-text-sub);
+  /* 영어(All Control)가 버튼 안에서 두 줄로 꺾이지 않게 */
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -1805,6 +1866,11 @@ button {
   align-items: center;
   gap: 8px;
   padding: 4px 9px;
+}
+
+/* 영어 화면 이름(Cooling Tower)이 84px에서 두 줄로 꺾인다 */
+html[lang="en"] .hmi-authgrid-row {
+  grid-template-columns: 104px minmax(0, 1fr);
 }
 
 .hmi-authgrid-row + .hmi-authgrid-row {
@@ -2213,10 +2279,11 @@ button {
     text-indent: 5px;
   }
 
+  /* 최소폭 72 — 메뉴가 12칸(관리자)이면 80×12에 간격을 더해 1024 폭을 넘어 끝 칸이 가려진다 */
   .hmi-menu-item {
     font-size: 13px;
     letter-spacing: 0;
-    min-width: 80px;
+    min-width: 72px;
   }
 
   .hmi-logout-user {

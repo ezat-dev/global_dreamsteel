@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 
 const GAP = 6;     // 누른 칸과 패드 사이 간격
 const MARGIN = 8;  // 화면 가장자리 최소 여백
@@ -28,6 +29,7 @@ const MARGIN = 8;  // 화면 가장자리 최소 여백
 export default function NumPad({
   label, value, unit, min, max, decimals = 0, anchor, onCommit, onCancel,
 }) {
+  const { t } = useTranslation();
   // 패드를 연 직후 첫 숫자를 누르면 기존 값을 지우고 새로 쓰기 시작한다(계장 패드 관행).
   // 지우기/백스페이스를 한 번이라도 쓰면 그때부턴 이어쓰기가 된다.
   const [draft, setDraft] = useState(String(value ?? ''));
@@ -122,11 +124,11 @@ export default function NumPad({
 
   const press = (key) => {
     if (key === '-' && !allowNegative) {
-      setBlockMsg('음수는 입력할 수 없습니다');
+      setBlockMsg(t('numpad.noNegative'));
       return;
     }
     if (key === '.' && !allowDecimal) {
-      setBlockMsg('소수점은 입력할 수 없습니다');
+      setBlockMsg(t('numpad.noDecimal'));
       return;
     }
     /* 자릿수를 넘는 숫자는 받지 않는다 — 받아 놓고 반올림하면 넣은 값과 들어간 값이 달라진다
@@ -134,7 +136,7 @@ export default function NumPad({
     if (allowDecimal && key >= '0' && key <= '9' && !fresh) {
       const dot = draft.indexOf('.');
       if (dot >= 0 && draft.length - dot - 1 >= decimals) {
-        setBlockMsg(`소수점 ${decimals}자리까지만 입력할 수 있습니다`);
+        setBlockMsg(t('numpad.decimalLimit', { n: decimals }));
         return;
       }
     }
@@ -187,13 +189,13 @@ export default function NumPad({
     return () => window.removeEventListener('keydown', onKeyDown);
   });
 
-  const rangeText = min != null && max != null ? `${min} ~ ${max}` : null;
+  const rangeText = min != null && max != null ? t('numpad.range', { min, max }) : null;
 
-  let hint = rangeText ? `범위 ${rangeText}` : '';
+  let hint = rangeText ?? '';
   if (blockMsg) hint = blockMsg;
-  else if (underMin) hint = `${min} 이상만 입력할 수 있습니다`;
-  else if (overMax) hint = `${max} 이하만 입력할 수 있습니다`;
-  else if (isBlank) hint = rangeText ? `범위 ${rangeText}` : '값을 입력하세요';
+  else if (underMin) hint = t('numpad.underMin', { min });
+  else if (overMax) hint = t('numpad.overMax', { max });
+  else if (isBlank) hint = rangeText ?? t('numpad.enterValue');
 
   return createPortal((
     /* onContextMenu — 이 패드는 portal로 document.body에 붙어서 ScadaLayout의
@@ -229,7 +231,7 @@ export default function NumPad({
             type="button"
             className="hmi-pad-key"
             onClick={() => press('-')}
-            title={allowNegative ? '부호 바꾸기' : '음수는 입력할 수 없습니다'}
+            title={allowNegative ? t('numpad.sign') : t('numpad.noNegative')}
           >
             −
           </button>
@@ -240,20 +242,20 @@ export default function NumPad({
             type="button"
             className="hmi-pad-key"
             onClick={() => press('.')}
-            title={allowDecimal ? '소수점' : '소수점은 입력할 수 없습니다'}
+            title={allowDecimal ? t('numpad.decimal') : t('numpad.noDecimal')}
           >
             .
           </button>
         </div>
 
         <div className="hmi-pad-edit">
-          <button type="button" className="hmi-pad-key wide" onClick={clear}>지우기</button>
-          <button type="button" className="hmi-pad-key wide" onClick={backspace}>←</button>
+          <button type="button" className="hmi-pad-key wide" onClick={clear}>{t('numpad.clear')}</button>
+          <button type="button" className="hmi-pad-key wide" onClick={backspace} title={t('numpad.backspace')}>←</button>
         </div>
 
         <div className="hmi-pad-foot">
-          <button type="button" className="hmi-pad-cancel" onClick={onCancel}>취 소</button>
-          <button type="button" className="hmi-pad-ok" onClick={commit} disabled={!canCommit}>입 력</button>
+          <button type="button" className="hmi-pad-cancel" onClick={onCancel}>{t('numpad.cancel')}</button>
+          <button type="button" className="hmi-pad-ok" onClick={commit} disabled={!canCommit}>{t('numpad.ok')}</button>
         </div>
       </div>
     </div>

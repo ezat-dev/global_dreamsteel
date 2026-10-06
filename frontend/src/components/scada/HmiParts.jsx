@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import NumPad from './NumPad';
 
 /**
@@ -34,6 +35,7 @@ export function LedInput({
   value, onChange, color = 'red', unit, size = 'md', title, label,
   min, max, decimals = 0, readOnly = false, disabled = false,
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   // 숫자패드를 어디에 띄울지 — 누른 칸의 화면상 위치. 닫혀 있으면 null.
   const [anchor, setAnchor] = useState(null);
@@ -66,7 +68,7 @@ export function LedInput({
 
       {anchor && (
         <NumPad
-          label={label ?? title ?? '값 입력'}
+          label={label ?? title ?? t('numpad.defaultLabel')}
           value={value}
           unit={unit}
           min={min}

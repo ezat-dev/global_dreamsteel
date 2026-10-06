@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, SESSION_EXPIRED_KEY } from '../../context/AuthContext';
 import { login as loginApi } from '../../api/scada/scadaAuthApi';
 import ScadaLogo from '../../components/scada/ScadaLogo';
+import LangToggle from '../../components/scada/LangToggle';
+import { useTranslation } from 'react-i18next';
 import '../../styles/scada.css';
 
 /** 회사 홈페이지의 인발 공정 8단계 이미지. public/company/process/ 에 그대로 둔다. */
@@ -46,6 +48,7 @@ export default function ScadaLoginPage() {
   }, []);
 
   const { login } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,7 +56,7 @@ export default function ScadaLoginPage() {
     e.preventDefault();
     setError('');
     if (!password.trim()) {
-      setError('비밀번호를 입력해주세요.');
+      setError(t('login.enterPassword'));
       return;
     }
     setSubmitting(true);
@@ -62,7 +65,7 @@ export default function ScadaLoginPage() {
       login(res.data, true);
       navigate(location.state?.from?.pathname || '/', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message ?? '로그인에 실패했습니다.');
+      setError(err.response?.data?.message ?? t('login.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -86,13 +89,16 @@ export default function ScadaLoginPage() {
           ))}
         </div>
 
+        {/* 한/영 전환 — 제목줄이 없는 화면이라 오른쪽 위 구석에 띄운다 */}
+        <LangToggle className="is-login" />
+
         <div className="hmi-login-box">
           <ScadaLogo className="hmi-logo--login" />
-          <div className="hmi-login-titlebar">로그인</div>
+          <div className="hmi-login-titlebar">{t('login.title')}</div>
 
           <form className="hmi-login-body" onSubmit={handleSubmit}>
             <div className="hmi-login-field">
-              <label htmlFor="scada-login-pw">비밀번호</label>
+              <label htmlFor="scada-login-pw">{t('login.password')}</label>
               <input
                 id="scada-login-pw"
                 type="password"
@@ -110,16 +116,16 @@ export default function ScadaLoginPage() {
                 서버가 강제로 꺼져 세션이 사라졌거나. 화면은 둘을 구분하지 못해(둘 다 401)
                 어느 쪽에도 맞는 문구로 둔다. */}
             {expired && !error && !submitting && (
-              <div className="hmi-login-notice">로그인이 만료되었습니다. 다시 로그인해주세요.</div>
+              <div className="hmi-login-notice">{t('login.expired')}</div>
             )}
 
             {error && <div className="hmi-login-error">{error}</div>}
 
             <button type="submit" className="hmi-btn hmi-login-submit" disabled={submitting}>
-              {submitting ? '로그인 중...' : '로그인'}
+              {submitting ? t('login.submitting') : t('login.submit')}
             </button>
 
-            <div className="hmi-login-foot">GLOBAL DREAM STEEL · 사내 폐쇄망 전용</div>
+            <div className="hmi-login-foot">{t('login.foot')}</div>
           </form>
         </div>
       </div>

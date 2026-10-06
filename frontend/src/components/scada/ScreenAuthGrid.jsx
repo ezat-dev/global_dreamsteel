@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AUTH_CONTROL, AUTH_NONE, AUTH_SCREENS, AUTH_VIEW } from '../../constants/scadaMenu';
 
 /* ===========================================================================
@@ -11,10 +12,11 @@ import { AUTH_CONTROL, AUTH_NONE, AUTH_SCREENS, AUTH_VIEW } from '../../constant
    트렌드는 y축 범위 수정이 있어 '제어' 칸이 있다(제어 = 범위를 고칠 수 있음).
    =========================================================================== */
 
+// 글자는 사전(common.auth.none/view/control)에서 — 렌더할 때 t로 꺼낸다
 const LEVELS = [
-  { value: AUTH_NONE, label: '없음' },
-  { value: AUTH_VIEW, label: '조회' },
-  { value: AUTH_CONTROL, label: '제어' },
+  { value: AUTH_NONE, key: 'none' },
+  { value: AUTH_VIEW, key: 'view' },
+  { value: AUTH_CONTROL, key: 'control' },
 ];
 
 /** 화면이 감당할 수 있는 최대 레벨로 자른다 — 조회 화면에 '제어'는 없다. */
@@ -61,6 +63,7 @@ export function pickScreenAuth(row) {
  * @param note     격자 위에 띄울 안내문(관리자 안내 등)
  */
 export default function ScreenAuthGrid({ value, onChange, idPrefix, disabled = false, note }) {
+  const { t } = useTranslation();
   /* 8줄을 하나하나 누르는 일이 잦아서 일괄 지정을 둔다.
      화면이 감당하는 최대치로 잘라서 넣는다 — '전체 제어'를 눌러도 경보이력·로그는 조회가 된다. */
   const setAll = (level) => {
@@ -70,7 +73,7 @@ export default function ScreenAuthGrid({ value, onChange, idPrefix, disabled = f
   return (
     <div className={`hmi-authgrid${disabled ? ' is-disabled' : ''}`}>
       <div className="hmi-authgrid-head">
-        <span className="hmi-authgrid-caption">화면별 권한</span>
+        <span className="hmi-authgrid-caption">{t('auth.caption')}</span>
 
         <div className="hmi-authgrid-presets">
           {LEVELS.map((lv) => (
@@ -81,7 +84,7 @@ export default function ScreenAuthGrid({ value, onChange, idPrefix, disabled = f
               onClick={() => setAll(lv.value)}
               disabled={disabled}
             >
-              전체 {lv.label}
+              {t('auth.all', { level: t(`auth.${lv.key}`) })}
             </button>
           ))}
         </div>
@@ -95,7 +98,7 @@ export default function ScreenAuthGrid({ value, onChange, idPrefix, disabled = f
 
           return (
             <div className="hmi-authgrid-row" key={menu.key}>
-              <span className="hmi-authgrid-name">{menu.label}</span>
+              <span className="hmi-authgrid-name">{t(`menu.${menu.key}`, { defaultValue: menu.label })}</span>
 
               <div className="hmi-authgrid-opts">
                 {LEVELS.map((lv) => {
@@ -114,7 +117,7 @@ export default function ScreenAuthGrid({ value, onChange, idPrefix, disabled = f
                         onChange={() => onChange(menu.authField, lv.value)}
                         disabled={disabled}
                       />
-                      {lv.label}
+                      {t(`auth.${lv.key}`)}
                     </label>
                   );
                 })}

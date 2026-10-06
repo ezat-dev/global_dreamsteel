@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getUserList, updateUser } from '../../api/scada/scadaUserApi';
 import ScreenAuthGrid, { pickScreenAuth } from './ScreenAuthGrid';
 
@@ -21,23 +22,25 @@ import ScreenAuthGrid, { pickScreenAuth } from './ScreenAuthGrid';
 
 const MAX_LEN = 50;
 
+// 글자는 사전(common.user.*)에서 — 렌더할 때 t로 꺼낸다
 const ROLES = [
-  { value: '2', label: '일반 사용자' },
-  { value: '1', label: '관리자' },
+  { value: '2', key: 'roleUser' },
+  { value: '1', key: 'roleAdmin' },
 ];
 
 const STATES = [
-  { value: 'N', label: '사용' },
-  { value: 'Y', label: '삭제' },
+  { value: 'N', key: 'stateActive' },
+  { value: 'Y', key: 'stateDeleted' },
 ];
 
-const roleLabel = (v) => (String(v) === '1' ? '관리자' : '일반 사용자');
+const roleKey = (v) => (String(v) === '1' ? 'roleAdmin' : 'roleUser');
 
 /**
  * @param onClose  닫기
  * @param onSaved  저장 성공 시 호출 — 저장된 사용자 정보를 넘긴다
  */
 export default function UserEditModal({ onClose, onSaved }) {
+  const { t } = useTranslation();
   const [rows, setRows] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [form, setForm] = useState(null);
@@ -79,7 +82,7 @@ export default function UserEditModal({ onClose, onSaved }) {
       })
       .catch((e) => {
         setRows([]);
-        setError(e.response?.data?.message ?? '사용자 목록을 불러오지 못했습니다.');
+        setError(e.response?.data?.message ?? t('user.listFailed'));
       })
       .finally(() => setLoading(false));
   };
@@ -125,14 +128,14 @@ export default function UserEditModal({ onClose, onSaved }) {
 
     const userName = (form.userName ?? '').trim();
 
-    if (!form.userPassword) { setError('비밀번호를 입력해주세요.'); return; }
-    if (!userName) { setError('이름을 입력해주세요.'); return; }
+    if (!form.userPassword) { setError(t('user.enterPassword')); return; }
+    if (!userName) { setError(t('user.enterName')); return; }
 
     /* 되돌리기 어려운 변경이라 한 번 물어본다. 상태를 '삭제'로 바꿀 때만이고,
        이름·권한만 고치는 흔한 경우에는 막지 않는다. */
     const original = rows.find((u) => u.id === form.id);
     if (form.deleteYn === 'Y' && original?.deleteYn !== 'Y') {
-      if (!window.confirm(`'${userName}' 사용자를 삭제 처리하시겠습니까?\n로그인할 수 없게 됩니다.`)) return;
+      if (!window.confirm(t('user.deleteConfirm', { name: userName }))) return;
     }
 
     const payload = {
@@ -154,7 +157,7 @@ export default function UserEditModal({ onClose, onSaved }) {
       })
       .catch((err) => {
         // 비밀번호 중복 같은 사유는 서버 메시지가 가장 정확하다.
-        setError(err.response?.data?.message ?? '사용자 정보를 수정하지 못했습니다.');
+        setError(err.response?.data?.message ?? t('user.editFailed'));
       })
       .finally(() => setSaving(false));
   };
@@ -169,15 +172,15 @@ export default function UserEditModal({ onClose, onSaved }) {
       }}
     >
       <form className="hmi-umodal hmi-umodal--wide" onSubmit={handleSubmit}>
-        <div className="hmi-umodal-title">사용자 정보 수정</div>
+        <div className="hmi-umodal-title">{t('user.editTitle')}</div>
 
         {/* ── 목록 ── */}
         <div className="hmi-ulist">
           <table>
             <thead>
               <tr>
-                <th>이름</th>
-                <th>권한</th>
+                <th>{t('user.name')}</th>
+                <th>{t('user.role')}</th>
               </tr>
             </thead>
             <tbody>
@@ -189,13 +192,13 @@ export default function UserEditModal({ onClose, onSaved }) {
                   onClick={() => selectRow(row)}
                 >
                   <td>{row.userName}</td>
-                  <td>{roleLabel(row.userRole)}</td>
+                  <td>{t(`user.${roleKey(row.userRole)}`)}</td>
                 </tr>
               ))}
 
               {rows.length === 0 && (
                 <tr className="hmi-ulist-empty">
-                  <td colSpan={2}>{loading ? '불러오는 중...' : '사용자가 없습니다.'}</td>
+                  <td colSpan={2}>{loading ? t('user.loading') : t('user.noUsers')}</td>
                 </tr>
               )}
             </tbody>
@@ -206,7 +209,7 @@ export default function UserEditModal({ onClose, onSaved }) {
         {form ? (
           <div className="hmi-umodal-body">
             <div className="hmi-umodal-row">
-              <label htmlFor="ue-pw">비밀번호</label>
+              <label htmlFor="ue-pw">{t('user.password')}</label>
               {/* 현재 비밀번호가 채워져 있다. 보이는 채로 두는 편이 관리자가
                   무엇으로 바뀌는지 확인하기 쉬워 type="text"로 둔다. */}
               <input
@@ -220,7 +223,7 @@ export default function UserEditModal({ onClose, onSaved }) {
             </div>
 
             <div className="hmi-umodal-row">
-              <label htmlFor="ue-name">이름</label>
+              <label htmlFor="ue-name">{t('user.name')}</label>
               <input
                 id="ue-name"
                 className="hmi-umodal-input"
@@ -232,7 +235,7 @@ export default function UserEditModal({ onClose, onSaved }) {
             </div>
 
             <div className="hmi-umodal-row">
-              <span className="hmi-umodal-rowlabel">권한</span>
+              <span className="hmi-umodal-rowlabel">{t('user.role')}</span>
               <div className="hmi-umodal-roles">
                 {ROLES.map((role) => (
                   <label key={role.value}>
@@ -243,14 +246,14 @@ export default function UserEditModal({ onClose, onSaved }) {
                       checked={String(form.userRole) === role.value}
                       onChange={setField('userRole')}
                     />
-                    {role.label}
+                    {t(`user.${role.key}`)}
                   </label>
                 ))}
               </div>
             </div>
 
             <div className="hmi-umodal-row">
-              <span className="hmi-umodal-rowlabel">상태</span>
+              <span className="hmi-umodal-rowlabel">{t('user.state')}</span>
               <div className="hmi-umodal-roles">
                 {STATES.map((state) => (
                   <label key={state.value}>
@@ -261,7 +264,7 @@ export default function UserEditModal({ onClose, onSaved }) {
                       checked={(form.deleteYn ?? 'N') === state.value}
                       onChange={setField('deleteYn')}
                     />
-                    {state.label}
+                    {t(`user.${state.key}`)}
                   </label>
                 ))}
               </div>
@@ -272,7 +275,7 @@ export default function UserEditModal({ onClose, onSaved }) {
               value={form}
               onChange={setAuth}
               disabled={isAdminRole || busy}
-              note={isAdminRole ? '관리자는 모든 화면을 제어할 수 있습니다.' : undefined}
+              note={isAdminRole ? t('auth.adminNote') : undefined}
             />
 
             {error && <div className="hmi-umodal-error">{error}</div>}
@@ -281,16 +284,16 @@ export default function UserEditModal({ onClose, onSaved }) {
           <div className="hmi-umodal-body">
             {error
               ? <div className="hmi-umodal-error">{error}</div>
-              : <div className="hmi-umodal-hint">수정할 사용자를 위 목록에서 선택하세요.</div>}
+              : <div className="hmi-umodal-hint">{t('user.selectHint')}</div>}
           </div>
         )}
 
         <div className="hmi-umodal-foot">
           <button type="submit" className="hmi-btn is-primary" disabled={busy || !form}>
-            {saving ? '저장 중...' : '수정'}
+            {saving ? t('user.saving') : t('user.save')}
           </button>
           <button type="button" className="hmi-btn" onClick={onClose} disabled={saving}>
-            닫기
+            {t('user.close')}
           </button>
         </div>
       </form>

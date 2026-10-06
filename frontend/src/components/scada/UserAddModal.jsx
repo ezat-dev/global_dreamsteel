@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { insertUser } from '../../api/scada/scadaUserApi';
 import ScreenAuthGrid, { defaultScreenAuth, pickScreenAuth } from './ScreenAuthGrid';
 
@@ -14,9 +15,10 @@ import ScreenAuthGrid, { defaultScreenAuth, pickScreenAuth } from './ScreenAuthG
 
 const MAX_LEN = 50;
 
+// 글자는 사전(common.user.roleUser/roleAdmin)에서 — 렌더할 때 t로 꺼낸다
 const ROLES = [
-  { value: '2', label: '일반 사용자' },
-  { value: '1', label: '관리자' },
+  { value: '2', key: 'roleUser' },
+  { value: '1', key: 'roleAdmin' },
 ];
 
 const EMPTY = {
@@ -29,6 +31,7 @@ const EMPTY = {
  * @param onCreated 등록 성공 시 호출 — 만들어진 사용자 정보를 넘긴다
  */
 export default function UserAddModal({ onClose, onCreated }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -59,9 +62,9 @@ export default function UserAddModal({ onClose, onCreated }) {
   const validate = () => {
     const userName = form.userName.trim();
 
-    if (!form.userPassword) return '비밀번호를 입력해주세요.';
-    if (form.userPassword !== form.passwordConfirm) return '비밀번호가 일치하지 않습니다.';
-    if (!userName) return '이름을 입력해주세요.';
+    if (!form.userPassword) return t('user.enterPassword');
+    if (form.userPassword !== form.passwordConfirm) return t('user.passwordMismatch');
+    if (!userName) return t('user.enterName');
     return '';
   };
 
@@ -93,7 +96,7 @@ export default function UserAddModal({ onClose, onCreated }) {
       })
       .catch((err) => {
         // 비밀번호 중복 같은 사유는 서버 메시지가 가장 정확하다.
-        setError(err.response?.data?.message ?? '사용자를 등록하지 못했습니다.');
+        setError(err.response?.data?.message ?? t('user.addFailed'));
       })
       .finally(() => setSubmitting(false));
   };
@@ -108,11 +111,11 @@ export default function UserAddModal({ onClose, onCreated }) {
       }}
     >
       <form className="hmi-umodal" onSubmit={handleSubmit}>
-        <div className="hmi-umodal-title">사용자 추가</div>
+        <div className="hmi-umodal-title">{t('user.addTitle')}</div>
 
         <div className="hmi-umodal-body">
           <div className="hmi-umodal-row">
-            <label htmlFor="ua-pw">비밀번호</label>
+            <label htmlFor="ua-pw">{t('user.password')}</label>
             <input
               id="ua-pw"
               className="hmi-umodal-input"
@@ -126,7 +129,7 @@ export default function UserAddModal({ onClose, onCreated }) {
           </div>
 
           <div className="hmi-umodal-row">
-            <label htmlFor="ua-pw2">비밀번호 확인</label>
+            <label htmlFor="ua-pw2">{t('user.passwordConfirm')}</label>
             <input
               id="ua-pw2"
               className="hmi-umodal-input"
@@ -139,7 +142,7 @@ export default function UserAddModal({ onClose, onCreated }) {
           </div>
 
           <div className="hmi-umodal-row">
-            <label htmlFor="ua-name">이름</label>
+            <label htmlFor="ua-name">{t('user.name')}</label>
             <input
               id="ua-name"
               className="hmi-umodal-input"
@@ -151,7 +154,7 @@ export default function UserAddModal({ onClose, onCreated }) {
           </div>
 
           <div className="hmi-umodal-row">
-            <span className="hmi-umodal-rowlabel">권한</span>
+            <span className="hmi-umodal-rowlabel">{t('user.role')}</span>
             <div className="hmi-umodal-roles">
               {ROLES.map((role) => (
                 <label key={role.value}>
@@ -162,7 +165,7 @@ export default function UserAddModal({ onClose, onCreated }) {
                     checked={form.userRole === role.value}
                     onChange={setField('userRole')}
                   />
-                  {role.label}
+                  {t(`user.${role.key}`)}
                 </label>
               ))}
             </div>
@@ -173,7 +176,7 @@ export default function UserAddModal({ onClose, onCreated }) {
             value={form}
             onChange={setAuth}
             disabled={isAdminRole || submitting}
-            note={isAdminRole ? '관리자는 모든 화면을 제어할 수 있습니다.' : undefined}
+            note={isAdminRole ? t('auth.adminNote') : undefined}
           />
 
           {error && <div className="hmi-umodal-error">{error}</div>}
@@ -182,7 +185,7 @@ export default function UserAddModal({ onClose, onCreated }) {
         <div className="hmi-umodal-foot">
           {/* 등록 중에는 둘 다 막는다 — 같은 사용자를 두 번 넣거나, 결과를 못 보고 닫는 일 방지 */}
           <button type="submit" className="hmi-btn is-primary" disabled={submitting}>
-            {submitting ? '등록 중...' : '등록'}
+            {submitting ? t('user.submitting') : t('user.submit')}
           </button>
           <button
             type="button"
@@ -190,10 +193,10 @@ export default function UserAddModal({ onClose, onCreated }) {
             onClick={() => { setForm(EMPTY); setError(''); }}
             disabled={submitting}
           >
-            초기화
+            {t('user.reset')}
           </button>
           <button type="button" className="hmi-btn" onClick={onClose} disabled={submitting}>
-            취소
+            {t('user.cancel')}
           </button>
         </div>
       </form>

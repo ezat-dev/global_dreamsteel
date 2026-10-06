@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { STORAGE_KEY, SESSION_EXPIRED_KEY } from '../context/AuthContext';
 import { runWhenIdle } from '../components/scada/pressGuard';
+import { translateServerMessage } from '../i18n';
 
 // VITE_API_BASE_URL이 없으면, 지금 프론트에 접속한 주소(호스트명)를 그대로 백엔드 주소로 쓴다.
 // localhost:5051로 열든 192.168.x.x:5051로 열든 백엔드(8081)도 같은 호스트를 보게 되어,
@@ -29,14 +30,28 @@ const axiosInstance = axios.create({
    모멘터리 버튼을 누르고 있는 중이면 손을 떼고 0을 보낼 때까지 기다렸다가 넘어간다
    (pressGuard) — 바로 넘어가면 0을 보낼 코드가 사라져 PLC 비트가 1로 남는다. */
 axiosInstance.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    translateMessage(res.data);
+    return res;
+  },
   (error) => {
+    translateMessage(error.response?.data);
     if (error.response?.data?.code === 'COMMON_401') {
       runWhenIdle(goToLogin);
     }
     return Promise.reject(error);
   },
 );
+
+/* 백엔드가 보낸 안내 문구(한글)를 지금 언어로 바꿔 둔다 — 화면들은 지금처럼
+   e.response.data.message를 그대로 띄우면 된다. 한 곳에서 바꾸므로 화면마다 손대지 않는다.
+   바꿈표는 i18n/en/server.json이고, 없는 문구는 한글 그대로 둔다. 판단은 code로 하므로
+   (위 COMMON_401) 문구가 바뀌어도 동작에는 영향이 없다. */
+function translateMessage(body) {
+  if (body && typeof body.message === 'string') {
+    body.message = translateServerMessage(body.message);
+  }
+}
 
 /* 저장해 둔 로그인 정보를 지우고 로그인 화면으로 간다. */
 function goToLogin() {

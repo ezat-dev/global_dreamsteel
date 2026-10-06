@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { TabulatorFull as Tabulator } from 'tabulator-tables';
+import { useTranslation } from 'react-i18next';
 import 'tabulator-tables/dist/css/tabulator.min.css';
 
 /**
@@ -20,6 +21,7 @@ const FIT_MAX_ROW_H = 56;
 export default function HmiTable({
   data, columns, options, height = '100%', fitRows = false, onTableReady,
 }) {
+  const { t, i18n } = useTranslation();
   const wrapRef = useRef(null);
   const elRef = useRef(null);
   const tableRef = useRef(null);
@@ -51,24 +53,26 @@ export default function HmiTable({
         headerHozAlign: 'center',
         ...(fitRows ? { vertAlign: 'middle' } : {}),
       },
-      placeholder: '데이터가 없습니다.',
-      /* 바닥줄 글자를 한글로. Tabulator 기본은 First/Prev/Next/Last와
-         "Showing 1-20 of 300 rows"라 이 화면에서 혼자 영어로 남는다.
-         건수 문구는 "{showing} 1-20 {of} 300 {rows}" 틀에 끼워지므로,
-         앞말을 비우고 사이를 '/'로 두어 "1-20 / 300건"이 되게 했다.
+      placeholder: t('table.empty'),
+      /* 바닥줄 글자를 지금 언어로. Tabulator 기본은 First/Prev/Next/Last와
+         "Showing 1-20 of 300 rows"다. 건수 문구는 "{showing} 1-20 {of} 300 {rows}" 틀에
+         끼워지므로, 앞말을 비우고 사이를 사전 값으로 둔다(한국어 "1-20 / 300건").
+         언어를 바꾸면 아래 effect의 의존성(language)으로 표를 다시 만들어 이 값을 새로 읽는다.
          headerFilters는 건드리지 않는다 — 검색칸 안내문은 컬럼마다 따로 주고 있다. */
-      locale: 'ko',
+      locale: 'app',
       langs: {
-        ko: {
+        app: {
           pagination: {
-            first: '처음', first_title: '첫 페이지',
-            prev: '이전', prev_title: '이전 페이지',
-            next: '다음', next_title: '다음 페이지',
-            last: '마지막', last_title: '마지막 페이지',
-            page_title: '페이지',
-            counter: { showing: '', of: '/', rows: '건', pages: '페이지' },
+            first: t('table.first'), first_title: t('table.firstTitle'),
+            prev: t('table.prev'), prev_title: t('table.prevTitle'),
+            next: t('table.next'), next_title: t('table.nextTitle'),
+            last: t('table.last'), last_title: t('table.lastTitle'),
+            page_title: t('table.page'),
+            counter: {
+              showing: '', of: t('table.counterOf'), rows: t('table.counterRows'), pages: t('table.counterPages'),
+            },
           },
-          data: { loading: '불러오는 중...', error: '오류' },
+          data: { loading: t('table.loading'), error: t('table.error') },
         },
       },
       pagination: true,
@@ -87,9 +91,10 @@ export default function HmiTable({
       tableRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // rowH가 바뀌면 다시 만든다 — Tabulator는 rowHeight를 나중에 못 바꾼다
+    // rowH가 바뀌면 다시 만든다 — Tabulator는 rowHeight를 나중에 못 바꾼다.
+    // 언어가 바뀌어도 다시 만든다 — 빈 표 안내·바닥줄 글자를 만들 때 한 번 읽기 때문이다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columns, rowH]);
+  }, [columns, rowH, i18n.language]);
 
   /* 칸 높이를 재서 행 높이를 정한다(fitRows일 때만).
 

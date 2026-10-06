@@ -6,6 +6,7 @@ import ScreenArt, { FurnaceLineArt } from '../../components/scada/ScreenArt';
 import UserAddModal from '../../components/scada/UserAddModal';
 import UserEditModal from '../../components/scada/UserEditModal';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 /**
  * 메인화면 — 로그인 직후 들어오는 화면 이동판.
@@ -20,6 +21,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function MainPage() {
   const navigate = useNavigate();
   const { isAdmin, canView } = useAuth();
+  const { t } = useTranslation();
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -64,12 +66,12 @@ export default function MainPage() {
           <button type="button" className="hmi-adminbtn" onClick={() => setAddOpen(true)}>
             {/* 로그아웃 버튼의 IconLogout과 같은 크기 */}
             <IconUserPlus size={16} />
-            <span>사용자 추가</span>
+            <span>{t('main.addUser')}</span>
           </button>
 
           <button type="button" className="hmi-adminbtn" onClick={() => setEditOpen(true)}>
             <IconUserEdit size={16} />
-            <span>사용자 정보 수정</span>
+            <span>{t('main.editUser')}</span>
           </button>
         </div>
       )}
@@ -91,7 +93,7 @@ export default function MainPage() {
             onClick={() => navigate(menu.path)}
           >
             <ScreenArt name={menu.key} />
-            <span className="hmi-tile-label">{menu.label}</span>
+            <span className="hmi-tile-label">{t(`menu.${menu.key}`, { defaultValue: menu.label })}</span>
           </button>
         ))}
       </div>
@@ -99,7 +101,7 @@ export default function MainPage() {
       {addOpen && (
         <UserAddModal
           onClose={() => setAddOpen(false)}
-          onCreated={(created) => window.alert(`사용자 '${created.userName}'를 등록했습니다.`)}
+          onCreated={(created) => window.alert(t('main.created', { name: created.userName }))}
         />
       )}
 
@@ -107,7 +109,7 @@ export default function MainPage() {
       {editOpen && (
         <UserEditModal
           onClose={() => setEditOpen(false)}
-          onSaved={(saved) => window.alert(`사용자 '${saved.userName}' 정보를 수정했습니다.`)}
+          onSaved={(saved) => window.alert(t('main.saved', { name: saved.userName }))}
         />
       )}
     </div>

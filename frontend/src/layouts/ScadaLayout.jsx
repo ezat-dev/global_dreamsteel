@@ -7,6 +7,8 @@ import ScadaClock from '../components/scada/ScadaClock';
 import { useAuth } from '../context/AuthContext';
 import { checkSession } from '../api/scada/scadaAuthApi';
 import { HoldMsProvider } from '../components/scada/HoldMsContext';
+import LangToggle from '../components/scada/LangToggle';
+import { useTranslation } from 'react-i18next';
 import '../styles/scada.css';
 
 /**
@@ -27,8 +29,14 @@ export default function ScadaLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, canView, canControl, logout } = useAuth();
+  const { t } = useTranslation();
 
   const current = findScadaMenu(location.pathname);
+  /* 화면 이름은 사전(common.menu.<key>)에서 — scadaMenu의 label은 사전에 키가 없을 때의 대비다 */
+  const menuName = (m) => t(`menu.${m.key}`, { defaultValue: m.label });
+  /* 하단 메뉴바는 칸이 좁아(1280 폭에서 한 칸 약 100px) 영어 전체 이름이 잘린다.
+     바에만 짧은 이름(common.menuShort)을 쓰고, 제목·권한 표는 전체 이름을 그대로 쓴다. */
+  const menuShort = (m) => t(`menuShort.${m.key}`, { defaultValue: menuName(m) });
   // 하단 메뉴바에는 볼 권한이 있는 화면만 깐다(관리자 전용 화면, 권한 0인 화면이 사라진다).
   const menus = filterScadaMenu(canView);
   /* 제어 권한이 없으면 화면 전체를 잠근다. 단 lockScreen: false인 화면(트렌드)은 대부분이
@@ -79,7 +87,7 @@ export default function ScadaLayout() {
   }, []);
 
   const handleLogout = () => {
-    if (!window.confirm('로그아웃하시겠습니까?')) return;
+    if (!window.confirm(t('layout.logoutConfirm'))) return;
     logout();
     navigate('/login', { replace: true });
   };
@@ -104,17 +112,20 @@ export default function ScadaLayout() {
           <ScadaLogo />
 
           <div className="hmi-title">
-            <span className="hmi-title-text">{current.title}</span>
+            <span className="hmi-title-text">{menuName(current)}</span>
             {/* 잠긴 이유를 적어 두지 않으면 현장에서는 "화면이 고장났다"로 읽힌다.
                 화면을 회색으로 덮지 않는 것도 같은 이유다 — 값은 계속 또렷해야 한다. */}
-            {locked && <span className="hmi-readonly-badge">조회 전용</span>}
+            {locked && <span className="hmi-readonly-badge">{t('layout.readonly')}</span>}
           </div>
 
           <ScadaClock />
 
+          {/* 한/영 전환 — 로그아웃 왼쪽. 아래 관리자 버튼들은 로그아웃 폭에 맞춰 있어 영향이 없다 */}
+          <LangToggle />
+
           <button type="button" className="hmi-logout" onClick={handleLogout}>
             <IconLogout size={16} />
-            <span>로그아웃</span>
+            <span>{t('layout.logout')}</span>
             {user?.userName && <span className="hmi-logout-user">({user.userName})</span>}
           </button>
         </div>
@@ -144,8 +155,9 @@ export default function ScadaLayout() {
                 type="button"
                 className={`hmi-menu-item${menu.key === current.key ? ' active' : ''}`}
                 onClick={() => navigate(menu.path)}
+                title={menuName(menu)}
               >
-                {menu.label}
+                {menuShort(menu)}
               </button>
             ))}
           </div>
