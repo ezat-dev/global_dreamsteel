@@ -86,19 +86,15 @@ export default function AlarmNowPage() {
   }, []);
 
   /* 경보이력 화면과 같은 열에서 '경보상태'·'해제시각'만 뺐다 — 여기 있는 행은 전부
-     발생 중이라 두 칸은 늘 같은 값(발생 / 빈칸)이다. */
+     발생 중이라 두 칸은 늘 같은 값(발생 / 빈칸)이다.
+     열 머리의 검색칸도 뺐다 — 지금 떠 있는 경보만 보여서 보통 몇 건이라 거를 일이 없고,
+     머리 높이만 차지한다. */
   const columns = useMemo(
     () => [
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 56 },
-      {
-        title: '태그이름', field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true,
-        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '태그 검색',
-      },
-      { title: '태그주소', field: 'address', width: 90, hozAlign: 'center', headerFilter: 'input' },
-      {
-        title: '경보주석', field: 'alarmMsg', minWidth: 160, widthGrow: 3, tooltip: true,
-        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '내용 검색',
-      },
+      { title: '태그이름', field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+      { title: '태그주소', field: 'address', width: 90, hozAlign: 'center' },
+      { title: '경보주석', field: 'alarmMsg', minWidth: 160, widthGrow: 3, tooltip: true, hozAlign: 'center' },
       { title: '발생시각', field: 'occurTimeStr', width: 150, hozAlign: 'center' },
     ],
     [],
@@ -143,11 +139,26 @@ export default function AlarmNowPage() {
     return () => { alive = false; clearTimeout(timer); };
   }, []);
 
-  // 켜진 것만, 알람 정의 순서(=주소 순) 그대로
-  const activeLamps = useMemo(
-    () => (lampValues ? tags.filter((t) => isOn(lampValues[lampNameOf(t.tagName)])) : []),
-    [tags, lampValues],
-  );
+  /* 켜진 것만, 왼쪽 표와 같은 순서(발생시각 최신순)로.
+     램프에는 켜진 시각이 따로 없어서, 왼쪽 이력에서 같은 태그의 자리를 가져와 그 순서를 따른다 —
+     두 쪽 순서가 같아야 같은 경보를 눈으로 맞춰 보기 쉽다.
+     이력에 없는 램프(기록이 아직 안 됐거나 어긋난 것)는 맨 뒤에, 알람 정의 순서(=주소 순)로 둔다.
+     왼쪽은 5초, 램프는 1초마다 바뀌므로 새로 켜진 램프는 최대 5초간 맨 뒤에 있다가 제자리로 온다. */
+  const activeLamps = useMemo(() => {
+    if (!lampValues) return [];
+    const histOrder = new Map();
+    histRows.forEach((r, i) => { if (!histOrder.has(r.tagName)) histOrder.set(r.tagName, i); });
+
+    return tags
+      .map((t, addrIdx) => ({ t, addrIdx }))
+      .filter(({ t }) => isOn(lampValues[lampNameOf(t.tagName)]))
+      .sort((a, b) => {
+        const ha = histOrder.get(a.t.tagName) ?? Infinity;
+        const hb = histOrder.get(b.t.tagName) ?? Infinity;
+        return ha !== hb ? ha - hb : a.addrIdx - b.addrIdx;
+      })
+      .map(({ t }) => t);
+  }, [tags, lampValues, histRows]);
 
   /* 오른쪽이 비었을 때 문구 — 값을 아직 못 받았거나 못 받는 중이면 '없음'이라고 하지 않는다
      (통신이 안 되는데 경보가 없다고 하면 안심하게 된다). */
