@@ -111,7 +111,9 @@ export default function TrendRangeModal({ row, tempId, current, custom, defaults
 
           <div className="hmi-umodal-hint">
             {custom
-              ? `저장된 범위를 쓰는 중입니다.<br> 기본 범위는 ${defaults.min} ~ ${defaults.max} ${row.unit}입니다.`
+              /* 줄을 나누려면 문자열이 아니라 JSX여야 한다 — 문자열 속 '<br>'은 React가
+                 글자 그대로 찍는다(HTML로 해석하지 않는다) */
+              ? <>저장된 범위를 쓰는 중입니다.<br />기본 범위는 {defaults.min} ~ {defaults.max} {row.unit}입니다.</>
               : `지금은 기본 범위(${defaults.min} ~ ${defaults.max} ${row.unit})를 쓰고 있습니다.`}
           </div>
 
