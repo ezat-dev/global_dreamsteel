@@ -87,8 +87,9 @@ export function AuthProvider({ children }) {
   /** 화면이 메뉴에 보이고 들어갈 수 있는지 */
   const canView = (key) => screenLevel(key) >= AUTH_VIEW;
 
-  /* 조작할 것이 없는 화면(트렌드·경보이력)은 조회 권한만 있으면 그만이다.
-     여기서 제어 권한까지 요구하면 조회 버튼이 잠겨서 화면을 열어 준 의미가 없어진다. */
+  /* 조작할 것이 없는 화면(경보이력·로그)은 조회 권한만 있으면 그만이다.
+     여기서 제어 권한까지 요구하면 조회 버튼이 잠겨서 화면을 열어 준 의미가 없어진다.
+     트렌드는 control이라 제어 권한이 있어야 true다 — 범위 수정 버튼이 이 값을 본다. */
   const canControl = (key) => {
     const menu = MENU_BY_KEY.get(key);
     const need = menu?.control ? AUTH_CONTROL : AUTH_VIEW;

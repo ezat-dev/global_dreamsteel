@@ -6,8 +6,9 @@ import { AUTH_CONTROL, AUTH_NONE, AUTH_SCREENS, AUTH_VIEW } from '../../constant
    값은 scada_user의 auth_* 컬럼(0 없음 / 1 조회 / 2 제어)이고, 어느 컬럼인지는
    scadaMenu의 authField가 들고 있다. 화면이 늘면 scadaMenu만 고치면 이 격자도 따라온다.
 
-   트렌드·경보이력처럼 조작할 것이 없는 화면은 '제어' 칸을 아예 두지 않는다. 고를 수
+   경보이력·로그처럼 조작할 것이 없는 화면은 '제어' 칸을 아예 두지 않는다. 고를 수
    있게 두면 관리자가 제어를 줬다고 생각하지만 조회와 아무 차이가 없어서 오해만 남는다.
+   트렌드는 y축 범위 수정이 있어 '제어' 칸이 있다(제어 = 범위를 고칠 수 있음).
    =========================================================================== */
 
 const LEVELS = [
@@ -61,7 +62,7 @@ export function pickScreenAuth(row) {
  */
 export default function ScreenAuthGrid({ value, onChange, idPrefix, disabled = false, note }) {
   /* 8줄을 하나하나 누르는 일이 잦아서 일괄 지정을 둔다.
-     화면이 감당하는 최대치로 잘라서 넣는다 — '전체 제어'를 눌러도 트렌드는 조회가 된다. */
+     화면이 감당하는 최대치로 잘라서 넣는다 — '전체 제어'를 눌러도 경보이력·로그는 조회가 된다. */
   const setAll = (level) => {
     AUTH_SCREENS.forEach((m) => onChange(m.authField, clampLevel(m, level)));
   };

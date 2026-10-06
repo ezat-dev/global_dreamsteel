@@ -285,4 +285,14 @@ public class ScadaServiceImpl implements ScadaService {
     public ScadaSetting getSessionLimitMin(ScadaSetting scadaSetting) {
         return scadaDao.getSessionLimitMin(scadaSetting);
     }
+
+    @Override
+    public List<ScadaTrend> getTrendRangeList(ScadaTrend scadaTrend) {
+        return scadaDao.getTrendRangeList(scadaTrend);
+    }
+
+    @Override
+    public boolean updateTrendRange(ScadaTrend scadaTrend) {
+        return scadaDao.updateTrendRange(scadaTrend);
+    }
 }

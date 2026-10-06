@@ -17,9 +17,11 @@ import 'highcharts/modules/exporting';
 import 'highcharts/modules/offline-exporting';
 import HighchartsReact from 'highcharts-react-official';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getTrend } from '../../api/scada/trendApi';
+import { getTrend, getTrendRangeList } from '../../api/scada/trendApi';
 import { getTrendMemoList } from '../../api/scada/trendMemoApi';
 import TrendMemoModal from '../../components/scada/TrendMemoModal';
+import TrendRangeModal from '../../components/scada/TrendRangeModal';
+import { useAuth } from '../../context/AuthContext';
 import { downloadRowsXlsx } from '../../components/scada/downloadXlsx';
 import './TrendPage.css';
 
@@ -84,8 +86,8 @@ const DEFAULT_HOURS = 24;
 const FOLLOW_MS = 30000;
 
 /* mmV 값은 ℃와 자릿수가 달라서 한 축에 같이 그리면 한쪽이 납작해진다.
-   단위별로 y축을 나누고, 이 표로 어느 축에 붙일지 정한다.
-   0번이 왼쪽(mmV = O2), 1번이 오른쪽(℃ = 존 온도)이다. */
+   그래서 축을 단위별로 둘 둔다 — 0번이 왼쪽(mmV = O2), 1번이 오른쪽(℃ = 1~7존).
+   1~7존 선은 모두 오른쪽 축 하나를 같이 쓰고, O2는 왼쪽 축을 쓴다. */
 const AXIS_BY_UNIT = { mmV: 0, '℃': 1 };
 
 /* y축 범위를 계기 범위로 고정한다. Highcharts에 맡기면 값의 최소·최대에 맞춰 축이
@@ -104,6 +106,53 @@ const AXIS_RANGE = {
 /** min~max를 step 간격으로 — [600, 700, …, 1200] */
 const axisTicks = ({ min, max, step }) =>
   Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => min + i * step);
+
+/* ── 선별 y축 범위 ─────────────────────────────────────────────────────────
+   선마다 "그 선을 볼 때의 축 범위"를 둔다(ez_scada.tb_temp_tag의 trend_min / trend_max,
+   모든 기기 공통). 평소에는 축이 기본 범위(위 AXIS_RANGE)다. 오른쪽 판에서 선 이름을
+   누르면 그 선 단위 쪽 축 전체가 그 선의 범위로 바뀌고, 그 축에 붙은 선이 모두 새 범위로
+   다시 그려진다 — 예: 1ZONE(100~130)을 누르면 오른쪽 축이 100~130이 되어 1ZONE은 가운데쯤,
+   다른 존은 축 밖으로 벗어난다. 다시 누르면 기본 범위로 돌아온다.
+   범위를 안 정한 선(NULL)을 누르면 기본 범위 그대로다(축 색만 바뀐다). */
+
+/**
+ * 고른 선의 눈금 — 양끝(min, max)에 1·2·2.5·5 단위의 반듯한 숫자를 사이사이 넣는다.
+ * 100~1000 → [100, 200, 400, 600, 800, 1000]. 간격 다섯 칸 안팎이 되게 고른다.
+ * Highcharts에 맡기면 차트 높이에 따라 눈금이 달라지고 끝이 늘어나므로(AXIS_RANGE 참고)
+ * 여기서 직접 정한다. 끝 눈금과 너무 붙은 중간 눈금(간격의 절반 미만)은 빼서 글자가 겹치지 않게 한다.
+ */
+const niceTicks = (min, max) => {
+  const raw = (max - min) / 5;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? raw;
+  const ticks = [min];
+  for (let v = Math.ceil(min / step) * step; v < max; v += step) {
+    if (v - min >= step / 2 && max - v >= step / 2) ticks.push(Math.round(v * 1e6) / 1e6);
+  }
+  ticks.push(max);
+  return ticks;
+};
+
+/** 'zone1_pv' → 'zone1Pv' — tb_temp_tag.col_name을 VALUE_ROWS의 key(스냅샷 응답 필드명)로 */
+const colToKey = (col) => String(col ?? '').replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase());
+
+/** 선 하나의 단위별 기본 범위 */
+const defaultRangeOf = (row) => {
+  const r = AXIS_RANGE[row.unit] ?? AXIS_RANGE['℃'];
+  return { min: r.min, max: r.max };
+};
+
+/** 서버 행 → { tempId, min, max }. 범위가 비었거나 이상하면(최소 ≥ 최대) min/max는 null — 기본 범위를 쓴다. */
+const toRange = (r) => {
+  const min = r.trendMin == null || r.trendMin === '' ? NaN : Number(r.trendMin);
+  const max = r.trendMax == null || r.trendMax === '' ? NaN : Number(r.trendMax);
+  const ok = Number.isFinite(min) && Number.isFinite(max) && min < max;
+  return { tempId: r.tempId, min: ok ? min : null, max: ok ? max : null };
+};
+
+/* 범위 목록을 다시 받는 주기 — 다른 기기에서 바꾼 범위가 이만큼 안에 따라온다.
+   자동갱신(데이터)과 같은 30초로 둔다. */
+const RANGE_POLL_MS = 30000;
 
 /* 서버 응답 한 행을 차트가 먹는 형태로 바꾼다.
    Highcharts는 x에 숫자 타임스탬프를 원하고, 값도 숫자여야 한다 —
@@ -199,6 +248,68 @@ export default function TrendPage() {
   const toggleSeries = (key) => {
     setHidden((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  /* 선별 y축 범위 — { key: { tempId, min, max } }. 못 받은 동안은 빈 객체라 모두 기본 범위로 그린다.
+     열 때 받고, 30초마다 다시 받는다(다른 기기에서 바꾼 범위가 따라오게). 30초 조회는
+     autoPoll이라 접근 로그에 안 남는다. 실패하면 마지막으로 받은 값을 그대로 둔다. */
+  const [ranges, setRanges] = useState({});
+  const [rangeModal, setRangeModal] = useState(null);   // 범위를 고칠 VALUE_ROWS 한 줄
+
+  const loadRanges = (autoPoll = false) => getTrendRangeList({ autoPoll })
+    .then((res) => {
+      const next = {};
+      (res.data ?? []).forEach((r) => { next[colToKey(r.colName)] = toRange(r); });
+      setRanges(next);
+    })
+    .catch(() => {});
+
+  useEffect(() => {
+    loadRanges();
+    const timer = setInterval(() => loadRanges(true), RANGE_POLL_MS);
+    return () => clearInterval(timer);
+    // 열 때 1회 + 타이머 — loadRanges는 state setter만 쓴다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** 선 하나의 지금 범위 — { min, max, custom(저장된 범위인지) } */
+  const rangeOf = (row) => {
+    const r = ranges[row.key];
+    if (r && r.min != null) return { min: r.min, max: r.max, custom: true };
+    return { ...defaultRangeOf(row), custom: false };
+  };
+
+  /* 누른 선 — 오른쪽 판에서 선 이름을 누르면 그 선 단위 쪽 축(O2는 왼쪽, 1~7존은 오른쪽)이
+     그 선의 범위·색으로 바뀌고, 그 축을 쓰는 선이 모두 새 범위로 다시 그려진다.
+     같은 이름을 다시 누르면 기본 범위로 돌아온다. 보는 방법일 뿐이라 기기마다 따로이고
+     저장하지 않는다 — 조회 권한으로도 된다. */
+  const [focusKey, setFocusKey] = useState(null);
+  const toggleFocus = (key) => setFocusKey((prev) => (prev === key ? null : key));
+
+  /** 단위별 축 하나의 설정 — 누른 선이 그 단위면 그 선의 범위·색, 아니면 기본 범위 */
+  const scaleAxis = (unit) => {
+    const row = VALUE_ROWS.find((r) => r.key === focusKey && r.unit === unit);
+    const base = AXIS_RANGE[unit];
+    const rg = row ? rangeOf(row) : base;
+    const color = row ? row.color : AX_TEXT;
+    return {
+      title: { text: row ? `${row.label} (${unit})` : unit, style: { fontSize: '11px', color, fontWeight: row ? '700' : 'normal' } },
+      min: rg.min,
+      max: rg.max,
+      /* 고른 선이 기본 범위면 기준 눈금과 같은 눈금을 쓴다(색만 바뀐다) —
+         범위가 같은데 눈금 간격만 달라지면 눌렀을 때 괜히 다른 축처럼 보인다. */
+      tickPositions: row && (rg.min !== base.min || rg.max !== base.max)
+        ? niceTicks(rg.min, rg.max)
+        : axisTicks(base),
+      startOnTick: false,
+      endOnTick: false,
+      labels: { style: { fontSize: '11px', color } },
+    };
+  };
+
+  /* 범위 수정은 트렌드 "제어" 권한이 있어야 한다. 화면 자체는 잠그지 않으므로
+     (scadaMenu의 lockScreen: false) 여기서 직접 막는다. */
+  const { canControl } = useAuth();
+  const canEditRange = canControl('trend');
 
   // 조회한 구간. 조회 버튼을 눌러야 그래프가 바뀌도록 입력값과 분리해 둔다.
   const [range, setRange] = useState(() => ({
@@ -521,34 +632,24 @@ export default function TrendPage() {
         zIndex: 2,
       })),
     },
-    /* 축 둘 — 0번은 왼쪽 mmV, 1번은 오른쪽 ℃.
+    /* 축 둘 — 0번은 왼쪽 mmV(O2), 1번은 오른쪽 ℃(1~7존).
        O2(mmV)를 온도와 같은 축에 그리면 자릿수가 달라 한쪽이 납작해진다.
-       범위와 눈금은 AXIS_RANGE에서 고정한다(화면 크기와 상관없이 같은 축). */
+       평소에는 AXIS_RANGE의 기본 범위이고, 오른쪽 판에서 선 이름을 누르면(focusKey)
+       그 선 단위 쪽 축이 그 선의 범위·색으로 바뀐다 — 그 축에 붙은 선이 모두 새 범위로
+       다시 그려진다(scaleAxis 참고). */
     yAxis: [
       {
-        // 0번 = 왼쪽 — O2(mmV) 600~1200, 100 간격
-        title: { text: 'mmV', style: { fontSize: '11px', color: AX_TEXT } },
-        min: AXIS_RANGE.mmV.min,
-        max: AXIS_RANGE.mmV.max,
-        tickPositions: axisTicks(AXIS_RANGE.mmV),
-        startOnTick: false,
-        endOnTick: false,
+        // 0번 = 왼쪽 — 평소 O2(mmV) 600~1200, 100 간격. O2를 고르면 O2 범위
+        ...scaleAxis('mmV'),
         gridLineColor: GRID_LINE,
         gridLineDashStyle: 'Dash',
-        labels: { style: { fontSize: '11px', color: AX_TEXT } },
       },
       {
-        // 1번 = 오른쪽 — 존 온도(℃) 0~1000, 200 간격
-        title: { text: '℃', style: { fontSize: '11px', color: AX_TEXT } },
-        min: AXIS_RANGE['℃'].min,
-        max: AXIS_RANGE['℃'].max,
-        tickPositions: axisTicks(AXIS_RANGE['℃']),
-        startOnTick: false,
-        endOnTick: false,
+        // 1번 = 오른쪽 — 평소 존 온도(℃) 0~1000, 200 간격. 존을 고르면 그 존 범위
+        ...scaleAxis('℃'),
         opposite: true,
         // 오른쪽 축 눈금선까지 그리면 왼쪽 것과 겹쳐 지저분해진다
         gridLineWidth: 0,
-        labels: { style: { fontSize: '11px', color: AX_TEXT } },
       },
     ],
 
@@ -598,15 +699,18 @@ export default function TrendPage() {
     series: VALUE_ROWS.map((r) => ({
       name: r.label,
       color: r.color,
-      yAxis: AXIS_BY_UNIT[r.unit] ?? 0,
+      // 단위 쪽 축에 붙는다 — 1~7존은 모두 오른쪽 축, O2는 왼쪽 축
+      yAxis: AXIS_BY_UNIT[r.unit] ?? 1,
       // 토글이 꺼진 선은 감춘다(데이터는 그대로 들고 있어 다시 켜면 즉시 보인다)
       visible: !hidden[r.key],
       // Highcharts는 [x, y] 쌍의 배열을 받는다.
       data: rows.map((d) => [d.t, d[r.key]]),
     })),
     /* range가 빠지면 조회 구간을 바꿔도 x축이 옛 구간에 머문다 —
-       useMemo는 의존성이 안 바뀌면 옛 options를 그대로 돌려주기 때문이다. */
-  }), [rows, hidden, chartH, range, memos]);
+       useMemo는 의존성이 안 바뀌면 옛 options를 그대로 돌려주기 때문이다.
+       ranges(선별 y축 범위)·focusKey(누른 선)도 같은 이유로 넣는다. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [rows, hidden, chartH, range, memos, ranges, focusKey]);
 
   /* ── 메모 카드 자리 계산 ────────────────────────────────────────────────
      메모는 Highcharts의 깃발(flags)로 그리지 않고 차트 위에 HTML 카드로 얹는다.
@@ -821,7 +925,22 @@ export default function TrendPage() {
             const text = v == null ? '---' : String(v);
             return (
               <div className="tr-vrow" key={r.key}>
-                <span className="tr-vlabel">{r.label}</span>
+                {/* 이름을 누르면 그 선 쪽 축(O2는 왼쪽, 1~7존은 오른쪽)이 그 선의 범위로 바뀌고
+                    그 축의 선이 모두 다시 그려진다. 다시 누르면 기본 범위로.
+                    누른 선 표시는 밑줄(자리를 안 차지함)로만 한다 — 테두리·안쪽 여백을 주면
+                    이름 칸이 좁아져 '1ZONE'이 잘린다. */}
+                <button
+                  type="button"
+                  className={`tr-vlabel${focusKey === r.key ? ' is-focus' : ''}`}
+                  style={focusKey === r.key ? { color: r.color, '--tr-focus': r.color } : undefined}
+                  onClick={() => toggleFocus(r.key)}
+                  aria-pressed={focusKey === r.key}
+                  title={focusKey === r.key
+                    ? `${r.label} 범위 보기 끄기 — ${r.unit === 'mmV' ? '왼쪽' : '오른쪽'} 축을 기본 범위로 되돌립니다`
+                    : `${r.label} 범위로 보기 — ${r.unit === 'mmV' ? '왼쪽' : '오른쪽'} 축을 이 선의 범위로 바꿔 다시 그립니다`}
+                >
+                  {r.label}
+                </button>
 
                 <button
                   type="button"
@@ -834,10 +953,35 @@ export default function TrendPage() {
                   <i />
                 </button>
 
-                <span className="tr-vbox">
-                  <em style={{ color: r.color }}>{text}</em>
-                  <i style={{ color: r.color }}>{r.unit}</i>
-                </span>
+                {/* 값 상자 + 그 아래 이 선의 y축 범위(이름을 눌렀을 때 축이 바뀌는 범위).
+                    제어 권한이 있으면 범위를 눌러 고치고(수정 창), 없으면 보기만 한다.
+                    저장된 범위가 없는 선(기본 범위)은 흐리게 — 범위를 정해 둔 선이 눈에 띄게 한다. */}
+                <div className="tr-vval">
+                  <span className="tr-vbox">
+                    <em style={{ color: r.color }}>{text}</em>
+                    <i style={{ color: r.color }}>{r.unit}</i>
+                  </span>
+                  {(() => {
+                    const rg = rangeOf(r);
+                    // '범위' 글자는 아주 좁은 화면에서 숨긴다(CSS .tr-vrange-word) — 숫자가 잘리지 않게
+                    const rangeText = <><span className="tr-vrange-word">범위 </span>{`${rg.min} ~ ${rg.max}`}</>;
+                    const cls = `tr-vrange${rg.custom ? ' is-custom' : ''}`;
+                    const tempId = ranges[r.key]?.tempId;
+                    const what = `${r.label} y축 범위 ${rg.min} ~ ${rg.max} ${r.unit}${rg.custom ? '' : ' (기본 범위)'}`;
+                    return canEditRange && tempId != null ? (
+                      <button
+                        type="button"
+                        className={`${cls} is-editable`}
+                        onClick={() => setRangeModal(r)}
+                        title={`${what} — 눌러서 고치기`}
+                      >
+                        {rangeText}
+                      </button>
+                    ) : (
+                      <span className={cls} title={what}>{rangeText}</span>
+                    );
+                  })()}
+                </div>
               </div>
             );
           })}
@@ -851,6 +995,20 @@ export default function TrendPage() {
           memo={memoModal.memo}
           onClose={() => setMemoModal(null)}
           onSaved={() => setMemoSeq((n) => n + 1)}
+        />
+      )}
+
+      {/* 선 하나의 y축 범위 수정. 저장하면 범위 목록을 다시 받아 차트에 바로 반영한다.
+          다른 기기는 30초 안에 따라온다(RANGE_POLL_MS). */}
+      {rangeModal && (
+        <TrendRangeModal
+          row={rangeModal}
+          tempId={ranges[rangeModal.key]?.tempId}
+          current={rangeOf(rangeModal)}
+          custom={rangeOf(rangeModal).custom}
+          defaults={defaultRangeOf(rangeModal)}
+          onClose={() => setRangeModal(null)}
+          onSaved={() => loadRanges()}
         />
       )}
     </div>

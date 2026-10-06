@@ -139,4 +139,16 @@ public class ScadaDao {
     public ScadaSetting getSessionLimitMin(ScadaSetting scadaSetting) {
         return sqlSession.selectOne("ScadaSettingMapper.getSessionLimitMin", scadaSetting);
     }
+
+    public List<ScadaTrend> getTrendRangeList(ScadaTrend scadaTrend) {
+        return sqlSession.selectList("ScadaTrendMapper.getTrendRangeList", scadaTrend);
+    }
+
+    public boolean updateTrendRange(ScadaTrend scadaTrend) {
+        int result = sqlSession.update("ScadaTrendMapper.updateTrendRange", scadaTrend);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
+    }
 }

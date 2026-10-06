@@ -26,5 +26,10 @@ public class ScadaTrend {
     private String tcUserCode;
     private String tcYn;
     private String tcUserName;
+    private String trendMin;
+    private String trendMax;
+    private String tempId;
+    private String colName;
+    private String equipmentId;
 
 }

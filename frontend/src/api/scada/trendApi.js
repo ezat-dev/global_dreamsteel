@@ -18,3 +18,38 @@ import axiosInstance from '../axiosInstance';
 export function getTrend(params) {
   return axiosInstance.get('/api/scada/getTrend', { params }).then((res) => res.data);
 }
+
+/**
+ * 선마다의 y축 범위 — ez_scada.tb_temp_tag의 trend_min / trend_max.
+ *   [{ tempId, colName, trendMin, trendMax }]  (colName은 'zone1_pv'처럼 스냅샷 컬럼 이름)
+ * 범위가 NULL이면 그 선은 단위별 기본 범위로 그린다(TrendPage의 AXIS_RANGE).
+ *
+ * @param autoPoll true면 타이머가 되부르는 조회라고 알린다 — 접근 로그 파일에 남지 않는다
+ */
+export function getTrendRangeList({ autoPoll = false } = {}) {
+  return axiosInstance
+    .get('/api/scada/getTrendRangeList', { params: autoPoll ? { autoPoll: 1 } : undefined })
+    .then((res) => res.data);
+}
+
+/**
+ * 범위 한 줄 수정. min/max를 둘 다 null로 보내면 기본 범위로 되돌린다(DB NULL).
+ * 서버가 정수인지, 최소 < 최대인지 검사한다.
+ *
+ * 바뀐 행이 없으면(없는 tempId) 서버가 오류 대신 data:false를 준다 — 그것도 실패로 던진다.
+ */
+export function updateTrendRange(tempId, trendMin, trendMax) {
+  return axiosInstance
+    .post('/api/scada/updateTrendRange', {
+      tempId: String(tempId),
+      trendMin: trendMin == null ? null : String(trendMin),
+      trendMax: trendMax == null ? null : String(trendMax),
+    })
+    .then((res) => {
+      const body = res.data ?? {};
+      if (!body.success || body.data !== true) {
+        throw new Error(body.message || '범위를 저장하지 못했습니다.');
+      }
+      return body;
+    });
+}

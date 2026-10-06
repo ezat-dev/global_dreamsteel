@@ -77,4 +77,19 @@
             WHERE tc_cnt = #{tcCnt}
     </update>
 
+    <!-- 트렌드 범위 조회 -->
+    <select id="getTrendRangeList" parameterType="com.mes.domain.scada.ScadaTrend"
+            resultType="com.mes.domain.scada.ScadaTrend">
+            SELECT temp_id, col_name, trend_min, trend_max 
+            FROM ez_scada.tb_temp_tag 
+    </select>
+
+    <!-- 트렌드 범위 수정 -->
+    <update id="updateTrendRange" parameterType="com.mes.domain.scada.ScadaTrend">
+            UPDATE ez_scada.tb_temp_tag
+                SET trend_min = #{trendMin},
+                    trend_max = #{trendMax}
+            WHERE temp_id = #{tempId}
+    </update>
+
 </mapper>

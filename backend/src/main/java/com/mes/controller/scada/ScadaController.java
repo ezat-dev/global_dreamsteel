@@ -281,4 +281,44 @@ public class ScadaController {
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateSetting(scadaSetting)));
     }
 
+    // 트렌트 범위 조회
+    @GetMapping("/getTrendRangeList")
+    public ApiResponse<List<ScadaTrend>> getTrendRangeList(HttpSession session,
+            @ModelAttribute ScadaTrend scadaTrend) {
+        sessionConfig.requireLogin(session);
+        return ApiResponse.success(scadaService.getTrendRangeList(scadaTrend));
+    }
+
+    // 트렌드 범위 수정
+    @PostMapping("/updateTrendRange")
+    public ResponseEntity<ApiResponse<Boolean>> updateTrendRange(@RequestBody ScadaTrend scadaTrend,
+            HttpSession session) {
+        sessionConfig.requireLogin(session);
+
+        // 둘 다 비우면 "기본 범위로 되돌리기"(NULL). 하나만 비우는 건 받지 않는다
+        String min = scadaTrend.getTrendMin();
+        String max = scadaTrend.getTrendMax();
+        boolean reset = (min == null || min.isBlank()) && (max == null || max.isBlank());
+        if (reset) {
+            scadaTrend.setTrendMin(null);
+            scadaTrend.setTrendMax(null);
+        } else {
+            int lo;
+            int hi;
+            try {
+                lo = Integer.parseInt(min.trim());
+                hi = Integer.parseInt(max.trim());
+            } catch (RuntimeException e) { // 숫자가 아님, 한쪽만 빔(NullPointerException)
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "범위는 최소·최대 모두 정수여야 합니다.");
+            }
+            if (lo >= hi) {
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "최소는 최대보다 작아야 합니다.");
+            }
+            // 검사한 값 그대로 저장한다 — 받은 문자열(" 1200 " 등)을 넘기면 공백째 int 컬럼에 들어간다
+            scadaTrend.setTrendMin(String.valueOf(lo));
+            scadaTrend.setTrendMax(String.valueOf(hi));
+        }
+        return ResponseEntity.ok(ApiResponse.success(scadaService.updateTrendRange(scadaTrend)));
+    }
+
 }

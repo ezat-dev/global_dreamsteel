@@ -31,7 +31,9 @@ export default function ScadaLayout() {
   const current = findScadaMenu(location.pathname);
   // 하단 메뉴바에는 볼 권한이 있는 화면만 깐다(관리자 전용 화면, 권한 0인 화면이 사라진다).
   const menus = filterScadaMenu(canView);
-  const locked = !canControl(current.key);
+  /* 제어 권한이 없으면 화면 전체를 잠근다. 단 lockScreen: false인 화면(트렌드)은 대부분이
+     조회라 잠그지 않고, 제어가 필요한 일부를 그 화면이 직접 막는다(scadaMenu 참고). */
+  const locked = current.lockScreen !== false && !canControl(current.key);
 
   /* 화면을 옮길 때마다 서버 세션이 살아 있는지 확인한다.
 

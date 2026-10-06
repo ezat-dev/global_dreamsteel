@@ -13,9 +13,14 @@
 // 키에서 컬럼명을 유추하지 않고 적어 둔다 — alarmHistory ↔ authAlarmHist처럼 어긋나는
 // 짝이 있어서, 규칙으로 만들면 예외를 기억해야 한다.
 //
-// control: 이 화면에 "조작"이라 부를 것이 있는지. 트렌드·경보이력은 조회 화면이라
+// control: 이 화면에 "조작"이라 부를 것이 있는지. 경보이력·로그는 조회 화면이라
 // 1과 2가 같은 뜻이고, 여기에 제어 잠금을 걸면 조회 버튼까지 잠겨 화면이 무용지물이 된다.
 // 권한 편집 UI도 이 표시를 보고 2단계/3단계를 그린다.
+//
+// lockScreen: false면 제어 권한이 없어도 화면 전체를 잠그지 않는다(ScadaLayout의 fieldset).
+// 화면 대부분이 조회이고 일부만 "제어"인 화면에 쓴다 — 트렌드가 그렇다. 조회·자동갱신·
+// 선 토글·메모·내려받기는 조회 권한으로 되고, y축 범위 수정만 제어 권한이 있어야 한다.
+// 그 일부는 화면이 canControl로 직접 막는다. 적지 않으면 지금처럼 화면 전체를 잠근다.
 //
 // defaultAuth: 새 사용자의 기본 권한과, 권한 값이 아예 안 실려 왔을 때 쓸 값.
 // 적지 않으면 control 화면은 2, 조회 화면은 1이다(scada_user DDL의 DEFAULT와 같다).
@@ -36,7 +41,12 @@ const SCADA_MENU = [
   { key: 'temp', label: '온도제어', title: '온도제어', path: '/temp', authField: 'authTemp', control: true },
   { key: 'atmosphere', label: '분위기제어', title: '분위기제어', path: '/atmosphere', authField: 'authAtmosphere', control: true },
   { key: 'cooling', label: '쿨링타워', title: '쿨링타워', path: '/cooling', authField: 'authCooling', control: true },
-  { key: 'trend', label: '트렌드', title: '트렌드', path: '/trend', authField: 'authTrend' },
+  /* 트렌드는 거의 조회 화면이지만 선별 y축 범위 수정(모든 기기 공통 설정)이 있어 제어 단계를 둔다.
+     기본은 조회 — DB의 auth_trend DEFAULT 1과 맞춘다. 화면은 잠그지 않고 범위 수정만 막는다. */
+  {
+    key: 'trend', label: '트렌드', title: '트렌드', path: '/trend',
+    authField: 'authTrend', control: true, defaultAuth: AUTH_VIEW, lockScreen: false,
+  },
   { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm', authField: 'authAlarm', control: true },
   { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory', authField: 'authAlarmHist' },
   /* 설비 설정값(시간·온도 기준·PV 보정)을 바꾸는 화면이다. 처음엔 관리자 전용이었는데

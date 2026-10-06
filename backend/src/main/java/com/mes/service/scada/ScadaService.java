@@ -54,4 +54,8 @@ public interface ScadaService {
     boolean updateSetting(ScadaSetting scadaSetting);
 
     ScadaSetting getSessionLimitMin(ScadaSetting scadaSetting);
+
+    List<ScadaTrend> getTrendRangeList(ScadaTrend scadaTrend);
+
+    boolean updateTrendRange(ScadaTrend scadaTrend);
 }

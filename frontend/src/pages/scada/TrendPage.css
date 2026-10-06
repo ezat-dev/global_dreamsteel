@@ -199,12 +199,17 @@
    찌그러진다. 그 지점부터는 .tr-values의 overflow-y로 스크롤이 생긴다. */
 .tr-vrow {
   flex: 1;
-  min-height: 50px;
+  /* 값 상자 아래에 범위 줄이 붙어 한 줄의 내용이 그만큼 높아졌다. 하한이 내용보다 낮으면
+     판이 낮을 때 줄이 내용보다 작게 눌려 범위 글자가 다음 줄과 겹친다 — 내용 높이에 맞춘다. */
+  min-height: 72px;
   display: grid;
   /* 가운데 열은 토글 폭(52px)과 같아야 한다 — 토글을 키우면 이 값도 같이 올린다.
      이름표 열은 예전에 88px이었는데, 예열대·냉각대(1) 줄을 뺀 뒤로 가장 긴 이름이
      'O2 (PV)'라 그만큼 필요 없다. 줄인 폭은 값 칸으로 넘겨서 판 전체 폭은 그대로 둔다. */
   grid-template-columns: 68px 52px minmax(0, 1fr);
+  /* 세로 칸을 줄 높이에 묶는다 — 내용 높이로 두면 값 칸의 빈칸(::before)까지 다 넣으려고
+     칸이 줄보다 커져, 판이 낮을 때 범위 글자가 줄 밖으로 넘친다. */
+  grid-template-rows: minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   padding: 6px 9px;
@@ -221,6 +226,33 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 이름은 "이 선의 범위로 보기" 버튼이다. 생김새는 예전 이름표 그대로 둔다 —
+   안쪽 여백·테두리를 주면 이름 칸(68px, 좁은 화면 60px)이 그만큼 줄어 '1ZONE'이 잘린다.
+   누른 선은 그 선 색의 글자 + 밑줄로 표시한다(밑줄은 자리를 차지하지 않는다).
+   차트 축도 같은 색으로 바뀐다. 밑줄 색은 TrendPage.jsx가 --tr-focus로 넣는다. */
+button.tr-vlabel {
+  max-width: 100%;
+  /* 아래 여백만 — 밑줄이 글자 아래로 떨어지는데 이름표가 overflow: hidden이라 여백이 없으면
+     밑줄이 잘린다. 좌우는 0이라 이름 칸 폭은 그대로다. */
+  padding: 0 0 5px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+button.tr-vlabel:hover {
+  color: #ffffff;
+}
+
+button.tr-vlabel.is-focus {
+  text-decoration: underline;
+  text-decoration-color: var(--tr-focus, currentColor);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 /* ── 그래프 표시 토글 ── 이 줄의 선을 차트에 그릴지 정한다.
@@ -290,6 +322,98 @@
   font-style: normal;
 }
 
+/* ── 선별 y축 범위 ── 값 상자 바로 아래, 오른쪽 끝에 맞춰 둔다.
+   이 범위는 그 선 이름을 눌렀을 때 축이 바뀌는 범위다. 기본 범위인 선은 흐리게,
+   범위를 정해 둔 선은 밝게 — 눌렀을 때 축이 바뀌는 선이 한눈에 보이게 한다. */
+/* 값 칸 — [빈칸][값 상자][범위]를 세로로 쌓고 가운데로 모은다. 맨 위 빈칸(::before)을
+   범위 줄과 같은 높이로 두어 값 상자가 이름·토글과 같은 줄 가운데에 오게 한다.
+   줄이 낮아 자리가 모자라면 빈칸부터 줄어든다 — 값 상자가 살짝 위로 올라갈 뿐
+   범위 글자가 줄 밖으로 넘치지는 않는다. 빈칸 높이(--tr-range-h)는 범위 줄 높이와 맞춘다. */
+.tr-vval {
+  --tr-range-h: 17px;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+
+.tr-vval::before {
+  content: '';
+  flex: 0 1 var(--tr-range-h);
+}
+
+/* 자리가 모자랄 때 줄어드는 건 위 빈칸뿐이어야 한다 — 값 상자·범위 줄까지 같이 줄면
+   범위 글자의 아래가 잘린다(범위 줄은 overflow: hidden이라 최소 높이가 0이다). */
+.tr-vval > .tr-vbox,
+.tr-vval > .tr-vrange {
+  flex-shrink: 0;
+}
+
+.tr-vrange {
+  align-self: flex-end;
+  max-width: 100%;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--g-muted, #9aa8bd);
+  opacity: .7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tr-vrange.is-custom {
+  color: var(--hmi-text);
+  opacity: 1;
+}
+
+/* 제어 권한이 있을 때만 버튼이다 — 눌리는 것처럼 보여야 한다 */
+.tr-vrange.is-editable {
+  border-color: var(--hmi-light);
+  cursor: pointer;
+}
+
+.tr-vrange.is-editable:hover {
+  border-color: var(--hmi-hold, #ffb020);
+}
+
+/* 범위 수정 창 — 공용 모달 틀에 폭만 정한다 */
+.tr-range-modal {
+  width: min(380px, calc(100vw - 32px));
+}
+
+/* 높이가 낮은 화면(노트북 1366×768 등) — 범위 줄이 붙어 줄이 높아졌으니 줄 여백을 줄여
+   8줄이 판에 스크롤 없이 들어가게 한다. 글자 크기는 그대로 둔다(폭은 넉넉하다). */
+@media (max-height: 860px) {
+  .tr-vrow {
+    min-height: 58px;
+    padding: 4px 9px;
+  }
+
+  .tr-vbox {
+    padding: 3px 9px;
+    line-height: 1.15;
+  }
+
+  .tr-vval {
+    --tr-range-h: 15px;
+    gap: 2px;
+  }
+
+  .tr-vrange {
+    line-height: 1.2;
+  }
+}
+
 /* 좁은 화면에서는 판을 줄여 차트 자리를 남긴다.
    토글은 손으로 누르는 것이라 여기서도 44px 아래로는 줄이지 않는다. */
 @media (max-width: 1280px) {
@@ -297,9 +421,22 @@
     flex-basis: 240px;
   }
 
+  /* 판이 낮아지는 태블릿 화면 — 줄 여백을 줄여 범위 줄이 붙은 8줄이 스크롤 없이 들어가게 한다 */
   .tr-vrow {
     grid-template-columns: 60px 44px minmax(0, 1fr);
     gap: 6px;
+    min-height: 52px;
+    padding: 4px 8px;
+  }
+
+  .tr-vbox {
+    padding: 3px 8px;
+    line-height: 1.15;
+  }
+
+  .tr-vval {
+    --tr-range-h: 14px;
+    gap: 2px;
   }
 
   .tr-toggle {
@@ -325,8 +462,24 @@
     font-size: 13px;
   }
 
+  /* 값 칸이 좁아져 범위 글자를 한 단계 줄인다. 더 긴 범위(음수 등)는 말줄임으로 끝나고,
+     전체는 툴팁(title)으로 보인다. */
+  .tr-vrange {
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
   .tr-vbox em {
     font-size: 15px;
+  }
+}
+
+/* 더 좁은 화면 — 판에 스크롤바가 생기면 값 칸이 더 좁아져 '범위 600 ~ 1200'이 잘린다.
+   '범위' 글자를 빼고 숫자만 남긴다(뜻은 툴팁에 그대로 있다). */
+@media (max-width: 1100px) {
+  .tr-vrange-word {
+    display: none;
   }
 }
 
