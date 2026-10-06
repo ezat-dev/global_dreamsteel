@@ -48,6 +48,12 @@ const SCADA_MENU = [
     authField: 'authTrend', control: true, defaultAuth: AUTH_VIEW, lockScreen: false,
   },
   { key: 'alarm', label: '알람화면', title: '알람화면', path: '/alarm', authField: 'authAlarm', control: true },
+  /* 지금 떠 있는 경보만 — 왼쪽 경보이력(발생), 오른쪽 알람화면(램프 켜짐). 보기 전용이라
+     control이 없다(없음/조회 두 단계). 기본은 조회 — DB의 auth_alarm_now DEFAULT 1과 맞춘다. */
+  {
+    key: 'alarmNow', label: '현재경보', title: '현재경보', path: '/alarmNow',
+    authField: 'authAlarmNow', defaultAuth: AUTH_VIEW,
+  },
   { key: 'alarmHistory', label: '경보이력', title: '경보이력', path: '/alarmHistory', authField: 'authAlarmHist' },
   /* 설비 설정값(시간·온도 기준·PV 보정)을 바꾸는 화면이다. 처음엔 관리자 전용이었는데
      사용자별로 열 수 있게 바꿨다 — 기본은 없음이라 관리자가 사용자 정보 수정에서 열어 줘야 보인다. */

@@ -38,4 +38,5 @@ public class ScadaUser {
     private String failReason;
     private String authEngineering;
     private String authLog;
+    private String authAlarmNow;
 }

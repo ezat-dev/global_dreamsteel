@@ -7,6 +7,7 @@ import CoolingPage from '../pages/scada/CoolingPage';
 import TrendPage from '../pages/scada/TrendPage';
 import AlarmPage from '../pages/scada/AlarmPage';
 import AlarmHistPage from '../pages/scada/AlarmHistPage';
+import AlarmNowPage from '../pages/scada/AlarmNowPage';
 import EngineeringPage from '../pages/scada/EngineeringPage';
 import LogPage from '../pages/scada/LogPage';
 
@@ -26,6 +27,7 @@ const scadaRoutes = [
   { path: 'cooling', key: 'cooling', element: CoolingPage },
   { path: 'trend', key: 'trend', element: TrendPage },
   { path: 'alarm', key: 'alarm', element: AlarmPage },
+  { path: 'alarmNow', key: 'alarmNow', element: AlarmNowPage },
   { path: 'alarmHistory', key: 'alarmHistory', element: AlarmHistPage },
   { path: 'engineering', key: 'engineering', element: EngineeringPage },
   { path: 'log', key: 'log', element: LogPage },

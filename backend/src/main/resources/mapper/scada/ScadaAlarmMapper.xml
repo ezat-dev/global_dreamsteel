@@ -13,6 +13,9 @@
             <if test="endTime != null and endTime != ''">
                 AND occur_time &lt;= #{endTime}
             </if>
+            <if test="alarmStatus != null and alarmStatus !=''">
+                AND alarm_status = #{alarmStatus}
+            </if>
         </where>
         ORDER BY occur_time DESC
         <!-- 건수 상한. 안 주면 전부 내린다(경보이력 화면). 구동·연소화면은 하단 목록을

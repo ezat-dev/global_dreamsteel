@@ -1,0 +1,115 @@
+/* ===========================================================================
+   현재 경보 — 왼쪽 경보이력(발생 중) 표, 오른쪽 켜진 램프 칸.
+   표·건수 배지·알람 칸의 모양은 경보이력(ah-*)과 알람화면(al-*) 것을 그대로 쓰고,
+   여기엔 두 판을 나란히 놓는 틀만 둔다.
+   =========================================================================== */
+
+.an-page {
+  height: 100%;
+  display: flex;
+  gap: 8px;
+  padding: 4px 4px 0;
+}
+
+/* 판 하나 — 위에 제목줄, 아래에 내용. 표가 더 많은 칸을 써서 왼쪽을 넓게 둔다. */
+.an-col {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* .ah-page의 기본 여백을 이 화면에서는 바깥 틀(.an-page)이 맡는다 */
+.an-hist.ah-page {
+  flex: 3;
+  height: auto;
+  padding: 0;
+}
+
+.an-lamp {
+  flex: 2;
+}
+
+.an-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 4px;
+}
+
+.an-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--hmi-text);
+  white-space: nowrap;
+}
+
+/* 건수 배지는 오른쪽 끝 */
+.an-head .al-count {
+  margin-left: auto;
+}
+
+/* 켜진 램프 칸 — 알람화면 격자처럼 고정 10칸이 아니라, 켜진 것만 폭에 맞춰 늘어놓는다.
+   칸이 많아지면 판 안에서 세로로 스크롤한다. */
+.an-lamps {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-auto-rows: 72px;
+  align-content: start;
+  gap: 6px;
+  padding: 2px;
+}
+
+/* 알람화면 칸(.al-cell.on)에 두 줄 — 위는 경보주석, 아래는 태그·주소 */
+.an-lamp-cell {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.an-lamp-msg {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.an-lamp-tag {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: .85;
+}
+
+/* 켜진 램프가 없을 때 / 값을 못 받을 때 — 판 가운데에 크게 */
+.an-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--hmi-light);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--hmi-text-sub);
+}
+
+.an-empty.is-error {
+  border-color: #e0837a;
+  color: #f0a39b;
+}
+
+/* 좁은 화면 — 두 판을 위아래로 쌓는다(표가 위) */
+@media (max-width: 860px) {
+  .an-page {
+    flex-direction: column;
+  }
+
+  .an-hist.ah-page,
+  .an-lamp {
+    flex: 1;
+  }
+}

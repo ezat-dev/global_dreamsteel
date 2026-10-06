@@ -1390,6 +1390,17 @@ button {
   .hmi-mainmenu-grid.is-wide .hmi-tile-label {
     font-size: 28px;
   }
+
+  /* 타일 열한 개 이상 — 6열로 두 줄을 지킨다(MainPage가 is-xwide를 붙인다).
+     칸이 좁아지는 만큼 그림·글자를 한 단계 줄인다(아래 폭 구간 규칙이 그 안에서 더 줄인다). */
+  .hmi-mainmenu-grid.is-xwide {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: 1700px;
+  }
+
+  .hmi-mainmenu-grid.is-xwide .hmi-tile-label {
+    font-size: 24px;
+  }
 }
 
 @media (min-width: 861px) and (max-width: 1500px) {
@@ -1405,6 +1416,11 @@ button {
 
   .hmi-mainmenu-grid.is-wide .hmi-tile-label {
     font-size: 26px;
+  }
+
+  /* 6열이면 1280에서 칸이 약 195px — '엔지니어링'·'분위기제어'가 들어가게 글자를 줄인다 */
+  .hmi-mainmenu-grid.is-xwide .hmi-tile-label {
+    font-size: 21px;
   }
 }
 
@@ -1422,6 +1438,10 @@ button {
 
   .hmi-mainmenu-grid.is-wide .hmi-tile-label {
     font-size: 21px;
+  }
+
+  .hmi-mainmenu-grid.is-xwide .hmi-tile-label {
+    font-size: 17px;
   }
 }
 

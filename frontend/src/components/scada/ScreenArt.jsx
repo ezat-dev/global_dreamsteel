@@ -126,6 +126,18 @@ function AlarmArt() {
   );
 }
 
+/** 현재경보 — 지금 울리고 있는 경보(경고 삼각형)와 옆의 짧은 목록 */
+function AlarmNowArt() {
+  return (
+    <svg {...BOX} aria-hidden="true">
+      <path {...KEY} d="M18 9L6 31h24L18 9Z" />
+      <path {...KEY} d="M18 18v6" />
+      <circle cx="18" cy="27.5" r="1.2" fill="currentColor" />
+      <path {...LINE} d="M33 16h8M33 23h8M33 30h6" />
+    </svg>
+  );
+}
+
 /** 경보이력 — 기간으로 조회하는 목록 */
 function AlarmHistArt() {
   return (
@@ -170,6 +182,7 @@ const ART = {
   cooling: CoolingArt,
   trend: TrendArt,
   alarm: AlarmArt,
+  alarmNow: AlarmNowArt,
   alarmHistory: AlarmHistArt,
   log: LogArt,
 };
