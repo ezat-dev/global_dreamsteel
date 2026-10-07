@@ -98,6 +98,9 @@ export default function MainPage() {
         ))}
       </div>
 
+      {/* 개발사 표기 — 우측 아래 모서리에 작고 연하게. 회사 이름이라 번역하지 않는다 */}
+      <div className="hmi-credit">Designed by EZ AUTOMATION</div>
+
       {addOpen && (
         <UserAddModal
           onClose={() => setAddOpen(false)}

@@ -1259,6 +1259,24 @@ html[lang="en"] .hmi-menu-item {
   height: auto;
 }
 
+/* 개발사 표기(Designed by …) — 메인화면·로그인화면 우측 아래 모서리. 이 두 화면에만 있다.
+   타일보다 눈에 띄면 안 되므로 작고 연하게 두고, 배경 그림처럼 클릭은 통과시킨다.
+   메인화면에서는 아랫 여백(배경 생산 라인 자리) 안에 앉아서 좁은 화면에서도 타일과 겹치지 않는다.
+   로그인화면 자리는 아래 .hmi-credit.is-login. */
+.hmi-credit {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--g-ink);
+  opacity: .38;
+}
+
 /* 그리드는 배경 위에 뜬다 */
 .hmi-mainmenu-grid {
   position: relative;
@@ -2031,6 +2049,15 @@ html[lang="en"] .hmi-authgrid-row {
   inset: 0;
   pointer-events: none;
   background: radial-gradient(75% 60% at 50% 45%, transparent 0%, rgba(6, 10, 18, .55) 100%);
+}
+
+/* 개발사 표기의 로그인화면 자리. 메인화면은 본문 칸(.hmi-body)의 여백 6px 안쪽에서 4px/2px
+   떨어져 있어 화면 끝에서 10px/8px이다 — 로그인은 화면을 꽉 채우므로 그 값을 바로 준다.
+   z-index는 귀퉁이를 누르는 ::after 비네트 위로 올리려는 것이다(카드와 같은 이유). */
+.hmi-credit.is-login {
+  right: 10px;
+  bottom: 8px;
+  z-index: 1;
 }
 
 /* 카드 — 이 화면에서 blur가 걸리는 유일한 요소다.

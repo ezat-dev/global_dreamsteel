@@ -128,6 +128,9 @@ export default function ScadaLoginPage() {
             <div className="hmi-login-foot">{t('login.foot')}</div>
           </form>
         </div>
+
+        {/* 개발사 표기 — 메인화면과 같은 글자·같은 자리(.hmi-credit). 이 두 화면에만 둔다 */}
+        <div className="hmi-credit is-login">Designed by EZ AUTOMATION</div>
       </div>
     </div>
   );
