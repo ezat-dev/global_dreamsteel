@@ -88,8 +88,10 @@ const DEVICE_PANELS = [
 ];
 
 /* 압력계·솔밸브 아래에 붙는 상태 글씨. cx는 그 부품이 그려지는 가운데 x다.
-     blowe-pre x 328~405 → 366    blowe-sol x 454~533 → 494
-     gas-pre   x 232~300 → 266    gas-sol   x 368~446 → 407 */
+     blowe-pre x 327~406 → 366    blowe-sol x 455~532 → 494
+     gas-pre   x 227~305 → 266    gas-sol   x 373~441 → 407
+   두 그림은 원본 작화와 맞바꿔 그렸다(atmosphereOverview.css의 .blowe-pre 주석) —
+   가운데를 그대로 두었으므로 이 값은 그때 바꾸지 않았다. */
 /* 넷 다 켜지고 꺼지는 램프가 아니라 늘 빨강 아니면 초록이다 — 0이면 빨강, 1이면 초록.
    값을 못 읽으면 점선(모름)이다. */
 const PIPE_LABELS = [

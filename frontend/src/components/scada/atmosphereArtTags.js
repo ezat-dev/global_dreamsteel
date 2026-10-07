@@ -24,10 +24,11 @@ const nameOf = (tag) => i18n.t(`atmosphere:art.${tag}`);
 /* 키는 작화 클래스 이름 그대로다 — 클래스(on-<키> / off-<키>)와 짝이 눈으로 맞춰진다.
    다섯 개 모두 왼쪽 위 배관에 있다.
      motor-1    x 202 y  43  ADDITION BLOWER 블로워
-     blowe-pre  x 328 y   0  공기 압력 조절밸브
-     blowe-sol  x 454 y  14  공기 솔레노이드 밸브
-     gas-pre    x 232 y 172  가스 압력 조절밸브
-     gas-sol    x 368 y 183  가스 솔레노이드 밸브 */
+     blowe-pre  x 327 y  14  공기 압력 조절밸브
+     blowe-sol  x 455 y   0  공기 솔레노이드 밸브
+     gas-pre    x 227 y 183  가스 압력 조절밸브
+     gas-sol    x 373 y 172  가스 솔레노이드 밸브
+   (압력·솔 그림은 원본 작화와 맞바꿔 그렸다 — 키와 태그는 자리를 따라가므로 그대로다) */
 export const FITTING_TAGS = {
   'motor-1': { tag: 'add_blowe_motor_lamp' },
   'blowe-pre': { tag: 'add_blowe_valve_lamp' },
