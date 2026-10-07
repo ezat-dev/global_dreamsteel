@@ -33,6 +33,49 @@ export function getAlarmTagList() {
   return axiosInstance.get('/api/scada/getAlarmTagList').then((res) => res.data);
 }
 
+/* ---------------------------------------------------------------------------
+   알람 설명·첨부 파일(알람화면 설명창) — 알람마다 설명 하나, PDF 하나, 사진 하나.
+   알람은 tagId(tb_alarm_tag.tag_id)로 짚는다. kind는 'pdf' 또는 'img'.
+   파일은 백엔드 서버 PC의 폴더에 있고(scada.alarm-file.dir), DB에는 이름만 있다.
+   ------------------------------------------------------------------------- */
+
+/** 설명 저장 — 255자까지(서버도 같은 한도로 막는다) */
+export function updateAlarmDesc(tagId, alarmDesc) {
+  return axiosInstance.post('/api/scada/updateAlarmDesc', { tagId, alarmDesc }).then((res) => res.data);
+}
+
+/**
+ * 파일 올리기 — 같은 종류가 이미 있으면 바뀐다(옛 파일은 서버가 지운다).
+ * 응답 data: { tagId, pdfFile, pdfName } 또는 { tagId, imgFile, imgName }
+ *
+ * 타임아웃을 늘린다 — 기본 10초는 조회용이라, 20MB를 느린 망으로 올리면 넘길 수 있다.
+ */
+export function uploadAlarmFile(tagId, kind, file) {
+  const form = new FormData();
+  form.append('tagId', tagId);
+  form.append('kind', kind);
+  form.append('file', file);
+  return axiosInstance.post('/api/scada/uploadAlarmFile', form, { timeout: 120000 }).then((res) => res.data);
+}
+
+/** 파일 지우기 — DB 칸을 비우고 서버 폴더의 파일도 지운다 */
+export function deleteAlarmFile(tagId, kind) {
+  return axiosInstance.post('/api/scada/deleteAlarmFile', { tagId, kind }).then((res) => res.data);
+}
+
+/**
+ * 파일 주소 — <img src>와 새 탭(PDF)에 그대로 쓴다. 서버가 inline으로 내려 브라우저가 바로 연다.
+ *
+ * v에 저장 이름(UUID)을 붙인다. 같은 알람에 새 사진을 올리면 이름이 바뀌어 주소가 달라지므로
+ * 브라우저가 캐시에 남은 옛 사진을 보여 주지 않는다. 서버는 v를 보지 않는다.
+ * 세션 쿠키는 같은 호스트(포트만 다름)라 <img>·새 탭 요청에도 실려 간다.
+ */
+export function alarmFileUrl(tagId, kind, stored) {
+  const base = axiosInstance.defaults.baseURL ?? '';
+  return `${base}/api/scada/alarmFile?tagId=${encodeURIComponent(tagId)}&kind=${kind}`
+    + `&v=${encodeURIComponent(stored ?? '')}`;
+}
+
 /**
  * 램프 실시간값 — C#의 /api/foldertag/values?folderId=6 을 직접 호출한다.
  *

@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mes.common.exception.BusinessException;
 import com.mes.common.exception.ErrorCode;
@@ -21,6 +22,7 @@ import com.mes.domain.scada.ScadaAlarm;
 import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
+import com.mes.service.scada.AlarmFileStorage;
 import com.mes.service.scada.ScadaService;
 
 @Service
@@ -53,6 +55,10 @@ public class ScadaServiceImpl implements ScadaService {
     /** C# 서버 주소. application.yml의 plc-api.base-url (기본 http://localhost:5050). */
     @Value("${plc-api.base-url}")
     private String plcApiBaseUrl;
+
+    /** 알람 첨부 파일 폴더 — 파일을 두고 꺼내는 일만 한다(DB는 여기서 다룬다) */
+    @Autowired
+    private AlarmFileStorage alarmFileStorage;
 
     @Override
     public ScadaUser getUser(ScadaUser param) {
@@ -294,5 +300,93 @@ public class ScadaServiceImpl implements ScadaService {
     @Override
     public boolean updateTrendRange(ScadaTrend scadaTrend) {
         return scadaDao.updateTrendRange(scadaTrend);
+    }
+
+    @Override
+    public boolean updateAlarmDesc(ScadaAlarm scadaAlarm) {
+        return scadaDao.updateAlarmDesc(scadaAlarm);
+    }
+
+    @Override
+    public ScadaAlarm getAlarmFileInfo(String tagId) {
+        // tag_id는 숫자다 — 숫자가 아니면 쿼리까지 보내지 않는다
+        if (tagId == null || !tagId.matches("\\d+")) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "알람을 지정해 주세요.");
+        }
+        ScadaAlarm key = new ScadaAlarm();
+        key.setTagId(tagId);
+        ScadaAlarm info = scadaDao.getAlarmFileInfo(key);
+        if (info == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "알람을 찾을 수 없습니다.");
+        }
+        return info;
+    }
+
+    /*
+     * 순서가 중요하다: 새 파일을 먼저 저장 → DB를 새 이름으로 → 옛 파일 삭제.
+     *   - DB를 먼저 바꾸면 저장이 실패했을 때 DB가 없는 파일을 가리킨다.
+     *   - DB가 실패하면 방금 저장한 새 파일을 지운다(폴더에 주인 없는 파일이 남지 않게).
+     *   - 옛 파일은 DB가 바뀐 뒤에 지운다. 그 삭제가 실패해도 화면은 이미 새 파일을 본다.
+     */
+    @Override
+    public ScadaAlarm uploadAlarmFile(String tagId, String kind, MultipartFile file) {
+        AlarmFileStorage.checkKind(kind);
+        ScadaAlarm info = getAlarmFileInfo(tagId);
+        boolean pdf = AlarmFileStorage.KIND_PDF.equals(kind);
+
+        String stored = alarmFileStorage.save(kind, file);
+        String original = AlarmFileStorage.cleanOriginalName(file.getOriginalFilename(),
+                pdf ? "file.pdf" : stored);
+
+        ScadaAlarm next = new ScadaAlarm();
+        next.setTagId(tagId);
+        boolean ok;
+        try {
+            if (pdf) {
+                next.setPdfFile(stored);
+                next.setPdfName(original);
+                ok = scadaDao.updateAlarmPdf(next);
+            } else {
+                next.setImgFile(stored);
+                next.setImgName(original);
+                ok = scadaDao.updateAlarmImg(next);
+            }
+        } catch (RuntimeException e) {
+            alarmFileStorage.deleteQuietly(stored);
+            throw e;
+        }
+        if (!ok) {
+            alarmFileStorage.deleteQuietly(stored);
+            throw new BusinessException(ErrorCode.NOT_FOUND, "알람을 찾을 수 없습니다.");
+        }
+
+        alarmFileStorage.deleteQuietly(pdf ? info.getPdfFile() : info.getImgFile());
+        return next;
+    }
+
+    /* DB를 먼저 비우고 그다음 파일을 지운다 — 거꾸로 하면 파일 삭제 뒤 DB가 실패했을 때
+       DB가 없는 파일을 가리킨 채 남는다. */
+    @Override
+    public boolean deleteAlarmFile(ScadaAlarm scadaAlarm) {
+        String kind = AlarmFileStorage.checkKind(scadaAlarm.getKind());
+        ScadaAlarm info = getAlarmFileInfo(scadaAlarm.getTagId());
+        boolean pdf = AlarmFileStorage.KIND_PDF.equals(kind);
+
+        ScadaAlarm next = new ScadaAlarm();
+        next.setTagId(info.getTagId());
+        boolean ok;
+        if (pdf) {
+            next.setPdfFile("");
+            next.setPdfName("");
+            ok = scadaDao.updateAlarmPdf(next);
+        } else {
+            next.setImgFile("");
+            next.setImgName("");
+            ok = scadaDao.updateAlarmImg(next);
+        }
+        if (ok) {
+            alarmFileStorage.deleteQuietly(pdf ? info.getPdfFile() : info.getImgFile());
+        }
+        return ok;
     }
 }

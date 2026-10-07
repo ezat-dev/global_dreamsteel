@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -217,6 +218,13 @@ public class ControllerLogAspect {
          */
         if (value instanceof HttpServletRequest || value instanceof HttpSession) {
             return value.getClass().getSimpleName();
+        }
+        /*
+         * 올린 파일(알람 첨부)은 이름과 크기만 남긴다. JSON으로 만들면 getBytes()까지 불려
+         * 20MB 파일이 통째로 문자열이 된다 — MAX_LEN에서 잘리기 전에 메모리에 다 올라간다.
+         */
+        if (value instanceof MultipartFile file) {
+            return "MultipartFile(" + file.getOriginalFilename() + ", " + file.getSize() + " bytes)";
         }
 
         String text;

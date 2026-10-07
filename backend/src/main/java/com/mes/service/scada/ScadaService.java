@@ -2,6 +2,8 @@ package com.mes.service.scada;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.mes.domain.scada.ScadaAlarm;
 import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
@@ -58,4 +60,21 @@ public interface ScadaService {
     List<ScadaTrend> getTrendRangeList(ScadaTrend scadaTrend);
 
     boolean updateTrendRange(ScadaTrend scadaTrend);
+
+    boolean updateAlarmDesc(ScadaAlarm scadaAlarm);
+
+    /**
+     * 알람 파일 올리기 — 같은 종류의 옛 파일이 있으면 바꾸고 옛 파일은 폴더에서 지운다.
+     *
+     * @param tagId 알람(tb_alarm_tag.tag_id)
+     * @param kind  "pdf" 또는 "img"
+     * @return tagId와 바뀐 두 칸(pdfFile·pdfName 또는 imgFile·imgName)
+     */
+    ScadaAlarm uploadAlarmFile(String tagId, String kind, MultipartFile file);
+
+    /** 알람 파일 지우기 — tagId, kind. DB 두 칸을 비우고 폴더의 파일도 지운다 */
+    boolean deleteAlarmFile(ScadaAlarm scadaAlarm);
+
+    /** 알람 한 개의 파일 칸(저장 이름·원래 이름). 없는 알람이면 BusinessException */
+    ScadaAlarm getAlarmFileInfo(String tagId);
 }

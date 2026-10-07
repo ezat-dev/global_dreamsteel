@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconPaperclip } from '@tabler/icons-react';
 import {
   ALARM_LAMP_FOLDER_ID, getAlarmLampValues, getAlarmTagList, lampNameOf,
 } from '../../api/scada/alarmTagApi';
@@ -9,6 +9,8 @@ import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { alarmMsgOf } from '../../components/scada/alarmMsg';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
+import AlarmDetailModal from '../../components/scada/AlarmDetailModal';
+import { useAuth } from '../../context/AuthContext';
 import './AlarmPage.css';
 
 /* ===========================================================================
@@ -98,6 +100,18 @@ export default function AlarmPage() {
   /* 쓰기 순서를 지키기 위한 사슬. 1과 0을 각각 따로 보내면 0이 먼저 도착해서
      비트가 1로 남을 수 있다 — 1이 끝난 뒤에 0을 보낸다. */
   const chainRef = useRef(Promise.resolve());
+
+  /* 설명·파일 창 — 연 알람의 tagId. null이면 닫힘.
+     행 자체가 아니라 id를 들고 있다가 tags에서 찾는다 — 창에서 저장하면 tags가 바뀌고,
+     창은 늘 그 최신 행을 보게 된다. 고치기는 알람화면 "제어" 권한일 때만(조회면 보기만). */
+  const [detailId, setDetailId] = useState(null);
+  const { canControl } = useAuth();
+  const detailTag = detailId == null ? null : tags.find((x) => x.tagId === detailId);
+
+  /** 창에서 저장·올리기·지우기가 끝나면 바뀐 칸만 목록에 합친다(다시 받아 오지 않는다) */
+  const patchTag = (patch) => {
+    setTags((prev) => prev.map((x) => (x.tagId === detailId ? { ...x, ...patch } : x)));
+  };
 
   /* 알람 정의 — 실행 중 바뀌지 않으므로 1회만 */
   useEffect(() => {
@@ -362,20 +376,40 @@ export default function AlarmPage() {
              undefined가 되고, lampState가 UNKNOWN(점선)을 돌려준다. */
           const lampName = lampNameOf(tag.tagName);
           const state = values ? lampState(values[lampName]) : null;
+          // 설명이나 파일이 있는 칸 — 오른쪽 위에 클립 표시를 달아 눌러 볼 게 있음을 알린다
+          const hasInfo = !!(tag.alarmDesc || tag.pdfFile || tag.imgFile);
 
+          /* 누르면 설명·파일 창. 칸은 div라 화면 잠금(<fieldset disabled>)에 막히지 않는다 —
+             조회 권한도 열어서 볼 수 있고, 고치기는 창이 canEdit으로 막는다. */
           return (
             <div
               key={tag.tagName}
               className={`al-cell${state === ON ? ' on' : ''}${state === UNKNOWN ? ' is-unknown' : ''}`}
-              title={t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampName })}
+              title={`${t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampName })}\n${t('detail.openTip')}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => setDetailId(tag.tagId)}
+              onKeyDown={(e) => { if (e.key === 'Enter') setDetailId(tag.tagId); }}
             >
               {/* 화면 언어의 경보주석 — 영문(alarm_msg_eng)이 비어 있으면 한글(alarmMsg.js) */}
               {alarmMsgOf(tag, i18n.language) || tag.tagName}
+              {hasInfo && (
+                <IconPaperclip className="al-cell-mark" size={12} aria-label={t('detail.hasInfo')} />
+              )}
             </div>
           );
         })}
 
       </div>
+
+      {detailTag && (
+        <AlarmDetailModal
+          tag={detailTag}
+          canEdit={canControl('alarm')}
+          onChanged={patchTag}
+          onClose={() => setDetailId(null)}
+        />
+      )}
     </div>
   );
 }

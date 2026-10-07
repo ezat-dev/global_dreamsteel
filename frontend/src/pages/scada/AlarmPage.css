@@ -157,6 +157,23 @@
   /* 꺼진 알람도 글씨는 또렷하게 — 회색이면 현장 조명에서 잘 안 읽힌다. */
   color: var(--hmi-text);
   transition: background .15s, color .15s;
+  /* 누르면 설명·파일 창이 열린다. 클립 표시(.al-cell-mark)의 기준 상자이기도 하다 */
+  position: relative;
+  cursor: pointer;
+}
+
+.al-cell:not(.is-empty):hover {
+  border-color: var(--hmi-blue-edge);
+}
+
+/* 설명이나 파일이 있는 알람 — 오른쪽 위 구석에 작은 클립. 글자를 가리지 않게 구석에
+   두고 흐리게 한다(켜진 알람의 빨강 위에서도 보이도록 색은 글자색을 따른다). */
+.al-cell-mark {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  opacity: .7;
+  pointer-events: none;
 }
 
 /* 그 태그만 읽기에 실패한 상태(C#이 null을 준다). '꺼짐'과 구분해야 한다 —

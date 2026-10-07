@@ -1,0 +1,209 @@
+/* 알람 설명·파일 창(AlarmDetailModal) — 틀은 공용 .hmi-umodal(scada.css)을 쓰고
+   여기서는 이 창에만 있는 칸(설명·사진·PDF)만 잡는다. 색은 공용 토큰(--hmi-*)이라
+   감싸는 .hmi-dark가 어두운 값으로 바꿔 준다. */
+
+.ad-modal {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+}
+
+/* 제목 — 알람 문구 + 그 아래 작게 태그·주소, 오른쪽 끝에 닫기(X) */
+.ad-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ad-title-text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ad-title-text small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--hmi-text-faint);
+}
+
+.ad-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px -4px 0 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--hmi-text-sub);
+  cursor: pointer;
+}
+
+.ad-close:hover {
+  background: var(--hmi-light);
+}
+
+.ad-body {
+  gap: 12px;
+}
+
+.ad-readonly {
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: var(--hmi-panel-dark);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-text-sub);
+}
+
+/* 한 묶음(설명/사진/PDF) — 머리줄: 이름 왼쪽, 버튼·글자수 오른쪽 */
+.ad-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ad-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 30px;
+}
+
+.ad-sec-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hmi-text);
+}
+
+.ad-count {
+  font-size: 11.5px;
+  color: var(--hmi-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-desc {
+  height: auto;
+  min-height: 84px;
+  padding: 7px 9px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+/* 조회 권한일 때 설명 — 입력칸 대신 글자로. 줄바꿈은 적은 그대로 살린다 */
+.ad-desc-view {
+  padding: 8px 10px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--hmi-text);
+}
+
+.ad-desc-view.is-empty,
+.ad-none {
+  color: var(--hmi-text-faint);
+}
+
+.ad-none {
+  padding: 8px 10px;
+  border: 1px dashed var(--hmi-light);
+  border-radius: 7px;
+  font-size: 12.5px;
+}
+
+.ad-row-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ad-file-btns {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.ad-file-btns .hmi-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.ad-remove {
+  color: #dc2626;
+}
+
+/* 사진 미리보기 — 창 폭에 맞추되 너무 길지 않게. 누르면 새 탭에서 원본 */
+.ad-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 7px;
+  text-decoration: none;
+}
+
+.ad-photo img {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* PDF — 한 줄짜리 링크 상자 */
+.ad-pdf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 7px;
+  color: var(--hmi-text);
+  text-decoration: none;
+}
+
+.ad-pdf:hover,
+.ad-photo:hover {
+  border-color: var(--hmi-blue-edge, #5eb7ff);
+}
+
+.ad-file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--hmi-text-sub);
+}
+
+.ad-photo .ad-file-name {
+  flex: none;
+  max-width: 100%;
+}
+
+.ad-open {
+  flex: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--hmi-blue-edge, #5eb7ff);
+}
+
+.ad-notice {
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: rgba(21, 128, 61, .14);
+  color: #22a35a;
+  font-size: 12px;
+  font-weight: 700;
+}

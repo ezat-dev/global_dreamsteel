@@ -21,5 +21,18 @@
   "서버 오류": "Server error",
   "쓰기 거부": "Write rejected",
   "응답 없음": "No response",
-  "C#이 빈 응답을 주었습니다.": "The PLC server returned an empty response."
+  "C#이 빈 응답을 주었습니다.": "The PLC server returned an empty response.",
+  "설명은 255자까지 쓸 수 있습니다.": "The description can be up to 255 characters.",
+  "알람을 지정해 주세요.": "Please specify an alarm.",
+  "알람을 찾을 수 없습니다.": "Alarm not found.",
+  "파일 종류는 pdf 또는 img여야 합니다.": "File type must be pdf or img.",
+  "파일이 비어 있습니다.": "The file is empty.",
+  "PDF 파일만 올릴 수 있습니다.": "Only PDF files can be uploaded.",
+  "사진은 JPG·PNG만 올릴 수 있습니다.": "Only JPG or PNG images can be uploaded.",
+  "파일을 저장하지 못했습니다.": "Could not save the file.",
+  "파일을 읽지 못했습니다.": "Could not read the file.",
+  "잘못된 파일 이름입니다.": "Invalid file name.",
+  "올린 파일이 없습니다.": "No file has been uploaded.",
+  "파일을 찾을 수 없습니다.": "File not found.",
+  "파일이 너무 큽니다. 20MB까지 올릴 수 있습니다.": "The file is too large. Up to 20MB can be uploaded."
 }

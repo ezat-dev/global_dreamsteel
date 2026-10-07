@@ -151,4 +151,24 @@ public class ScadaDao {
         }
         return true;
     }
+
+    public boolean updateAlarmDesc(ScadaAlarm scadaAlarm) {
+        int result = sqlSession.update("ScadaAlarmMapper.updateAlarmDesc", scadaAlarm);
+        if (result <= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public ScadaAlarm getAlarmFileInfo(ScadaAlarm scadaAlarm) {
+        return sqlSession.selectOne("ScadaAlarmMapper.getAlarmFileInfo", scadaAlarm);
+    }
+
+    public boolean updateAlarmPdf(ScadaAlarm scadaAlarm) {
+        return sqlSession.update("ScadaAlarmMapper.updateAlarmPdf", scadaAlarm) > 0;
+    }
+
+    public boolean updateAlarmImg(ScadaAlarm scadaAlarm) {
+        return sqlSession.update("ScadaAlarmMapper.updateAlarmImg", scadaAlarm) > 0;
+    }
 }

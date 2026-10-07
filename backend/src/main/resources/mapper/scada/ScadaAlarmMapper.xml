@@ -28,15 +28,47 @@
 
     <select id="getAlarmTagList" parameterType="com.mes.domain.scada.ScadaAlarm"
             resultType="com.mes.domain.scada.ScadaAlarm">
-            SELECT a.tag_name, a.address, a.alarm_msg, a.level,
-                l.id AS lamp_id, a.alarm_msg_eng
-            FROM ez_scada.tb_alarm_tag a                 
+            <!-- tag_id: 설명·파일을 저장할 때 어느 알람인지 짚는 키(태그 이름은 C# 관리 화면에서 바뀔 수 있다)
+                 pdf_file/img_file: 저장 이름(UUID). 화면은 파일 주소 뒤에 붙여 캐시를 끊는 데 쓴다 —
+                 같은 알람에 새 사진을 올리면 이름이 바뀌어 브라우저가 옛 사진을 보여 주지 않는다. -->
+            SELECT a.tag_id, a.tag_name, a.address, a.alarm_msg, a.level,
+                l.id AS lamp_id, a.alarm_msg_eng, a.alarm_desc,
+                a.pdf_file, a.pdf_name, a.img_file, a.img_name
+            FROM ez_scada.tb_alarm_tag a
             LEFT JOIN ez_scada.folders_tags l
                     ON l.folder_id = 6
                     AND l.name = CONCAT(a.tag_name, '_lamp')
-            WHERE a.folder_id = 54                           
+            WHERE a.folder_id = 54
             AND a.enabled = 1
             ORDER BY a.tag_id
     </select>
+
+    <update id="updateAlarmDesc" parameterType="com.mes.domain.scada.ScadaAlarm">
+        UPDATE ez_scada.tb_alarm_tag
+        SET alarm_desc = #{alarmDesc}
+        WHERE tag_id = #{tagId}
+    </update>
+
+    <!-- 알람 한 개의 파일 칸 — 파일 올리기·지우기·내려받기가 옛 파일 이름을 알아야 해서 읽는다 -->
+    <select id="getAlarmFileInfo" parameterType="com.mes.domain.scada.ScadaAlarm"
+            resultType="com.mes.domain.scada.ScadaAlarm">
+        SELECT tag_id, tag_name, pdf_file, pdf_name, img_file, img_name
+        FROM ez_scada.tb_alarm_tag
+        WHERE tag_id = #{tagId}
+    </select>
+
+    <!-- PDF 칸 바꾸기. 지울 때는 두 칸에 ''를 넣는다(칸이 NOT NULL이라 NULL이 아니라 빈 문자열) -->
+    <update id="updateAlarmPdf" parameterType="com.mes.domain.scada.ScadaAlarm">
+        UPDATE ez_scada.tb_alarm_tag
+        SET pdf_file = #{pdfFile}, pdf_name = #{pdfName}
+        WHERE tag_id = #{tagId}
+    </update>
+
+    <!-- 사진 칸 바꾸기 — 위와 같은 규칙 -->
+    <update id="updateAlarmImg" parameterType="com.mes.domain.scada.ScadaAlarm">
+        UPDATE ez_scada.tb_alarm_tag
+        SET img_file = #{imgFile}, img_name = #{imgName}
+        WHERE tag_id = #{tagId}
+    </update>
 
 </mapper>

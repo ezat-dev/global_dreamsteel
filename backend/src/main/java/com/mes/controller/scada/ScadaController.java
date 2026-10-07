@@ -1,16 +1,26 @@
 package com.mes.controller.scada;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mes.common.config.SessionConfig;
 import com.mes.common.exception.BusinessException;
@@ -20,6 +30,7 @@ import com.mes.domain.scada.ScadaAlarm;
 import com.mes.domain.scada.ScadaSetting;
 import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
+import com.mes.service.scada.AlarmFileStorage;
 import com.mes.service.scada.ScadaService;
 
 import jakarta.servlet.http.HttpSession;
@@ -43,6 +54,10 @@ public class ScadaController {
     /** 세션을 보는 API는 전부 sessionConfig.requireLogin으로 확인한다 — 로그인 여부와 유지시간을 같이 본다. */
     @Autowired
     private SessionConfig sessionConfig;
+
+    /** 알람 첨부 파일 폴더 — 내려받기에서 저장 이름을 실제 경로로 바꾸는 데 쓴다 */
+    @Autowired
+    private AlarmFileStorage alarmFileStorage;
 
     // ===================== 로그인 =====================
 
@@ -319,6 +334,85 @@ public class ScadaController {
             scadaTrend.setTrendMax(String.valueOf(hi));
         }
         return ResponseEntity.ok(ApiResponse.success(scadaService.updateTrendRange(scadaTrend)));
+    }
+
+    // ===================== 알람 설명·첨부 파일 (알람화면 설명창) =====================
+
+    /** 설명 칸(tb_alarm_tag.alarm_desc)이 VARCHAR(255)다 — 칸을 늘리면 이 숫자도 같이 고친다 */
+    private static final int ALARM_DESC_MAX = 255;
+
+    /*
+     * 알람 설명 저장.
+     *
+     * 로그인을 확인한다 — 다른 저장 API와 같다. 길이는 여기서 먼저 막는다: DB에 넘기면
+     * STRICT 모드라 잘리지 않고 오류가 나는데, 그 오류는 "이미 존재하거나 참조 중인 데이터"라는
+     * 엉뚱한 안내로 바뀌어 나간다(GlobalExceptionHandler). 칸이 NOT NULL이라 null은 ''로 바꾼다.
+     */
+    @PostMapping("/updateAlarmDesc")
+    public ResponseEntity<ApiResponse<Boolean>> updateAlarmDesc(@RequestBody ScadaAlarm scadaAlarm,
+            HttpSession session) {
+        sessionConfig.requireLogin(session);
+        String desc = scadaAlarm.getAlarmDesc() == null ? "" : scadaAlarm.getAlarmDesc();
+        if (desc.length() > ALARM_DESC_MAX) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "설명은 255자까지 쓸 수 있습니다.");
+        }
+        scadaAlarm.setAlarmDesc(desc);
+        return ResponseEntity.ok(ApiResponse.success(scadaService.updateAlarmDesc(scadaAlarm)));
+    }
+
+    /*
+     * 알람 파일 올리기 — multipart로 tagId, kind(pdf/img), file.
+     * 같은 종류의 파일이 이미 있으면 바꾼다(옛 파일은 폴더에서 지운다). 크기 한도는
+     * application.yml의 spring.servlet.multipart(20MB) — 넘으면 GlobalExceptionHandler가 안내한다.
+     */
+    @PostMapping("/uploadAlarmFile")
+    public ResponseEntity<ApiResponse<ScadaAlarm>> uploadAlarmFile(@RequestParam("tagId") String tagId,
+            @RequestParam("kind") String kind, @RequestParam("file") MultipartFile file,
+            HttpSession session) {
+        sessionConfig.requireLogin(session);
+        return ResponseEntity.ok(ApiResponse.success(scadaService.uploadAlarmFile(tagId, kind, file)));
+    }
+
+    // 알람 파일 지우기 — { tagId, kind }
+    @PostMapping("/deleteAlarmFile")
+    public ResponseEntity<ApiResponse<Boolean>> deleteAlarmFile(@RequestBody ScadaAlarm scadaAlarm,
+            HttpSession session) {
+        sessionConfig.requireLogin(session);
+        return ResponseEntity.ok(ApiResponse.success(scadaService.deleteAlarmFile(scadaAlarm)));
+    }
+
+    /*
+     * 알람 파일 내려주기 — ?tagId=&kind=
+     *
+     * 화면에서 <img src>와 새 탭(PDF)으로 바로 연다. 그래서 첨부(attachment)가 아니라
+     * inline으로 내려 브라우저가 그 자리에서 보여 주게 한다. 이름은 원래 이름(한글 포함)을
+     * filename*=UTF-8''… 꼴로 실어, 새 탭에서 저장할 때 그 이름이 된다.
+     *
+     * 화면이 주소 뒤에 저장 이름(&v=…)을 붙여 부르므로, 파일을 바꾸면 주소가 바뀌어
+     * 브라우저가 옛 파일을 캐시에서 꺼내 보여 주지 않는다.
+     */
+    @GetMapping("/alarmFile")
+    public ResponseEntity<Resource> getAlarmFile(@RequestParam("tagId") String tagId,
+            @RequestParam("kind") String kind, HttpSession session) {
+        sessionConfig.requireLogin(session);
+        AlarmFileStorage.checkKind(kind);
+        ScadaAlarm info = scadaService.getAlarmFileInfo(tagId);
+        boolean pdf = AlarmFileStorage.KIND_PDF.equals(kind);
+        String stored = pdf ? info.getPdfFile() : info.getImgFile();
+        String name = pdf ? info.getPdfName() : info.getImgName();
+        if (stored == null || stored.isBlank()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "올린 파일이 없습니다.");
+        }
+        Path path = alarmFileStorage.resolve(stored);
+        if (!Files.isRegularFile(path)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "파일을 찾을 수 없습니다.");
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(AlarmFileStorage.contentTypeOf(stored)))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline().filename(name == null || name.isBlank() ? stored : name,
+                                StandardCharsets.UTF_8).build().toString())
+                .body(new FileSystemResource(path));
     }
 
 }
