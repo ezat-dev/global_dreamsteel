@@ -27,7 +27,7 @@ const RANGE = {
 };
 
 /**
- * ADDTION CONTROL MOTOR VALVE 패널.
+ * ADDITION CONTROL MOTOR VALVE 패널.
  *
  * 온도제어 화면과 같은 규칙을 따른다.
  *  - PV, MV      : PLC가 주는 현재값 → 표시 전용
@@ -65,7 +65,7 @@ export default function AtmosValvePanel({
 
   return (
     <div className="at-valve">
-      <div className="at-valve-title">ADDTION CONTROL MOTOR VALVE</div>
+      <div className="at-valve-title">ADDITION CONTROL MOTOR VALVE</div>
 
       <div className="at-valve-body">
         <div className="at-valve-boxes">

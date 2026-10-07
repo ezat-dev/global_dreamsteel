@@ -1,7 +1,7 @@
 {
   "device": {
-    "blower": "ADDTION BLOWE",
-    "gas": "ADDTION GAS",
+    "blower": "ADDITION BLOWER",
+    "gas": "ADDITION GAS",
     "gen": "발 생 기"
   },
   "lamp": {
@@ -13,11 +13,11 @@
   "furnace": "로내 투입",
   "condTitle": "분위기 제어 자동모드 동작 조건",
   "cond": {
-    "add_air_blower_on_lamp": "ADDTION AIR BLOWER ON",
-    "add_air_sol_valve_lamp": "ADDTION AIR SOL VLAVE ON",
-    "add_air_pressure_normal_lamp": "ADDTION AIR PRESSURE 정상",
-    "add_gas_sol_valve_on_lamp": "ADDTION GAS SOL VLAVE ON",
-    "add_gas_pressure_normal_lamp": "ADDTION GAS PRESSURE 정상",
+    "add_air_blower_on_lamp": "ADDITION AIR BLOWER ON",
+    "add_air_sol_valve_lamp": "ADDITION AIR SOL VALVE ON",
+    "add_air_pressure_normal_lamp": "ADDITION AIR PRESSURE 정상",
+    "add_gas_sol_valve_on_lamp": "ADDITION GAS SOL VALVE ON",
+    "add_gas_pressure_normal_lamp": "ADDITION GAS PRESSURE 정상",
     "allow_temp_reach_lamp": "허용 기준온도 도달",
     "generator_gas_open_lamp": "발생기 GAS OPEN"
   },
@@ -39,23 +39,23 @@
     "d": "미분시간(D)",
     "refTemp": "허용 기준온도",
     "manualMv": "수동 출력량",
-    "svLabel": "ADDTION VALVE 설정값 (SV)",
-    "pLabel": "ADDTION VALVE 비례대 (P)",
-    "iLabel": "ADDTION VALVE 적분시간 (I)",
-    "dLabel": "ADDTION VALVE 미분시간 (D)",
+    "svLabel": "ADDITION VALVE 설정값 (SV)",
+    "pLabel": "ADDITION VALVE 비례대 (P)",
+    "iLabel": "ADDITION VALVE 적분시간 (I)",
+    "dLabel": "ADDITION VALVE 미분시간 (D)",
     "refTempLabel": "분위기제어 허용 기준온도",
-    "manualLabel": "ADDTION VALVE 수동 출력량 (MANUAL MV)",
+    "manualLabel": "ADDITION VALVE 수동 출력량 (MANUAL MV)",
     "refLampTip": "허용 기준온도 도달 / {{tag}} — 1이면 초록, 못 읽으면 점선",
     "modeTip": "{{sec}}초 누르면 {{other}}=0, {{cmd}}=1 / 램프 {{lamp}} — {{v}}일 때 켜짐"
   },
   "art": {
-    "add_blowe_motor_lamp": "ADDTION BLOWE 블로워",
-    "add_blowe_valve_lamp": "ADDTION BLOWE 압력 조절밸브",
-    "add_blowe_sol_valve_lamp": "ADDTION BLOWE 솔레노이드 밸브",
-    "add_gas_valve_lamp": "ADDTION GAS 압력 조절밸브",
-    "add_gas_sol_valve_lamp": "ADDTION GAS 솔레노이드 밸브",
+    "add_blowe_motor_lamp": "ADDITION BLOWER 블로워",
+    "add_blowe_valve_lamp": "ADDITION BLOWER 압력 조절밸브",
+    "add_blowe_sol_valve_lamp": "ADDITION BLOWER 솔레노이드 밸브",
+    "add_gas_valve_lamp": "ADDITION GAS 압력 조절밸브",
+    "add_gas_sol_valve_lamp": "ADDITION GAS 솔레노이드 밸브",
     "generator_lamp": "발생기 경광등",
-    "atmosphere_rotate_valve_lamp": "ADDTION 컨트롤 밸브"
+    "atmosphere_rotate_valve_lamp": "ADDITION 컨트롤 밸브"
   },
   "rule": {
     "fitting": "값이 1이면 초록 / 0이거나 못 읽으면 회색",

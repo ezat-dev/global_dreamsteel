@@ -55,19 +55,19 @@ const SLOTS = {
    없으면 표시 전용 램프로 남는다 — 태그가 준비된 설비만 하나씩 살릴 수 있게 갈라 두었다.
    두 태그는 한 쌍으로 움직인다: OPEN을 누르면 open=1 / close=0 이 같이 나간다.
 
-   태그 이름의 add_는 ADDTION(첨가)이다. 이 화면엔 GAS OPEN/CLOSE가 두 벌
-   있어서(왼쪽 위 ADDTION GAS, 오른쪽 발생기) 그냥 gas_로 두면 구분이 안 된다.
-   작화에 BLOWE로 적혀 있지만 조건 문구가 ADDTION AIR BLOWER라서 태그는 air로 간다. */
+   태그 이름의 add_는 ADDITION(첨가)이다. 이 화면엔 GAS OPEN/CLOSE가 두 벌
+   있어서(왼쪽 위 ADDITION GAS, 오른쪽 발생기) 그냥 gas_로 두면 구분이 안 된다.
+   작화에 BLOWE로 적혀 있지만 조건 문구가 ADDITION AIR BLOWER라서 태그는 air로 간다. */
 const DEVICE_PANELS = [
   {
-    key: 'blower', tone: 'blower',   // ADDTION BLOWE
+    key: 'blower', tone: 'blower',   // ADDITION BLOWER
     plate: { left: 4, top: 8, width: 220 },
     state: { left: 16, top: 70, width: 170 },
     onCmd: 'add_air_open_cmd',    // M324 / 램프 M624 — 1이면 초록
     offCmd: 'add_air_close_cmd',  // M325 / 램프 M625 — 0이면 빨강
   },
   {
-    key: 'gas', tone: 'gas',   // ADDTION GAS
+    key: 'gas', tone: 'gas',   // ADDITION GAS
     plate: { left: 4, top: 168, width: 178 },
     state: { left: 16, top: 228, width: 170 },
     onCmd: 'add_gas_open_cmd',    // M322 / 램프 M622 — 1이면 초록
@@ -123,11 +123,11 @@ const AT_FOLDER_ID = 10;
    바로 위 AIR PRESSURE 정상은 1에서 초록이라 나란히 놓고 보면 거꾸로처럼 보이는데,
    PLC가 그렇게 준다. 램프가 반대로 보이면 여기 greenWhen부터 확인할 것. */
 const CONDITIONS = [
-  { key: 'blower', tag: 'add_air_blower_on_lamp', greenWhen: TAG_ON },          // ADDTION AIR BLOWER ON
-  { key: 'airSol', tag: 'add_air_sol_valve_lamp', greenWhen: TAG_ON },          // ADDTION AIR SOL VLAVE ON
-  { key: 'airPress', tag: 'add_air_pressure_normal_lamp', greenWhen: TAG_ON },  // ADDTION AIR PRESSURE 정상
-  { key: 'gasSol', tag: 'add_gas_sol_valve_on_lamp', greenWhen: TAG_ON },       // ADDTION GAS SOL VLAVE ON
-  { key: 'gasPress', tag: 'add_gas_pressure_normal_lamp', greenWhen: TAG_OFF }, // ADDTION GAS PRESSURE 정상
+  { key: 'blower', tag: 'add_air_blower_on_lamp', greenWhen: TAG_ON },          // ADDITION AIR BLOWER ON
+  { key: 'airSol', tag: 'add_air_sol_valve_lamp', greenWhen: TAG_ON },          // ADDITION AIR SOL VALVE ON
+  { key: 'airPress', tag: 'add_air_pressure_normal_lamp', greenWhen: TAG_ON },  // ADDITION AIR PRESSURE 정상
+  { key: 'gasSol', tag: 'add_gas_sol_valve_on_lamp', greenWhen: TAG_ON },       // ADDITION GAS SOL VALVE ON
+  { key: 'gasPress', tag: 'add_gas_pressure_normal_lamp', greenWhen: TAG_OFF }, // ADDITION GAS PRESSURE 정상
   { key: 'refTemp', tag: 'allow_temp_reach_lamp', greenWhen: TAG_ON },          // 허용 기준온도 도달
   { key: 'genGas', tag: 'generator_gas_open_lamp', greenWhen: TAG_OFF },        // 발생기 GAS OPEN
 ];
@@ -215,7 +215,7 @@ export default function AtmospherePage() {
     ? ' beacon-green'
     : (beaconState === TAG_UNKNOWN ? ' beacon-gray' : '');
 
-  /* ── ADDTION 블로워·가스 OPEN/CLOSE ───────────────────────────────────
+  /* ── ADDITION 블로워·가스 OPEN/CLOSE ───────────────────────────────────
      모멘터리가 아니다. holdMs를 채우면 누른 쪽 태그에 1, 반대쪽 태그에 0을 주고
      그대로 남는다(래치). 떼는 것은 아무 값도 보내지 않는다 — 손을 떼면 밸브가 원래대로
      돌아가 버리면 안 되니까. OPEN과 CLOSE는 서로 반대라 둘이 동시에 1이 될 수 없다.
@@ -305,7 +305,7 @@ export default function AtmospherePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ADDTION CONTROL MOTOR VALVE — 자동/수동 두 칸만 명령 태그(add_valve_*_cmd)이고
+  /* ADDITION CONTROL MOTOR VALVE — 자동/수동 두 칸만 명령 태그(add_valve_*_cmd)이고
      나머지는 여기 있는 값 태그다. 쓰는 칸도 읽는 태그와 같은 이름을 쓴다
      (온도제어의 SV처럼 표시용·입력용이 갈리지 않는다). */
   const VALVE_TAGS = {

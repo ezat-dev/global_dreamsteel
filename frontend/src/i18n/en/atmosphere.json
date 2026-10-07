@@ -1,7 +1,7 @@
 {
   "device": {
-    "blower": "ADDTION BLOWE",
-    "gas": "ADDTION GAS",
+    "blower": "ADDITION BLOWER",
+    "gas": "ADDITION GAS",
     "gen": "GENERATOR"
   },
   "lamp": {
@@ -13,11 +13,11 @@
   "furnace": "TO FURNACE",
   "condTitle": "Atmosphere Auto-Mode Conditions",
   "cond": {
-    "add_air_blower_on_lamp": "ADDTION AIR BLOWER ON",
-    "add_air_sol_valve_lamp": "ADDTION AIR SOL VLAVE ON",
-    "add_air_pressure_normal_lamp": "ADDTION AIR PRESSURE NORMAL",
-    "add_gas_sol_valve_on_lamp": "ADDTION GAS SOL VLAVE ON",
-    "add_gas_pressure_normal_lamp": "ADDTION GAS PRESSURE NORMAL",
+    "add_air_blower_on_lamp": "ADDITION AIR BLOWER ON",
+    "add_air_sol_valve_lamp": "ADDITION AIR SOL VALVE ON",
+    "add_air_pressure_normal_lamp": "ADDITION AIR PRESSURE NORMAL",
+    "add_gas_sol_valve_on_lamp": "ADDITION GAS SOL VALVE ON",
+    "add_gas_pressure_normal_lamp": "ADDITION GAS PRESSURE NORMAL",
     "allow_temp_reach_lamp": "Allowed reference temp reached",
     "generator_gas_open_lamp": "GENERATOR GAS OPEN"
   },
@@ -39,23 +39,23 @@
     "d": "Derivative time (D)",
     "refTemp": "Allowed ref. temp",
     "manualMv": "Manual output",
-    "svLabel": "ADDTION VALVE set value (SV)",
-    "pLabel": "ADDTION VALVE proportional band (P)",
-    "iLabel": "ADDTION VALVE integral time (I)",
-    "dLabel": "ADDTION VALVE derivative time (D)",
+    "svLabel": "ADDITION VALVE set value (SV)",
+    "pLabel": "ADDITION VALVE proportional band (P)",
+    "iLabel": "ADDITION VALVE integral time (I)",
+    "dLabel": "ADDITION VALVE derivative time (D)",
     "refTempLabel": "Atmosphere allowed reference temp",
-    "manualLabel": "ADDTION VALVE manual output (MANUAL MV)",
+    "manualLabel": "ADDITION VALVE manual output (MANUAL MV)",
     "refLampTip": "Allowed ref. temp reached / {{tag}} — green at 1, dotted if unreadable",
     "modeTip": "Hold {{sec}}s to send {{other}}=0, {{cmd}}=1 / lamp {{lamp}} — lit at {{v}}"
   },
   "art": {
-    "add_blowe_motor_lamp": "ADDTION BLOWE blower",
-    "add_blowe_valve_lamp": "ADDTION BLOWE pressure control valve",
-    "add_blowe_sol_valve_lamp": "ADDTION BLOWE solenoid valve",
-    "add_gas_valve_lamp": "ADDTION GAS pressure control valve",
-    "add_gas_sol_valve_lamp": "ADDTION GAS solenoid valve",
+    "add_blowe_motor_lamp": "ADDITION BLOWER blower",
+    "add_blowe_valve_lamp": "ADDITION BLOWER pressure control valve",
+    "add_blowe_sol_valve_lamp": "ADDITION BLOWER solenoid valve",
+    "add_gas_valve_lamp": "ADDITION GAS pressure control valve",
+    "add_gas_sol_valve_lamp": "ADDITION GAS solenoid valve",
     "generator_lamp": "Generator beacon",
-    "atmosphere_rotate_valve_lamp": "ADDTION control valve"
+    "atmosphere_rotate_valve_lamp": "ADDITION control valve"
   },
   "rule": {
     "fitting": "green at 1 / gray at 0 or if unreadable",

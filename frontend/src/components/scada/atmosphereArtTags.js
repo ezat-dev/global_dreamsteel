@@ -9,7 +9,7 @@
    연소화면 부속(0이면 빨강)과 다르다 — 화면마다 사용자가 정한 대로다.
 
    이름의 add_ 는 폴더 10의 기존 태그(add_gas_open_cmd, add_air_open_cmd)와 맞춘 것이다.
-   화면에 적힌 글자는 'ADDTION'이지만 태그 쪽은 add_로 통일한다.
+   화면에 적힌 글자는 'ADDITION'이지만 태그 쪽은 add_로 통일한다.
 
    주소는 아직 임시(M300)다. 실주소를 알게 되면 DB의 address만 UPDATE 하면 되고
    이 파일은 손대지 않아도 된다 — 이름으로 읽기 때문이다.
@@ -23,7 +23,7 @@ const nameOf = (tag) => i18n.t(`atmosphere:art.${tag}`);
 
 /* 키는 작화 클래스 이름 그대로다 — 클래스(on-<키> / off-<키>)와 짝이 눈으로 맞춰진다.
    다섯 개 모두 왼쪽 위 배관에 있다.
-     motor-1    x 202 y  43  ADDTION BLOWE 블로워
+     motor-1    x 202 y  43  ADDITION BLOWER 블로워
      blowe-pre  x 328 y   0  공기 압력 조절밸브
      blowe-sol  x 454 y  14  공기 솔레노이드 밸브
      gas-pre    x 232 y 172  가스 압력 조절밸브
@@ -58,7 +58,7 @@ export const beaconTitle = () =>
    색은 건드리지 않는다. 도느냐 마느냐만 보여 준다. */
 export const ROTATE_VALVE = {
   cls: 'valve-1',
-  tag: 'atmosphere_rotate_valve_lamp',   // ADDTION 컨트롤 밸브
+  tag: 'atmosphere_rotate_valve_lamp',   // ADDITION 컨트롤 밸브
 };
 
 export const rotateValveTitle = () =>
