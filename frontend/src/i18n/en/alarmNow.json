@@ -1,0 +1,13 @@
+{
+  "empty": "No active alarms.",
+  "histFailed": "Could not receive the alarm history.",
+  "tagsFailed": "Could not load the alarm list.",
+  "plcFailed": "Could not receive PLC values.",
+  "noLamps": "No lamps are on.",
+  "waitingValues": "Waiting for values...",
+  "waiting": "Waiting...",
+  "histTitle": "Alarm History — Active",
+  "lampTitle": "Alarm Panel — Lamps On",
+  "activeCount": "{{n}} active",
+  "lampTip": "{{tag}} / {{address}} / lamp {{lamp}}"
+}

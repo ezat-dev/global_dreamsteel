@@ -1,4 +1,5 @@
 import axiosInstance from '../axiosInstance';
+import i18n from '../../i18n';
 
 /* ===========================================================================
    웹 설정값 — global_dreamsteel.scada_setting (setting_key / setting_value 한 줄씩)
@@ -31,7 +32,7 @@ export function updateSetting(settingKey, settingValue) {
     .then((res) => {
       const body = res.data ?? {};
       if (!body.success || body.data !== true) {
-        throw new Error(body.message || `설정(${settingKey})을 저장하지 못했습니다.`);
+        throw new Error(body.message || i18n.t('api.settingSaveFailed', { key: settingKey }));
       }
       return body;
     });

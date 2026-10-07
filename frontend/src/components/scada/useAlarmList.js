@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
+import i18n from '../../i18n';
 
 /* 경보 목록 갱신 주기. PLC 값(1초)보다 느린 이유는 두 가지다 —
    경보는 초를 다투는 값이 아니고, 이쪽은 C# 직통이 아니라 자바와 DB를 거친다. */
@@ -76,7 +77,7 @@ export default function useAlarmList() {
         .catch((e) => {
           /* 목록은 지우지 않는다 — 통신이 끊긴 순간 경보가 사라지면 해제된 것처럼
              보인다. 마지막으로 받은 것을 남기고 안내만 띄운다. */
-          if (alive) setError(e.response?.data?.message ?? '경보를 불러오지 못했습니다.');
+          if (alive) setError(e.response?.data?.message ?? i18n.t('api.alarmLoadFailed'));
         })
         .finally(() => {
           if (alive) timer = setTimeout(tick, POLL_MS);

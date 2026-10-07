@@ -1,0 +1,13 @@
+{
+  "tagsFailed": "Could not load the alarm list.",
+  "plcFailed": "Could not receive PLC values.",
+  "releaseFailed": "{{name}} release failed — {{msg}}",
+  "stale": "PLC polling seems to have stopped — last poll {{time}} ({{sec}}s ago). Values are not being updated.",
+  "waitingValues": "Waiting for values...",
+  "lastReceived": "(last received {{time}})",
+  "prevPage": "Previous page",
+  "nextPage": "Next page",
+  "holdTip": "{{tag}} — hold {{sec}}s to send 1, release to send 0",
+  "activeCount": "{{n}} active",
+  "lampTip": "{{tag}} / {{address}} / lamp {{lamp}}"
+}

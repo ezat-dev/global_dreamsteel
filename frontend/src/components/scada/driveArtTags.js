@@ -14,11 +14,20 @@
 
    주소가 아직 임시(M00x·M300)인 것들이 있다. 실주소를 알게 되면 DB의 address만
    UPDATE 하면 되고 이 파일은 손대지 않아도 된다 — 이름으로 읽기 때문이다.
+
+   툴팁에 찍히는 설비 이름(입구 모터 1 등)과 값 규칙 문구는 사전(i18n/{ko,en}/drive.json)에
+   있다 — 이름은 art.<태그>, 규칙은 rule.*. 태그를 새로 붙이면 사전 두 곳에도 이름을 넣는다
+   (빠뜨리면 툴팁에 키 이름이 찍힌다. npm run i18n:check가 짝을 확인해 준다).
    =========================================================================== */
 
+import i18n from '../../i18n';
+
+/** 사전에서 이 태그의 이름 — 툴팁이 만들어지는 순간의 언어로 */
+const nameOf = (tag) => i18n.t(`drive:art.${tag}`);
+
 /* 값 판정 규칙은 작화 위 요소가 전부 같다: 1이면 살아 있는 표시, 0이거나 못 읽으면 죽은
-   표시. 통신이 끊겼는데 도는 것처럼 보이면 설비가 도는 줄로 읽히므로 그쪽이 안전하다. */
-const RULE = '값이 1일 때만 표시 / 0이거나 못 읽으면 꺼짐';
+   표시. 통신이 끊겼는데 도는 것처럼 보이면 설비가 도는 줄로 읽히므로 그쪽이 안전하다.
+   (문구는 drive:rule.onOff) */
 
 /* 모터 11개 전부. 키는 작화 클래스 이름 그대로다 — 그림과 회색 클래스(gray-<키>)가
    같은 이름을 쓰게 되어 어느 자리인지 헷갈릴 일이 없다.
@@ -38,24 +47,24 @@ const RULE = '값이 1일 때만 표시 / 0이거나 못 읽으면 꺼짐';
      exit-motor-4  x1723 y 172  출구 오른쪽 끝
      exit-motor-5  x1403 y 360  출구 아래줄 */
 export const MOTOR_TAGS = {
-  'ent-motor-1': { tag: 'charge_motor1_lamp', label: '입구 모터 1' },
-  'ent-motor-2': { tag: 'charge_motor2_lamp', label: '입구 모터 2' },
-  'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp', label: 'STOPPER 하강 감지' },
-  'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp', label: 'MAIN TABLE DRIVE 컨베이어 회전감지' },
-  'main-motor-2': { tag: 'cc_table_drive_conveyor_rotate_detect_lamp', label: 'CC TABLE DRIVE 컨베이어 회전감지' },
-  'exit-motor-1': { tag: 'discharge_motor1_lamp', label: '출구 모터 1' },
-  'exit-motor-2': { tag: 'discharge_motor2_lamp', label: '출구 모터 2' },
-  'exit-motor-3': { tag: 'discharge_motor3_lamp', label: '출구 모터 3' },
-  'exit-motor-4': { tag: 'discharge_motor4_lamp', label: '출구 모터 4' },
-  'exit-motor-5': { tag: 'discharge_table_drive_conveyor_rotate_detect_lamp', label: '출구 TABLE DRIVE 컨베이어 회전감지' },
+  'ent-motor-1': { tag: 'charge_motor1_lamp' },                              // 입구 모터 1
+  'ent-motor-2': { tag: 'charge_motor2_lamp' },                              // 입구 모터 2
+  'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp' },                 // STOPPER 하강 감지
+  'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp' },   // MAIN TABLE DRIVE 컨베이어 회전감지
+  'main-motor-2': { tag: 'cc_table_drive_conveyor_rotate_detect_lamp' },     // CC TABLE DRIVE 컨베이어 회전감지
+  'exit-motor-1': { tag: 'discharge_motor1_lamp' },                          // 출구 모터 1
+  'exit-motor-2': { tag: 'discharge_motor2_lamp' },                          // 출구 모터 2
+  'exit-motor-3': { tag: 'discharge_motor3_lamp' },                          // 출구 모터 3
+  'exit-motor-4': { tag: 'discharge_motor4_lamp' },                          // 출구 모터 4
+  'exit-motor-5': { tag: 'discharge_table_drive_conveyor_rotate_detect_lamp' }, // 출구 TABLE DRIVE 컨베이어 회전감지
 };
 
 /* 컨베이어 롤러. 한 구역의 롤러는 한 축으로 같이 도니까 태그도 구역당 하나다
    (입구 ent-conv-1~12 / 출구 exit-conv-1~6).
    입구 줄 맨 끝의 매쉬 롤러는 빠진다 — 제품 감지 자리라 원래 돌지 않는다. */
 export const ROLLER_TAGS = {
-  ent: { tag: 'charge_side_conveyor_roller', label: '입구 SIDE CONVEYOR 롤러' },
-  exit: { tag: 'discharge_side_conveyor_roller', label: '출구 SIDE CONVEYOR 롤러' },
+  ent: { tag: 'charge_side_conveyor_roller' },      // 입구 SIDE CONVEYOR 롤러
+  exit: { tag: 'discharge_side_conveyor_roller' },  // 출구 SIDE CONVEYOR 롤러
 };
 
 /* 로 순환 팬 둘. 값이 1이면 돌고 0이거나 못 읽으면 선다.
@@ -67,23 +76,23 @@ export const ROLLER_TAGS = {
    화면과 함께 뺐다. 이름은 fan2·fan3 그대로 둔다 — DB 태그 이름이라 여기서 바꿀 것이
    아니고, 되살릴 일이 생기면 fan1_lamp를 다시 넣으면 된다. */
 export const FAN_TAGS = {
-  cc1: { tag: 'fan2_lamp', label: '로 순환 팬 2 (쿨링챔버 왼쪽)' },
-  cc2: { tag: 'fan3_lamp', label: '로 순환 팬 3 (쿨링챔버 오른쪽)' },
+  cc1: { tag: 'fan2_lamp' },   // 로 순환 팬 2 (쿨링챔버 왼쪽)
+  cc2: { tag: 'fan3_lamp' },   // 로 순환 팬 3 (쿨링챔버 오른쪽)
 };
 
 /* SIDE CONVEYOR 오르내림 화살표. 한 구역의 같은 방향 넷이 한 태그를 본다.
    hideClass는 DrivePage가 무대에 붙이고 DrivePage.css가 실제로 숨긴다.
    주소는 아직 넷 다 M001이라 같이 나타났다 사라진다. */
 export const ARROW_TAGS = [
-  { key: 'entUp', tag: 'charge_side_conveyor_arrow_up', label: '입구 SIDE CONVEYOR 상승', hideClass: 'hide-ent-up' },
-  { key: 'entDown', tag: 'charge_side_conveyor_arrow_down', label: '입구 SIDE CONVEYOR 하강', hideClass: 'hide-ent-down' },
-  { key: 'exitUp', tag: 'discharge_side_conveyor_arrow_up', label: '출구 SIDE CONVEYOR 상승', hideClass: 'hide-exit-up' },
-  { key: 'exitDown', tag: 'discharge_side_conveyor_arrow_down', label: '출구 SIDE CONVEYOR 하강', hideClass: 'hide-exit-down' },
+  { key: 'entUp', tag: 'charge_side_conveyor_arrow_up', hideClass: 'hide-ent-up' },          // 입구 상승
+  { key: 'entDown', tag: 'charge_side_conveyor_arrow_down', hideClass: 'hide-ent-down' },    // 입구 하강
+  { key: 'exitUp', tag: 'discharge_side_conveyor_arrow_up', hideClass: 'hide-exit-up' },     // 출구 상승
+  { key: 'exitDown', tag: 'discharge_side_conveyor_arrow_down', hideClass: 'hide-exit-down' }, // 출구 하강
 ];
 
 /* 그림 위에 마우스를 올렸을 때 뜨는 글. 어느 태그인지와 값 규칙을 같이 보여준다.
    화면의 다른 title들과 같은 꼴("태그 — 설명")로 맞췄다. */
-export const artTitle = ({ tag, label }) => `${label} / ${tag} — ${RULE}`;
+export const artTitle = ({ tag }) => `${nameOf(tag)} / ${tag} — ${i18n.t('drive:rule.onOff')}`;
 
 /* 화살표는 방향별로 4자리씩 같은 태그를 본다 — key로 찾아 쓴다. */
 export const arrowTitle = (key) => artTitle(ARROW_TAGS.find((a) => a.key === key));
@@ -109,28 +118,25 @@ export const motorGrayClass = (cls) => `gray-${cls}`;
    문을 두 태그가 보는 꼴이었는데, 그 모터를 지우면서 이 하나만 남았다. */
 export const DOOR_TAG = {
   cls: 'ent-door-1',
-  tag: 'ent_door_open_close_lamp',
-  label: '입구문',
+  tag: 'ent_door_open_close_lamp',   // 입구문
 };
-const DOOR_RULE = '값이 1이면 초록 / 0이면 빨강 / 못 읽으면 회색';
-export const doorTitle = () => `${DOOR_TAG.label} / ${DOOR_TAG.tag} — ${DOOR_RULE}`;
+export const doorTitle = () => `${nameOf(DOOR_TAG.tag)} / ${DOOR_TAG.tag} — ${i18n.t('drive:rule.door')}`;
 
 /* MAIN 존 구획 7칸 — 0이거나 못 읽으면 작화 그대로, 1이면 오렌지.
    키는 작화 클래스 이름 그대로다(main-1-zone ~ main-7-zone). 왼쪽부터 1~7존이고,
    x는 609부터 75px 칸이 나란히 붙는다. */
 export const ZONE_TAGS = {
-  'main-1-zone': { tag: 'main_zone1_lamp', label: 'MAIN 1존' },
-  'main-2-zone': { tag: 'main_zone2_lamp', label: 'MAIN 2존' },
-  'main-3-zone': { tag: 'main_zone3_lamp', label: 'MAIN 3존' },
-  'main-4-zone': { tag: 'main_zone4_lamp', label: 'MAIN 4존' },
-  'main-5-zone': { tag: 'main_zone5_lamp', label: 'MAIN 5존' },
-  'main-6-zone': { tag: 'main_zone6_lamp', label: 'MAIN 6존' },
-  'main-7-zone': { tag: 'main_zone7_lamp', label: 'MAIN 7존' },
+  'main-1-zone': { tag: 'main_zone1_lamp' },
+  'main-2-zone': { tag: 'main_zone2_lamp' },
+  'main-3-zone': { tag: 'main_zone3_lamp' },
+  'main-4-zone': { tag: 'main_zone4_lamp' },
+  'main-5-zone': { tag: 'main_zone5_lamp' },
+  'main-6-zone': { tag: 'main_zone6_lamp' },
+  'main-7-zone': { tag: 'main_zone7_lamp' },
 };
-const ZONE_RULE = '값이 1이면 오렌지 / 0이거나 못 읽으면 지금 색';
 export const zoneTitle = (cls) => {
-  const t = ZONE_TAGS[cls];
-  return `${t.label} / ${t.tag} — ${ZONE_RULE}`;
+  const { tag } = ZONE_TAGS[cls];
+  return `${nameOf(tag)} / ${tag} — ${i18n.t('drive:rule.zone')}`;
 };
 
 /* SIDE CONVEYOR 레일. 한 줄에 막대(mini-rail) 39개씩 6줄이 한 구역을 이루고,
@@ -141,8 +147,8 @@ export const zoneTitle = (cls) => {
    주소가 아직 롤러(charge_side_conveyor_roller)와 같은 M300이라 지금은 롤러와
    레일이 같이 돌고 같이 선다. 실제로도 같은 축이면 나중에 태그를 하나로 합칠 수 있다. */
 export const RAIL_TAGS = {
-  ent: { tag: 'charge_side_conveyor_rail', label: '입구 SIDE CONVEYOR 레일' },
-  exit: { tag: 'discharge_side_conveyor_rail', label: '출구 SIDE CONVEYOR 레일' },
+  ent: { tag: 'charge_side_conveyor_rail' },      // 입구 SIDE CONVEYOR 레일
+  exit: { tag: 'discharge_side_conveyor_rail' },  // 출구 SIDE CONVEYOR 레일
 };
 
 /* 구를 때 무대에 붙는 클래스. 붙지 않은 상태가 '멈춤'이다 —
@@ -152,10 +158,9 @@ export const railRollClass = (key) => `roll-${key}-rail`;
 /* 레일 툴팁. 막대(mini-rail) 하나하나에 같은 값을 단다 — 묶음(.ent-rail-N)은
    position: static이라 자식 막대와 영역이 달라서, 거기 달면 엉뚱한 자리에서 뜬다.
    롤러(ent-conv-*)도 같은 이유로 12개에 같은 값을 달고 있다. */
-const RAIL_RULE = '값이 1이면 구름 / 0이거나 못 읽으면 멈춤';
 export const railTitle = (key) => {
-  const t = RAIL_TAGS[key];
-  return `${t.label} / ${t.tag} — ${RAIL_RULE}`;
+  const { tag } = RAIL_TAGS[key];
+  return `${nameOf(tag)} / ${tag} — ${i18n.t('drive:rule.rail')}`;
 };
 
 /* 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다.

@@ -46,7 +46,10 @@ import { fittingTitle, thunderTitle } from './combustionArtTags';
    존 가스 밸브는 for-N-zone-valve-10/20.png 와 rev-N-zone-valve-10/20.png.
    =========================================================================== */
 
-function CombustionOverview() {
+/* lang — 안에서 쓰지는 않는다. 툴팁 글이 언어를 따르는데(combustionArtTags) 이 그림은 memo라
+   props가 없으면 다시 그려지지 않는다. 언어를 props로 받아 두어 바뀔 때만 다시 그린다. */
+// eslint-disable-next-line no-unused-vars
+function CombustionOverview({ lang }) {
   return (
     <div className="combustion">
       <div className="pipe-group-1">

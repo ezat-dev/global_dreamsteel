@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import TempZonePanel from '../../components/scada/TempZonePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { lampOf, writeTag } from '../../api/scada/foldertagApi';
@@ -18,6 +19,7 @@ const TC_FOLDER_ID = 8;
 const ZONES = Array.from({ length: ZONE_COUNT }, (_, i) => i + 1);
 
 export default function TempPage() {
+  const { t } = useTranslation();
   /* PV/SV/MV 실시간값. 존 7개를 화면이 한 번만 폴링해서 나눠 준다 —
      패널마다 폴링하면 요청이 7배가 된다.
 
@@ -107,7 +109,7 @@ export default function TempPage() {
        쪽이 안전하다. log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(TC_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .catch((e) => setWriteError(t('hmi.releaseFailed', { name, msg: e.message })))
       .finally(endPress);
   };
 

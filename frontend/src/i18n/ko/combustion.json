@@ -1,0 +1,50 @@
+{
+  "device": {
+    "mainGas": "MAIN GAS",
+    "blower": "연소 BLOWER",
+    "burnerCool": "버너 쿨링"
+  },
+  "lamp": {
+    "main_gas_pressure_normal_lamp": "압력 정상",
+    "main_gas_sol_close_lamp": "SOL닫힘",
+    "combustion_blower_pressure_abnormal_lamp": "압력 이상",
+    "misfire_alarm_misfire_lamp": "실화",
+    "burner_alarm_abnormal_lamp": "이상",
+    "all_purge_ready_lamp": "PURGE 준비",
+    "all_purge_doing_lamp": "PURGE 중",
+    "all_purge_complete_lamp": "PURGE 완료"
+  },
+  "pipeTip": "{{what}} — 읽기 전용 / {{tag}} — 값이 {{v}}이면 초록, 아니면 빨강",
+  "burn": {
+    "on": "연소\nON",
+    "off": "연소\nOFF"
+  },
+  "zoneBurners": "{{n}}ZONE 개별연소",
+  "action": {
+    "misfire": "실화 ALARM",
+    "burner": "BURNER ALARM",
+    "purge": "ALL PURGE"
+  },
+  "resetTip": "{{cmd}} / 램프 {{lamp}} — {{sec}}초 누르면 전송 (색은 늘 노랑)",
+  "litTip": "{{what}} — 읽기 전용 / {{tag}} — 1이면 켜짐",
+  "pvWhat": "{{n}}ZONE 현재온도(PV)",
+  "modal": {
+    "title": "{{zone}}ZONE BURNER 운전",
+    "left": "좌",
+    "right": "우",
+    "burnOn": "연소 ON",
+    "burnOff": "연소 OFF",
+    "purgeStart": "PURGE 시작"
+  },
+  "art": {
+    "main_gas_valve_lamp": "MAIN GAS 압력 조절밸브",
+    "main_gas_sol_valve_lamp": "MAIN GAS 솔레노이드 밸브",
+    "combustion_blower_valve_lamp": "연소 BLOWER 밸브",
+    "combustion_blower_motor_lamp": "연소 BLOWER 송풍기",
+    "thunder": "번개 {{n}}"
+  },
+  "rule": {
+    "fitting": "값이 1이면 제 색 / 0이거나 못 읽으면 빨강",
+    "thunder": "값이 1일 때만 보임 / 0이거나 못 읽으면 숨김"
+  }
+}

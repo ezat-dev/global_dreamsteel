@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import DatePicker, { registerLocale } from 'react-datepicker';
-import { ko } from 'date-fns/locale';
+import DatePicker from 'react-datepicker';
 import { format, subHours } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet, IconPhotoDown } from '@tabler/icons-react';
 import Highcharts from 'highcharts';
 /* 차트를 그림 파일로 저장하는 기능. 두 모듈이 한 쌍이다 —
@@ -23,6 +23,7 @@ import TrendMemoModal from '../../components/scada/TrendMemoModal';
 import TrendRangeModal from '../../components/scada/TrendRangeModal';
 import { useAuth } from '../../context/AuthContext';
 import { downloadRowsXlsx } from '../../components/scada/downloadXlsx';
+import useCalLocale from '../../components/scada/useCalLocale';
 import './TrendPage.css';
 
 /* ===========================================================================
@@ -32,8 +33,6 @@ import './TrendPage.css';
    C#의 TempMonitorService가 30초마다 PLC를 읽어 스냅샷 한 행씩 DB에 적재하고,
    이 화면은 그 이력을 자바를 거쳐 받는다.
    =========================================================================== */
-
-registerLocale('ko', ko);
 
 const TIME_FORMAT = 'yyyy-MM-dd HH:mm';
 
@@ -198,9 +197,10 @@ function toMemoPoints(list) {
    알 수 있어야 한다. 화면에는 오른쪽 판에 단위가 따로 있어서 필요 없던 것이다.
 
    오른쪽 토글로 끈 선은 빼고 내보낸다 — 화면에서 본 것과 파일이 같아야 한다
-   (경보이력·로그에서 검색칸으로 좁힌 결과만 내보내는 것과 같은 규칙이다). */
-const excelCols = (hidden) => [
-  { title: '시각', value: (r) => format(new Date(r.t), QUERY_FORMAT) },
+   (경보이력·로그에서 검색칸으로 좁힌 결과만 내보내는 것과 같은 규칙이다).
+   첫 칸 제목('시각')만 언어를 따른다 — 선 이름(1ZONE, O2)과 단위는 두 언어가 같다. */
+const excelCols = (hidden, timeTitle) => [
+  { title: timeTitle, value: (r) => format(new Date(r.t), QUERY_FORMAT) },
   ...VALUE_ROWS
     .filter((r) => !hidden[r.key])
     .map((r) => ({ title: `${r.label}(${r.unit})`, field: r.key })),
@@ -213,6 +213,8 @@ const CARD_H = 46;
 const CARD_GAP = 4;
 
 export default function TrendPage() {
+  const { t, i18n } = useTranslation('trend');
+  const calLocale = useCalLocale();
   const [start, setStart] = useState(() => subHours(new Date(), DEFAULT_HOURS));
   const [end, setEnd] = useState(() => new Date());
 
@@ -417,7 +419,7 @@ export default function TrendPage() {
       .catch((e) => {
         if (!alive) return;
         setRows([]);
-        setError(e.response?.data?.message ?? '트랜드를 불러오지 못했습니다.');
+        setError(e.response?.data?.message ?? t('loadFailed'));
       })
       .finally(() => {
         if (!alive) return;
@@ -459,10 +461,12 @@ export default function TrendPage() {
       .catch(() => {
         if (!alive) return;
         setMemos([]);
-        setMemoNote('메모를 불러오지 못했습니다');
+        setMemoNote(t('memoLoadFailed'));
       });
 
     return () => { alive = false; };
+    // t는 실패 문구에만 쓴다 — 언어를 바꿨다고 메모를 다시 받을 일은 아니다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range, memoSeq]);
 
   /* 구간을 직접 정하면 자동갱신을 끈다(조회·빠른 버튼 둘 다).
@@ -470,11 +474,11 @@ export default function TrendPage() {
      다시 따라가려면 자동갱신 버튼을 누르면 된다. */
   const search = (s, e) => {
     if (!s || !e) {
-      setError('시작·종료 시각을 모두 넣어주세요.');
+      setError(t('needBoth'));
       return;
     }
     if (s >= e) {
-      setError('시작시각이 종료시각보다 뒤입니다.');
+      setError(t('common:list.startAfterEnd'));
       return;
     }
     stopFollow();
@@ -502,7 +506,7 @@ export default function TrendPage() {
      중요해서, 받은 시각만 적어두면 나중에 파일만 보고는 못 알아본다. */
   const handleDownload = () => {
     const span = `${format(range.start, FILE_FORMAT)}-${format(range.end, FILE_FORMAT)}`;
-    downloadRowsXlsx(excelCols(hidden), rows, `트렌드_${span}`, span);
+    downloadRowsXlsx(excelCols(hidden, t('excelTime')), rows, `트렌드_${span}`, span);
   };
 
   /* 선을 전부 꺼 두면 시각만 남은 파일이 나온다 — 그건 받을 이유가 없으므로 막는다.
@@ -548,20 +552,17 @@ export default function TrendPage() {
   /* 달력 팝업의 생김새는 경보이력 화면에서 만든 HMI 테마(.ah-cal)를 그대로 쓴다.
      모든 CSS가 한 파일로 번들되므로 클래스만 지정하면 적용된다. */
   const calProps = {
-    locale: 'ko',
+    // locale·timeCaption·dateFormatCalendar(달력 제목 '2026년 9월') — 지금 언어대로
+    ...calLocale,
     dateFormat: TIME_FORMAT,
     showTimeSelect: true,
     // 1분 단위 — 경보이력·로그 화면과 같게 맞춘다(10분 단위면 원하는 시각을 못 고른다)
     timeIntervals: 1,
-    timeCaption: '시각',
     /* 연·월을 골라 뛸 수 있게 한다 — 화살표만 있으면 2년 전으로 가려고 24번 눌러야 한다.
        'select'는 OS 기본 드롭다운이라 자리를 덜 먹고 터치로도 고르기 쉽다. */
     showMonthDropdown: true,
     showYearDropdown: true,
     dropdownMode: 'select',
-    /* 달력 제목 — 기본값 'LLLL yyyy'는 ko 로케일에서 "9월 2026"으로 나온다.
-       우리가 읽는 순서(년→월)로 바꾼다. */
-    dateFormatCalendar: 'yyyy년 M월',
     className: 'ah-date',
     calendarClassName: 'ah-cal',
     popperClassName: 'ah-cal-pop',
@@ -606,6 +607,9 @@ export default function TrendPage() {
     },
     // 서버가 준 시각을 그대로 현지 시각으로 읽는다(끄면 UTC로 해석해 9시간 밀린다).
     time: { useUTC: false },
+    /* x축에서 날짜가 바뀌는 눈금의 월·일 표기("10월 6일" / "6 Oct")를 화면 언어로.
+       정하지 않으면 브라우저 언어를 따라가서, 영어 화면인데 한글 날짜가 섞이거나 반대가 된다. */
+    lang: { locale: i18n.language === 'en' ? 'en-US' : 'ko-KR' },
 
     /* x축을 조회 구간에 못박는다.
        안 박으면 하이차트가 '값이 있는 구간'에만 축을 맞춘다. 그러면 24시간을 조회해도
@@ -622,6 +626,19 @@ export default function TrendPage() {
       lineColor: AX_LINE,
       tickColor: AX_LINE,
       labels: { style: { fontSize: '11px', color: AX_TEXT } },
+      /* 시각은 언어와 상관없이 24시간제(15:00)로 박는다. 맡겨 두면 lang.locale을 따라
+         영어는 "03:00 PM", 한국어는 "오후 03:00"이 된다 — 공정 화면에서 오전·오후를 읽게 할
+         이유가 없다. 날짜(날이 바뀌는 눈금)는 Highcharts 기본값 그대로 언어를 따른다
+         ("10월 6일" / "Oct 6") — day·week·month는 건드리지 않는다.
+
+         문자열이 아니라 { main } 꼴로 준다 — 기본값이 객체라 문자열로 덮으면 같이 있던
+         설정이 날아간다. */
+      dateTimeLabelFormats: {
+        millisecond: { main: '%H:%M:%S' },
+        second: { main: '%H:%M:%S' },
+        minute: { main: '%H:%M' },
+        hour: { main: '%H:%M' },
+      },
       /* 메모 시각에 옅은 세로선. 카드는 겹치면 아랫줄로 내려가므로 카드 자리만으로는
          정확한 시각을 알 수 없다 — 이 선이 카드와 그 시각의 값을 이어 준다. */
       plotLines: memos.map((m) => ({
@@ -710,7 +727,7 @@ export default function TrendPage() {
        useMemo는 의존성이 안 바뀌면 옛 options를 그대로 돌려주기 때문이다.
        ranges(선별 y축 범위)·focusKey(누른 선)도 같은 이유로 넣는다. */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [rows, hidden, chartH, range, memos, ranges, focusKey]);
+  }), [rows, hidden, chartH, range, memos, ranges, focusKey, i18n.language]);
 
   /* ── 메모 카드 자리 계산 ────────────────────────────────────────────────
      메모는 Highcharts의 깃발(flags)로 그리지 않고 차트 위에 HTML 카드로 얹는다.
@@ -755,15 +772,16 @@ export default function TrendPage() {
         };
       }).filter(Boolean),
     );
-    /* rows가 바뀌면 y축 눈금 글자 폭이 달라져 plotLeft가 움직인다 — 그래서 의존성에 넣는다 */
-  }, [memos, rows, range, chartH]);
+    /* rows가 바뀌면 y축 눈금 글자 폭이 달라져 plotLeft가 움직인다 — 그래서 의존성에 넣는다.
+       언어를 바꾸면 차트가 새로 만들어지므로(아래 HighchartsReact의 key) 그때도 다시 잰다. */
+  }, [memos, rows, range, chartH, i18n.language]);
 
   return (
     /* hmi-dark — 어두운 배경·유리 판·표 테마는 scada.css의 공용 규칙이 맡는다 */
     <div className="tr-page hmi-dark">
       <div className="tr-toolbar">
         <div className="tr-filter">
-          <label className="tr-label" htmlFor="tr-start">기간</label>
+          <label className="tr-label" htmlFor="tr-start">{t('period')}</label>
           {/* 날짜를 직접 고르면 그 자리에서 자동갱신을 끈다.
               켜 둔 채로 고르면 30초 타이머가 돌면서 입력칸을 최근 24시간으로 되돌려,
               방금 넣은 시각이 조용히 날아간다(조회 버튼에서 끄는 것으로는 한 발 늦다). */}
@@ -773,7 +791,7 @@ export default function TrendPage() {
             selected={start}
             onChange={(d) => { stopFollow(); setStart(d); setQuick(null); }}
             maxDate={end ?? undefined}
-            placeholderText="시작 시각"
+            placeholderText={t('common:list.startTime')}
           />
           <span className="tr-tilde">~</span>
           <DatePicker
@@ -781,9 +799,11 @@ export default function TrendPage() {
             selected={end}
             onChange={(d) => { stopFollow(); setEnd(d); setQuick(null); }}
             minDate={start ?? undefined}
-            placeholderText="종료 시각"
+            placeholderText={t('common:list.endTime')}
           />
-          <button type="button" className="tr-btn" onClick={() => search(start, end)}>조회</button>
+          <button type="button" className="tr-btn" onClick={() => search(start, end)}>
+            {t('common:list.search')}
+          </button>
         </div>
 
         {/* 지금부터 N시간 전까지 — 누르면 위 입력칸도 같이 채워지고 바로 조회된다 */}
@@ -795,7 +815,7 @@ export default function TrendPage() {
               className={`tr-btn tr-quick-btn${quick === h ? ' is-on' : ''}`}
               onClick={() => applyQuick(h)}
             >
-              {`${h}시간`}
+              {t('hours', { h })}
             </button>
           ))}
         </div>
@@ -807,11 +827,9 @@ export default function TrendPage() {
             type="button"
             className={`tr-btn tr-follow-btn${following ? ' is-on' : ''}`}
             onClick={toggleFollow}
-            title={following
-              ? '30초마다 지금까지의 구간을 다시 받고 있습니다. 누르면 멈춥니다.'
-              : '누르면 30초마다 지금까지의 구간을 다시 받습니다.'}
+            title={following ? t('followOnTip') : t('followOffTip')}
           >
-            {following ? '자동갱신 중' : '자동갱신'}
+            {following ? t('following') : t('follow')}
           </button>
         </div>
 
@@ -821,14 +839,14 @@ export default function TrendPage() {
             type="button"
             className="tr-btn"
             onClick={() => setMemoModal({})}
-            title="이 시각에 메모를 남깁니다"
+            title={t('memoAddTip')}
           >
-            메모 추가
+            {t('memoAdd')}
           </button>
 
           {memoNote && <span className="tr-memo-note">{memoNote}</span>}
           {!memoNote && memos.length > 0 && (
-            <span className="tr-memo-note">{`메모 ${memos.length}건 · 카드를 누르면 수정`}</span>
+            <span className="tr-memo-note">{t('memoCount', { n: memos.length })}</span>
           )}
         </div>
 
@@ -841,12 +859,10 @@ export default function TrendPage() {
             className="tr-btn is-excel"
             onClick={handleDownload}
             disabled={loading || rows.length === 0 || shownCount === 0}
-            title={shownCount === 0
-              ? '내보낼 선이 없습니다 — 오른쪽에서 보고 싶은 값을 켜주세요'
-              : '지금 켜 둔 선만 엑셀 파일로 내려받습니다'}
+            title={shownCount === 0 ? t('excelNoLines') : t('excelTip')}
           >
             <IconFileSpreadsheet size={16} />
-            엑셀 내려받기
+            {t('common:list.excel')}
           </button>
 
           {/* 지금 보고 있는 그래프를 그림으로. 메모 카드는 담기지 않는다(위 handleCapture 참고) */}
@@ -855,10 +871,10 @@ export default function TrendPage() {
             className="tr-btn is-capture"
             onClick={handleCapture}
             disabled={loading || rows.length === 0}
-            title="지금 보고 있는 그래프를 PNG 그림 파일로 저장합니다 (메모 카드는 담기지 않습니다)"
+            title={t('captureTip')}
           >
             <IconPhotoDown size={16} />
-            트렌드 저장
+            {t('capture')}
           </button>
         </div>
 
@@ -871,8 +887,8 @@ export default function TrendPage() {
         {/* 조회 상태만 띄운다. 구간은 왼쪽 입력칸에 그대로 적혀 있고 차트 x축도
             그 구간에 못박혀 있어서, 여기에 또 적으면 같은 글자가 두 번 나온다. */}
         <span className="tr-range">
-          {loading && '조회 중...'}
-          {!loading && !error && rows.length === 0 && '이 구간에 데이터가 없습니다'}
+          {loading && t('querying')}
+          {!loading && !error && rows.length === 0 && t('noData')}
         </span>
       </div>
 
@@ -884,7 +900,10 @@ export default function TrendPage() {
           <div className="tr-chart-wrap">
             {/* 높이는 chart.height로 직접 넘기므로(위 chartH) 컨테이너에는 폭만 준다.
                 여기에 height: 100%를 같이 주면 SVG 높이와 겹쳐 흔들린다. */}
+            {/* key — 언어를 바꾸면 차트를 새로 만든다. lang.locale은 차트를 만들 때만 읽혀서
+                update로는 안 바뀐다(날짜가 "Oct 6일"처럼 섞인다). */}
             <HighchartsReact
+              key={i18n.language}
               highcharts={Highcharts}
               options={chartOptions}
               containerProps={{ style: { width: '100%' } }}
@@ -935,9 +954,10 @@ export default function TrendPage() {
                   style={focusKey === r.key ? { color: r.color, '--tr-focus': r.color } : undefined}
                   onClick={() => toggleFocus(r.key)}
                   aria-pressed={focusKey === r.key}
-                  title={focusKey === r.key
-                    ? `${r.label} 범위 보기 끄기 — ${r.unit === 'mmV' ? '왼쪽' : '오른쪽'} 축을 기본 범위로 되돌립니다`
-                    : `${r.label} 범위로 보기 — ${r.unit === 'mmV' ? '왼쪽' : '오른쪽'} 축을 이 선의 범위로 바꿔 다시 그립니다`}
+                  title={t(focusKey === r.key ? 'focusOffTip' : 'focusOnTip', {
+                    label: r.label,
+                    side: t(r.unit === 'mmV' ? 'left' : 'right'),
+                  })}
                 >
                   {r.label}
                 </button>
@@ -947,7 +967,7 @@ export default function TrendPage() {
                   className={`tr-toggle${on ? ' is-on' : ''}`}
                   onClick={() => toggleSeries(r.key)}
                   aria-pressed={on}
-                  title={`${r.label} 그래프 ${on ? '숨기기' : '보이기'}`}
+                  title={t(on ? 'hideTip' : 'showTip', { label: r.label })}
                 >
                   {/* 손잡이 — 켜지면 오른쪽으로 미끄러진다(CSS transform) */}
                   <i />
@@ -964,16 +984,17 @@ export default function TrendPage() {
                   {(() => {
                     const rg = rangeOf(r);
                     // '범위' 글자는 아주 좁은 화면에서 숨긴다(CSS .tr-vrange-word) — 숫자가 잘리지 않게
-                    const rangeText = <><span className="tr-vrange-word">범위 </span>{`${rg.min} ~ ${rg.max}`}</>;
+                    const rangeText = <><span className="tr-vrange-word">{`${t('rangeWord')} `}</span>{`${rg.min} ~ ${rg.max}`}</>;
                     const cls = `tr-vrange${rg.custom ? ' is-custom' : ''}`;
                     const tempId = ranges[r.key]?.tempId;
-                    const what = `${r.label} y축 범위 ${rg.min} ~ ${rg.max} ${r.unit}${rg.custom ? '' : ' (기본 범위)'}`;
+                    const what = t('rangeWhat', { label: r.label, min: rg.min, max: rg.max, unit: r.unit })
+                      + (rg.custom ? '' : ` (${t('defaultMark')})`);
                     return canEditRange && tempId != null ? (
                       <button
                         type="button"
                         className={`${cls} is-editable`}
                         onClick={() => setRangeModal(r)}
-                        title={`${what} — 눌러서 고치기`}
+                        title={t('rangeEditTip', { what })}
                       >
                         {rangeText}
                       </button>

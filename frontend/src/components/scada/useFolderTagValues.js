@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getFolderTagValues } from '../../api/scada/foldertagApi';
 
 /* 값 폴링 주기. C#이 자기 주기로 PLC를 읽어 메모리에 들고 있는 것을 받아오는 것이라
@@ -24,8 +25,11 @@ const clockText = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d
  * }}
  */
 export default function useFolderTagValues(folderId) {
+  /* 안내 글은 렌더할 때 지금 언어로 만든다(common.hmi.*). 상태에는 실패 여부만 둔다 —
+     글자를 상태에 넣어 두면 언어를 바꿔도 다음 응답까지 옛 언어로 남는다. */
+  const { t } = useTranslation();
   const [values, setValues] = useState(null);
-  const [error, setError] = useState('');
+  const [failed, setFailed] = useState(false);
   const [lastOk, setLastOk] = useState(null);
   const [polledAt, setPolledAt] = useState(null);
 
@@ -44,13 +48,13 @@ export default function useFolderTagValues(folderId) {
           if (!alive) return;
           setValues(next);
           setPolledAt(lastPollAt);
-          setError('');
+          setFailed(false);
           setLastOk(new Date());
         })
         .catch(() => {
           /* 값은 지우지 않는다 — 통신이 끊긴 순간 켜져 있던 램프가 사라지면
              정상으로 돌아온 것처럼 보인다. 마지막 값을 남기고 안내만 띄운다. */
-          if (alive) setError('PLC 값을 받지 못했습니다.');
+          if (alive) setFailed(true);
         })
         .finally(() => {
           if (alive) timer = setTimeout(tick, POLL_MS);
@@ -64,18 +68,17 @@ export default function useFolderTagValues(folderId) {
   /* C#은 응답하는데 폴링 스레드만 멈춘 경우 — 값이 얼어붙어서 상태가 갱신되지 않는데
      화면상으로는 완전히 정상으로 보인다. 통신 실패와 달리 아무 표시가 없어서 따로 잡는다. */
   let staleText = '';
-  if (!error && polledAt) {
+  if (!failed && polledAt) {
     // C#은 'T' 구분자로 준다. 자바를 경유하게 되면 공백일 수 있어 함께 처리한다.
-    const t = new Date(String(polledAt).replace(' ', 'T')).getTime();
-    if (Number.isFinite(t) && Date.now() - t >= STALE_MS) {
-      staleText = `PLC 폴링이 멈춘 것 같습니다 — 마지막 폴링 ${clockText(new Date(t))}`
-        + ` (${Math.round((Date.now() - t) / 1000)}초 전). 값이 갱신되지 않고 있습니다.`;
+    const at = new Date(String(polledAt).replace(' ', 'T')).getTime();
+    if (Number.isFinite(at) && Date.now() - at >= STALE_MS) {
+      staleText = t('hmi.stale', { time: clockText(new Date(at)), sec: Math.round((Date.now() - at) / 1000) });
     }
   }
 
-  let text = error || staleText;
-  if (error && lastOk) text += ` (마지막 수신 ${clockText(lastOk)})`;
-  if (!text && !values) text = '값 수신 대기 중...';
+  let text = failed ? t('hmi.plcFailed') : staleText;
+  if (failed && lastOk) text += ` ${t('hmi.lastReceived', { time: clockText(lastOk) })}`;
+  if (!text && !values) text = t('hmi.waitingValues');
 
   return { values, error: text, ready: values != null };
 }

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import DatePicker, { registerLocale } from 'react-datepicker';
-import { ko } from 'date-fns/locale';
+import DatePicker from 'react-datepicker';
 import { format, parse, isValid } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import 'react-datepicker/dist/react-datepicker.css';
 import { insertTrendMemo, updateTrendMemo, deleteTrendMemo } from '../../api/scada/trendMemoApi';
+import useCalLocale from './useCalLocale';
 
 /* ===========================================================================
    트랜드 메모 모달 — 추가·수정·삭제를 한 창에서 한다.
@@ -17,9 +18,6 @@ import { insertTrendMemo, updateTrendMemo, deleteTrendMemo } from '../../api/sca
    다른 쪽도 같이 고쳐야 두 달력이 계속 같아 보인다.
    =========================================================================== */
 
-// TrendPage에서도 부르지만, 이 파일만 따로 쓰일 때를 위해 여기서도 등록해 둔다
-registerLocale('ko', ko);
-
 /* 칸 길이는 tb_temp_memo의 컬럼 길이 그대로다. 더 받아 봐야 DB에서 잘린다.
    제목이 10자로 짧은 건 깃발 옆에 붙는 글자라서다 — 길면 그래프를 덮는다. */
 const TITLE_MAX = 10;         // tb_temp_memo.tc_name  VARCHAR(10)
@@ -32,19 +30,16 @@ const TIME_FORMAT = 'yyyy-MM-dd HH:mm';
 const SERVER_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
 /* 달력 설정 — TrendPage 조회줄의 calProps와 같은 값이다. 둘이 같아 보여야 하므로
-   한쪽을 고치면 다른 쪽도 고칠 것. */
+   한쪽을 고치면 다른 쪽도 고칠 것. 언어에 따라 바뀌는 locale·timeCaption·달력 제목은
+   useCalLocale이 따로 준다(아래 컴포넌트에서 펼쳐 넣는다). */
 const CAL_PROPS = {
-  locale: 'ko',
   dateFormat: TIME_FORMAT,
   showTimeSelect: true,
   // 1분 단위 — 10분 단위면 메모를 남기려는 시각을 정확히 못 고른다
   timeIntervals: 1,
-  timeCaption: '시각',
   showMonthDropdown: true,
   showYearDropdown: true,
   dropdownMode: 'select',
-  // 기본값 'LLLL yyyy'는 ko에서 "9월 2026"으로 나온다 — 읽는 순서(년→월)로 바꾼다
-  dateFormatCalendar: 'yyyy년 M월',
   className: 'ah-date tm-date',
   wrapperClassName: 'tm-datewrap',
   calendarClassName: 'ah-cal',
@@ -71,6 +66,8 @@ function toServerValue(date) {
  * @param onSaved   추가·수정·삭제가 끝난 뒤 호출. 목록을 다시 부르는 쪽에서 쓴다.
  */
 export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) {
+  const { t } = useTranslation('trend');
+  const calLocale = useCalLocale();
   const editing = Boolean(memo?.tcCnt);
 
   // memoTime만 Date다(달력이 Date를 주고받는다). 나머지 두 칸은 글자.
@@ -105,8 +102,8 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
 
   /* 보내기 전에 걸러낸다 — 서버도 검증하겠지만 왕복 없이 바로 알려주는 게 낫다. */
   const validate = () => {
-    if (!form.memoTime) return '시각을 입력해주세요.';
-    if (!form.title.trim()) return '제목을 입력해주세요.';
+    if (!form.memoTime) return t('memo.enterTime');
+    if (!form.title.trim()) return t('memo.enterTitle');
     return '';
   };
 
@@ -138,14 +135,14 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
     };
 
     if (editing) {
-      run(updateTrendMemo({ ...payload, tcCnt: memo.tcCnt }), '메모를 수정하지 못했습니다.');
+      run(updateTrendMemo({ ...payload, tcCnt: memo.tcCnt }), t('memo.updateFailed'));
     } else {
-      run(insertTrendMemo(payload), '메모를 저장하지 못했습니다.');
+      run(insertTrendMemo(payload), t('memo.saveFailed'));
     }
   };
 
   const handleDelete = () => {
-    run(deleteTrendMemo(memo.tcCnt), '메모를 삭제하지 못했습니다.');
+    run(deleteTrendMemo(memo.tcCnt), t('memo.deleteFailed'));
   };
 
   return (
@@ -158,27 +155,28 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
       }}
     >
       <form className="hmi-umodal" onSubmit={handleSubmit}>
-        <div className="hmi-umodal-title">{editing ? '메모 수정' : '메모 추가'}</div>
+        <div className="hmi-umodal-title">{editing ? t('memo.editTitle') : t('memo.addTitle')}</div>
 
         <div className="hmi-umodal-body">
           <div className="hmi-umodal-row">
-            <label htmlFor="tm-time">시각</label>
+            <label htmlFor="tm-time">{t('memo.time')}</label>
             <DatePicker
               {...CAL_PROPS}
+              {...calLocale}
               id="tm-time"
               selected={form.memoTime}
               onChange={(d) => {
                 setForm((prev) => ({ ...prev, memoTime: d }));
                 setError('');
               }}
-              placeholderText="메모를 남길 시각"
+              placeholderText={t('memo.timePlaceholder')}
             />
           </div>
 
           <div className="hmi-umodal-row">
             {/* 10자에서 입력이 그냥 멈추면 고장인 줄 안다. 남은 자릿수를 보여 준다. */}
             <label htmlFor="tm-title">
-              제목 <span className="tm-count">{`${form.title.length}/${TITLE_MAX}`}</span>
+              {t('memo.title')} <span className="tm-count">{`${form.title.length}/${TITLE_MAX}`}</span>
             </label>
             <input
               id="tm-title"
@@ -193,7 +191,7 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
 
           <div className="hmi-umodal-row tm-content-row">
             <label htmlFor="tm-content">
-              내용 <span className="tm-count">{`${form.content.length}/${CONTENT_MAX}`}</span>
+              {t('memo.content')} <span className="tm-count">{`${form.content.length}/${CONTENT_MAX}`}</span>
             </label>
             <textarea
               id="tm-content"
@@ -207,7 +205,7 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
 
           {/* 수정 모드에서만 — 누가 남겼는지 보여준다. 고칠 수 없는 값이라 글씨로만 둔다. */}
           {editing && memo.tcUserName && (
-            <div className="hmi-umodal-hint">{`${memo.tcUserName} 작성`}</div>
+            <div className="hmi-umodal-hint">{t('memo.author', { name: memo.tcUserName })}</div>
           )}
 
           {error && <div className="hmi-umodal-error">{error}</div>}
@@ -223,19 +221,19 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
               onClick={() => setConfirmDelete(true)}
               disabled={submitting}
             >
-              삭제
+              {t('memo.delete')}
             </button>
           )}
           {editing && confirmDelete && (
             <>
-              <span className="tm-confirm">정말 삭제하시겠어요?</span>
+              <span className="tm-confirm">{t('memo.confirmDelete')}</span>
               <button
                 type="button"
                 className="hmi-btn tm-del"
                 onClick={handleDelete}
                 disabled={submitting}
               >
-                {submitting ? '삭제 중...' : '네'}
+                {submitting ? t('memo.deleting') : t('memo.yes')}
               </button>
               <button
                 type="button"
@@ -243,7 +241,7 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
                 onClick={() => setConfirmDelete(false)}
                 disabled={submitting}
               >
-                아니요
+                {t('memo.no')}
               </button>
             </>
           )}
@@ -251,10 +249,10 @@ export default function TrendMemoModal({ memo, defaultTime, onClose, onSaved }) 
           {!confirmDelete && (
             <>
               <button type="submit" className="hmi-btn is-primary" disabled={submitting}>
-                {submitting ? '저장 중...' : '저장'}
+                {submitting ? t('memo.saving') : t('memo.save')}
               </button>
               <button type="button" className="hmi-btn" onClick={onClose} disabled={submitting}>
-                취소
+                {t('memo.cancel')}
               </button>
             </>
           )}

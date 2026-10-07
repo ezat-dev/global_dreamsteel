@@ -41,8 +41,12 @@ import { beaconTitle, fittingTitle, rotateValveTitle } from './atmosphereArtTags
 /* valveSpinning — 주배관 위 컨트롤 밸브가 도는지. 값 자체가 아니라 결론(boolean)만
    받는다. 그림 전체가 memo로 묶여 있어서, 1초마다 오는 값을 여기까지 들이면 매 초
    다시 비교하게 된다. 기본값이 true인 것은 값 없이 써도 예전처럼 도는 그림이 나오게
-   하려는 것이다. */
-function AtmosphereOverview({ valveSpinning = true }) {
+   하려는 것이다.
+
+   lang — 안에서 쓰지는 않는다. 툴팁 글이 언어를 따르는데(atmosphereArtTags) memo라
+   props가 그대로면 다시 그려지지 않는다. 언어를 받아 두어 바뀔 때만 다시 그린다. */
+// eslint-disable-next-line no-unused-vars
+function AtmosphereOverview({ valveSpinning = true, lang }) {
   return (
     <div className="atmosphere">
       <div className="pipe-1"></div>

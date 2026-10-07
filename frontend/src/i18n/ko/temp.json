@@ -1,0 +1,23 @@
+{
+  "title": "{{n}}ZONE 온도제어",
+  "manualMode": "수동모드",
+  "autoMode": "자동모드",
+  "pvTip": "현재값(PV) — 읽기 전용 / {{tag}}",
+  "svTip": "설정값(SV) — 표시 {{show}} / 입력 {{input}}",
+  "svLabel": "{{n}}ZONE 설정값 (SV)",
+  "mvTip": "출력(MV) — 읽기 전용 / {{tag}}",
+  "modeTip": "모드 전환 {{cmd}} / 램프 {{lamp}} — {{sec}}초 누르면 전송 (램프 0=자동, 1=수동)",
+  "manualMv": "수동 출력량(MV)",
+  "field": {
+    "manual_mv": "수동 출력량 (MV)",
+    "alarm_hh": "상상한 경보 (HH)",
+    "alarm_h": "상한 경보 (H)",
+    "alarm_l": "하한 경보 (L)",
+    "alarm_ll": "하하한 경보 (LL)",
+    "range_hi": "출력 상한 (MV%)",
+    "range_lo": "출력 하한 (MV%)"
+  },
+  "limitTitle": "출력 LIMIT",
+  "high": "상한",
+  "low": "하한"
+}

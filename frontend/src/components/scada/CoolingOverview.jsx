@@ -50,7 +50,10 @@ import { arrowTitle, pumpTitle, towerMotorTitle } from './coolingArtTags';
    쪽(CoolingPage)에서 transform: scale로 처리한다 — 작화 CSS는 건드리지 않는다.
    =========================================================================== */
 
-function CoolingOverview() {
+/* lang — 안에서 쓰지는 않는다. 툴팁 글이 언어를 따르는데(coolingArtTags) 이 그림은 memo라
+   props가 없으면 다시 그려지지 않는다. 언어를 props로 받아 두어 바뀔 때만 다시 그린다. */
+// eslint-disable-next-line no-unused-vars
+function CoolingOverview({ lang }) {
   return (
     <div className="cooling-tower">
       <img className="pipe-1" src="/scada/cooling/pipe-10.png" />

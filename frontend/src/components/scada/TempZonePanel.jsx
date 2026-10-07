@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { BarGauge, LedInput } from './HmiParts';
 import { TAG_ON, TAG_UNKNOWN, lampOf, tagState } from '../../api/scada/foldertagApi';
 
@@ -56,6 +57,9 @@ const RANGE = {
 export default function TempZonePanel({
   zoneNo, values, onWrite, onModePress, heldTag = '', armedTag = '', holdMs = 2000,
 }) {
+  // 화면 글자는 사전 i18n/{ko,en}/temp.json — 칸 이름은 field.<태그 접미사>
+  const { t } = useTranslation('temp');
+
   /* 접두사 tic_ = TIC(Temperature Indicating Controller). PLC 주소표가 쓰는 표기와 같다
      ("TIC Temperature PV", "TIC PID (P) SV"). tc_로 쓰면 이 분야에서 써모커플로 읽힌다. */
   const tag = (suffix) => `tic_z${zoneNo}_${suffix}`;
@@ -77,14 +81,18 @@ export default function TempZonePanel({
     onWrite(tag(suffix), n);
   };
 
-  /** 한 레지스터를 읽고 쓰는 칸(R 영역) — 표시·입력·범위·툴팁을 한 번에 붙인다. */
-  const rwProps = (suffix, label) => ({
-    value: text(suffix),
-    onChange: (v) => writeNumber(suffix, v),
-    title: `${label} / ${tag(suffix)}`,
-    label: `${zoneNo}ZONE ${label}`,
-    ...RANGE[suffix],
-  });
+  /** 한 레지스터를 읽고 쓰는 칸(R 영역) — 표시·입력·범위·툴팁을 한 번에 붙인다.
+      칸 이름은 사전의 field.<접미사>(예: field.alarm_hh = 상상한 경보 (HH)). */
+  const rwProps = (suffix) => {
+    const label = t(`field.${suffix}`);
+    return {
+      value: text(suffix),
+      onChange: (v) => writeNumber(suffix, v),
+      title: `${label} / ${tag(suffix)}`,
+      label: `${zoneNo}ZONE ${label}`,
+      ...RANGE[suffix],
+    };
+  };
 
   /* 자동/수동 모드. 램프가 1이면 수동, 0이면 자동이다 — 다른 램프와 반대라
      tagState 결과를 그대로 "켜짐=정상"으로 읽으면 안 된다.
@@ -93,12 +101,12 @@ export default function TempZonePanel({
   const modeCmd = tag('mode_cmd');
   const modeLamp = tagState(values?.[lampOf(modeCmd)]);
   const manualMode = modeLamp === TAG_UNKNOWN ? null : modeLamp === TAG_ON;
-  const modeText = manualMode === null ? '---' : manualMode ? '수동모드' : '자동모드';
+  const modeText = manualMode === null ? '---' : manualMode ? t('manualMode') : t('autoMode');
   const modeClass = manualMode === null ? 'is-unknown' : manualMode ? 'manual' : 'auto';
 
   return (
     <div className="tz-panel">
-      <div className="tz-title">{zoneNo}ZONE 온도제어</div>
+      <div className="tz-title">{t('title', { n: zoneNo })}</div>
 
       {/* 왼쪽(게이지 + 하단 조작)과 오른쪽 세로 열을 나란히 둔다.
           우측 열은 패널 아래끝까지 내려와 출력 LIMIT이 수동모드 줄과 같은 높이에서 끝난다. */}
@@ -110,7 +118,7 @@ export default function TempZonePanel({
             <BarGauge label="PV" color="red" value={raw('pv')} max={1000} ticks={TEMP_TICKS} />
             <LedInput
               value={text('pv')} color="red" unit="℃" readOnly
-              title={`현재값(PV) — 읽기 전용 / ${tag('pv')}`}
+              title={t('pvTip', { tag: tag('pv') })}
             />
           </div>
           <div className="tz-gauge-col">
@@ -119,15 +127,15 @@ export default function TempZonePanel({
             <LedInput
               value={text('sv')} onChange={(v) => writeNumber('sv_cmd', v)}
               color="green" unit="℃"
-              title={`설정값(SV) — 표시 ${tag('sv')} / 입력 ${tag('sv_cmd')}`}
-              label={`${zoneNo}ZONE 설정값 (SV)`} {...RANGE.sv_cmd}
+              title={t('svTip', { show: tag('sv'), input: tag('sv_cmd') })}
+              label={t('svLabel', { n: zoneNo })} {...RANGE.sv_cmd}
             />
           </div>
           <div className="tz-gauge-col">
             <BarGauge label="MV" color="blue" value={raw('mv')} max={100} ticks={MV_TICKS} />
             <LedInput
               value={text('mv')} color="blue" unit="%" readOnly
-              title={`출력(MV) — 읽기 전용 / ${tag('mv')}`}
+              title={t('mvTip', { tag: tag('mv') })}
             />
           </div>
         </div>
@@ -148,8 +156,7 @@ export default function TempZonePanel({
               + (armedTag === modeCmd ? ' is-armed' : '')}
             onPointerDown={() => onModePress(modeCmd)}
             data-tag={modeCmd}
-            title={`모드 전환 ${modeCmd} / 램프 ${lampOf(modeCmd)}`
-              + ` — ${holdMs / 1000}초 누르면 전송 (램프 0=자동, 1=수동)`}
+            title={t('modeTip', { cmd: modeCmd, lamp: lampOf(modeCmd), sec: holdMs / 1000 })}
           >
             {modeText}
             {heldTag === modeCmd && (
@@ -161,9 +168,9 @@ export default function TempZonePanel({
               모드를 못 읽었으면 열어 둔다 — 수동일 수도 있는데 잠가 버리면
               정작 필요할 때 손을 못 댄다. */}
           <div className={`tz-manual-mv${manualMode === false ? ' is-off' : ''}`}>
-            <div className="tz-manual-mv-label">수동 출력량(MV)</div>
+            <div className="tz-manual-mv-label">{t('manualMv')}</div>
             <LedInput
-              {...rwProps('manual_mv', '수동 출력량 (MV)')}
+              {...rwProps('manual_mv')}
               color="green"
               unit="%"
               disabled={manualMode === false}
@@ -176,13 +183,13 @@ export default function TempZonePanel({
         <div className="tz-side">
           <div className="tz-side-group">
             <div className="tz-field"><label>HH</label>
-              <LedInput {...rwProps('alarm_hh', '상상한 경보 (HH)')} color="red" size="sm" /></div>
+              <LedInput {...rwProps('alarm_hh')} color="red" size="sm" /></div>
             <div className="tz-field"><label>H</label>
-              <LedInput {...rwProps('alarm_h', '상한 경보 (H)')} color="orange" size="sm" /></div>
+              <LedInput {...rwProps('alarm_h')} color="orange" size="sm" /></div>
             <div className="tz-field"><label>L</label>
-              <LedInput {...rwProps('alarm_l', '하한 경보 (L)')} color="yellow" size="sm" /></div>
+              <LedInput {...rwProps('alarm_l')} color="yellow" size="sm" /></div>
             <div className="tz-field"><label>LL</label>
-              <LedInput {...rwProps('alarm_ll', '하하한 경보 (LL)')} color="yellow" size="sm" /></div>
+              <LedInput {...rwProps('alarm_ll')} color="yellow" size="sm" /></div>
           </div>
 
           {/* PID(P·I·D) 묶음이 여기 있었는데 화면에서만 뺐다 — 현장에서 손댈 칸이
@@ -192,11 +199,11 @@ export default function TempZonePanel({
               .tz-side-group이 flex:1이라 남은 둘이 알아서 높이를 나눠 갖는다. */}
 
           <div className="tz-side-group tz-limit">
-            <div className="tz-limit-title">출력 LIMIT<br />(MV%)</div>
-            <div className="tz-field"><label>상한</label>
-              <LedInput {...rwProps('range_hi', '출력 상한 (MV%)')} color="yellow" size="sm" /></div>
-            <div className="tz-field"><label>하한</label>
-              <LedInput {...rwProps('range_lo', '출력 하한 (MV%)')} color="yellow" size="sm" /></div>
+            <div className="tz-limit-title">{t('limitTitle')}<br />(MV%)</div>
+            <div className="tz-field"><label>{t('high')}</label>
+              <LedInput {...rwProps('range_hi')} color="yellow" size="sm" /></div>
+            <div className="tz-field"><label>{t('low')}</label>
+              <LedInput {...rwProps('range_lo')} color="yellow" size="sm" /></div>
           </div>
         </div>
       </div>

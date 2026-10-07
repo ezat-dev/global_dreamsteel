@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import {
   ALARM_LAMP_FOLDER_ID, getAlarmLampValues, getAlarmTagList, lampNameOf,
@@ -66,6 +67,7 @@ const pad2 = (n) => String(n).padStart(2, '0');
 const clockText = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
 
 export default function AlarmPage() {
+  const { t } = useTranslation('alarm');
   const [tags, setTags] = useState([]);
   const [polledValues, setPolledValues] = useState(null);   // null = 아직 한 번도 못 받음
   const [page, setPage] = useState(0);
@@ -109,10 +111,12 @@ export default function AlarmPage() {
       .catch((e) => {
         if (!alive) return;
         setTags([]);
-        setTagError(e.response?.data?.message ?? '알람 목록을 불러오지 못했습니다.');
+        setTagError(e.response?.data?.message ?? t('tagsFailed'));
       });
 
     return () => { alive = false; };
+    // 한 번만 — t는 실패 문구에만 쓴다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* 램프 값 폴링.
@@ -135,7 +139,7 @@ export default function AlarmPage() {
         .catch(() => {
           // 값은 지우지 않는다 — 통신이 끊긴 순간 켜져 있던 알람이 사라지면
           // 복구된 것처럼 보인다. 대신 위쪽에 수신 실패를 띄운다.
-          if (alive) setValueError('PLC 값을 받지 못했습니다.');
+          if (alive) setValueError(t('plcFailed'));
         })
         .finally(() => {
           if (alive) timer = setTimeout(tick, POLL_MS);
@@ -192,7 +196,7 @@ export default function AlarmPage() {
        log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(ALARM_LAMP_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .catch((e) => setWriteError(t('releaseFailed', { name, msg: e.message })))
       .finally(endPress);
   };
 
@@ -232,7 +236,7 @@ export default function AlarmPage() {
   }, [tags, page]);
 
   const activeCount = useMemo(
-    () => (values ? tags.filter((t) => lampState(values[lampNameOf(t.tagName)]) === ON).length : 0),
+    () => (values ? tags.filter((tag) => lampState(values[lampNameOf(tag.tagName)]) === ON).length : 0),
     [tags, values],
   );
 
@@ -243,14 +247,14 @@ export default function AlarmPage() {
   const staleWarning = useMemo(() => {
     if (!polledAt) return '';
     // C#은 'T' 구분자, 자바를 경유하면 공백 구분자로 올 수 있다
-    const t = new Date(String(polledAt).replace(' ', 'T')).getTime();
-    if (!Number.isFinite(t)) return '';
+    const at = new Date(String(polledAt).replace(' ', 'T')).getTime();
+    if (!Number.isFinite(at)) return '';
 
-    const age = Date.now() - t;
+    const age = Date.now() - at;
     if (age < STALE_MS) return '';
-    return `PLC 폴링이 멈춘 것 같습니다 — 마지막 폴링 ${clockText(new Date(t))}`
-      + ` (${Math.round(age / 1000)}초 전). 값이 갱신되지 않고 있습니다.`;
-  }, [polledAt, lastOk]);
+    return t('stale', { time: clockText(new Date(at)), sec: Math.round(age / 1000) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [polledAt, lastOk, t]);
 
   const range = useMemo(() => {
     const slice = tags.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
@@ -269,7 +273,7 @@ export default function AlarmPage() {
             className="al-pager-arrow"
             onClick={() => setPage((p) => p - 1)}
             disabled={page === 0}
-            title="이전 페이지"
+            title={t('prevPage')}
           >
             {/* 버튼이 36px이라 화살표도 한 단 키운다 — 이 둘이 실제로 누르는 것이다 */}
             <IconChevronLeft size={19} />
@@ -291,7 +295,7 @@ export default function AlarmPage() {
             className="al-pager-arrow"
             onClick={() => setPage((p) => p + 1)}
             disabled={page >= pageCount - 1}
-            title="다음 페이지"
+            title={t('nextPage')}
           >
             <IconChevronRight size={19} />
           </button>
@@ -320,7 +324,7 @@ export default function AlarmPage() {
                   + (armedTag === b.tag ? ' is-armed' : '')}
                 onPointerDown={() => handlePress(b.tag)}
                 data-tag={b.tag}
-                title={`${b.tag} — ${holdMs / 1000}초 누르면 1, 떼면 0`}
+                title={t('holdTip', { tag: b.tag, sec: holdMs / 1000 })}
               >
                 {b.text}
                 {heldTag === b.tag && (
@@ -332,7 +336,7 @@ export default function AlarmPage() {
 
           {/* 발생 건수는 전체 기준이다 — 다른 페이지에서 울리고 있는 것도 놓치지 않게 */}
           <div className={`al-count${activeCount > 0 ? ' is-alarm' : ''}`}>
-            발생 {activeCount}건
+            {t('activeCount', { n: activeCount })}
           </div>
         </div>
       </div>
@@ -341,8 +345,8 @@ export default function AlarmPage() {
           (태그 이름 오타·PLC 거부·통신 끊김) 이유가 보여야 한다. 제일 최근 일이므로 앞에 둔다. */}
       {(writeError || tagError || valueError || staleWarning || (!values && !tagError)) && (
         <div className={`al-banner${writeError || tagError || valueError || staleWarning ? ' is-error' : ''}`}>
-          {writeError || tagError || valueError || staleWarning || '값 수신 대기 중...'}
-          {!writeError && valueError && lastOk && ` (마지막 수신 ${clockText(lastOk)})`}
+          {writeError || tagError || valueError || staleWarning || t('waitingValues')}
+          {!writeError && valueError && lastOk && ` ${t('lastReceived', { time: clockText(lastOk) })}`}
         </div>
       )}
 
@@ -362,7 +366,7 @@ export default function AlarmPage() {
             <div
               key={tag.tagName}
               className={`al-cell${state === ON ? ' on' : ''}${state === UNKNOWN ? ' is-unknown' : ''}`}
-              title={`${tag.tagName} / ${tag.address} / 램프 ${lampName}`}
+              title={t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampName })}
             >
               {tag.alarmMsg || tag.tagName}
             </div>

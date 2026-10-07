@@ -122,5 +122,58 @@
     "loading": "불러오는 중...",
     "noUsers": "사용자가 없습니다.",
     "selectHint": "수정할 사용자를 위 목록에서 선택하세요."
+  },
+  "list": {
+    "search": "조회",
+    "excel": "엑셀 내려받기",
+    "excelTitle": "지금 표에 보이는 내용을 엑셀 파일로 내려받습니다",
+    "total": "총 {{n}}건",
+    "loading": "불러오는 중...",
+    "startTime": "시작 시각",
+    "endTime": "종료 시각",
+    "startAfterEnd": "시작시각이 종료시각보다 뒤입니다.",
+    "all": "전체"
+  },
+  "cal": {
+    "time": "시각",
+    "title": "yyyy년 M월"
+  },
+  "alarmCol": {
+    "tagName": "태그이름",
+    "address": "태그주소",
+    "alarmMsg": "경보주석",
+    "status": "경보상태",
+    "occurTime": "발생시각",
+    "clearTime": "해제시각",
+    "active": "발생",
+    "cleared": "해제",
+    "tagSearch": "태그 검색",
+    "msgSearch": "내용 검색"
+  },
+  "hmi": {
+    "holdSend": "{{cmd}} / 램프 {{lamp}} — {{sec}}초 누르면 전송",
+    "holdMomentary": "{{tag}} — {{sec}}초 누르면 1, 떼면 0",
+    "readOnly": "{{what}} — 읽기 전용 / {{tag}}",
+    "greenAt1": "{{what}} — 읽기 전용 / {{tag}} — 1이면 초록",
+    "releaseFailed": "{{name}} 해제 실패 — {{msg}}",
+    "zonePv": "{{n}}ZONE 현재온도",
+    "zoneSv": "{{n}}ZONE 설정온도",
+    "zoneMv": "{{n}}ZONE 개도(MV)",
+    "svIo": "표시 {{show}} / 입력 {{input}}",
+    "close": "닫기",
+    "plcFailed": "PLC 값을 받지 못했습니다.",
+    "stale": "PLC 폴링이 멈춘 것 같습니다 — 마지막 폴링 {{time}} ({{sec}}초 전). 값이 갱신되지 않고 있습니다.",
+    "lastReceived": "(마지막 수신 {{time}})",
+    "waitingValues": "값 수신 대기 중...",
+    "noTag": "태그 없음",
+    "placeholder": "화면 내용은 아직 작업 전입니다."
+  },
+  "api": {
+    "plcReadFailed": "PLC에서 값을 읽지 못했습니다.",
+    "plcWriteFailed": "PLC 쓰기에 실패했습니다.",
+    "addressNotFound": "{{name}}의 주소를 찾지 못했습니다.",
+    "settingSaveFailed": "설정({{key}})을 저장하지 못했습니다.",
+    "rangeSaveFailed": "범위를 저장하지 못했습니다.",
+    "alarmLoadFailed": "경보를 불러오지 못했습니다."
   }
 }

@@ -1,0 +1,65 @@
+{
+  "device": {
+    "blower": "ADDTION BLOWE",
+    "gas": "ADDTION GAS",
+    "gen": "GENERATOR"
+  },
+  "lamp": {
+    "add_blowe_pressure_abnormal_lamp": "PRESS ABNORMAL",
+    "add_blowe_sol_close_lamp": "SOL SHUT",
+    "add_gas_pressure_abnormal_lamp": "PRESS ABNORMAL",
+    "add_gas_sol_close_lamp": "SOL SHUT"
+  },
+  "furnace": "TO FURNACE",
+  "condTitle": "Atmosphere Auto-Mode Conditions",
+  "cond": {
+    "add_air_blower_on_lamp": "ADDTION AIR BLOWER ON",
+    "add_air_sol_valve_lamp": "ADDTION AIR SOL VLAVE ON",
+    "add_air_pressure_normal_lamp": "ADDTION AIR PRESSURE NORMAL",
+    "add_gas_sol_valve_on_lamp": "ADDTION GAS SOL VLAVE ON",
+    "add_gas_pressure_normal_lamp": "ADDTION GAS PRESSURE NORMAL",
+    "allow_temp_reach_lamp": "Allowed reference temp reached",
+    "generator_gas_open_lamp": "GENERATOR GAS OPEN"
+  },
+  "openCloseTip": "Hold {{sec}}s to send {{other}}=0, {{cmd}}=1 / lamp {{lamp}}",
+  "genOpenTip": "Generator OPEN — read only / {{tag}} — green at 0",
+  "genCloseTip": "Generator CLOSE — read only / {{tag}} — red at 1",
+  "pipeTip": "{{what}} — read only / {{tag}} — green at 1, red at 0",
+  "o2Tip": "O2 SENSOR — read only / o2_pv (D241)",
+  "valve": {
+    "autoMode": "AUTO",
+    "manualMode": "MANUAL",
+    "tipRead": "{{label}} / {{tag}} — read only",
+    "tipRw": "{{label}} / {{tag}} — same tag for read and write",
+    "pv": "Current value (PV)",
+    "sv": "Set value (SV)",
+    "mv": "Output (MV)",
+    "p": "Proportional band (P)",
+    "i": "Integral time (I)",
+    "d": "Derivative time (D)",
+    "refTemp": "Allowed ref. temp",
+    "manualMv": "Manual output",
+    "svLabel": "ADDTION VALVE set value (SV)",
+    "pLabel": "ADDTION VALVE proportional band (P)",
+    "iLabel": "ADDTION VALVE integral time (I)",
+    "dLabel": "ADDTION VALVE derivative time (D)",
+    "refTempLabel": "Atmosphere allowed reference temp",
+    "manualLabel": "ADDTION VALVE manual output (MANUAL MV)",
+    "refLampTip": "Allowed ref. temp reached / {{tag}} — green at 1, dotted if unreadable",
+    "modeTip": "Hold {{sec}}s to send {{other}}=0, {{cmd}}=1 / lamp {{lamp}} — lit at {{v}}"
+  },
+  "art": {
+    "add_blowe_motor_lamp": "ADDTION BLOWE blower",
+    "add_blowe_valve_lamp": "ADDTION BLOWE pressure control valve",
+    "add_blowe_sol_valve_lamp": "ADDTION BLOWE solenoid valve",
+    "add_gas_valve_lamp": "ADDTION GAS pressure control valve",
+    "add_gas_sol_valve_lamp": "ADDTION GAS solenoid valve",
+    "generator_lamp": "Generator beacon",
+    "atmosphere_rotate_valve_lamp": "ADDTION control valve"
+  },
+  "rule": {
+    "fitting": "green at 1 / gray at 0 or if unreadable",
+    "beacon": "green at 0 / red at 1 / gray if unreadable",
+    "valve": "spins at 1 / stops at 0 or if unreadable"
+  }
+}

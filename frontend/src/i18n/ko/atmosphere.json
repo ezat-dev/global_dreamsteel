@@ -1,0 +1,65 @@
+{
+  "device": {
+    "blower": "ADDTION BLOWE",
+    "gas": "ADDTION GAS",
+    "gen": "발 생 기"
+  },
+  "lamp": {
+    "add_blowe_pressure_abnormal_lamp": "압력 이상",
+    "add_blowe_sol_close_lamp": "SOL닫힘",
+    "add_gas_pressure_abnormal_lamp": "압력 이상",
+    "add_gas_sol_close_lamp": "SOL닫힘"
+  },
+  "furnace": "로내 투입",
+  "condTitle": "분위기 제어 자동모드 동작 조건",
+  "cond": {
+    "add_air_blower_on_lamp": "ADDTION AIR BLOWER ON",
+    "add_air_sol_valve_lamp": "ADDTION AIR SOL VLAVE ON",
+    "add_air_pressure_normal_lamp": "ADDTION AIR PRESSURE 정상",
+    "add_gas_sol_valve_on_lamp": "ADDTION GAS SOL VLAVE ON",
+    "add_gas_pressure_normal_lamp": "ADDTION GAS PRESSURE 정상",
+    "allow_temp_reach_lamp": "허용 기준온도 도달",
+    "generator_gas_open_lamp": "발생기 GAS OPEN"
+  },
+  "openCloseTip": "{{sec}}초 누르면 {{other}}=0, {{cmd}}=1 / 램프 {{lamp}}",
+  "genOpenTip": "발생기 OPEN — 읽기 전용 / {{tag}} — 0이면 초록",
+  "genCloseTip": "발생기 CLOSE — 읽기 전용 / {{tag}} — 1이면 빨강",
+  "pipeTip": "{{what}} — 읽기 전용 / {{tag}} — 1이면 초록, 0이면 빨강",
+  "o2Tip": "O2 SENSOR — 읽기 전용 / o2_pv (D241)",
+  "valve": {
+    "autoMode": "자동모드",
+    "manualMode": "수동모드",
+    "tipRead": "{{label}} / {{tag}} — 읽기 전용",
+    "tipRw": "{{label}} / {{tag}} — 읽기·쓰기 같은 태그",
+    "pv": "현재값(PV)",
+    "sv": "설정값(SV)",
+    "mv": "출력(MV)",
+    "p": "비례대(P)",
+    "i": "적분시간(I)",
+    "d": "미분시간(D)",
+    "refTemp": "허용 기준온도",
+    "manualMv": "수동 출력량",
+    "svLabel": "ADDTION VALVE 설정값 (SV)",
+    "pLabel": "ADDTION VALVE 비례대 (P)",
+    "iLabel": "ADDTION VALVE 적분시간 (I)",
+    "dLabel": "ADDTION VALVE 미분시간 (D)",
+    "refTempLabel": "분위기제어 허용 기준온도",
+    "manualLabel": "ADDTION VALVE 수동 출력량 (MANUAL MV)",
+    "refLampTip": "허용 기준온도 도달 / {{tag}} — 1이면 초록, 못 읽으면 점선",
+    "modeTip": "{{sec}}초 누르면 {{other}}=0, {{cmd}}=1 / 램프 {{lamp}} — {{v}}일 때 켜짐"
+  },
+  "art": {
+    "add_blowe_motor_lamp": "ADDTION BLOWE 블로워",
+    "add_blowe_valve_lamp": "ADDTION BLOWE 압력 조절밸브",
+    "add_blowe_sol_valve_lamp": "ADDTION BLOWE 솔레노이드 밸브",
+    "add_gas_valve_lamp": "ADDTION GAS 압력 조절밸브",
+    "add_gas_sol_valve_lamp": "ADDTION GAS 솔레노이드 밸브",
+    "generator_lamp": "발생기 경광등",
+    "atmosphere_rotate_valve_lamp": "ADDTION 컨트롤 밸브"
+  },
+  "rule": {
+    "fitting": "값이 1이면 초록 / 0이거나 못 읽으면 회색",
+    "beacon": "값이 0이면 초록 / 1이면 빨강 / 못 읽으면 회색",
+    "valve": "값이 1이면 돌고 0이거나 못 읽으면 선다"
+  }
+}

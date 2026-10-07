@@ -1,0 +1,13 @@
+{
+  "empty": "현재 발생한 경보가 없습니다.",
+  "histFailed": "경보이력을 받지 못했습니다.",
+  "tagsFailed": "알람 목록을 불러오지 못했습니다.",
+  "plcFailed": "PLC 값을 받지 못했습니다.",
+  "noLamps": "현재 켜진 램프가 없습니다.",
+  "waitingValues": "값 수신 대기 중...",
+  "waiting": "대기 중...",
+  "histTitle": "경보이력 — 발생 중",
+  "lampTitle": "알람화면 — 램프 켜짐",
+  "activeCount": "발생 {{n}}건",
+  "lampTip": "{{tag}} / {{address}} / 램프 {{lamp}}"
+}

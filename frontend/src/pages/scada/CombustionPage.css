@@ -198,6 +198,12 @@
   font-size: 13px;
 }
 
+/* 영어 이름(BURNER COOL)은 13px이면 판 폭 96px을 몇 px 넘는다. 판을 넓히면 오른쪽
+   무대 끝(1283)을 넘거나 7존 개도 상자를 가리므로(위 DEVICE_PANELS 주석) 글자만 한 단 줄인다. */
+html[lang="en"] .cb-dev--burnerCool .cb-plate {
+  font-size: 12px;
+}
+
 /* 두 램프가 칸을 반씩 나눠 갖는다(사진처럼 좌우 폭이 같다).
    태그가 없는 설비는 표시 전용이라 b, 명령 태그가 있으면 button이다 — 둘 다 잡는다.
    (React fragment로 감싸도 DOM에는 남지 않아서 > 자식 선택자가 그대로 맞는다.) */
@@ -295,6 +301,14 @@ button.cb-action-lamp.is-held,
   padding: 1px 4px;
   font-size: 11px;
   white-space: nowrap;
+}
+
+/* 영어는 두 줄로(PRESS / NORMAL) — MAIN GAS 아래 두 램프 사이가 59px뿐이라 한 줄로 두면
+   서로 겹친다. 줄바꿈은 사전 글자의 \n이고, 여기서는 그 \n만 살린다. */
+html[lang="en"] .cb-pipe-label {
+  white-space: pre-line;
+  line-height: 1.15;
+  text-align: center;
 }
 
 /* ===== 개도 % ========================================================== */

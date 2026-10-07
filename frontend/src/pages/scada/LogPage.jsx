@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import DatePicker, { registerLocale } from 'react-datepicker';
+import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
-import { ko } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
 import downloadXlsx from '../../components/scada/downloadXlsx';
+import useCalLocale from '../../components/scada/useCalLocale';
 import { getLogList } from '../../api/scada/logApi';
 // 라이브러리 기본 스타일을 먼저 깔고, AlarmHistPage.css의 .ah-cal 규칙이 HMI 톤으로 덮어쓴다.
 import 'react-datepicker/dist/react-datepicker.css';
@@ -23,8 +24,6 @@ import './AlarmHistPage.css';
    log_id는 표에 넣지 않는다 — PK라 작업자가 볼 이유가 없다. 정렬은 백엔드가
    log_id DESC로 하고 있어서 최신이 위에 온다(NO 열이 그 순서다).
    =========================================================================== */
-
-registerLocale('ko', ko);
 
 /* 입력칸에 보이는 형식이자 직접 타이핑할 때 파싱되는 형식.
    달력에서는 분 단위까지만 고를 수 있고(라이브러리 제약), 초까지 지정하려면
@@ -45,10 +44,23 @@ const LOG_OPTIONS = {
    (ScadaServiceImpl의 FAIL_* 상수). 글자가 하나라도 다르면 골라도 아무것도 안 걸린다.
 
    각각이 무슨 상황인지는 저쪽 상수 옆에 적어 두었다. 화면에는 설명을 두지 않는다 —
-   작업자가 보고 조치할 수 있는 내용이 아니고, 개발자는 코드를 보면 된다. */
-const FAIL_REASONS = ['연결 실패', '응답 시간 초과', '서버 오류', '쓰기 거부', '응답 없음'];
+   작업자가 보고 조치할 수 있는 내용이 아니고, 개발자는 코드를 보면 된다.
+
+   DB에는 한글 문구 그대로 저장되어 있다. 화면·엑셀에 보일 때만 사전(log.reason.*)의
+   글자로 바꾼다 — 거르는 값은 DB 값 그대로라 언어를 바꿔도 거르기가 맞게 걸린다. */
+const FAIL_REASONS = {
+  '연결 실패': 'connect',
+  '응답 시간 초과': 'timeout',
+  '서버 오류': 'server',
+  '쓰기 거부': 'rejected',
+  '응답 없음': 'noResponse',
+};
 
 export default function LogPage() {
+  const { t } = useTranslation('log');
+  const calLocale = useCalLocale();
+  /** DB의 실패사유(한글) → 지금 언어. 모르는 값은 그대로 둔다(새 분류가 생겨도 뜻은 전해진다). */
+  const reasonText = (v) => (FAIL_REASONS[v] ? t(`reason.${FAIL_REASONS[v]}`) : v);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,7 +85,7 @@ export default function LogPage() {
      버튼 클릭 호출이 같은 함수를 쓸 수 있다. */
   const search = (start, end) => {
     if (start && end && start > end) {
-      setError('시작시각이 종료시각보다 뒤입니다.');
+      setError(t('common:list.startAfterEnd'));
       return;
     }
 
@@ -92,7 +104,7 @@ export default function LogPage() {
       .catch((e) => {
         if (reqId === reqIdRef.current) {
           setRows([]);
-          setError(e.response?.data?.message ?? '로그를 불러오지 못했습니다.');
+          setError(e.response?.data?.message ?? t('loadFailed'));
         }
       })
       .finally(() => {
@@ -117,19 +129,16 @@ export default function LogPage() {
 
   // 두 칸이 동시에 열릴 일이 없어 ref 하나를 같이 쓴다.
   const calProps = {
-    locale: 'ko',
+    // locale·timeCaption·dateFormatCalendar(달력 제목 '2026년 9월') — 지금 언어대로
+    ...calLocale,
     dateFormat: TIME_FORMAT,
     showTimeSelect: true,
     timeIntervals: 1,
-    timeCaption: '시각',
     /* 연·월을 골라 뛸 수 있게 한다 — 화살표만 있으면 2년 전으로 가려고 24번 눌러야 한다.
        'select'는 OS 기본 드롭다운이라 자리를 덜 먹고 터치로도 고르기 쉽다. */
     showMonthDropdown: true,
     showYearDropdown: true,
     dropdownMode: 'select',
-    /* 달력 제목 — 기본값 'LLLL yyyy'는 ko 로케일에서 "9월 2026"으로 나온다.
-       우리가 읽는 순서(년→월)로 바꾼다. */
-    dateFormatCalendar: 'yyyy년 M월',
     isClearable: true,
     className: 'ah-date',
     calendarClassName: 'ah-cal',
@@ -150,49 +159,54 @@ export default function LogPage() {
       /* 열 머리의 검색칸(headerFilter) — 조회는 기간으로 하고, 받아온 목록 안에서
          다시 좁힐 때 쓴다. 이 화면에서 제일 자주 찾는 건 '그 태그를 언제 건드렸나'라
          태그주소에 먼저 붙인다. */
-      { title: '이름', field: 'userName', width: 110, hozAlign: 'center', headerFilter: 'input' },
+      { title: t('col.name'), field: 'userName', width: 110, hozAlign: 'center', headerFilter: 'input' },
       {
-        title: '태그주소', field: 'address', minWidth: 160, widthGrow: 2, tooltip: true,
-        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '주소 검색',
+        title: t('col.address'), field: 'address', minWidth: 160, widthGrow: 2, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: t('addrSearch'),
       },
-      { title: '전송값', field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center', headerFilter: 'input' },
+      { title: t('col.sendValue'), field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center', headerFilter: 'input' },
       {
         /* PLC 쓰기 결과. 자바가 C# 응답을 확인해서 넣는다 — "웹이 값을 보냈고 C#이 썼다"는
            뜻이지, PLC 프로그램이 그 값을 받아 설비를 움직였다는 뜻은 아니다. */
-        title: '성공여부', field: 'writeSuccess', width: 96, hozAlign: 'center',
+        title: t('col.result'), field: 'writeSuccess', width: 96, hozAlign: 'center',
         /* 값이 boolean이라 고르는 칸의 값은 문자열('true')로 들어온다 — String()으로
            맞춰 비교하지 않으면 골라도 아무것도 안 걸린다. */
         headerFilter: 'list',
-        headerFilterParams: { values: { '': '전체', true: '성공', false: '실패' } },
+        headerFilterParams: { values: { '': t('common:list.all'), true: t('ok'), false: t('fail') } },
         headerFilterFunc: (headerValue, rowValue) => String(rowValue) === headerValue,
         // 화면에는 배지지만 파일에는 글자로 남아야 한다(경보이력의 경보상태와 같은 규칙)
-        excelValue: (v) => (v == null ? '' : (v ? '성공' : '실패')),
+        excelValue: (v) => (v == null ? '' : (v ? t('ok') : t('fail'))),
         /* 세 갈래다. 이 컬럼이 생기기 전에 쌓인 행은 값이 비어 있는데, 그걸 '실패'로
            그리면 멀쩡히 나간 조작이 전부 실패로 보인다 — 빈 값은 '—'로 따로 둔다. */
         formatter: (cell) => {
           const v = cell.getValue();
           if (v == null) return '<span class="ht-badge off">—</span>';
           return v
-            ? '<span class="ht-badge ok">성공</span>'
-            : '<span class="ht-badge on">실패</span>';
+            ? `<span class="ht-badge ok">${t('ok')}</span>`
+            : `<span class="ht-badge on">${t('fail')}</span>`;
         },
       },
       {
         /* 실패한 줄에만 값이 있다. 자바가 정해진 문구 몇 개 중 하나로 분류해 넣으므로
            (ScadaServiceImpl의 FAIL_* 상수) 고르는 칸으로 걸러 볼 수 있다.
            예외 원문은 저장하지 않는다 — 그건 누를 때 화면에 뜨는 안내에만 붙는다. */
-        title: '실패사유', field: 'failReason', width: 120, hozAlign: 'center',
+        title: t('col.failReason'), field: 'failReason', width: 120, hozAlign: 'center',
         headerFilter: 'list',
-        // 고르는 목록은 위 배열에서 만든다 — 분류가 늘면 그 배열만 고치면 따라온다
+        /* 고르는 목록은 위 표에서 만든다 — 분류가 늘면 그 표만 고치면 따라온다.
+           값(왼쪽)은 DB 문구 그대로, 보이는 글자(오른쪽)만 지금 언어다. */
         headerFilterParams: {
-          values: { '': '전체', ...Object.fromEntries(FAIL_REASONS.map((k) => [k, k])) },
+          values: {
+            '': t('common:list.all'),
+            ...Object.fromEntries(Object.keys(FAIL_REASONS).map((k) => [k, reasonText(k)])),
+          },
         },
         // 성공한 줄은 비어 있다 — 빈 칸이 줄줄이 보이면 표가 지저분해서 '—'로 채운다
-        formatter: (cell) => cell.getValue() || '—',
+        formatter: (cell) => (cell.getValue() ? reasonText(cell.getValue()) : '—'),
+        excelValue: (v) => (v ? reasonText(v) : ''),
       },
       {
         // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭. 더 주면 가운데만 비어 보인다.
-        title: '기록시각', field: 'insertDate', width: 180, hozAlign: 'center',
+        title: t('col.time'), field: 'insertDate', width: 180, hozAlign: 'center',
         /* TIMESTAMP를 String으로 받기 때문에 드라이버에 따라 '2026-09-02 15:21:07.0'처럼
            소수부가 붙어 올 수 있다. 초까지만 잘라서 다른 화면의 시각 표기와 맞춘다. */
         formatter: (cell) => (cell.getValue() ?? '').slice(0, 19),
@@ -200,7 +214,9 @@ export default function LogPage() {
         excelValue: (v) => (v ?? '').slice(0, 19),
       },
     ],
-    []
+    // 언어가 바뀌면 t가 바뀐다 — 그때 열 제목·배지 글자를 새로 만든다(표도 다시 그려진다)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t]
   );
 
   return (
@@ -208,7 +224,7 @@ export default function LogPage() {
     <div className="ah-page hmi-dark">
       <div className="ah-toolbar">
         <div className="ah-filter">
-          <label className="ah-label" htmlFor="log-start">기록시각</label>
+          <label className="ah-label" htmlFor="log-start">{t('col.time')}</label>
           {/* maxDate/minDate로 달력에서 뒤집힌 범위를 못 고르게 막고,
               칸에 직접 적어 넣은 경우는 search가 한 번 더 걸러낸다. */}
           <DatePicker
@@ -217,7 +233,7 @@ export default function LogPage() {
             selected={startTime}
             onChange={setStartTime}
             maxDate={endTime ?? undefined}
-            placeholderText="시작 시각"
+            placeholderText={t('common:list.startTime')}
           />
           <span className="ah-tilde">~</span>
           <DatePicker
@@ -225,7 +241,7 @@ export default function LogPage() {
             selected={endTime}
             onChange={setEndTime}
             minDate={startTime ?? undefined}
-            placeholderText="종료 시각"
+            placeholderText={t('common:list.endTime')}
           />
           <button
             type="button"
@@ -233,7 +249,7 @@ export default function LogPage() {
             onClick={() => search(startTime, endTime)}
             disabled={loading}
           >
-            조회
+            {t('common:list.search')}
           </button>
 
           {/* 화면에 걸린 검색·정렬 그대로 나간다. 받을 게 없으면 눌리지 않는다. */}
@@ -242,15 +258,17 @@ export default function LogPage() {
             className="ah-btn is-excel"
             onClick={() => downloadXlsx(tableRef.current, '조작로그')}
             disabled={loading || rows.length === 0}
-            title="지금 표에 보이는 내용을 엑셀 파일로 내려받습니다"
+            title={t('common:list.excelTitle')}
           >
             <IconFileSpreadsheet size={16} />
-            엑셀 내려받기
+            {t('common:list.excel')}
           </button>
         </div>
 
         {error && <span className="ah-error">{error}</span>}
-        <span className="ah-count">{loading ? '불러오는 중...' : `총 ${rows.length}건`}</span>
+        <span className="ah-count">
+          {loading ? t('common:list.loading') : t('common:list.total', { n: rows.length })}
+        </span>
       </div>
 
       <div className="ah-table">

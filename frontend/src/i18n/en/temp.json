@@ -1,0 +1,23 @@
+{
+  "title": "{{n}}ZONE TEMP CONTROL",
+  "manualMode": "MANUAL",
+  "autoMode": "AUTO",
+  "pvTip": "Current value (PV) — read only / {{tag}}",
+  "svTip": "Set value (SV) — display {{show}} / input {{input}}",
+  "svLabel": "{{n}}ZONE set value (SV)",
+  "mvTip": "Output (MV) — read only / {{tag}}",
+  "modeTip": "Mode change {{cmd}} / lamp {{lamp}} — hold {{sec}}s to send (lamp 0=auto, 1=manual)",
+  "manualMv": "Manual output (MV)",
+  "field": {
+    "manual_mv": "Manual output (MV)",
+    "alarm_hh": "High-high alarm (HH)",
+    "alarm_h": "High alarm (H)",
+    "alarm_l": "Low alarm (L)",
+    "alarm_ll": "Low-low alarm (LL)",
+    "range_hi": "Output high limit (MV%)",
+    "range_lo": "Output low limit (MV%)"
+  },
+  "limitTitle": "OUTPUT LIMIT",
+  "high": "High",
+  "low": "Low"
+}

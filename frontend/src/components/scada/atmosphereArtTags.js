@@ -13,9 +13,13 @@
 
    주소는 아직 임시(M300)다. 실주소를 알게 되면 DB의 address만 UPDATE 하면 되고
    이 파일은 손대지 않아도 된다 — 이름으로 읽기 때문이다.
+
+   툴팁의 부속 이름과 값 규칙 문구는 사전(i18n/{ko,en}/atmosphere.json)의 art.<태그>·rule.*에 있다.
    =========================================================================== */
 
-const RULE = '값이 1이면 초록 / 0이거나 못 읽으면 회색';
+import i18n from '../../i18n';
+
+const nameOf = (tag) => i18n.t(`atmosphere:art.${tag}`);
 
 /* 키는 작화 클래스 이름 그대로다 — 클래스(on-<키> / off-<키>)와 짝이 눈으로 맞춰진다.
    다섯 개 모두 왼쪽 위 배관에 있다.
@@ -25,26 +29,26 @@ const RULE = '값이 1이면 초록 / 0이거나 못 읽으면 회색';
      gas-pre    x 232 y 172  가스 압력 조절밸브
      gas-sol    x 368 y 183  가스 솔레노이드 밸브 */
 export const FITTING_TAGS = {
-  'motor-1': { tag: 'add_blowe_motor_lamp', label: 'ADDTION BLOWE 블로워' },
-  'blowe-pre': { tag: 'add_blowe_valve_lamp', label: 'ADDTION BLOWE 압력 조절밸브' },
-  'blowe-sol': { tag: 'add_blowe_sol_valve_lamp', label: 'ADDTION BLOWE 솔레노이드 밸브' },
-  'gas-pre': { tag: 'add_gas_valve_lamp', label: 'ADDTION GAS 압력 조절밸브' },
-  'gas-sol': { tag: 'add_gas_sol_valve_lamp', label: 'ADDTION GAS 솔레노이드 밸브' },
+  'motor-1': { tag: 'add_blowe_motor_lamp' },
+  'blowe-pre': { tag: 'add_blowe_valve_lamp' },
+  'blowe-sol': { tag: 'add_blowe_sol_valve_lamp' },
+  'gas-pre': { tag: 'add_gas_valve_lamp' },
+  'gas-sol': { tag: 'add_gas_sol_valve_lamp' },
 };
 
 /* 그림 위에 마우스를 올렸을 때 뜨는 글. 화면의 다른 title들과 같은 꼴이다. */
 export const fittingTitle = (cls) => {
-  const t = FITTING_TAGS[cls];
-  return `${t.label} / ${t.tag} — ${RULE}`;
+  const { tag } = FITTING_TAGS[cls];
+  return `${nameOf(tag)} / ${tag} — ${i18n.t('atmosphere:rule.fitting')}`;
 };
 
 /* 발생기 위 경광등(작화 alarm-1, x 1565~1605 / y 36~80).
    위 다섯과 규칙이 반대다 — 0이 정상(초록)이고 1이 이상(빨강)이다.
    그림이 원래 빨간 경광등이라 1일 때는 아무것도 걸지 않는다. */
-export const BEACON = { cls: 'alarm-1', tag: 'generator_lamp', label: '발생기 경광등' };
+export const BEACON = { cls: 'alarm-1', tag: 'generator_lamp' };   // 발생기 경광등
 
 export const beaconTitle = () =>
-  `${BEACON.label} / ${BEACON.tag} — 값이 0이면 초록 / 1이면 빨강 / 못 읽으면 회색`;
+  `${nameOf(BEACON.tag)} / ${BEACON.tag} — ${i18n.t('atmosphere:rule.beacon')}`;
 
 /* 주배관 위 컨트롤 밸브(작화 valve-1, x 626~676 / y 118~161).
    디스크가 도는 그림(at-valve-spin.svg)과 멈춘 그림(at-valve.svg) 두 벌이 있어서
@@ -54,12 +58,11 @@ export const beaconTitle = () =>
    색은 건드리지 않는다. 도느냐 마느냐만 보여 준다. */
 export const ROTATE_VALVE = {
   cls: 'valve-1',
-  tag: 'atmosphere_rotate_valve_lamp',
-  label: 'ADDTION 컨트롤 밸브',
+  tag: 'atmosphere_rotate_valve_lamp',   // ADDTION 컨트롤 밸브
 };
 
 export const rotateValveTitle = () =>
-  `${ROTATE_VALVE.label} / ${ROTATE_VALVE.tag} — 값이 1이면 돌고 0이거나 못 읽으면 선다`;
+  `${nameOf(ROTATE_VALVE.tag)} / ${ROTATE_VALVE.tag} — ${i18n.t('atmosphere:rule.valve')}`;
 
 /* 무대에 붙는 클래스. AtmospherePage.css의 선택자와 짝이 맞아야 한다.
    초록·회색 둘 다 클래스를 붙인다 — 둘 다 filter를 걸어야 해서, 한쪽만 붙이고

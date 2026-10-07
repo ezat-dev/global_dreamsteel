@@ -1,0 +1,21 @@
+{
+  "loadFailed": "Could not load the log.",
+  "col": {
+    "name": "Name",
+    "address": "Address",
+    "sendValue": "Value Sent",
+    "result": "Result",
+    "failReason": "Failure Reason",
+    "time": "Logged"
+  },
+  "addrSearch": "Search address",
+  "ok": "OK",
+  "fail": "Failed",
+  "reason": {
+    "connect": "Connection failed",
+    "timeout": "Timed out",
+    "server": "Server error",
+    "rejected": "Write rejected",
+    "noResponse": "No response"
+  }
+}

@@ -122,5 +122,58 @@
     "loading": "Loading...",
     "noUsers": "No users.",
     "selectHint": "Select a user to edit from the list above."
+  },
+  "list": {
+    "search": "Search",
+    "excel": "Export Excel",
+    "excelTitle": "Download what the table currently shows as an Excel file",
+    "total": "{{n}} total",
+    "loading": "Loading...",
+    "startTime": "Start time",
+    "endTime": "End time",
+    "startAfterEnd": "Start time is later than end time.",
+    "all": "All"
+  },
+  "cal": {
+    "time": "Time",
+    "title": "MMMM yyyy"
+  },
+  "alarmCol": {
+    "tagName": "Tag Name",
+    "address": "Address",
+    "alarmMsg": "Alarm Message",
+    "status": "Status",
+    "occurTime": "Occurred",
+    "clearTime": "Cleared",
+    "active": "Active",
+    "cleared": "Cleared",
+    "tagSearch": "Search tag",
+    "msgSearch": "Search message"
+  },
+  "hmi": {
+    "holdSend": "{{cmd}} / lamp {{lamp}} — hold {{sec}}s to send",
+    "holdMomentary": "{{tag}} — hold {{sec}}s to send 1, release to send 0",
+    "readOnly": "{{what}} — read only / {{tag}}",
+    "greenAt1": "{{what}} — read only / {{tag}} — green at 1",
+    "releaseFailed": "{{name}} release failed — {{msg}}",
+    "zonePv": "{{n}}ZONE current temp",
+    "zoneSv": "{{n}}ZONE set temp",
+    "zoneMv": "{{n}}ZONE valve opening (MV)",
+    "svIo": "display {{show}} / input {{input}}",
+    "close": "Close",
+    "plcFailed": "Could not receive PLC values.",
+    "stale": "PLC polling seems to have stopped — last poll {{time}} ({{sec}}s ago). Values are not being updated.",
+    "lastReceived": "(last received {{time}})",
+    "waitingValues": "Waiting for values...",
+    "noTag": "no tag",
+    "placeholder": "This screen has not been built yet."
+  },
+  "api": {
+    "plcReadFailed": "Could not read the value from the PLC.",
+    "plcWriteFailed": "PLC write failed.",
+    "addressNotFound": "Could not find the address of {{name}}.",
+    "settingSaveFailed": "Could not save the setting ({{key}}).",
+    "rangeSaveFailed": "Could not save the range.",
+    "alarmLoadFailed": "Could not load alarms."
   }
 }

@@ -1,4 +1,5 @@
 import axiosInstance from '../axiosInstance';
+import i18n from '../../i18n';
 
 /* ===========================================================================
    트랜드 — ez_scada.tb_temp_snapshot 조회.
@@ -48,7 +49,7 @@ export function updateTrendRange(tempId, trendMin, trendMax) {
     .then((res) => {
       const body = res.data ?? {};
       if (!body.success || body.data !== true) {
-        throw new Error(body.message || '범위를 저장하지 못했습니다.');
+        throw new Error(body.message || i18n.t('api.rangeSaveFailed'));
       }
       return body;
     });

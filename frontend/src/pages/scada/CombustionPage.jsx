@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CombustionOverview from '../../components/scada/CombustionOverview';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
@@ -28,6 +29,10 @@ import './CombustionPage.css';
    그림 좌표계(2101x532) 기준 px로 적는다.
 
    값은 아직 전부 더미다. PLC 연동 때 state 자리만 폴링 결과로 바꾸면 된다.
+
+   화면 글자(설비 이름·램프·툴팁)는 사전 i18n/{ko,en}/combustion.json에 있다. 아래 표에는
+   위치와 태그만 두고 글자는 키로 찾는다 — 설비판 device.<key>, 램프 lamp.<태그>,
+   조작판 제목 action.<key>.
    =========================================================================== */
 
 /* 작화 그림 자체는 1155x469다.
@@ -126,7 +131,7 @@ const ZONE_SV_MAX = 1000;
    태그가 준비된 설비만 하나씩 살릴 수 있게 이렇게 갈라 두었다. */
 const DEVICE_PANELS = [
   {
-    key: 'mainGas', tone: 'gas', title: 'MAIN GAS',
+    key: 'mainGas', tone: 'gas',   // MAIN GAS
     plate: { left: 25, top: 2, width: 190 },
     // 제목판(25~215) 아래 가운데에 오도록. left를 키우면 오른쪽으로 쏠린다.
     state: { left: 15, top: 40, width: 210 },
@@ -139,7 +144,7 @@ const DEVICE_PANELS = [
   /* 연소 BLOWER는 작화가 깔아둔 파란 패널 바탕(main-blower2, x 1038~1279 / y 0~64)
      위에 그대로 얹는다. main-blower1.png는 블로워 그림이 아니라 이 패널의 배경이다. */
   {
-    key: 'blower', tone: 'blue', title: '연소 BLOWER',
+    key: 'blower', tone: 'blue',   // 연소 BLOWER
     plate: { left: 1052, top: 3, width: 214 },
     state: { left: 1052, top: 36, width: 214 },
     on: 'ON', off: 'OFF',
@@ -151,7 +156,7 @@ const DEVICE_PANELS = [
   /* 버너 쿨링은 바탕이 없어서 CSS로 그린다. 사진처럼 연소 BLOWER 아래에 두되,
      7존 개도(for-7-zone-per, x 1047~1115 / y 91~120)를 가리지 않게 오른쪽으로 민다. */
   {
-    key: 'burnerCool', tone: 'blue', title: '버너 쿨링',
+    key: 'burnerCool', tone: 'blue',   // 버너 쿨링
     /* 폭은 제목판과 상태판이 같아야 한다 — 다르면 아래 판이 삐져나온다.
 
        오른쪽 끝이 무대 폭(STAGE_W 1285)을 넘으면 안 된다. .cb-stage가 overflow: hidden
@@ -187,18 +192,19 @@ const DEVICE_PANELS = [
    압력 정상만 0에서 초록인 것이 눈에 거슬리지만 PLC가 그렇게 준다. 거꾸로 보이면
    여기 greenWhen부터 확인할 것. */
 const PIPE_LABELS = [
-  { key: 'gasPre', cx: 273, top: 44, text: '압력 정상', tag: 'main_gas_pressure_normal_lamp', greenWhen: TAG_OFF },
-  { key: 'gasSol', cx: 332, top: 44, text: 'SOL닫힘', tag: 'main_gas_sol_close_lamp', greenWhen: TAG_ON },
+  { key: 'gasPre', cx: 273, top: 44, tag: 'main_gas_pressure_normal_lamp', greenWhen: TAG_OFF },   // 압력 정상
+  { key: 'gasSol', cx: 332, top: 44, tag: 'main_gas_sol_close_lamp', greenWhen: TAG_ON },          // SOL닫힘
   // 블로워 압력계(blower-pre, x 920~957 / y 4~43) 바로 아래
-  { key: 'blowPre', cx: 938, top: 48, text: '압력 이상', tag: 'combustion_blower_pressure_abnormal_lamp', greenWhen: TAG_ON },
+  { key: 'blowPre', cx: 938, top: 48, tag: 'combustion_blower_pressure_abnormal_lamp', greenWhen: TAG_ON }, // 압력 이상
 ];
 
 /* 좌측 하단 경보 목록 — 경보이력·구동화면과 같은 API(getAlarmList)를 최근 100건만 받아 쓴다.
    좁은 칸이라 컬럼을 줄였다. 컬럼이 바뀌면 표를 통째로 다시 만들기 때문에
    모듈 상수로 둔다(매 렌더 새 배열을 넘기면 표가 계속 재생성된다). 컬럼을 더하거나
    빼면 useAlarmList의 SHOWN_FIELDS도 같이 손봐야 한다 — 거기 없는 값은 바뀌어도
-   화면이 갱신되지 않는다. */
-const ALARM_COLUMNS = [
+   화면이 갱신되지 않는다. 열 제목이 언어를 따르므로 t를 받아 만들고, 화면이 언어가
+   바뀔 때만 새로 만든다(useMemo). */
+const alarmColumns = (t) => [
   /* 최소 폭 합이 판 폭보다 크면 가로 스크롤이 생긴다. 태블릿에서 이 판은 430px까지
      좁아지므로 합을 397px(145+80+100+72)로 맞춰 둔다.
 
@@ -208,16 +214,16 @@ const ALARM_COLUMNS = [
      데스크톱(560px)에서는 남는 폭을 widthGrow가 2:3으로 나눠 가지므로 보이는 폭이
      예전과 거의 같다(태그이름 144→145, 경보주석 181→198). 최소값만 낮춘 것이라
      넓은 화면의 모양은 건드리지 않는다. */
-  { title: '발생시각', field: 'occurTimeStr', width: 145, hozAlign: 'center' },
-  { title: '태그이름', field: 'tagName', minWidth: 80, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-  { title: '경보주석', field: 'alarmMsg', minWidth: 100, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+  { title: t('common:alarmCol.occurTime'), field: 'occurTimeStr', width: 145, hozAlign: 'center' },
+  { title: t('common:alarmCol.tagName'), field: 'tagName', minWidth: 80, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+  { title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 100, widthGrow: 3, tooltip: true, hozAlign: 'center' },
   {
     // 배지('발생'/'해제')만 들어가는 칸이라 72px이면 충분하다
-    title: '경보상태', field: 'alarmStatus', width: 72, hozAlign: 'center',
+    title: t('common:alarmCol.status'), field: 'alarmStatus', width: 72, hozAlign: 'center',
     // DB(vw_alarm_history)는 ACTIVE / CLEARED로 준다. ACTIVE만 빨간 '발생'이다.
     formatter: (cell) => (cell.getValue() === 'ACTIVE'
-      ? '<span class="ht-badge on">발생</span>'
-      : '<span class="ht-badge off">해제</span>'),
+      ? `<span class="ht-badge on">${t('common:alarmCol.active')}</span>`
+      : `<span class="ht-badge off">${t('common:alarmCol.cleared')}</span>`),
   },
 ];
 
@@ -236,9 +242,10 @@ const zoneBurnCmd = (zone, action) => `cb_z${zone}_burn_${action}_cmd`;
    MAIN GAS CLOSE와 같은 경우로, lampClassOf의 litWhen이 이걸 위해 있다.
    그래서 연소 중이면 ON=1(초록) / OFF=1(회색)이고, 정지 중이면 ON=0(회색) / OFF=0(빨강)이다.
    값을 못 읽으면 둘 다 점선(is-unknown)으로 '모름'을 표시한다. */
+/* 글자는 combustion.json의 burn.<action>("연소\nON") */
 const ZONE_BURN_BUTTONS = [
-  { action: 'on', text: '연소\nON', lit: ' is-on' },
-  { action: 'off', text: '연소\nOFF', lit: ' is-alarm', litWhen: TAG_OFF },
+  { action: 'on', lit: ' is-on' },
+  { action: 'off', lit: ' is-alarm', litWhen: TAG_OFF },
 ];
 
 /* 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지.
@@ -248,32 +255,32 @@ const ZONE_BURN_BUTTONS = [
      cmd          램프이면서 버튼(ALL PURGE의 ON). 색은 _cmd_lamp가 정한다.
      tag          누를 수 없는 표시 램프. 값이 1이면 lit 색, 0이면 회색, 못 읽으면 점선.
 
-   lit이 칸마다 다르다 — 퍼지 단계는 준비(빨강) → 중(노랑) → 완료(초록)로 넘어간다. */
+   lit이 칸마다 다르다 — 퍼지 단계는 준비(빨강) → 중(노랑) → 완료(초록)로 넘어간다.
+
+   판 제목은 combustion.json의 action.<key>, 표시 램프 글자는 lamp.<태그>다.
+   버튼(RESET·ON)은 두 언어가 같아 text를 그대로 둔다. */
 const ACTION_PANELS = [
   {
-    key: 'misfire',
-    title: '실화 ALARM',
+    key: 'misfire',   // 실화 ALARM
     items: [
-      { text: '실화', tag: 'misfire_alarm_misfire_lamp', lit: ' is-alarm' },
+      { tag: 'misfire_alarm_misfire_lamp', lit: ' is-alarm' },   // 실화
       { text: 'RESET', kind: 'btn', cmd: 'misfire_alarm_reset_cmd' },
     ],
   },
   {
-    key: 'burner',
-    title: 'BURNER ALARM',
+    key: 'burner',    // BURNER ALARM
     items: [
-      { text: '이상', tag: 'burner_alarm_abnormal_lamp', lit: ' is-alarm' },
+      { tag: 'burner_alarm_abnormal_lamp', lit: ' is-alarm' },   // 이상
       { text: 'RESET', kind: 'btn', cmd: 'burner_alarm_reset_cmd' },
     ],
   },
   {
-    key: 'purge',
-    title: 'ALL PURGE',
+    key: 'purge',     // ALL PURGE
     items: [
       { text: 'ON', cmd: 'all_purge_on_cmd' },
-      { text: 'PURGE 준비', tag: 'all_purge_ready_lamp', lit: ' is-alarm' },
-      { text: 'PURGE 중', tag: 'all_purge_doing_lamp', lit: ' is-warn' },
-      { text: 'PURGE 완료', tag: 'all_purge_complete_lamp', lit: ' is-on' },
+      { tag: 'all_purge_ready_lamp', lit: ' is-alarm' },      // PURGE 준비
+      { tag: 'all_purge_doing_lamp', lit: ' is-warn' },       // PURGE 중
+      { tag: 'all_purge_complete_lamp', lit: ' is-on' },      // PURGE 완료
     ],
   },
 ];
@@ -285,6 +292,12 @@ export default function CombustionPage() {
      비율을 지키면(useStageScale) 아래 판들(.cb-zonebar 104 + .cb-bottom 96)이 세로를
      먼저 가져가는 만큼 그림이 작아지고 좌우가 비게 된다. */
   const [stageRef, scale] = useStageStretch(STAGE_W, STAGE_TOTAL_H);
+
+  const { t, i18n } = useTranslation('combustion');
+  // 경보 목록 열 — 언어가 바뀔 때만 새로 만든다(바뀌면 표가 다시 만들어진다)
+  const alarmCols = useMemo(() => alarmColumns(t), [t]);
+  // 누름 버튼 툴팁 — "태그 / 램프 … — N초 누르면 전송"
+  const holdTip = (cmd) => t('common:hmi.holdSend', { cmd, lamp: lampOf(cmd), sec: holdMs / 1000 });
 
   /* PLC 상태·설정값. 지금은 사진과 같은 더미다(존 연소 ON/OFF는 태그가 붙어서 빠졌다). */
   const [devices] = useState({ mainGas: false, blower: false, burnerCool: false });
@@ -308,7 +321,7 @@ export default function CombustionPage() {
 
      tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
   const fittingRedClasses = Object.entries(FITTING_TAGS)
-    .filter(([, t]) => tagState(tagValues?.[t.tag]) !== TAG_ON)
+    .filter(([, fitting]) => tagState(tagValues?.[fitting.tag]) !== TAG_ON)
     .map(([cls]) => ` ${fittingRedClass(cls)}`)
     .join('');
 
@@ -413,7 +426,7 @@ export default function CombustionPage() {
        버튼 한 번에 로그가 두 줄씩 쌓여서 "누가 무엇을 눌렀나"가 안 보인다. */
     chainRef.current = chainRef.current
       .then(() => writeTag(CB_FOLDER_ID, name, 0, false))
-      .catch((e) => setWriteError(`${name} 해제 실패 — ${e.message}`))
+      .catch((e) => setWriteError(t('common:hmi.releaseFailed', { name, msg: e.message })))
       .finally(endPress);
   };
 
@@ -506,7 +519,8 @@ export default function CombustionPage() {
           {/* 그림과 오버레이를 함께 내려서 y가 음수인 조각(pipe135)이 안 잘리게 한다.
               이 안쪽은 좌표가 작화 원본 기준 그대로다. */}
           <div className="cb-shift" style={{ top: DRAW_SHIFT }}>
-            <CombustionOverview />
+            {/* lang — 언어가 바뀌면 그림 위 툴팁을 새 언어로 다시 그리게 한다(CombustionOverview 참고) */}
+            <CombustionOverview lang={i18n.language} />
 
           <div className="cb-overlay">
             {/* ── 설비 제목판 + 상태 두 글자 ── */}
@@ -514,7 +528,7 @@ export default function CombustionPage() {
               /* key별 클래스를 같이 준다 — 버너 쿨링만 글자·여백을 줄여야 해서
                  CSS가 그 판을 집어낼 수 있어야 한다(ACTION_PANELS와 같은 방식). */
               <span className={`cb-dev cb-dev--${d.key}`} key={d.key}>
-                <em className={`cb-plate cb-plate--${d.tone}`} style={d.plate}>{d.title}</em>
+                <em className={`cb-plate cb-plate--${d.tone}`} style={d.plate}>{t(`device.${d.key}`)}</em>
 
                 {/* 두 칸 다 램프다. 걸린 쪽만 켜진다 — on쪽은 초록, off쪽은 빨강.
                     명령 태그가 있는 설비는 그 램프가 버튼도 겸한다(모양은 같다). */}
@@ -531,7 +545,7 @@ export default function CombustionPage() {
                           + (armedTag === d.onCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.onCmd)}
                         data-tag={d.onCmd}
-                        title={`${d.onCmd} / 램프 ${lampOf(d.onCmd)} — ${holdMs / 1000}초 누르면 전송`}
+                        title={holdTip(d.onCmd)}
                       >
                         {d.on}
                         {heldTag === d.onCmd && (
@@ -545,7 +559,7 @@ export default function CombustionPage() {
                           + (armedTag === d.offCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.offCmd)}
                         data-tag={d.offCmd}
-                        title={`${d.offCmd} / 램프 ${lampOf(d.offCmd)} — ${holdMs / 1000}초 누르면 전송`}
+                        title={holdTip(d.offCmd)}
                       >
                         {d.off}
                         {heldTag === d.offCmd && (
@@ -570,9 +584,9 @@ export default function CombustionPage() {
                 key={l.key}
                 style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
                 data-tag={l.tag}
-                title={`${l.text} — 읽기 전용 / ${l.tag} — 값이 ${l.greenWhen === TAG_ON ? 1 : 0}이면 초록, 아니면 빨강`}
+                title={t('pipeTip', { what: t(`lamp.${l.tag}`).replace('\n', ' '), tag: l.tag, v: l.greenWhen === TAG_ON ? 1 : 0 })}
               >
-                {l.text}
+                {t(`lamp.${l.tag}`)}
               </span>
             ))}
 
@@ -588,7 +602,7 @@ export default function CombustionPage() {
                 key={`top${n}`}
                 style={{ left: topCx(n), top: PER_TOP }}
                 data-tag={zoneTag(n, 'mv')}
-                title={`${n}ZONE 개도(MV) — 읽기 전용 / ${zoneTag(n, 'mv')}`}
+                title={t('common:hmi.readOnly', { what: t('common:hmi.zoneMv', { n }), tag: zoneTag(n, 'mv') })}
               >
                 {zoneText(n, 'mv')} %
               </span>
@@ -599,7 +613,7 @@ export default function CombustionPage() {
                 key={`bot${n}`}
                 style={{ left: botCx(n), top: PER_BOT }}
                 data-tag={zoneTag(n, 'mv')}
-                title={`${n}ZONE 개도(MV) — 읽기 전용 / ${zoneTag(n, 'mv')}`}
+                title={t('common:hmi.readOnly', { what: t('common:hmi.zoneMv', { n }), tag: zoneTag(n, 'mv') })}
               >
                 {zoneText(n, 'mv')} %
               </span>
@@ -626,7 +640,7 @@ export default function CombustionPage() {
                 <em
                   className="cb-val is-pv"
                   data-tag={zoneTag(n, 'pv')}
-                  title={`${n}ZONE 현재온도(PV) — 읽기 전용 / ${zoneTag(n, 'pv')}`}
+                  title={t('common:hmi.readOnly', { what: t('pvWhat', { n }), tag: zoneTag(n, 'pv') })}
                 >
                   {zoneText(n, 'pv')}
                 </em>
@@ -646,8 +660,8 @@ export default function CombustionPage() {
                   onChange={(v) => handleZoneSv(n, v)}
                   size="sm"
                   unit="℃"
-                  label={`${n}ZONE 설정온도`}
-                  title={`표시 tic_z${n}_sv / 입력 tic_z${n}_sv_cmd`}
+                  label={t('common:hmi.zoneSv', { n })}
+                  title={t('common:hmi.svIo', { show: `tic_z${n}_sv`, input: `tic_z${n}_sv_cmd` })}
                   min={ZONE_SV_MIN}
                   max={ZONE_SV_MAX}
                 />
@@ -693,9 +707,9 @@ export default function CombustionPage() {
                       + (armedTag === cmd ? ' is-armed' : '')}
                     onPointerDown={() => handlePress(cmd)}
                     data-tag={cmd}
-                    title={`${cmd} / 램프 ${lampOf(cmd)} — ${holdMs / 1000}초 누르면 전송`}
+                    title={holdTip(cmd)}
                   >
-                    {b.text}
+                    {t(`burn.${b.action}`)}
                     {heldTag === cmd && (
                       <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                     )}
@@ -709,7 +723,7 @@ export default function CombustionPage() {
               className="cb-plate cb-plate--zone cb-plate--btn"
               onClick={() => setBurnerZone(n)}
             >
-              {`${n}ZONE 개별연소`}
+              {t('zoneBurners', { n })}
             </button>
           </div>
         ))}
@@ -719,14 +733,14 @@ export default function CombustionPage() {
       <div className="cb-bottom">
         <div className="cb-alarm">
           {alarmError && <div className="cb-alarm-error">{alarmError}</div>}
-          <HmiTable data={alarms} columns={ALARM_COLUMNS} options={ALARM_OPTIONS} height="100%" />
+          <HmiTable data={alarms} columns={alarmCols} options={ALARM_OPTIONS} height="100%" />
         </div>
 
         {ACTION_PANELS.map((p) => (
           /* key별 클래스를 같이 준다 — 항목이 4개인 ALL PURGE만 좁은 화면에서
              2×2로 접어야 해서 CSS가 그 판을 집어낼 수 있어야 한다. */
           <div className={`cb-action cb-action--${p.key}`} key={p.key}>
-            <span className="cb-plate cb-plate--action">{p.title}</span>
+            <span className="cb-plate cb-plate--action">{t(`action.${p.key}`)}</span>
             <div className="cb-action-row">
               {p.items.map((it) => {
                 {/* RESET — 다른 momentary 버튼과 같다(2초 누르면 1, 떼면 0).
@@ -742,7 +756,7 @@ export default function CombustionPage() {
                         + (armedTag === it.cmd ? ' is-armed' : '')}
                       onPointerDown={() => handlePress(it.cmd)}
                       data-tag={it.cmd}
-                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${holdMs / 1000}초 누르면 전송 (색은 늘 노랑)`}
+                      title={t('resetTip', { cmd: it.cmd, lamp: lampOf(it.cmd), sec: holdMs / 1000 })}
                     >
                       {it.text}
                       {heldTag === it.cmd && (
@@ -767,7 +781,7 @@ export default function CombustionPage() {
                         + (armedTag === it.cmd ? ' is-armed' : '')}
                       onPointerDown={() => handlePress(it.cmd)}
                       data-tag={it.cmd}
-                      title={`${it.cmd} / 램프 ${lampOf(it.cmd)} — ${holdMs / 1000}초 누르면 전송`}
+                      title={holdTip(it.cmd)}
                     >
                       {it.text}
                       {heldTag === it.cmd && (
@@ -781,11 +795,11 @@ export default function CombustionPage() {
                 return (
                   <span
                     className={`cb-action-lamp hmi-lampbox${actionLampClass(it)}`}
-                    key={it.text}
+                    key={it.tag}
                     data-tag={it.tag}
-                    title={`${it.text} — 읽기 전용 / ${it.tag} — 1이면 켜짐`}
+                    title={t('litTip', { what: t(`lamp.${it.tag}`), tag: it.tag })}
                   >
-                    {it.text}
+                    {t(`lamp.${it.tag}`)}
                   </span>
                 );
               })}

@@ -27,7 +27,31 @@
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: 8px;
+  /* 판 여섯이 한 줄에 안 들어가면 다음 줄로 접는다. 접지 않으면 판(.dr-panel min-width: 0)이
+     좁아지면서 버튼·LED칸이 테두리 밖으로 밀려 잘린다 — 1101~1180 폭의 한국어에서도,
+     글자가 긴 영어는 1280에서도 그랬다. 다 들어가는 폭에서는 지금처럼 한 줄이다.
+     (1100 이하 구간은 아래 규칙이 왼쪽 맞춤·판 늘리기까지 더 손본다.)
+     접혀서 두 줄이 되면 위로 걸친 제목표(top: -11px)가 앞줄 판에 닿지 않게 줄 간격을 둔다. */
+  flex-wrap: wrap;
+  gap: 16px 8px;
+}
+
+/* 줄을 접을지는 판의 '펼친 폭'으로 정해진다. 조건 램프판은 글자가 줄바꿈되어 좁아질 수
+   있는데도 펼친 폭으로 세면 1280에서 괜히 두 줄이 된다. 그래서 170px에서 시작해 남는 폭을
+   받게 하고(펼친 폭까지만), 글자를 아무리 접어도 안 되는 폭보다는 좁아지지 않게 한다 —
+   그보다 좁아질 상황이면 잘리는 대신 다음 줄로 접힌다. */
+.dr-top > .dr-cond {
+  flex: 1 1 170px;
+  max-width: max-content;
+  min-width: min-content;
+}
+
+/* TIME 판도 영어에서는 라벨이 접히므로(아래 .dr-time-label) 같은 대접을 한다.
+   한국어 라벨은 한 줄 고정이라 줄어들 수 없어서 건드리지 않는다. */
+html[lang="en"] .dr-top > .dr-time {
+  flex: 1 1 230px;
+  max-width: max-content;
+  min-width: min-content;
 }
 
 /* .hmi-group에 붙여 쓴다 — 폭은 내용에 맞추되 좁아지면 같이 줄어들게. */
@@ -208,6 +232,13 @@
   font-weight: 700;
   color: var(--hmi-text);
   white-space: nowrap;
+}
+
+/* 영어 라벨은 한글보다 길어서, 한 줄로 고정하면 TIME 판이 넓어지고 윗줄 판 여섯이
+   1280 폭에 안 들어가 OP PANEL의 AUTO·ALARM RESET이 잘린다. 영어만 두 줄로 접히게 둔다. */
+html[lang="en"] .dr-time-label {
+  white-space: normal;
+  line-height: 1.2;
 }
 
 /* 셋 다 작업자가 넣는 설정값이라 MAIN DRIVE 존 SV와 같은 연두색을 쓴다. */

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CoolingOverview from '../../components/scada/CoolingOverview';
 import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
@@ -23,6 +24,9 @@ import './CoolingPage.css';
 
    화면의 모든 값이 PLC에서 온다 — 그림 위 기기(상부 모터·펌프·화살표), 집수조 경보 띠,
    냉각수 알람 지연시간. 지연시간 두 칸만 쓰기도 한다(읽는 태그와 같은 태그).
+
+   화면 글자는 사전 i18n/{ko,en}/cooling.json에 있다 — 이름판 tank.<key>·pump.<key>,
+   경보 띠 banner.<태그>.
    =========================================================================== */
 
 /* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '쿨링타워').
@@ -52,23 +56,23 @@ const STAGE_H = 708;
    오른쪽에 RX-발생기(cx 1365)가 하나 더 있었는데 설비째로 지웠다(CoolingOverview 참고). */
 const TANK_PLATES = [
   // cx는 탱크 가운데 — 탱크를 157px 오른쪽으로 옮겨서 같이 따라간다(1050 + 157)
-  { key: 'chamber', cx: 1207, top: 186, width: 200, text: 'COOLING CHAMBER' },
+  { key: 'chamber', cx: 1207, top: 186, width: 200 },   // COOLING CHAMBER
 ];
 
 // 펌프 바로 위에 붙는 이름판
 const PUMP_PLATES = [
-  { key: 'cool1', cx: 678, top: 321, text: 'NO.1 냉각수펌프' },
-  { key: 'cool2', cx: 680, top: 432, text: 'NO.2 냉각수펌프' },
-  { key: 'circ1', cx: 232, top: 497, text: 'NO.1 순환펌프' },
-  { key: 'circ2', cx: 230, top: 608, text: 'NO.2 순환펌프' },
+  { key: 'cool1', cx: 678, top: 321 },   // NO.1 냉각수펌프
+  { key: 'cool2', cx: 680, top: 432 },   // NO.2 냉각수펌프
+  { key: 'circ1', cx: 232, top: 497 },   // NO.1 순환펌프
+  { key: 'circ2', cx: 230, top: 608 },   // NO.2 순환펌프
 ];
 
 /* 집수조 안의 빨간 경보 띠. 값이 1일 때만 보이고, 0이거나 못 읽으면 아예 안 그린다.
    못 읽을 때 숨기는 쪽으로 정한 이유: 확인할 수 없는 경보를 띄우면 오보가 된다.
    대신 값을 못 받고 있다는 것 자체는 화면 아래 토스트가 알린다. */
 const LEVEL_BANNERS = [
-  { key: 'high', left: 868, top: 560, width: 228, text: '집수조 LEVEL HIGH', tag: 'sump_tank_level_high_lamp' },
-  { key: 'low', left: 868, top: 618, width: 228, text: '집수조 LEVEL LOW', tag: 'sump_tank_level_low_lamp' },
+  { key: 'high', left: 868, top: 560, width: 228, tag: 'sump_tank_level_high_lamp' },   // 집수조 LEVEL HIGH
+  { key: 'low', left: 868, top: 618, width: 228, tag: 'sump_tank_level_low_lamp' },     // 집수조 LEVEL LOW
 ];
 
 /* 냉각수 알람 지연시간 — HIGH/LOW를 분 단위로 넣는다.
@@ -94,6 +98,7 @@ const DELAY_ROWS = [
 ];
 
 export default function CoolingPage() {
+  const { t, i18n } = useTranslation('cooling');
   const stageRef = useRef(null);
   const [scale, setScale] = useState(0);
 
@@ -193,7 +198,8 @@ export default function CoolingPage() {
             visibility: scale ? 'visible' : 'hidden',
           }}
         >
-          <CoolingOverview />
+          {/* lang — 언어가 바뀌면 그림 위 툴팁을 새 언어로 다시 그리게 한다(CoolingOverview 참고) */}
+          <CoolingOverview lang={i18n.language} />
 
           <div className="ct-overlay">
             {TANK_PLATES.map((p) => (
@@ -202,7 +208,7 @@ export default function CoolingPage() {
                 key={p.key}
                 style={{ left: p.cx, top: p.top, width: p.width, transform: 'translateX(-50%)' }}
               >
-                {p.text}
+                {t(`tank.${p.key}`)}
               </span>
             ))}
 
@@ -212,7 +218,7 @@ export default function CoolingPage() {
                 key={p.key}
                 style={{ left: p.cx, top: p.top, transform: 'translateX(-50%)' }}
               >
-                {p.text}
+                {t(`pump.${p.key}`)}
               </span>
             ))}
 
@@ -223,10 +229,10 @@ export default function CoolingPage() {
                   className="ct-banner"
                   key={b.key}
                   data-tag={b.tag}
-                  title={`${b.text} — 읽기 전용 / ${b.tag} — 1일 때만 보인다`}
+                  title={t('bannerTip', { what: t(`banner.${b.tag}`), tag: b.tag })}
                   style={{ left: b.left, top: b.top, width: b.width }}
                 >
-                  {b.text}
+                  {t(`banner.${b.tag}`)}
                 </span>
               ))}
 
@@ -234,7 +240,7 @@ export default function CoolingPage() {
               className="ct-delay"
               style={{ left: DELAY_PANEL.left, top: DELAY_PANEL.top, width: DELAY_PANEL.width }}
             >
-              <span className="ct-plate ct-delay-title">냉각수 알람 지연시간</span>
+              <span className="ct-plate ct-delay-title">{t('delayTitle')}</span>
 
               {DELAY_ROWS.map((r) => (
                 <div className="ct-delay-row" key={r.key}>
@@ -245,8 +251,8 @@ export default function CoolingPage() {
                     color="red"
                     size="sm"
                     unit="min"
-                    title={`냉각수 알람 지연시간 ${r.label} / ${r.tag} — 읽기·쓰기 같은 태그`}
-                    label={`냉각수 알람 지연시간 ${r.label}`}
+                    title={t('delayTip', { label: r.label, tag: r.tag })}
+                    label={t('delayLabel', { label: r.label })}
                     min={0}
                   />
                 </div>

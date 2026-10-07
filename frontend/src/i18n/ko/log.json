@@ -1,0 +1,21 @@
+{
+  "loadFailed": "로그를 불러오지 못했습니다.",
+  "col": {
+    "name": "이름",
+    "address": "태그주소",
+    "sendValue": "전송값",
+    "result": "성공여부",
+    "failReason": "실패사유",
+    "time": "기록시각"
+  },
+  "addrSearch": "주소 검색",
+  "ok": "성공",
+  "fail": "실패",
+  "reason": {
+    "connect": "연결 실패",
+    "timeout": "응답 시간 초과",
+    "server": "서버 오류",
+    "rejected": "쓰기 거부",
+    "noResponse": "응답 없음"
+  }
+}

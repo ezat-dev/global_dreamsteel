@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { LedInput } from '../../components/scada/HmiParts';
 import { writeTag } from '../../api/scada/foldertagApi';
@@ -16,6 +17,9 @@ import './EngineeringPage.css';
    남는다. 태그 이름은 아래에 적어 두고 DB(ez_scada.folders_tags)에 같은 이름으로 넣으면
    값이 붙는다 — 주소가 정해지면 DB의 address만 고치면 되고 이 파일은 손대지 않는다.
    태그가 없는 동안은 칸이 '---'로 뜨고, 고치려 하면 "태그를 찾을 수 없음"이 뜬다.
+
+   화면 글자는 사전 i18n/{ko,en}/engineering.json에 있다 — 판 제목 section.<key>,
+   항목 이름 item.<태그>, 설명 note.<태그>, 온도 보정 칸 zone.<key>.
    =========================================================================== */
 
 /* 이 화면의 태그가 든 폴더 — ez_scada.folders.id. 아직 DB에 없다.
@@ -33,37 +37,32 @@ const ROWS = 8;
 /* 설정 항목. 범위는 확인받은 것이 아니라 임시다(쿨링타워 지연시간과 같은 처리) —
    시간은 음수가 뜻이 없으니 min 0만 두고, 온도 기준은 다른 화면의 존 SV와 같은 0~1000으로 맞췄다.
    퍼지시간의 min 60만은 원본 화면에 적힌 조건이다("최소 1분(60초) 이상"). */
+/* 항목 이름은 사전의 item.<태그>, note: true면 그 아래 설명(note.<태그>)이 붙는다. */
 const SECTIONS = [
   {
-    key: 'drive',
-    title: '구동부 설정',
+    key: 'drive',   // 구동부 설정
     items: [
-      { tag: 'eng_facility_onoff_temp', label: '설비 ON/OFF TEMP 설정', unit: '℃', min: 0, max: 1000 },
-      { tag: 'eng_charge_hyd_unit_hold_time', label: '입구 유압 UNIT 가동후 유지 시간', unit: 'sec', min: 0 },
-      { tag: 'eng_discharge_hyd_unit_hold_time', label: '출구 유압 UNIT 가동후 유지 시간', unit: 'sec', min: 0 },
-      { tag: 'eng_charge_table_drive_alarm_time', label: '입구 TABLE 구동감지 알람시간', unit: 'sec', min: 0 },
-      { tag: 'eng_main_table_drive_alarm_time', label: 'MAIN TABLE 구동감지 알람시간', unit: 'sec', min: 0 },
-      { tag: 'eng_cc_table_drive_alarm_time', label: 'C/C TABLE 구동감지 알람시간', unit: 'sec', min: 0 },
-      { tag: 'eng_discharge_table_drive_alarm_time', label: '출구 TABLE 구동감지 알람시간', unit: 'sec', min: 0 },
+      { tag: 'eng_facility_onoff_temp', unit: '℃', min: 0, max: 1000 },   // 설비 ON/OFF TEMP 설정
+      { tag: 'eng_charge_hyd_unit_hold_time', unit: 'sec', min: 0 },        // 입구 유압 UNIT 가동후 유지 시간
+      { tag: 'eng_discharge_hyd_unit_hold_time', unit: 'sec', min: 0 },     // 출구 유압 UNIT 가동후 유지 시간
+      { tag: 'eng_charge_table_drive_alarm_time', unit: 'sec', min: 0 },    // 입구 TABLE 구동감지 알람시간
+      { tag: 'eng_main_table_drive_alarm_time', unit: 'sec', min: 0 },      // MAIN TABLE 구동감지 알람시간
+      { tag: 'eng_cc_table_drive_alarm_time', unit: 'sec', min: 0 },        // C/C TABLE 구동감지 알람시간
+      { tag: 'eng_discharge_table_drive_alarm_time', unit: 'sec', min: 0 }, // 출구 TABLE 구동감지 알람시간
     ],
   },
   {
-    key: 'combustion',
-    title: '연소부 설정',
+    key: 'combustion',   // 연소부 설정
     items: [
-      { tag: 'eng_purge_open_time', label: '퍼지 OPEN 시간', unit: 'sec', min: 0 },
-      {
-        tag: 'eng_purge_time', label: '퍼지시간', note: '최소 1분(60초) 이상 PURGE 설정상태',
-        unit: 'sec', min: 60,
-      },
-      { tag: 'eng_purge_close_time', label: '퍼지 CLOSE 시간', unit: 'sec', min: 0 },
+      { tag: 'eng_purge_open_time', unit: 'sec', min: 0 },                  // 퍼지 OPEN 시간
+      { tag: 'eng_purge_time', note: true, unit: 'sec', min: 60 },          // 퍼지시간 — 최소 1분(60초) 이상
+      { tag: 'eng_purge_close_time', unit: 'sec', min: 0 },                 // 퍼지 CLOSE 시간
     ],
   },
   {
-    key: 'atmosphere',
-    title: '분위기제어 설정',
+    key: 'atmosphere',   // 분위기제어 설정
     items: [
-      { tag: 'eng_atmos_allow_temp_detect_time', label: '분위기 제어 허용온도 감지시간', unit: 'sec', min: 0 },
+      { tag: 'eng_atmos_allow_temp_detect_time', unit: 'sec', min: 0 },     // 분위기 제어 허용온도 감지시간
     ],
   },
 ];
@@ -81,12 +80,15 @@ const ZONES = [
   ...[1, 2, 3, 4, 5, 6, 7].map((n) => ({
     key: `z${n}`, label: `${n}ZONE`, pv: `tic_z${n}_pv`, offset: `tic_z${n}_pv_offset`,
   })),
-  { key: 'preheat', label: '예열대', pv: 'tic_preheat_pv', offset: 'tic_preheat_pv_offset' },
-  { key: 'cool1', label: '냉각대 (1)', pv: 'tic_cool1_pv', offset: 'tic_cool1_pv_offset' },
-  { key: 'cool2', label: '냉각대 (2)', pv: 'tic_cool2_pv', offset: 'tic_cool2_pv_offset' },
+  // 아래 셋은 label이 없다 — 이름이 언어를 따르므로 사전의 zone.<key>에서 찾는다
+  { key: 'preheat', pv: 'tic_preheat_pv', offset: 'tic_preheat_pv_offset' },   // 예열대
+  { key: 'cool1', pv: 'tic_cool1_pv', offset: 'tic_cool1_pv_offset' },         // 냉각대 (1)
+  { key: 'cool2', pv: 'tic_cool2_pv', offset: 'tic_cool2_pv_offset' },         // 냉각대 (2)
 ];
 
 export default function EngineeringPage() {
+  const { t } = useTranslation('engineering');
+  const zoneLabel = (z) => z.label ?? t(`zone.${z.key}`);
   const { values: tagValues, error: tagValueError } = useFolderTagValues(ENG_FOLDER_ID);
   const [writeError, setWriteError] = useState('');
 
@@ -106,7 +108,7 @@ export default function EngineeringPage() {
       // 이 기기는 바로 바꾼다. 다른 기기는 화면 이동이나 30초 안에 따라온다(HoldMsContext)
       .then(() => setHoldMs(ms))
       .catch((e) => {
-        setWriteError(`버튼 누름 시간 — ${e.response?.data?.message ?? e.message}`);
+        setWriteError(`${t('hold.label')} — ${e.response?.data?.message ?? e.message}`);
         // 저장이 됐는지 모르는 채로 두지 않는다 — DB에 실제로 있는 값을 다시 받아 보여 준다
         refreshHoldMs();
       });
@@ -145,7 +147,7 @@ export default function EngineeringPage() {
     updateSetting(SESSION_LIMIT_KEY, min)
       .then(() => setSessionLimitMin(min))
       .catch((e) => {
-        setWriteError(`로그인 유지 시간 — ${e.response?.data?.message ?? e.message}`);
+        setWriteError(`${t('session.label')} — ${e.response?.data?.message ?? e.message}`);
         loadSessionLimit();
       });
   };
@@ -172,18 +174,19 @@ export default function EngineeringPage() {
       <div className="eng-sections">
         {SECTIONS.map((s) => (
           <section className={`hmi-group eng-section eng-section--${s.key}`} key={s.key}>
-            <span className="hmi-group-title">{s.title}</span>
+            <span className="hmi-group-title">{t(`section.${s.key}`)}</span>
             <ol className="eng-rows">
               {Array.from({ length: ROWS }, (_, i) => {
                 const it = s.items[i];
+                const label = it ? t(`item.${it.tag}`) : '';
                 return (
                   <li className={`eng-row${it ? '' : ' is-empty'}`} key={i}>
                     <span className="eng-no">{i + 1}.</span>
                     {it && (
                       <>
                         <span className="eng-label">
-                          {it.label}
-                          {it.note && <small className="eng-note">{it.note}</small>}
+                          {label}
+                          {it.note && <small className="eng-note">{t(`note.${it.tag}`)}</small>}
                         </span>
                         <span className="eng-value">
                           <LedInput
@@ -192,8 +195,8 @@ export default function EngineeringPage() {
                             color="green"
                             unit={it.unit}
                             size="sm"
-                            label={it.label}
-                            title={`${it.label} / ${it.tag}`}
+                            label={label}
+                            title={`${label} / ${it.tag}`}
                             min={it.min}
                             max={it.max}
                           />
@@ -211,15 +214,13 @@ export default function EngineeringPage() {
       {/* 화면 조작 설정 — PLC가 아니라 웹이 쓰는 값이라 판을 따로 둔다.
           위 판 셋에 끼우면 넷째 판이 생겨 칸이 좁아지고, PLC 설정값과 섞여 보인다. */}
       <section className="hmi-group eng-section eng-section--operation">
-        <span className="hmi-group-title">조작 설정</span>
+        <span className="hmi-group-title">{t('section.operation')}</span>
         <ol className="eng-rows eng-rows--operation">
           <li className="eng-row">
             <span className="eng-no">1.</span>
             <span className="eng-label">
-              버튼 누름 시간
-              <small className="eng-note">
-                모든 화면의 조작 버튼이 이 시간만큼 눌려야 값을 보냅니다 (0 ~ 5초, 0.1초 단위)
-              </small>
+              {t('hold.label')}
+              <small className="eng-note">{t('hold.note')}</small>
             </span>
             <span className="eng-value">
               <LedInput
@@ -228,8 +229,8 @@ export default function EngineeringPage() {
                 color="green"
                 unit="sec"
                 size="sm"
-                label="버튼 누름 시간"
-                title={`버튼 누름 시간 / scada_setting.${HOLD_MS_KEY} = ${holdMs}ms`}
+                label={t('hold.label')}
+                title={t('hold.tip', { key: HOLD_MS_KEY, ms: holdMs })}
                 min={HOLD_MS_MIN / 1000}
                 max={HOLD_MS_MAX / 1000}
                 decimals={1}
@@ -239,10 +240,8 @@ export default function EngineeringPage() {
           <li className="eng-row">
             <span className="eng-no">2.</span>
             <span className="eng-label">
-              로그인 유지 시간
-              <small className="eng-note">
-                로그인한 뒤 이 시간이 지나면 다시 로그인해야 합니다 (분 단위, 0 = 무제한, 최대 1440분 = 24시간)
-              </small>
+              {t('session.label')}
+              <small className="eng-note">{t('session.note')}</small>
             </span>
             <span className="eng-value">
               <LedInput
@@ -251,9 +250,11 @@ export default function EngineeringPage() {
                 color="green"
                 unit="min"
                 size="sm"
-                label="로그인 유지 시간 (분, 0 = 무제한)"
-                title={`로그인 유지 시간 / scada_setting.${SESSION_LIMIT_KEY} = `
-                  + `${sessionLimitMin == null ? '못 읽음' : `${sessionLimitMin}분`}`}
+                label={t('session.padLabel')}
+                title={t('session.tip', {
+                  key: SESSION_LIMIT_KEY,
+                  value: sessionLimitMin == null ? t('session.unread') : t('session.minutes', { n: sessionLimitMin }),
+                })}
                 min={0}
                 max={SESSION_LIMIT_MAX_MIN}
               />
@@ -263,11 +264,11 @@ export default function EngineeringPage() {
       </section>
 
       <section className="hmi-group eng-tc">
-        <span className="hmi-group-title">온도 보정</span>
+        <span className="hmi-group-title">{t('section.tc')}</span>
         <div className="eng-zones">
           {ZONES.map((z) => (
             <div className="eng-zone" key={z.key}>
-              <div className="eng-zone-title">{z.label}</div>
+              <div className="eng-zone-title">{zoneLabel(z)}</div>
               <div className="eng-zone-row">
                 <b>PV</b>
                 <LedInput
@@ -276,19 +277,19 @@ export default function EngineeringPage() {
                   unit="℃"
                   size="sm"
                   readOnly
-                  title={`${z.label} 현재온도(PV) — 읽기 전용 / ${z.pv}`}
+                  title={t('pvTip', { label: zoneLabel(z), tag: z.pv })}
                 />
               </div>
               <div className="eng-zone-row">
-                <b>PV보정</b>
+                <b>{t('offset')}</b>
                 <LedInput
                   value={text(z.offset)}
                   onChange={(v) => handleWrite(z.offset, v)}
                   color="green"
                   unit="℃"
                   size="sm"
-                  label={`${z.label} PV 보정`}
-                  title={`${z.label} PV 보정 / ${z.offset}`}
+                  label={t('offsetLabel', { label: zoneLabel(z) })}
+                  title={t('offsetTip', { label: zoneLabel(z), tag: z.offset })}
                 />
               </div>
             </div>

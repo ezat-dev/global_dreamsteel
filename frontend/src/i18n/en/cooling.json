@@ -1,0 +1,37 @@
+{
+  "tank": {
+    "chamber": "COOLING CHAMBER"
+  },
+  "pump": {
+    "cool1": "NO.1 COOLING PUMP",
+    "cool2": "NO.2 COOLING PUMP",
+    "circ1": "NO.1 CIRC. PUMP",
+    "circ2": "NO.2 CIRC. PUMP"
+  },
+  "banner": {
+    "sump_tank_level_high_lamp": "SUMP LEVEL HIGH",
+    "sump_tank_level_low_lamp": "SUMP LEVEL LOW"
+  },
+  "bannerTip": "{{what}} — read only / {{tag}} — shown only at 1",
+  "delayTitle": "COOLING ALARM DELAY",
+  "delayTip": "Cooling water alarm delay {{label}} / {{tag}} — same tag for read and write",
+  "delayLabel": "Cooling water alarm delay {{label}}",
+  "art": {
+    "cooling_tower_tank_lamp": "Cooling tower top motor",
+    "circulate_pump_1": "NO.1 circulation pump",
+    "circulate_pump_2": "NO.2 circulation pump",
+    "cooling_water_pump_1": "NO.1 cooling water pump",
+    "cooling_water_pump_2": "NO.2 cooling water pump",
+    "arrow-1": "Arrow 1 (tower top inlet)",
+    "arrow-2": "Arrow 2 (left riser)",
+    "arrow-6": "Arrow 6 (small tank outlet)",
+    "arrow-7": "Arrow 7 (large tank outlet)",
+    "arrow-8": "Arrow 8 (center riser)",
+    "arrow-9": "Arrow 9 (above COOLING CHAMBER)",
+    "arrow-11": "Arrow 11 (below COOLING CHAMBER)"
+  },
+  "rule": {
+    "motor": "green at 1 / unchanged at 0 / gray if unreadable",
+    "arrow": "blinks at 1"
+  }
+}

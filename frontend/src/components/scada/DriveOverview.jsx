@@ -53,7 +53,10 @@ import {
    쪽(DrivePage)에서 transform: scale로 처리한다 — 작화 CSS는 건드리지 않는다.
    =========================================================================== */
 
-function DriveOverview({ entRolling = true, exitRolling = true }) {
+/* lang — 안에서 쓰지는 않는다. 툴팁 글이 언어를 따르는데(driveArtTags) 이 그림은 memo라
+   props가 그대로면 다시 그려지지 않는다. 언어를 props로 받아 두어 바뀔 때만 다시 그린다. */
+// eslint-disable-next-line no-unused-vars
+function DriveOverview({ entRolling = true, exitRolling = true, lang }) {
   /* 기본값이 true인 것은 이 컴포넌트를 값 없이 써도 예전처럼 도는 그림이 나오게 하려는 것이다. */
   const entRoller = entRolling ? '/scada/drive/roller.svg' : '/scada/drive/roller-still.svg';
   const exitRoller = exitRolling ? '/scada/drive/roller-exit.svg' : '/scada/drive/roller-still.svg';

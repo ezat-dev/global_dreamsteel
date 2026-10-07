@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 import { getAlarmLampValues, getAlarmTagList, lampNameOf } from '../../api/scada/alarmTagApi';
@@ -28,13 +29,6 @@ const HIST_POLL_MS = 5000;
 /* 램프 값 주기 — C#이 메모리에 들고 있는 값을 받는 것이라 PLC 부하가 늘지 않는다(알람화면과 같다). */
 const LAMP_POLL_MS = 1000;
 
-const TABLE_OPTIONS = {
-  paginationSize: 20,
-  paginationSizeSelector: false,
-  // 비어 있는 것이 정상인 화면이다 — '데이터 없음'이 아니라 무슨 뜻인지 말해 준다
-  placeholder: '현재 발생한 경보가 없습니다.',
-};
-
 /** 램프 값 → 켜짐 여부. null(못 읽음)은 켜짐이 아니다 — 오른쪽에 안 올린다. */
 const isOn = (raw) => {
   if (raw == null || raw === '') return false;
@@ -43,6 +37,16 @@ const isOn = (raw) => {
 };
 
 export default function AlarmNowPage() {
+  const { t } = useTranslation('alarmNow');
+
+  /* 표 옵션 — 언어가 바뀔 때만 새로 만든다(HmiTable이 그때 표를 다시 만들며 읽는다) */
+  const tableOptions = useMemo(() => ({
+    paginationSize: 20,
+    paginationSizeSelector: false,
+    // 비어 있는 것이 정상인 화면이다 — '데이터 없음'이 아니라 무슨 뜻인지 말해 준다
+    placeholder: t('empty'),
+  }), [t]);
+
   /* ── 왼쪽: 발생 중인 이력 ───────────────────────────────────────────── */
   const [histRows, setHistRows] = useState([]);
   const [histLoaded, setHistLoaded] = useState(false);
@@ -73,7 +77,7 @@ export default function AlarmNowPage() {
         })
         .catch((e) => {
           // 목록은 지우지 않는다 — 통신이 끊긴 순간 경보가 사라지면 해제된 것처럼 보인다
-          if (alive) setHistError(e.response?.data?.message ?? '경보이력을 받지 못했습니다.');
+          if (alive) setHistError(e.response?.data?.message ?? t('histFailed'));
         })
         .finally(() => {
           first = false;
@@ -83,6 +87,8 @@ export default function AlarmNowPage() {
 
     tick();
     return () => { alive = false; clearTimeout(timer); };
+    // 한 번만 건다 — t는 실패 문구에만 쓰고, 언어를 바꿨다고 폴링을 다시 걸 일은 아니다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* 경보이력 화면과 같은 열에서 '경보상태'·'해제시각'만 뺐다 — 여기 있는 행은 전부
@@ -92,12 +98,13 @@ export default function AlarmNowPage() {
   const columns = useMemo(
     () => [
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 56 },
-      { title: '태그이름', field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-      { title: '태그주소', field: 'address', width: 90, hozAlign: 'center' },
-      { title: '경보주석', field: 'alarmMsg', minWidth: 160, widthGrow: 3, tooltip: true, hozAlign: 'center' },
-      { title: '발생시각', field: 'occurTimeStr', width: 150, hozAlign: 'center' },
+      { title: t('common:alarmCol.tagName'), field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true, hozAlign: 'center' },
+      { title: t('common:alarmCol.address'), field: 'address', width: 90, hozAlign: 'center' },
+      { title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 160, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+      { title: t('common:alarmCol.occurTime'), field: 'occurTimeStr', width: 150, hozAlign: 'center' },
     ],
-    [],
+    // 언어가 바뀌면 열 제목을 새로 만든다(표도 다시 그려진다)
+    [t],
   );
 
   /* ── 오른쪽: 켜진 램프 ─────────────────────────────────────────────── */
@@ -112,9 +119,10 @@ export default function AlarmNowPage() {
     getAlarmTagList()
       .then((res) => { if (alive) { setTags(res.data ?? []); setTagError(''); } })
       .catch((e) => {
-        if (alive) setTagError(e.response?.data?.message ?? '알람 목록을 불러오지 못했습니다.');
+        if (alive) setTagError(e.response?.data?.message ?? t('tagsFailed'));
       });
     return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -129,7 +137,7 @@ export default function AlarmNowPage() {
         })
         .catch(() => {
           // 값은 지우지 않는다 — 끊긴 순간 켜져 있던 램프가 사라지면 복구된 것처럼 보인다
-          if (alive) setLampError('PLC 값을 받지 못했습니다.');
+          if (alive) setLampError(t('plcFailed'));
         })
         .finally(() => {
           if (alive) timer = setTimeout(tick, LAMP_POLL_MS);
@@ -137,6 +145,7 @@ export default function AlarmNowPage() {
     };
     tick();
     return () => { alive = false; clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* 켜진 것만, 왼쪽 표와 같은 순서(발생시각 최신순)로.
@@ -150,21 +159,21 @@ export default function AlarmNowPage() {
     histRows.forEach((r, i) => { if (!histOrder.has(r.tagName)) histOrder.set(r.tagName, i); });
 
     return tags
-      .map((t, addrIdx) => ({ t, addrIdx }))
-      .filter(({ t }) => isOn(lampValues[lampNameOf(t.tagName)]))
+      .map((tag, addrIdx) => ({ tag, addrIdx }))
+      .filter(({ tag }) => isOn(lampValues[lampNameOf(tag.tagName)]))
       .sort((a, b) => {
-        const ha = histOrder.get(a.t.tagName) ?? Infinity;
-        const hb = histOrder.get(b.t.tagName) ?? Infinity;
+        const ha = histOrder.get(a.tag.tagName) ?? Infinity;
+        const hb = histOrder.get(b.tag.tagName) ?? Infinity;
         return ha !== hb ? ha - hb : a.addrIdx - b.addrIdx;
       })
-      .map(({ t }) => t);
+      .map(({ tag }) => tag);
   }, [tags, lampValues, histRows]);
 
   /* 오른쪽이 비었을 때 문구 — 값을 아직 못 받았거나 못 받는 중이면 '없음'이라고 하지 않는다
      (통신이 안 되는데 경보가 없다고 하면 안심하게 된다). */
-  let lampEmpty = '현재 켜진 램프가 없습니다.';
+  let lampEmpty = t('noLamps');
   if (tagError) lampEmpty = tagError;
-  else if (!lampValues) lampEmpty = lampError || '값 수신 대기 중...';
+  else if (!lampValues) lampEmpty = lampError || t('waitingValues');
 
   return (
     /* hmi-dark — 어두운 배경·유리 판·표 테마는 scada.css의 공용 규칙이 맡는다 */
@@ -172,37 +181,37 @@ export default function AlarmNowPage() {
       {/* ── 왼쪽: 경보이력 중 발생 ── */}
       <section className="an-col an-hist ah-page">
         <div className="an-head">
-          <span className="an-title">경보이력 — 발생 중</span>
+          <span className="an-title">{t('histTitle')}</span>
           {histError && <span className="ah-error">{histError}</span>}
           <span className={`al-count${histRows.length > 0 ? ' is-alarm' : ''}`}>
-            {histLoaded ? `발생 ${histRows.length}건` : '불러오는 중...'}
+            {histLoaded ? t('activeCount', { n: histRows.length }) : t('common:list.loading')}
           </span>
         </div>
         <div className="ah-table">
-          <HmiTable data={histRows} columns={columns} options={TABLE_OPTIONS} height="100%" fitRows />
+          <HmiTable data={histRows} columns={columns} options={tableOptions} height="100%" fitRows />
         </div>
       </section>
 
       {/* ── 오른쪽: 알람화면 중 켜진 램프 ── */}
       <section className="an-col an-lamp">
         <div className="an-head">
-          <span className="an-title">알람화면 — 램프 켜짐</span>
+          <span className="an-title">{t('lampTitle')}</span>
           {lampValues && lampError && <span className="ah-error">{lampError}</span>}
           <span className={`al-count${activeLamps.length > 0 ? ' is-alarm' : ''}`}>
-            {lampValues ? `발생 ${activeLamps.length}건` : '대기 중...'}
+            {lampValues ? t('activeCount', { n: activeLamps.length }) : t('waiting')}
           </span>
         </div>
 
         {activeLamps.length > 0 ? (
           <div className="an-lamps">
-            {activeLamps.map((t) => (
+            {activeLamps.map((tag) => (
               <div
-                key={t.tagName}
+                key={tag.tagName}
                 className="al-cell on an-lamp-cell"
-                title={`${t.tagName} / ${t.address} / 램프 ${lampNameOf(t.tagName)}`}
+                title={t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampNameOf(tag.tagName) })}
               >
-                <span className="an-lamp-msg">{t.alarmMsg || t.tagName}</span>
-                <span className="an-lamp-tag">{`${t.tagName} · ${t.address}`}</span>
+                <span className="an-lamp-msg">{tag.alarmMsg || tag.tagName}</span>
+                <span className="an-lamp-tag">{`${tag.tagName} · ${tag.address}`}</span>
               </div>
             ))}
           </div>

@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AtmosphereOverview from '../../components/scada/AtmosphereOverview';
 import AtmosConditionPanel from '../../components/scada/AtmosConditionPanel';
 import AtmosValvePanel from '../../components/scada/AtmosValvePanel';
@@ -23,6 +24,9 @@ import './AtmospherePage.css';
 
    원본이 1801x742px 고정 크기라 화면에 맞춰 transform: scale로 줄인다. 얹는 판들도
    같이 줄어들어야 하므로 스케일 안쪽에 두고, 위치는 그림 좌표계(1801x742) 기준 px로 적는다.
+
+   화면 글자는 사전 i18n/{ko,en}/atmosphere.json에 있다 — 설비판 device.<key>,
+   배관 램프 lamp.<태그>, 자동모드 조건 cond.<태그>.
    =========================================================================== */
 
 const STAGE_W = 1801;
@@ -56,14 +60,14 @@ const SLOTS = {
    작화에 BLOWE로 적혀 있지만 조건 문구가 ADDTION AIR BLOWER라서 태그는 air로 간다. */
 const DEVICE_PANELS = [
   {
-    key: 'blower', tone: 'blower', title: 'ADDTION BLOWE',
+    key: 'blower', tone: 'blower',   // ADDTION BLOWE
     plate: { left: 4, top: 8, width: 220 },
     state: { left: 16, top: 70, width: 170 },
     onCmd: 'add_air_open_cmd',    // M324 / 램프 M624 — 1이면 초록
     offCmd: 'add_air_close_cmd',  // M325 / 램프 M625 — 0이면 빨강
   },
   {
-    key: 'gas', tone: 'gas', title: 'ADDTION GAS',
+    key: 'gas', tone: 'gas',   // ADDTION GAS
     plate: { left: 4, top: 168, width: 178 },
     state: { left: 16, top: 228, width: 170 },
     onCmd: 'add_gas_open_cmd',    // M322 / 램프 M622 — 1이면 초록
@@ -75,7 +79,7 @@ const DEVICE_PANELS = [
        그러면 위 둘처럼 onCmd/offCmd로 옮기면 된다.
 
        두 칸의 규칙이 서로 다르다 — OPEN은 0일 때 초록, CLOSE는 1일 때 빨강이다. */
-    key: 'gen', tone: 'gen', title: '발 생 기',
+    key: 'gen', tone: 'gen',   // 발 생 기
     plate: { left: 1500, top: 100, width: 172 },
     state: { left: 1495, top: 158, width: 182 },
     openTag: 'generator_open_lamp',
@@ -89,10 +93,10 @@ const DEVICE_PANELS = [
 /* 넷 다 켜지고 꺼지는 램프가 아니라 늘 빨강 아니면 초록이다 — 0이면 빨강, 1이면 초록.
    값을 못 읽으면 점선(모름)이다. */
 const PIPE_LABELS = [
-  { key: 'bPre', cx: 368, top: 82, text: '압력 이상', tag: 'add_blowe_pressure_abnormal_lamp' },
-  { key: 'bSol', cx: 495, top: 82, text: 'SOL닫힘', tag: 'add_blowe_sol_close_lamp' },
-  { key: 'gPre', cx: 266, top: 244, text: '압력 이상', tag: 'add_gas_pressure_abnormal_lamp' },
-  { key: 'gSol', cx: 407, top: 244, text: 'SOL닫힘', tag: 'add_gas_sol_close_lamp' },
+  { key: 'bPre', cx: 368, top: 82, tag: 'add_blowe_pressure_abnormal_lamp' },   // 압력 이상
+  { key: 'bSol', cx: 495, top: 82, tag: 'add_blowe_sol_close_lamp' },           // SOL닫힘
+  { key: 'gPre', cx: 266, top: 244, tag: 'add_gas_pressure_abnormal_lamp' },    // 압력 이상
+  { key: 'gSol', cx: 407, top: 244, tag: 'add_gas_sol_close_lamp' },            // SOL닫힘
 ];
 
 /* 로(obj-4, y 600~742)로 내려가는 관 끝에 붙는 이름판.
@@ -100,7 +104,7 @@ const PIPE_LABELS = [
      down-1 x 1284~1332 → 중심 1308,  down-2 x 1413~1461 → 중심 1437
      둘의 가운데 = 1372 이므로 left = 1372 - 폭/2.
    세로는 화살표 아래끝(573)과 로 윗변(600) 사이에 걸치도록 잡았다. */
-const FURNACE_PLATE = { left: 1277, top: 592, width: 190, text: '로내 투입' };
+const FURNACE_PLATE = { left: 1277, top: 592, width: 190 };   // 로내 투입 (atmosphere.json의 furnace)
 
 // 로 위에 얹는 O2 센서 표시부
 const O2_PANEL = { left: 940, top: 620, titleWidth: 135, valueWidth: 100 };
@@ -119,16 +123,17 @@ const AT_FOLDER_ID = 10;
    바로 위 AIR PRESSURE 정상은 1에서 초록이라 나란히 놓고 보면 거꾸로처럼 보이는데,
    PLC가 그렇게 준다. 램프가 반대로 보이면 여기 greenWhen부터 확인할 것. */
 const CONDITIONS = [
-  { key: 'blower', label: 'ADDTION AIR BLOWER ON', tag: 'add_air_blower_on_lamp', greenWhen: TAG_ON },
-  { key: 'airSol', label: 'ADDTION AIR SOL VLAVE ON', tag: 'add_air_sol_valve_lamp', greenWhen: TAG_ON },
-  { key: 'airPress', label: 'ADDTION AIR PRESSURE 정상', tag: 'add_air_pressure_normal_lamp', greenWhen: TAG_ON },
-  { key: 'gasSol', label: 'ADDTION GAS SOL VLAVE ON', tag: 'add_gas_sol_valve_on_lamp', greenWhen: TAG_ON },
-  { key: 'gasPress', label: 'ADDTION GAS PRESSURE 정상', tag: 'add_gas_pressure_normal_lamp', greenWhen: TAG_OFF },
-  { key: 'refTemp', label: '허용 기준온도 도달', tag: 'allow_temp_reach_lamp', greenWhen: TAG_ON },
-  { key: 'genGas', label: '발생기 GAS OPEN', tag: 'generator_gas_open_lamp', greenWhen: TAG_OFF },
+  { key: 'blower', tag: 'add_air_blower_on_lamp', greenWhen: TAG_ON },          // ADDTION AIR BLOWER ON
+  { key: 'airSol', tag: 'add_air_sol_valve_lamp', greenWhen: TAG_ON },          // ADDTION AIR SOL VLAVE ON
+  { key: 'airPress', tag: 'add_air_pressure_normal_lamp', greenWhen: TAG_ON },  // ADDTION AIR PRESSURE 정상
+  { key: 'gasSol', tag: 'add_gas_sol_valve_on_lamp', greenWhen: TAG_ON },       // ADDTION GAS SOL VLAVE ON
+  { key: 'gasPress', tag: 'add_gas_pressure_normal_lamp', greenWhen: TAG_OFF }, // ADDTION GAS PRESSURE 정상
+  { key: 'refTemp', tag: 'allow_temp_reach_lamp', greenWhen: TAG_ON },          // 허용 기준온도 도달
+  { key: 'genGas', tag: 'generator_gas_open_lamp', greenWhen: TAG_OFF },        // 발생기 GAS OPEN
 ];
 
 export default function AtmospherePage() {
+  const { t, i18n } = useTranslation('atmosphere');
   const stageRef = useRef(null);
   const [scale, setScale] = useState(0);
 
@@ -171,7 +176,7 @@ export default function AtmospherePage() {
 
      tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
   const fittingClasses = Object.entries(FITTING_TAGS)
-    .map(([cls, t]) => (tagState(tagValues?.[t.tag]) === TAG_ON
+    .map(([cls, fitting]) => (tagState(tagValues?.[fitting.tag]) === TAG_ON
       ? ` ${fittingOnClass(cls)}`
       : ` ${fittingOffClass(cls)}`))
     .join('');
@@ -401,7 +406,8 @@ export default function AtmospherePage() {
             visibility: scale ? 'visible' : 'hidden',
           }}
         >
-          <AtmosphereOverview valveSpinning={valveSpinning} />
+          {/* lang — 언어가 바뀌면 그림 위 툴팁을 새 언어로 다시 그리게 한다(AtmosphereOverview 참고) */}
+          <AtmosphereOverview valveSpinning={valveSpinning} lang={i18n.language} />
 
           <div className="at-overlay">
             {/* 설비 제목판 + OPEN/CLOSE — 두 칸 다 램프다. OPEN은 초록, CLOSE는 빨강으로
@@ -411,7 +417,7 @@ export default function AtmospherePage() {
             {DEVICE_PANELS.map((d) => (
               <Fragment key={d.key}>
                 <span className={`at-plate at-plate--${d.tone}`} style={d.plate}>
-                  {d.title}
+                  {t(`device.${d.key}`)}
                 </span>
                 <span className="at-openclose" style={d.state}>
                   {d.onCmd ? (
@@ -436,8 +442,9 @@ export default function AtmospherePage() {
                           + (armedTag === b.cmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(b.cmd, b.other)}
                         data-tag={b.cmd}
-                        title={`${holdMs / 1000}초 누르면 ${b.other}=0, ${b.cmd}=1`
-                          + ` / 램프 ${lampOf(b.cmd)}`}
+                        title={t('openCloseTip', {
+                          sec: holdMs / 1000, other: b.other, cmd: b.cmd, lamp: lampOf(b.cmd),
+                        })}
                       >
                         {b.text}
                         {heldTag === b.cmd && (
@@ -453,14 +460,14 @@ export default function AtmospherePage() {
                       <em
                         className={`hmi-lampbox${genLampClass(d.openTag, TAG_OFF, ' is-on')}`}
                         data-tag={d.openTag}
-                        title={`발생기 OPEN — 읽기 전용 / ${d.openTag} — 0이면 초록`}
+                        title={t('genOpenTip', { tag: d.openTag })}
                       >
                         OPEN
                       </em>
                       <em
                         className={`hmi-lampbox${genLampClass(d.closeTag, TAG_ON, ' is-alarm')}`}
                         data-tag={d.closeTag}
-                        title={`발생기 CLOSE — 읽기 전용 / ${d.closeTag} — 1이면 빨강`}
+                        title={t('genCloseTip', { tag: d.closeTag })}
                       >
                         CLOSE
                       </em>
@@ -476,18 +483,18 @@ export default function AtmospherePage() {
                 className={`at-pipe-label hmi-lampbox${pipeClass(l)}`}
                 key={l.key}
                 data-tag={l.tag}
-                title={`${l.text} — 읽기 전용 / ${l.tag} — 1이면 초록, 0이면 빨강`}
+                title={t('pipeTip', { what: t(`lamp.${l.tag}`), tag: l.tag })}
                 /* 가운데 맞춤(translateX(-50%))은 CSS(.at-pipe-label)가 한다 —
                    인라인 transform으로 두면 좁은 화면에서 판을 키우는 규칙이 먹지 않는다
                    (인라인이 스타일시트를 이긴다). */
                 style={{ left: l.cx, top: l.top }}
               >
-                {l.text}
+                {t(`lamp.${l.tag}`)}
               </span>
             ))}
 
             <span className="at-plate at-plate--furnace" style={FURNACE_PLATE}>
-              {FURNACE_PLATE.text}
+              {t('furnace')}
             </span>
 
             {/* O2 SENSOR — PLC가 주는 값이라 표시 전용 */}
@@ -499,7 +506,7 @@ export default function AtmospherePage() {
                 className="at-val"
                 style={{ width: O2_PANEL.valueWidth }}
                 data-tag="o2_pv"
-                title="O2 SENSOR — 읽기 전용 / o2_pv (D241)"
+                title={t('o2Tip')}
               >
                 {o2Text}
               </em>

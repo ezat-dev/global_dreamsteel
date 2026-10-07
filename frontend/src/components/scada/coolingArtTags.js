@@ -7,7 +7,13 @@
 
    주소는 아직 임시(M300)다. 실주소를 알게 되면 DB의 address만 UPDATE 하면 되고
    이 파일은 손대지 않아도 된다 — 이름으로 읽기 때문이다.
+
+   툴팁의 기기 이름과 값 규칙 문구는 사전(i18n/{ko,en}/cooling.json)의 art.<태그>·rule.*에 있다.
    =========================================================================== */
+
+import i18n from '../../i18n';
+
+const nameOf = (tag) => i18n.t(`cooling:art.${tag}`);
 
 /* 쿨링타워 맨 위의 모터(작화 motor-1, x 222~293 / y 0~74).
    값이 1이면 초록, 0이면 작화 그대로, 못 읽으면 회색이다 — 위 화면들과 달리 0이
@@ -17,27 +23,26 @@
    이름 말고 여기 적힌 작화 클래스를 보면 된다. */
 export const TOWER_MOTOR = {
   cls: 'motor-1',
-  tag: 'cooling_tower_tank_lamp',
-  label: '쿨링타워 상부 모터',
+  tag: 'cooling_tower_tank_lamp',   // 쿨링타워 상부 모터
 };
 
 export const towerMotorTitle = () =>
-  `${TOWER_MOTOR.label} / ${TOWER_MOTOR.tag} — 값이 1이면 초록 / 0이면 그대로 / 못 읽으면 회색`;
+  `${nameOf(TOWER_MOTOR.tag)} / ${TOWER_MOTOR.tag} — ${i18n.t('cooling:rule.motor')}`;
 
 /* 펌프 넷. 상부 모터와 같은 규칙이다 — 1이면 초록, 0이면 그대로, 못 읽으면 회색.
 
    pump-3 / pump-4 는 작화 CSS가 좌우로 뒤집어 그려서 left가 오른쪽 끝이다.
    아래 좌표는 뒤집기를 반영한 실제 자리이고, 화면의 이름판과 맞는다. */
 export const PUMPS = [
-  { cls: 'pump-1', tag: 'circulate_pump_1', label: 'NO.1 순환펌프' },      // x 161~303 y 498~573
-  { cls: 'pump-2', tag: 'circulate_pump_2', label: 'NO.2 순환펌프' },      // x 159~301 y 609~684
-  { cls: 'pump-3', tag: 'cooling_water_pump_1', label: 'NO.1 냉각수펌프' }, // x 607~749 y 322~397
-  { cls: 'pump-4', tag: 'cooling_water_pump_2', label: 'NO.2 냉각수펌프' }, // x 609~751 y 433~508
+  { cls: 'pump-1', tag: 'circulate_pump_1' },      // NO.1 순환펌프   x 161~303 y 498~573
+  { cls: 'pump-2', tag: 'circulate_pump_2' },      // NO.2 순환펌프   x 159~301 y 609~684
+  { cls: 'pump-3', tag: 'cooling_water_pump_1' },  // NO.1 냉각수펌프 x 607~749 y 322~397
+  { cls: 'pump-4', tag: 'cooling_water_pump_2' },  // NO.2 냉각수펌프 x 609~751 y 433~508
 ];
 
 export const pumpTitle = (cls) => {
-  const p = PUMPS.find((x) => x.cls === cls);
-  return `${p.label} / ${p.tag} — 값이 1이면 초록 / 0이면 그대로 / 못 읽으면 회색`;
+  const { tag } = PUMPS.find((x) => x.cls === cls);
+  return `${nameOf(tag)} / ${tag} — ${i18n.t('cooling:rule.motor')}`;
 };
 
 /* 펌프에 붙는 클래스. 상부 모터와 같은 색 규칙을 쓰지만 선택자는 따로 적는다. */
@@ -54,18 +59,18 @@ export const pumpGrayClass = (cls) => `gray-${cls}`;
    아래로 내려가는 화살표 셋(arrow-3~5, 타워에서 수조로 떨어지는 물)은 빠졌다.
    arrow-10·12(RX-발생기 위아래)도 빠졌다 — 그 설비를 화면에서 통째로 지웠다. */
 export const ARROW_TAGS = [
-  { cls: 'arrow-1', tag: 'arrow-1', label: '화살표 1 (타워 위 입구)' },
-  { cls: 'arrow-2', tag: 'arrow-2', label: '화살표 2 (왼쪽 상승관)' },
-  { cls: 'arrow-6', tag: 'arrow-6', label: '화살표 6 (작은 수조 출구)' },
-  { cls: 'arrow-7', tag: 'arrow-7', label: '화살표 7 (큰 수조 출구)' },
-  { cls: 'arrow-8', tag: 'arrow-8', label: '화살표 8 (가운데 상승관)' },
-  { cls: 'arrow-9', tag: 'arrow-9', label: '화살표 9 (COOLING CHAMBER 위)' },
-  { cls: 'arrow-11', tag: 'arrow-11', label: '화살표 11 (COOLING CHAMBER 아래)' },
+  { cls: 'arrow-1', tag: 'arrow-1' },     // 타워 위 입구
+  { cls: 'arrow-2', tag: 'arrow-2' },     // 왼쪽 상승관
+  { cls: 'arrow-6', tag: 'arrow-6' },     // 작은 수조 출구
+  { cls: 'arrow-7', tag: 'arrow-7' },     // 큰 수조 출구
+  { cls: 'arrow-8', tag: 'arrow-8' },     // 가운데 상승관
+  { cls: 'arrow-9', tag: 'arrow-9' },     // COOLING CHAMBER 위
+  { cls: 'arrow-11', tag: 'arrow-11' },   // COOLING CHAMBER 아래
 ];
 
 export const arrowTitle = (cls) => {
-  const a = ARROW_TAGS.find((x) => x.cls === cls);
-  return `${a.label} / ${a.tag} — 값이 1이면 깜빡임`;
+  const { tag } = ARROW_TAGS.find((x) => x.cls === cls);
+  return `${nameOf(tag)} / ${tag} — ${i18n.t('cooling:rule.arrow')}`;
 };
 
 /* 깜빡일 때 무대에 붙는 클래스. CoolingPage.css의 선택자와 짝이 맞아야 한다. */

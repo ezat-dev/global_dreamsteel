@@ -1,0 +1,37 @@
+{
+  "tank": {
+    "chamber": "COOLING CHAMBER"
+  },
+  "pump": {
+    "cool1": "NO.1 냉각수펌프",
+    "cool2": "NO.2 냉각수펌프",
+    "circ1": "NO.1 순환펌프",
+    "circ2": "NO.2 순환펌프"
+  },
+  "banner": {
+    "sump_tank_level_high_lamp": "집수조 LEVEL HIGH",
+    "sump_tank_level_low_lamp": "집수조 LEVEL LOW"
+  },
+  "bannerTip": "{{what}} — 읽기 전용 / {{tag}} — 1일 때만 보인다",
+  "delayTitle": "냉각수 알람 지연시간",
+  "delayTip": "냉각수 알람 지연시간 {{label}} / {{tag}} — 읽기·쓰기 같은 태그",
+  "delayLabel": "냉각수 알람 지연시간 {{label}}",
+  "art": {
+    "cooling_tower_tank_lamp": "쿨링타워 상부 모터",
+    "circulate_pump_1": "NO.1 순환펌프",
+    "circulate_pump_2": "NO.2 순환펌프",
+    "cooling_water_pump_1": "NO.1 냉각수펌프",
+    "cooling_water_pump_2": "NO.2 냉각수펌프",
+    "arrow-1": "화살표 1 (타워 위 입구)",
+    "arrow-2": "화살표 2 (왼쪽 상승관)",
+    "arrow-6": "화살표 6 (작은 수조 출구)",
+    "arrow-7": "화살표 7 (큰 수조 출구)",
+    "arrow-8": "화살표 8 (가운데 상승관)",
+    "arrow-9": "화살표 9 (COOLING CHAMBER 위)",
+    "arrow-11": "화살표 11 (COOLING CHAMBER 아래)"
+  },
+  "rule": {
+    "motor": "값이 1이면 초록 / 0이면 그대로 / 못 읽으면 회색",
+    "arrow": "값이 1이면 깜빡임"
+  }
+}

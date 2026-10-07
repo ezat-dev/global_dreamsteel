@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import DatePicker, { registerLocale } from 'react-datepicker';
+import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
-import { ko } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
 import downloadXlsx from '../../components/scada/downloadXlsx';
+import useCalLocale from '../../components/scada/useCalLocale';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 // 라이브러리 기본 스타일을 먼저 깔고, AlarmHistPage.css의 .ah-cal 규칙이 HMI 톤으로 덮어쓴다.
 import 'react-datepicker/dist/react-datepicker.css';
@@ -17,9 +18,6 @@ import './AlarmHistPage.css';
    alarmGenerateTime). MyBatis 설정에 mapUnderscoreToCamelCase가 켜져 있어서
    백엔드가 따로 매핑하지 않아도 이 이름으로 내려온다.
    =========================================================================== */
-
-// 달력의 요일·월 이름을 한글로 — locale="ko"로 지정한 이름과 짝이 맞아야 한다.
-registerLocale('ko', ko);
 
 /* 입력칸에 보이는 형식이자 직접 타이핑할 때 파싱되는 형식.
    달력에서는 분 단위까지만 고를 수 있고(라이브러리 제약), 초까지 지정하려면
@@ -39,6 +37,9 @@ const ALARM_OPTIONS = {
 };
 
 export default function AlarmHistPage() {
+  const { t } = useTranslation('alarmHistory');
+  // 달력의 요일·월 이름·제목 형식 — 지금 언어대로(useCalLocale 참고)
+  const calLocale = useCalLocale();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -64,7 +65,7 @@ export default function AlarmHistPage() {
      버튼 클릭 호출이 같은 함수를 쓸 수 있다. */
   const search = (start, end) => {
     if (start && end && start > end) {
-      setError('시작시각이 종료시각보다 뒤입니다.');
+      setError(t('common:list.startAfterEnd'));
       return;
     }
     console.log('search', start, end);
@@ -84,7 +85,7 @@ export default function AlarmHistPage() {
       .catch((e) => {
         if (reqId === reqIdRef.current) {
           setRows([]);
-          setError(e.response?.data?.message ?? '경보이력을 불러오지 못했습니다.');
+          setError(e.response?.data?.message ?? t('loadFailed'));
         }
       })
       .finally(() => {
@@ -109,19 +110,16 @@ export default function AlarmHistPage() {
 
   // 두 칸이 동시에 열릴 일이 없어 ref 하나를 같이 쓴다.
   const calProps = {
-    locale: 'ko',
+    // locale·timeCaption·dateFormatCalendar(달력 제목 '2026년 9월') — 지금 언어대로
+    ...calLocale,
     dateFormat: TIME_FORMAT,
     showTimeSelect: true,
     timeIntervals: 1,
-    timeCaption: '시각',
     /* 연·월을 골라 뛸 수 있게 한다 — 화살표만 있으면 2년 전으로 가려고 24번 눌러야 한다.
        'select'는 OS 기본 드롭다운이라 자리를 덜 먹고 터치로도 고르기 쉽다. */
     showMonthDropdown: true,
     showYearDropdown: true,
     dropdownMode: 'select',
-    /* 달력 제목 — 기본값 'LLLL yyyy'는 ko 로케일에서 "9월 2026"으로 나온다.
-       우리가 읽는 순서(년→월)로 바꾼다. */
-    dateFormatCalendar: 'yyyy년 M월',
     isClearable: true,
     className: 'ah-date',
     calendarClassName: 'ah-cal',
@@ -131,7 +129,7 @@ export default function AlarmHistPage() {
     onCalendarClose: () => { calOpenRef.current = false; },
   };
 
-  /* columns가 바뀌면 표를 통째로 다시 만들기 때문에 한 번만 만든다.
+  /* columns가 바뀌면 표를 통째로 다시 만들기 때문에 한 번만 만든다(언어를 바꿀 때만 다시).
 
      폭 배분 — 래퍼가 layout: 'fitColumns'라서, width를 준 컬럼은 고정이고 width가
      없는 컬럼들이 남는 공간을 widthGrow 비율대로 나눠 갖는다. 시각/상태처럼 값 길이가
@@ -148,40 +146,47 @@ export default function AlarmHistPage() {
       /* 열 머리의 검색칸(headerFilter) — 조회는 기간으로 하고, 받아온 목록 안에서
          다시 좁힐 때 쓴다. 서버에 다시 묻지 않고 화면에 있는 행만 거른다. */
       {
-        title: '태그이름', field: 'tagName', minWidth: 120, widthGrow: 2, tooltip: true,
-        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '태그 검색',
+        title: t('common:alarmCol.tagName'), field: 'tagName', minWidth: 120, widthGrow: 2, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: t('common:alarmCol.tagSearch'),
       },
-      { title: '태그주소', field: 'address', width: 96, hozAlign: 'center', headerFilter: 'input' },
+      { title: t('common:alarmCol.address'), field: 'address', width: 96, hozAlign: 'center', headerFilter: 'input' },
       {
-        title: '경보주석', field: 'alarmMsg', minWidth: 190, widthGrow: 3, tooltip: true,
-        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: '내용 검색',
+        title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 190, widthGrow: 3, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: t('common:alarmCol.msgSearch'),
       },
       {
         /* 값이 '발생/해제' 둘뿐이라 좁혀도 배지가 잘리지 않는다 — 폭을 줄일 여지가
            제일 큰 칸이다. 84px는 머리글 '경보상태'(4글자)와 고르는 칸이 들어가는 폭. */
-        title: '경보상태', field: 'alarmStatus', width: 84, hozAlign: 'center',
+        title: t('common:alarmCol.status'), field: 'alarmStatus', width: 84, hozAlign: 'center',
         /* 값이 둘뿐이라 자유 입력이 아니라 고르는 칸으로 둔다. 화면에는 '발생/해제'로
            보이지만 실제 값은 ACTIVE/CLEARED라, 고르는 목록도 실제 값으로 맞춘다. */
         headerFilter: 'list',
-        headerFilterParams: { values: { '': '전체', ACTIVE: '발생', CLEARED: '해제' } },
+        headerFilterParams: {
+          values: {
+            '': t('common:list.all'),
+            ACTIVE: t('common:alarmCol.active'),
+            CLEARED: t('common:alarmCol.cleared'),
+          },
+        },
         /* 화면에는 배지로 그리지만 파일에는 글자로 남아야 한다 — 엑셀에 ACTIVE가
            찍히면 현장에서 읽을 말이 아니다. downloadXlsx가 이 함수를 거친다. */
-        excelValue: (v) => (v === 'ACTIVE' ? '발생' : '해제'),
+        excelValue: (v) => (v === 'ACTIVE' ? t('common:alarmCol.active') : t('common:alarmCol.cleared')),
         /* DB(vw_alarm_history)는 ACTIVE / CLEARED로 주는데 현장에서 읽을 말로 바꿔 보여준다.
            ACTIVE만 빨간 '발생'이고 나머지는 전부 회색 '해제'다 — 지금 값이 둘뿐이지만
            나중에 다른 상태가 늘어도 발생으로 오인하지 않게 ACTIVE만 골라낸다. */
         formatter: (cell) => {
           const on = cell.getValue() === 'ACTIVE';
           return on
-            ? '<span class="ht-badge on">발생</span>'
-            : '<span class="ht-badge off">해제</span>';
+            ? `<span class="ht-badge on">${t('common:alarmCol.active')}</span>`
+            : `<span class="ht-badge off">${t('common:alarmCol.cleared')}</span>`;
         },
       },
       // yyyy-MM-dd HH:mm:ss 가 딱 들어가는 폭(12.5px 글자 ≈ 122px + 좌우 여백 16px).
-      { title: '발생시각', field: 'occurTimeStr', width: 150, hozAlign: 'center' },
-      { title: '해제시각', field: 'clearTimeStr', width: 150, hozAlign: 'center' },
+      { title: t('common:alarmCol.occurTime'), field: 'occurTimeStr', width: 150, hozAlign: 'center' },
+      { title: t('common:alarmCol.clearTime'), field: 'clearTimeStr', width: 150, hozAlign: 'center' },
     ],
-    []
+    // 언어가 바뀌면 t가 바뀐다 — 그때 열 제목·배지 글자를 새로 만든다(표도 다시 그려진다)
+    [t]
   );
 
   return (
@@ -189,7 +194,7 @@ export default function AlarmHistPage() {
     <div className="ah-page hmi-dark">
       <div className="ah-toolbar">
         <div className="ah-filter">
-          <label className="ah-label" htmlFor="ah-start">발생시각</label>
+          <label className="ah-label" htmlFor="ah-start">{t('common:alarmCol.occurTime')}</label>
           {/* maxDate/minDate로 달력에서 뒤집힌 범위를 못 고르게 막고,
               칸에 직접 적어 넣은 경우는 search가 한 번 더 걸러낸다. */}
           <DatePicker
@@ -198,7 +203,7 @@ export default function AlarmHistPage() {
             selected={startTime}
             onChange={setStartTime}
             maxDate={endTime ?? undefined}
-            placeholderText="시작 시각"
+            placeholderText={t('common:list.startTime')}
           />
           <span className="ah-tilde">~</span>
           <DatePicker
@@ -206,7 +211,7 @@ export default function AlarmHistPage() {
             selected={endTime}
             onChange={setEndTime}
             minDate={startTime ?? undefined}
-            placeholderText="종료 시각"
+            placeholderText={t('common:list.endTime')}
           />
           <button
             type="button"
@@ -214,7 +219,7 @@ export default function AlarmHistPage() {
             onClick={() => search(startTime, endTime)}
             disabled={loading}
           >
-            조회
+            {t('common:list.search')}
           </button>
 
           {/* 화면에 걸린 검색·정렬 그대로 나간다. 받을 게 없으면 눌리지 않는다 —
@@ -224,15 +229,17 @@ export default function AlarmHistPage() {
             className="ah-btn is-excel"
             onClick={() => downloadXlsx(tableRef.current, '경보이력')}
             disabled={loading || rows.length === 0}
-            title="지금 표에 보이는 내용을 엑셀 파일로 내려받습니다"
+            title={t('common:list.excelTitle')}
           >
             <IconFileSpreadsheet size={16} />
-            엑셀 내려받기
+            {t('common:list.excel')}
           </button>
         </div>
 
         {error && <span className="ah-error">{error}</span>}
-        <span className="ah-count">{loading ? '불러오는 중...' : `총 ${rows.length}건`}</span>
+        <span className="ah-count">
+          {loading ? t('common:list.loading') : t('common:list.total', { n: rows.length })}
+        </span>
       </div>
 
       <div className="ah-table">

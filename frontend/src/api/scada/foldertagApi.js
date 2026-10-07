@@ -1,5 +1,6 @@
 import axiosInstance from '../axiosInstance';
 import plcApiInstance from '../plcApiInstance';
+import i18n from '../../i18n';
 
 /* ===========================================================================
    folders_tags 태그 읽기·쓰기. 두 경로가 다르다.
@@ -119,7 +120,7 @@ function lookupAddress(folderId, name) {
          부르는 쪽 폴더를 골라 쓰고, 없으면 첫 번째를 쓴다. */
       const tags = res.data?.tags ?? [];
       const tag = tags.find((t) => t.folderId === folderId) ?? tags[0];
-      if (!tag?.address || !tag?.plcId) throw new Error(`${name}의 주소를 찾지 못했습니다.`);
+      if (!tag?.address || !tag?.plcId) throw new Error(i18n.t('api.addressNotFound', { name }));
 
       const found = { plcId: tag.plcId, address: tag.address };
       addressCache.set(key, found);
@@ -145,7 +146,7 @@ export function readTagLive(folderId, name) {
       .get('/api/foldertag/read/by-address', { params: { plcId, address } })
       .then((res) => {
         const body = res.data ?? {};
-        if (!body.success) throw new Error(body.message || 'PLC에서 값을 읽지 못했습니다.');
+        if (!body.success) throw new Error(body.message || i18n.t('api.plcReadFailed'));
         return body.value;
       }));
 }
@@ -176,7 +177,7 @@ export function writeTag(folderId, name, value, log = true) {
     })
     .then((res) => {
       const body = res.data ?? {};
-      if (!body.success) throw new Error(body.message || 'PLC 쓰기에 실패했습니다.');
+      if (!body.success) throw new Error(body.message || i18n.t('api.plcWriteFailed'));
       return body;
     });
 }

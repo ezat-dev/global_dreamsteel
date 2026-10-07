@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LedInput } from './HmiParts';
 import { updateTrendRange } from '../../api/scada/trendApi';
 
@@ -25,6 +26,7 @@ import { updateTrendRange } from '../../api/scada/trendApi';
  * @param onSaved   저장·되돌리기가 끝난 뒤 — 범위 목록을 다시 받는 쪽에서 쓴다
  */
 export default function TrendRangeModal({ row, tempId, current, custom, defaults, onClose, onSaved }) {
+  const { t } = useTranslation('trend');
   const [min, setMin] = useState(String(current.min));
   const [max, setMax] = useState(String(current.max));
   const [error, setError] = useState('');
@@ -50,7 +52,7 @@ export default function TrendRangeModal({ row, tempId, current, custom, defaults
         onSaved?.();
         onClose();
       })
-      .catch((err) => setError(err.response?.data?.message ?? err.message ?? '범위를 저장하지 못했습니다.'))
+      .catch((err) => setError(err.response?.data?.message ?? err.message ?? t('range.saveFailed')))
       .finally(() => setSubmitting(false));
   };
 
@@ -59,11 +61,11 @@ export default function TrendRangeModal({ row, tempId, current, custom, defaults
     const hi = Number(max);
     // 서버도 같은 검사를 한다 — 왕복 없이 바로 알려 주려는 것이다
     if (!Number.isInteger(lo) || !Number.isInteger(hi)) {
-      setError('최소·최대 모두 정수로 넣어 주세요.');
+      setError(t('range.notInteger'));
       return;
     }
     if (lo >= hi) {
-      setError('최소는 최대보다 작아야 합니다.');
+      setError(t('range.minLtMax'));
       return;
     }
     run(updateTrendRange(tempId, lo, hi));
@@ -81,40 +83,40 @@ export default function TrendRangeModal({ row, tempId, current, custom, defaults
     >
       <div className="hmi-umodal tr-range-modal">
         <div className="hmi-umodal-title">
-          <span style={{ color: row.color }}>{row.label}</span> y축 범위
+          <span style={{ color: row.color }}>{row.label}</span> {t('range.title')}
         </div>
 
         <div className="hmi-umodal-body">
           <div className="hmi-umodal-row">
-            <span className="hmi-umodal-rowlabel">최소</span>
+            <span className="hmi-umodal-rowlabel">{t('range.min')}</span>
             <LedInput
               value={min}
               onChange={(v) => { setMin(v); setError(''); }}
               color="green"
               unit={row.unit}
-              label={`${row.label} 범위 최소`}
-              title={`${row.label} 범위 최소`}
+              label={t('range.minLabel', { label: row.label })}
+              title={t('range.minLabel', { label: row.label })}
             />
           </div>
 
           <div className="hmi-umodal-row">
-            <span className="hmi-umodal-rowlabel">최대</span>
+            <span className="hmi-umodal-rowlabel">{t('range.max')}</span>
             <LedInput
               value={max}
               onChange={(v) => { setMax(v); setError(''); }}
               color="green"
               unit={row.unit}
-              label={`${row.label} 범위 최대`}
-              title={`${row.label} 범위 최대`}
+              label={t('range.maxLabel', { label: row.label })}
+              title={t('range.maxLabel', { label: row.label })}
             />
           </div>
 
           <div className="hmi-umodal-hint">
             {custom
               /* 줄을 나누려면 문자열이 아니라 JSX여야 한다 — 문자열 속 '<br>'은 React가
-                 글자 그대로 찍는다(HTML로 해석하지 않는다) */
-              ? <>저장된 범위를 쓰는 중입니다.<br />기본 범위는 {defaults.min} ~ {defaults.max} {row.unit}입니다.</>
-              : `지금은 기본 범위(${defaults.min} ~ ${defaults.max} ${row.unit})를 쓰고 있습니다.`}
+                 글자 그대로 찍는다(HTML로 해석하지 않는다). 그래서 사전에서도 두 문장으로 나눠 둔다. */
+              ? <>{t('range.customHint')}<br />{t('range.customDefault', { min: defaults.min, max: defaults.max, unit: row.unit })}</>
+              : t('range.defaultHint', { min: defaults.min, max: defaults.max, unit: row.unit })}
           </div>
 
           {error && <div className="hmi-umodal-error">{error}</div>}
@@ -122,7 +124,7 @@ export default function TrendRangeModal({ row, tempId, current, custom, defaults
 
         <div className="hmi-umodal-foot">
           <button type="button" className="hmi-btn is-primary" onClick={handleSave} disabled={submitting}>
-            {submitting ? '저장 중...' : '저장'}
+            {submitting ? t('range.saving') : t('range.save')}
           </button>
           {/* 이미 기본 범위면 되돌릴 것이 없다 — 눌러도 아무 일이 없는 버튼은 두지 않는다 */}
           <button
@@ -130,12 +132,12 @@ export default function TrendRangeModal({ row, tempId, current, custom, defaults
             className="hmi-btn"
             onClick={handleReset}
             disabled={submitting || !custom}
-            title={custom ? '저장된 범위를 지우고 기본 범위로 그립니다' : '이미 기본 범위입니다'}
+            title={custom ? t('range.resetTip') : t('range.alreadyDefault')}
           >
-            기본값으로
+            {t('range.reset')}
           </button>
           <button type="button" className="hmi-btn" onClick={onClose} disabled={submitting}>
-            닫기
+            {t('range.close')}
           </button>
         </div>
       </div>

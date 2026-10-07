@@ -1,0 +1,47 @@
+{
+  "section": {
+    "drive": "Drive Settings",
+    "combustion": "Combustion Settings",
+    "atmosphere": "Atmosphere Settings",
+    "operation": "Operation Settings",
+    "tc": "Temperature Calibration"
+  },
+  "item": {
+    "eng_facility_onoff_temp": "Facility ON/OFF TEMP",
+    "eng_charge_hyd_unit_hold_time": "Charge hydraulic UNIT hold time after start",
+    "eng_discharge_hyd_unit_hold_time": "Discharge hydraulic UNIT hold time after start",
+    "eng_charge_table_drive_alarm_time": "Charge TABLE drive-detect alarm time",
+    "eng_main_table_drive_alarm_time": "MAIN TABLE drive-detect alarm time",
+    "eng_cc_table_drive_alarm_time": "C/C TABLE drive-detect alarm time",
+    "eng_discharge_table_drive_alarm_time": "Discharge TABLE drive-detect alarm time",
+    "eng_purge_open_time": "Purge OPEN time",
+    "eng_purge_time": "Purge time",
+    "eng_purge_close_time": "Purge CLOSE time",
+    "eng_atmos_allow_temp_detect_time": "Atmosphere allowed-temp detect time"
+  },
+  "note": {
+    "eng_purge_time": "PURGE must be set to at least 1 min (60 s)"
+  },
+  "hold": {
+    "label": "Button hold time",
+    "note": "Control buttons on every screen must be held this long to send a value (0 – 5 s, 0.1 s steps)",
+    "tip": "Button hold time / scada_setting.{{key}} = {{ms}}ms"
+  },
+  "session": {
+    "label": "Login time limit",
+    "note": "Users must log in again once this time has passed since login (minutes, 0 = unlimited, max 1440 min = 24 h)",
+    "padLabel": "Login time limit (min, 0 = unlimited)",
+    "tip": "Login time limit / scada_setting.{{key}} = {{value}}",
+    "minutes": "{{n}} min",
+    "unread": "unreadable"
+  },
+  "zone": {
+    "preheat": "Preheat",
+    "cool1": "Cooling (1)",
+    "cool2": "Cooling (2)"
+  },
+  "pvTip": "{{label}} current temp (PV) — read only / {{tag}}",
+  "offset": "PV adj.",
+  "offsetLabel": "{{label}} PV offset",
+  "offsetTip": "{{label}} PV offset / {{tag}}"
+}

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { lampClassOf, lampOf } from '../../api/scada/foldertagApi';
 
 /* ===========================================================================
@@ -26,11 +27,12 @@ import { lampClassOf, lampOf } from '../../api/scada/foldertagApi';
    =========================================================================== */
 
 // 버너 번호 → 좌/우. 원본 작화의 배치(1·2번이 좌, 3·4번이 우)를 그대로 따른다.
+// side는 사전 키다(combustion.json의 modal.left = 좌 / modal.right = 우).
 const BURNERS = [
-  { no: 1, side: '좌' },
-  { no: 2, side: '좌' },
-  { no: 3, side: '우' },
-  { no: 4, side: '우' },
+  { no: 1, side: 'left' },
+  { no: 2, side: 'left' },
+  { no: 3, side: 'right' },
+  { no: 4, side: 'right' },
 ];
 
 /* 명령 태그 이름 — ez_scada.folders_tags.name과 반드시 같아야 한다.
@@ -52,6 +54,9 @@ export const purgeCmd = (zone) => `cb_z${zone}_purge_cmd`;
 export default function ZoneBurnerModal({
   zone, values, onPress, heldTag = '', armedTag = '', holdMs = 2000, onClose,
 }) {
+  const { t } = useTranslation('combustion');
+  const holdTip = (cmd) => t('common:hmi.holdSend', { cmd, lamp: lampOf(cmd), sec: holdMs / 1000 });
+
   // ESC로 닫기
   useEffect(() => {
     const onKey = (e) => {
@@ -74,12 +79,12 @@ export default function ZoneBurnerModal({
     >
       <div className="cb-zmodal">
         <div className="cb-zmodal-title">
-          <span>{`${zone}ZONE BURNER 운전`}</span>
+          <span>{t('modal.title', { zone })}</span>
           <button
             type="button"
             className="cb-zmodal-close"
             onClick={onClose}
-            aria-label="닫기"
+            aria-label={t('common:hmi.close')}
           >
             ✕
           </button>
@@ -92,7 +97,7 @@ export default function ZoneBurnerModal({
 
             return (
               <div className="cb-zmodal-row" key={b.no}>
-                <span className="cb-zmodal-name">{`${zone}-${b.no} ZONE(${b.side})`}</span>
+                <span className="cb-zmodal-name">{`${zone}-${b.no} ZONE(${t(`modal.${b.side}`)})`}</span>
 
                 {/* 두 칸 다 버튼이면서 램프다 — 눌러서 명령을 보내고,
                     걸린 쪽이 진하게 남는다(연소화면 본판 .cb-onoff와 같은 모양). */}
@@ -104,9 +109,9 @@ export default function ZoneBurnerModal({
                       + (armedTag === onCmd ? ' is-armed' : '')}
                     onPointerDown={() => onPress(onCmd)}
                     data-tag={onCmd}
-                    title={`${onCmd} / 램프 ${lampOf(onCmd)} — ${holdMs / 1000}초 누르면 전송`}
+                    title={holdTip(onCmd)}
                   >
-                    연소 ON
+                    {t('modal.burnOn')}
                     {heldTag === onCmd && (
                       <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                     )}
@@ -118,9 +123,9 @@ export default function ZoneBurnerModal({
                       + (armedTag === offCmd ? ' is-armed' : '')}
                     onPointerDown={() => onPress(offCmd)}
                     data-tag={offCmd}
-                    title={`${offCmd} / 램프 ${lampOf(offCmd)} — ${holdMs / 1000}초 누르면 전송`}
+                    title={holdTip(offCmd)}
                   >
-                    연소 OFF
+                    {t('modal.burnOff')}
                     {heldTag === offCmd && (
                       <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
                     )}
@@ -142,9 +147,9 @@ export default function ZoneBurnerModal({
                 + (armedTag === purgeCmd(zone) ? ' is-armed' : '')}
               onPointerDown={() => onPress(purgeCmd(zone))}
               data-tag={purgeCmd(zone)}
-              title={`${purgeCmd(zone)} / 램프 ${lampOf(purgeCmd(zone))} — ${holdMs / 1000}초 누르면 전송`}
+              title={holdTip(purgeCmd(zone))}
             >
-              PURGE 시작
+              {t('modal.purgeStart')}
               {heldTag === purgeCmd(zone) && (
                 <span className="cb-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
               )}
