@@ -26,7 +26,8 @@ export function lampNameOf(tagName) {
 
 /**
  * 알람 정의 목록 — tag_id(=주소) 순서로 내려온다. 이 순서가 곧 화면 격자 순서다.
- * 각 행: tagName, address, alarmMsg, level
+ * 각 행: tagName, address, alarmMsg(한글), alarmMsgEng(영문, 비어 있을 수 있다), level
+ *        화면에 띄울 문구는 alarmMsg.js의 alarmMsgOf로 고른다
  */
 export function getAlarmTagList() {
   return axiosInstance.get('/api/scada/getAlarmTagList').then((res) => res.data);

@@ -58,5 +58,6 @@ public class ScadaAlarm {
     private String createdAt;
     private String updatedAt;
     private String lampId;
+    private String alarmMsgEng;
 
 }

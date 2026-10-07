@@ -216,7 +216,8 @@ const alarmColumns = (t) => [
      넓은 화면의 모양은 건드리지 않는다. */
   { title: t('common:alarmCol.occurTime'), field: 'occurTimeStr', width: 145, hozAlign: 'center' },
   { title: t('common:alarmCol.tagName'), field: 'tagName', minWidth: 80, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-  { title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 100, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+  // msgShown — 화면 언어의 경보주석(useAlarmList가 붙인다. 영문이 비어 있으면 한글)
+  { title: t('common:alarmCol.alarmMsg'), field: 'msgShown', minWidth: 100, widthGrow: 3, tooltip: true, hozAlign: 'center' },
   {
     // 배지('발생'/'해제')만 들어가는 칸이라 72px이면 충분하다
     title: t('common:alarmCol.status'), field: 'alarmStatus', width: 72, hozAlign: 'center',

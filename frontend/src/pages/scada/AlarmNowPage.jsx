@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
+import { alarmMsgOf, withShownMsg } from '../../components/scada/alarmMsg';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 import { getAlarmLampValues, getAlarmTagList, lampNameOf } from '../../api/scada/alarmTagApi';
 /* 표·안내줄은 경보이력(ah-*), 알람 칸은 알람화면(al-*)의 것을 그대로 쓴다 —
@@ -37,7 +38,8 @@ const isOn = (raw) => {
 };
 
 export default function AlarmNowPage() {
-  const { t } = useTranslation('alarmNow');
+  const { t, i18n } = useTranslation('alarmNow');
+  const lang = i18n.language;
 
   /* 표 옵션 — 언어가 바뀔 때만 새로 만든다(HmiTable이 그때 표를 다시 만들며 읽는다) */
   const tableOptions = useMemo(() => ({
@@ -91,6 +93,9 @@ export default function AlarmNowPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 표에 넣는 행 — 화면 언어의 경보주석을 msgShown에 붙인다(alarmMsg.js)
+  const histTableRows = useMemo(() => withShownMsg(histRows, lang), [histRows, lang]);
+
   /* 경보이력 화면과 같은 열에서 '경보상태'·'해제시각'만 뺐다 — 여기 있는 행은 전부
      발생 중이라 두 칸은 늘 같은 값(발생 / 빈칸)이다.
      열 머리의 검색칸도 뺐다 — 지금 떠 있는 경보만 보여서 보통 몇 건이라 거를 일이 없고,
@@ -100,7 +105,8 @@ export default function AlarmNowPage() {
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 56 },
       { title: t('common:alarmCol.tagName'), field: 'tagName', minWidth: 110, widthGrow: 2, tooltip: true, hozAlign: 'center' },
       { title: t('common:alarmCol.address'), field: 'address', width: 90, hozAlign: 'center' },
-      { title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 160, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+      // msgShown — 화면 언어의 경보주석(아래 histTableRows가 붙인다. 영문이 비어 있으면 한글)
+      { title: t('common:alarmCol.alarmMsg'), field: 'msgShown', minWidth: 160, widthGrow: 3, tooltip: true, hozAlign: 'center' },
       { title: t('common:alarmCol.occurTime'), field: 'occurTimeStr', width: 150, hozAlign: 'center' },
     ],
     // 언어가 바뀌면 열 제목을 새로 만든다(표도 다시 그려진다)
@@ -188,7 +194,7 @@ export default function AlarmNowPage() {
           </span>
         </div>
         <div className="ah-table">
-          <HmiTable data={histRows} columns={columns} options={tableOptions} height="100%" fitRows />
+          <HmiTable data={histTableRows} columns={columns} options={tableOptions} height="100%" fitRows />
         </div>
       </section>
 
@@ -210,7 +216,7 @@ export default function AlarmNowPage() {
                 className="al-cell on an-lamp-cell"
                 title={t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampNameOf(tag.tagName) })}
               >
-                <span className="an-lamp-msg">{tag.alarmMsg || tag.tagName}</span>
+                <span className="an-lamp-msg">{alarmMsgOf(tag, lang) || tag.tagName}</span>
                 <span className="an-lamp-tag">{`${tag.tagName} · ${tag.address}`}</span>
               </div>
             ))}

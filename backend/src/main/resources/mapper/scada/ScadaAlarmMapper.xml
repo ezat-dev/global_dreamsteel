@@ -29,7 +29,7 @@
     <select id="getAlarmTagList" parameterType="com.mes.domain.scada.ScadaAlarm"
             resultType="com.mes.domain.scada.ScadaAlarm">
             SELECT a.tag_name, a.address, a.alarm_msg, a.level,
-                l.id AS lamp_id                     
+                l.id AS lamp_id, a.alarm_msg_eng
             FROM ez_scada.tb_alarm_tag a                 
             LEFT JOIN ez_scada.folders_tags l
                     ON l.folder_id = 6

@@ -392,7 +392,8 @@ const NOTES = [
 const alarmColumns = (t) => [
   { title: t('common:alarmCol.occurTime'), field: 'occurTimeStr', width: 145, hozAlign: 'center' },
   { title: t('common:alarmCol.tagName'), field: 'tagName', minWidth: 120, widthGrow: 2, tooltip: true, hozAlign: 'center' },
-  { title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
+  // msgShown — 화면 언어의 경보주석(useAlarmList가 붙인다. 영문이 비어 있으면 한글)
+  { title: t('common:alarmCol.alarmMsg'), field: 'msgShown', minWidth: 130, widthGrow: 3, tooltip: true, hozAlign: 'center' },
       {
         title: t('common:alarmCol.status'), field: 'alarmStatus', width: 95, hozAlign: 'center',
         /* DB(vw_alarm_history)는 ACTIVE / CLEARED로 주는데 현장에서 읽을 말로 바꿔 보여준다.

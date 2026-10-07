@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 import i18n from '../../i18n';
+import { withShownMsg } from './alarmMsg';
 
 /* 경보 목록 갱신 주기. PLC 값(1초)보다 느린 이유는 두 가지다 —
    경보는 초를 다투는 값이 아니고, 이쪽은 C# 직통이 아니라 자바와 DB를 거친다. */
@@ -20,8 +22,8 @@ const LIMIT = 100;
    매번 "달라졌다"가 되어 아래 스킵이 아무 일도 하지 않는다.
 
    표에 컬럼을 더하면 여기에도 그 field를 더해야 한다 — 빠뜨리면 그 값만 바뀌었을 때
-   화면이 갱신되지 않는다. */
-const SHOWN_FIELDS = ['historyId', 'occurTimeStr', 'tagName', 'alarmMsg', 'alarmStatus'];
+   화면이 갱신되지 않는다. 경보주석은 언어에 따라 둘 중 하나가 보이므로 두 칸 다 본다. */
+const SHOWN_FIELDS = ['historyId', 'occurTimeStr', 'tagName', 'alarmMsg', 'alarmMsgEng', 'alarmStatus'];
 
 /* 표에 뜨는 것만 추려 한 줄로 만든다. 값 안에 들어갈 일이 없는 제어문자로 이어 붙여
    경계를 흐리지 않게 한다('a','b'와 'a,b'가 같은 문자열이 되는 것을 막는다). */
@@ -32,11 +34,12 @@ const digest = (rows) =>
  * 구동·연소화면 하단의 경보 목록을 5초마다 받아 온다. 화면이 마운트된 동안만 돈다.
  *
  * @returns {{
- *   alarms: Array,   // 최근 경보 (최대 LIMIT건)
+ *   alarms: Array,   // 최근 경보 (최대 LIMIT건). 행마다 화면 언어의 경보주석이 msgShown에 붙어 있다
  *   error: string    // 통신 실패 안내. 없으면 ''
  * }}
  */
 export default function useAlarmList() {
+  const { i18n: i18nInst } = useTranslation();
   const [alarms, setAlarms] = useState([]);
   const [error, setError] = useState('');
 
@@ -88,5 +91,10 @@ export default function useAlarmList() {
     return () => { alive = false; clearTimeout(timer); };
   }, []);
 
-  return { alarms, error };
+  /* 화면 언어의 경보주석을 붙여 내보낸다(msgShown). 목록이나 언어가 바뀔 때만 새 배열이
+     된다 — 그 밖의 렌더에서 같은 배열을 넘겨야 표가 5초마다 헛되이 다시 그려지지 않는다. */
+  const lang = i18nInst.language;
+  const shown = useMemo(() => withShownMsg(alarms, lang), [alarms, lang]);
+
+  return { alarms: shown, error };
 }

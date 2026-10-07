@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
 import downloadXlsx from '../../components/scada/downloadXlsx';
 import useCalLocale from '../../components/scada/useCalLocale';
+import { withShownMsg } from '../../components/scada/alarmMsg';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
 // 라이브러리 기본 스타일을 먼저 깔고, AlarmHistPage.css의 .ah-cal 규칙이 HMI 톤으로 덮어쓴다.
 import 'react-datepicker/dist/react-datepicker.css';
@@ -37,10 +38,13 @@ const ALARM_OPTIONS = {
 };
 
 export default function AlarmHistPage() {
-  const { t } = useTranslation('alarmHistory');
+  const { t, i18n } = useTranslation('alarmHistory');
   // 달력의 요일·월 이름·제목 형식 — 지금 언어대로(useCalLocale 참고)
   const calLocale = useCalLocale();
   const [rows, setRows] = useState([]);
+  /* 표에 넣는 행 — 화면 언어의 경보주석을 msgShown에 붙인다(alarmMsg.js).
+     검색칸·정렬·엑셀이 화면에 보이는 글자 기준으로 맞게 하려는 것이다. */
+  const tableRows = useMemo(() => withShownMsg(rows, i18n.language), [rows, i18n.language]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -151,7 +155,7 @@ export default function AlarmHistPage() {
       },
       { title: t('common:alarmCol.address'), field: 'address', width: 96, hozAlign: 'center', headerFilter: 'input' },
       {
-        title: t('common:alarmCol.alarmMsg'), field: 'alarmMsg', minWidth: 190, widthGrow: 3, tooltip: true,
+        title: t('common:alarmCol.alarmMsg'), field: 'msgShown', minWidth: 190, widthGrow: 3, tooltip: true,
         hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: t('common:alarmCol.msgSearch'),
       },
       {
@@ -244,7 +248,7 @@ export default function AlarmHistPage() {
 
       <div className="ah-table">
         <HmiTable
-          data={rows}
+          data={tableRows}
           columns={columns}
           options={ALARM_OPTIONS}
           height="100%"

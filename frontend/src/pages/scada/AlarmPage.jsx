@@ -6,6 +6,7 @@ import {
 } from '../../api/scada/alarmTagApi';
 import { writeTag } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { alarmMsgOf } from '../../components/scada/alarmMsg';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 import './AlarmPage.css';
@@ -67,7 +68,7 @@ const pad2 = (n) => String(n).padStart(2, '0');
 const clockText = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
 
 export default function AlarmPage() {
-  const { t } = useTranslation('alarm');
+  const { t, i18n } = useTranslation('alarm');
   const [tags, setTags] = useState([]);
   const [polledValues, setPolledValues] = useState(null);   // null = 아직 한 번도 못 받음
   const [page, setPage] = useState(0);
@@ -368,7 +369,8 @@ export default function AlarmPage() {
               className={`al-cell${state === ON ? ' on' : ''}${state === UNKNOWN ? ' is-unknown' : ''}`}
               title={t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampName })}
             >
-              {tag.alarmMsg || tag.tagName}
+              {/* 화면 언어의 경보주석 — 영문(alarm_msg_eng)이 비어 있으면 한글(alarmMsg.js) */}
+              {alarmMsgOf(tag, i18n.language) || tag.tagName}
             </div>
           );
         })}
