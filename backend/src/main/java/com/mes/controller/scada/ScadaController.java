@@ -32,6 +32,7 @@ import com.mes.domain.scada.ScadaTrend;
 import com.mes.domain.scada.ScadaUser;
 import com.mes.service.scada.AlarmFileStorage;
 import com.mes.service.scada.ScadaService;
+import com.mes.service.scada.TrendFileStorage;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -58,6 +59,10 @@ public class ScadaController {
     /** 알람 첨부 파일 폴더 — 내려받기에서 저장 이름을 실제 경로로 바꾸는 데 쓴다 */
     @Autowired
     private AlarmFileStorage alarmFileStorage;
+
+    /** 트렌드 화면 [엑셀 받기]·[트렌드 저장]의 서버 사본 폴더 */
+    @Autowired
+    private TrendFileStorage trendFileStorage;
 
     // ===================== 로그인 =====================
 
@@ -413,6 +418,23 @@ public class ScadaController {
                         ContentDisposition.inline().filename(name == null || name.isBlank() ? stored : name,
                                 StandardCharsets.UTF_8).build().toString())
                 .body(new FileSystemResource(path));
+    }
+
+    // ===================== 트렌드 파일 서버 사본 =====================
+
+    /*
+     * 트렌드 화면에서 누른 PC로 내려받은 파일을 서버 폴더에도 한 부 남긴다 — multipart로 kind, file.
+     *   kind=excel → scada.trend-file.excel-dir([엑셀 받기])
+     *   kind=image → scada.trend-file.image-dir([트렌드 저장] PNG)
+     * 같은 이름이 있으면 번호를 붙여 저장하므로, 실제로 저장한 이름을 돌려준다.
+     * 크기 한도는 알람 첨부와 같은 spring.servlet.multipart(20MB) — 트렌드 엑셀은 30초 간격이라
+     * 한 달 치(약 8만 6천 행)도 이보다 훨씬 작다.
+     */
+    @PostMapping("/saveTrendFile")
+    public ResponseEntity<ApiResponse<String>> saveTrendFile(@RequestParam("kind") String kind,
+            @RequestParam("file") MultipartFile file, HttpSession session) {
+        sessionConfig.requireLogin(session);
+        return ResponseEntity.ok(ApiResponse.success(trendFileStorage.save(kind, file)));
     }
 
 }

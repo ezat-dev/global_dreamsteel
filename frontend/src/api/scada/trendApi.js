@@ -34,6 +34,20 @@ export function getTrendRangeList({ autoPoll = false } = {}) {
 }
 
 /**
+ * 트렌드 화면에서 내려받은 파일을 서버 폴더에도 한 부 남긴다.
+ *   kind 'excel' → D:\온도데이터\엑셀 내려받기,  'image' → D:\온도데이터\트렌드 저장  (서버 PC, application.yml)
+ * 같은 이름이 있으면 서버가 "(2)" 등을 붙인다 — 응답 data가 실제로 저장된 이름이다.
+ *
+ * 타임아웃을 늘린다 — 기본 10초는 조회용이라, 긴 구간의 엑셀을 느린 망으로 올리면 넘길 수 있다.
+ */
+export function saveTrendFile(kind, blob, fileName) {
+  const form = new FormData();
+  form.append('kind', kind);
+  form.append('file', blob, fileName);
+  return axiosInstance.post('/api/scada/saveTrendFile', form, { timeout: 120000 }).then((res) => res.data);
+}
+
+/**
  * 범위 한 줄 수정. min/max를 둘 다 null로 보내면 기본 범위로 되돌린다(DB NULL).
  * 서버가 정수인지, 최소 < 최대인지 검사한다.
  *

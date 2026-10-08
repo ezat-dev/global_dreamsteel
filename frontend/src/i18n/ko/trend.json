@@ -13,6 +13,8 @@
   "excelTip": "지금 켜 둔 선만 엑셀 파일로 내려받습니다",
   "capture": "트렌드 저장",
   "captureTip": "지금 보고 있는 그래프를 PNG 그림 파일로 저장합니다 (메모 카드는 담기지 않습니다)",
+  "serverSaved": "서버에도 저장했습니다 — {{name}}",
+  "serverSaveFailed": "PC에는 받았지만 서버 저장은 실패했습니다 — {{reason}}",
   "querying": "조회 중...",
   "noData": "이 구간에 데이터가 없습니다",
   "loadFailed": "트랜드를 불러오지 못했습니다.",

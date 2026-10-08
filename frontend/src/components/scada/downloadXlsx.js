@@ -62,7 +62,7 @@ export default async function downloadXlsx(table, baseName, sheetName) {
     return c.excelValue ? c.excelValue(raw, row) : (raw ?? '');
   }));
 
-  await writeSheet(cols.map((c) => c.title ?? c.field), body, `${baseName}_${stamp()}`, sheetName ?? baseName);
+  return writeSheet(cols.map((c) => c.title ?? c.field), body, `${baseName}_${stamp()}`, sheetName ?? baseName);
 }
 
 /**
@@ -74,6 +74,8 @@ export default async function downloadXlsx(table, baseName, sheetName) {
  * @param fileName 확장자 뺀 파일 이름. 부르는 쪽이 통째로 정한다
  *                 (기간을 이름에 넣는 등 화면마다 사정이 다르다)
  * @param sheetName 시트 이름
+ * @returns {Promise<{ blob: Blob, fileName: string }>} 내려받은 파일 그대로 — 트렌드 화면이 이걸
+ *          서버에도 한 부 보낸다(saveTrendFile). 안 쓰는 화면은 받지 않으면 된다.
  */
 export async function downloadRowsXlsx(cols, rows, fileName, sheetName) {
   const body = rows.map((row) => cols.map((c) => {
@@ -81,10 +83,27 @@ export async function downloadRowsXlsx(cols, rows, fileName, sheetName) {
     // null은 빈 칸으로 둔다 — 못 읽은 값을 0으로 적으면 그 시각에 0이었던 것이 된다
     return v == null ? '' : v;
   }));
-  await writeSheet(cols.map((c) => c.title ?? c.field), body, fileName, sheetName);
+  return writeSheet(cols.map((c) => c.title ?? c.field), body, fileName, sheetName);
 }
 
-/** 머리글 + 본문을 받아 열 폭까지 잡아 파일로 쓴다. 위 두 입구가 같이 쓴다. */
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+/** 만든 파일을 브라우저 다운로드로 넘긴다(어느 폴더에 들어갈지는 브라우저 설정이 정한다) */
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // 바로 회수하면 다운로드가 시작되기 전에 주소가 사라지는 브라우저가 있다
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+/** 머리글 + 본문을 받아 열 폭까지 잡아 파일로 쓴다. 위 두 입구가 같이 쓴다.
+    내려받은 파일(blob)과 이름을 돌려준다 — XLSX.writeFile 대신 바이트로 한 번만 만들고
+    그걸 내려받기에 쓰므로, 서버에 보내는 사본과 PC에 받은 파일이 같은 바이트다. */
 async function writeSheet(header, body, fileName, sheetName) {
   // 열 폭은 제목과 값 중 가장 긴 것을 따른다(+2는 좌우 여백).
   const widths = header.map((h, i) => {
@@ -100,5 +119,9 @@ async function writeSheet(header, body, fileName, sheetName) {
   /* 시트 이름은 31자 제한이 있고 : \ / ? * [ ] 를 못 쓴다.
      기간을 이름에 넣는 화면이 있어서 금지 문자를 미리 걷어낸다. */
   XLSX.utils.book_append_sheet(wb, ws, String(sheetName ?? '').replace(/[:\\/?*[\]]/g, '-').slice(0, 31));
-  XLSX.writeFile(wb, `${fileName}.xlsx`);
+
+  const blob = new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })], { type: XLSX_MIME });
+  const name = `${fileName}.xlsx`;
+  saveBlob(blob, name);
+  return { blob, fileName: name };
 }

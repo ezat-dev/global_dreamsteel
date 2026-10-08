@@ -17,7 +17,7 @@ import 'highcharts/modules/exporting';
 import 'highcharts/modules/offline-exporting';
 import HighchartsReact from 'highcharts-react-official';
 import 'react-datepicker/dist/react-datepicker.css';
-import { getTrend, getTrendRangeList } from '../../api/scada/trendApi';
+import { getTrend, getTrendRangeList, saveTrendFile } from '../../api/scada/trendApi';
 import { getTrendMemoList } from '../../api/scada/trendMemoApi';
 import TrendMemoModal from '../../components/scada/TrendMemoModal';
 import TrendRangeModal from '../../components/scada/TrendRangeModal';
@@ -42,6 +42,38 @@ const QUERY_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 /* 파일 이름에 넣을 형식. 콜론·공백은 파일 이름에 쓰기 나쁘고, 시트 이름에서는
    콜론이 아예 금지 문자다. */
 const FILE_FORMAT = 'yyyyMMdd_HHmm';
+
+/* 서버 저장 결과 안내를 띄워 두는 시간. 그 뒤에는 저절로 사라진다 — 내려받기는 이미
+   끝난 일이라 오래 붙잡아 둘 내용이 아니다. 실패 안내는 조금 더 길게 둔다. */
+const SAVE_NOTE_MS = 6000;
+const SAVE_FAIL_NOTE_MS = 12000;
+
+/**
+ * Highcharts가 내려받으려고 만든 SVG를 같은 크기·배율의 PNG(Blob)로 그린다.
+ * Highcharts가 PNG를 만드는 방식(SVG → 그림 → 캔버스)과 같다 — 그래서 PC에 받은 그림과
+ * 서버 사본이 같은 모양이다. Highcharts 내부 함수(Exporting.imageToDataURL)는 문서상 internal이라
+ * 버전이 바뀌면 없어질 수 있어 쓰지 않고 같은 일을 여기서 한다.
+ */
+async function svgToPngBlob(svg, scale) {
+  const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('svg load failed'));
+      image.src = url;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('png encode failed'))), 'image/png');
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 /* 오른쪽 판의 한 줄 = 차트의 한 선. 목록이 하나뿐이라 판의 이름·색과 그래프의
    이름·색이 어긋날 수 없고, 줄의 토글이 곧 그 선의 표시 여부가 된다.
@@ -504,9 +536,32 @@ export default function TrendPage() {
 
      파일 이름에 구간을 넣는다. 트랜드는 표와 달리 '언제 받았나'보다 '언제 것인가'가
      중요해서, 받은 시각만 적어두면 나중에 파일만 보고는 못 알아본다. */
-  const handleDownload = () => {
+  /* 서버 사본 — [엑셀 받기]·[트렌드 저장]은 누른 PC로 내려받고, 같은 파일을 서버 PC의
+     D:\온도데이터 아래 폴더에도 한 부 남긴다(TrendFileStorage). 내려받기가 먼저 끝나 있으므로
+     여기서 실패해도 사용자가 받은 파일은 멀쩡하다 — 안내만 띄운다. */
+  const [saveNote, setSaveNote] = useState(null);   // { ok, text } | null
+  const saveNoteTimer = useRef(null);
+  useEffect(() => () => clearTimeout(saveNoteTimer.current), []);
+
+  const showSaveNote = (ok, text) => {
+    clearTimeout(saveNoteTimer.current);
+    setSaveNote({ ok, text });
+    saveNoteTimer.current = setTimeout(() => setSaveNote(null), ok ? SAVE_NOTE_MS : SAVE_FAIL_NOTE_MS);
+  };
+
+  const copyToServer = async (kind, blob, fileName) => {
+    try {
+      const res = await saveTrendFile(kind, blob, fileName);
+      showSaveNote(true, t('serverSaved', { name: res.data ?? fileName }));
+    } catch (e) {
+      showSaveNote(false, t('serverSaveFailed', { reason: e.response?.data?.message ?? e.message ?? '' }));
+    }
+  };
+
+  const handleDownload = async () => {
     const span = `${format(range.start, FILE_FORMAT)}-${format(range.end, FILE_FORMAT)}`;
-    downloadRowsXlsx(excelCols(hidden, t('excelTime')), rows, `트렌드_${span}`, span);
+    const file = await downloadRowsXlsx(excelCols(hidden, t('excelTime')), rows, `트렌드_${span}`, span);
+    await copyToServer('excel', file.blob, file.fileName);
   };
 
   /* 선을 전부 꺼 두면 시각만 남은 파일이 나온다 — 그건 받을 이유가 없으므로 막는다.
@@ -514,7 +569,8 @@ export default function TrendPage() {
   const shownCount = VALUE_ROWS.filter((r) => !hidden[r.key]).length;
 
   /* 지금 보고 있는 그래프를 그림 파일로 저장한다. 브라우저가 직접 그린다
-     (offline-exporting) — 서버로 나가지 않는다.
+     (offline-exporting) — Highcharts 외부 서버(export.highcharts.com)로는 나가지 않는다.
+     다 그린 그림은 누른 PC로 내려받고, 같은 그림을 우리 백엔드에도 한 부 보낸다(copyToServer).
 
      메모 카드는 담기지 않는다. 카드는 차트 위에 얹은 HTML이고 내보내기는 차트의 SVG만
      그리기 때문이다. 메모 시각의 점선 세로줄은 차트가 그린 것이라 그대로 남는다. */
@@ -523,7 +579,20 @@ export default function TrendPage() {
     if (!chart) return;
 
     const span = `${format(range.start, FILE_FORMAT)}-${format(range.end, FILE_FORMAT)}`;
-    chart.exportChartLocal(
+
+    /* 서버 사본 — Highcharts는 내려받기 직전에 완성된 SVG를 실어 downloadSVG 이벤트를 낸다.
+       거기서 같은 SVG를 받아 PNG로 그려 서버로 보낸다. 내려받기 자체는 Highcharts가 원래대로
+       한다(막지 않는다). 리스너는 한 번 쓰고 바로 뗀다 — 다음 저장에 겹쳐 붙지 않게. */
+    const off = Highcharts.addEvent(Highcharts.Exporting, 'downloadSVG', (e) => {
+      off();
+      svgToPngBlob(e.svg, e.exportingOptions?.scale || 1)
+        .then((blob) => copyToServer('image', blob, `트렌드_${span}.png`))
+        .catch((err) => showSaveNote(false, t('serverSaveFailed', { reason: err.message })));
+    });
+
+    /* 내보내기가 끝나면(실패해서 이벤트가 안 왔더라도) 리스너를 뗀다 — 남아 있으면 다음 저장에서
+       두 번 불린다. 이벤트는 exportChartLocal 안에서 기다려 처리되므로 끝난 뒤 떼도 늦지 않다. */
+    Promise.resolve(chart.exportChartLocal(
       {
         type: 'image/png',
         filename: `트렌드_${span}`,
@@ -546,7 +615,7 @@ export default function TrendPage() {
           style: { color: INK, fontSize: '13px' },
         },
       },
-    );
+    )).finally(off);
   };
 
   /* 달력 팝업의 생김새는 경보이력 화면에서 만든 HMI 테마(.ah-cal)를 그대로 쓴다.
@@ -898,6 +967,11 @@ export default function TrendPage() {
           {/* 메모 카드를 차트 위에 겹치려면 기준 상자가 필요하다. 이 칸은 차트 그림과
               크기가 같아서, 카드의 left/top을 Highcharts가 준 좌표 그대로 쓸 수 있다. */}
           <div className="tr-chart-wrap">
+            {/* 서버 사본 결과 — 차트 오른쪽 위에 잠깐 떠 있다가 저절로 사라진다(SAVE_NOTE_MS).
+                툴바 줄에 끼우면 폭에 따라 툴바가 한 줄 늘어 차트가 밀렸다 돌아온다 — 그래서 띄운다. */}
+            {saveNote && (
+              <div className={`tr-save-note${saveNote.ok ? '' : ' is-fail'}`} role="status">{saveNote.text}</div>
+            )}
             {/* 높이는 chart.height로 직접 넘기므로(위 chartH) 컨테이너에는 폭만 준다.
                 여기에 height: 100%를 같이 주면 SVG 높이와 겹쳐 흔들린다. */}
             {/* key — 언어를 바꾸면 차트를 새로 만든다. lang.locale은 차트를 만들 때만 읽혀서

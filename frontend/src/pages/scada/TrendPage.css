@@ -149,6 +149,33 @@
   font-weight: 700;
 }
 
+/* [엑셀 받기]·[트렌드 저장]의 서버 사본 결과 — 차트 칸(.tr-chart-wrap) 오른쪽 위에 떠 있는 알림.
+   레이아웃에 끼지 않으므로 떠도 차트가 밀리지 않는다. 차트 선 위에 얹히므로 불투명하게 깐다.
+   성공은 초록, 실패는 조회 오류(.tr-error)와 같은 붉은 계열 — PC 다운로드는 이미 됐으므로 몇 초 뒤 사라진다.
+   z-index는 메모 카드보다 위. */
+.tr-save-note {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 20;
+  max-width: calc(100% - 20px);
+  padding: 6px 12px;
+  border: 1px solid #2f8f55;
+  border-radius: 8px;
+  background: #10261a;
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .6);
+  color: #7ee2a4;
+  font-size: 12.5px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.tr-save-note.is-fail {
+  border-color: #e0837a;
+  background: #3a1616;
+  color: #ffb4ab;
+}
+
 /* ===== 그래프 ============================================================ */
 
 /* ResponsiveContainer가 height="100%"라 부모가 확정된 높이를 가져야 한다 */

@@ -13,6 +13,8 @@
   "excelTip": "Download only the lines currently shown as an Excel file",
   "capture": "Save Chart",
   "captureTip": "Save the chart you are viewing as a PNG image (memo cards are not included)",
+  "serverSaved": "Also saved on the server — {{name}}",
+  "serverSaveFailed": "Downloaded to this PC, but saving on the server failed — {{reason}}",
   "querying": "Loading...",
   "noData": "No data in this period",
   "loadFailed": "Could not load the trend.",
