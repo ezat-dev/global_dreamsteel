@@ -19,7 +19,7 @@ import { arrowTitle, pumpTitle, towerMotorTitle } from './coolingArtTags';
    것이라 모양을 고치면 셋을 같이 고쳐야 한다(파일 머리말에도 적어 두었다).
      ct-arrow-right.svg  arrow-1 / arrow-6 / arrow-7~12
      ct-arrow-up.svg     arrow-2
-     ct-arrow-down.svg   arrow-3 / arrow-4 / arrow-5
+     ct-arrow-down.svg   arrow-3 / arrow-4 / arrow-5  (지금은 셋 다 화면에서 뺐다 — 아래 arrow-2 다음 주석)
      ct-pump.svg         pump-1~4   (원본 pump-10 / pump-30 은 픽셀의 7%만 다른 사실상
                                      같은 그림이라 하나로 합쳤다. pump-3·4는 CSS가 좌우 반전)
      ct-motor.svg        motor-1
@@ -103,7 +103,9 @@ function CoolingOverview({ lang }) {
       <img className="pump-3" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-3')} />
       <img className="pump-4" src="/scada/cooling/ct-pump.svg" title={pumpTitle('pump-4')} />
       <img className="obj-1" src="/scada/cooling/ct-tower.svg" />
-      <img className="obj-2" src="/scada/cooling/ct-tank-small.svg" />
+      {/* ?v=2 — 수조 높이를 95→150으로 바꾸면서 붙였다. 주소가 같으면 브라우저가 캐시의 옛 그림(330x95)을
+          새 칸(330x150)에 object-fit: cover로 늘려 그려 좌우 기둥이 잘려 나간다. 그림을 또 바꾸면 숫자를 올린다. */}
+      <img className="obj-2" src="/scada/cooling/ct-tank-small.svg?v=2" />
       <img className="obj-3" src="/scada/cooling/ct-tank-frame.svg" />
       <img className="obj-4" src="/scada/cooling/ct-water.svg" />
       <img className="obj-5" src="/scada/cooling/obj-50.png" />
@@ -122,9 +124,9 @@ function CoolingOverview({ lang }) {
       <img className="motor-1" src="/scada/cooling/ct-motor.svg" title={towerMotorTitle()} />
       <img className="arrow-1" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-1')} />
       <img className="arrow-2" src="/scada/cooling/ct-arrow-up.svg" title={arrowTitle('arrow-2')} />
-      <img className="arrow-3" src="/scada/cooling/ct-arrow-down.svg" />
-      <img className="arrow-4" src="/scada/cooling/ct-arrow-down.svg" />
-      <img className="arrow-5" src="/scada/cooling/ct-arrow-down.svg" />
+      {/* arrow-3~5(타워에서 왼쪽 수조로 떨어지는 아래 화살표 셋)는 화면에서 뺐다(2026-10, 사용자 요청).
+          태그 없는 장식이었다. 되살리려면 ct-arrow-down.svg로 세 줄을 다시 넣으면 된다 —
+          자리(coolingOverview.css의 .arrow-3~5)는 그대로 남아 있다. */}
       <img className="arrow-6" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-6')} />
       <img className="arrow-7" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-7')} />
       <img className="arrow-8" src="/scada/cooling/ct-arrow-right.svg" title={arrowTitle('arrow-8')} />

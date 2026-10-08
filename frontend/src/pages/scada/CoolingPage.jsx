@@ -117,7 +117,7 @@ export default function CoolingPage() {
 
 
   /* 이 화면의 PLC 값 — 상부 모터·펌프 넷·흐름 화살표 아홉·집수조 경보 띠·알람 지연시간이
-     전부 여기서 온다. 태그 없이 그려지는 것은 배관과 화살표 셋(arrow-3~5)뿐이다. */
+     전부 여기서 온다. 태그 없이 그려지는 것은 배관뿐이다(태그 없던 화살표 셋 arrow-3~5는 뺐다). */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CT_FOLDER_ID);
   const [writeError, setWriteError] = useState('');
 

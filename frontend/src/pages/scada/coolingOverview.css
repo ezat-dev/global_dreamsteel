@@ -407,14 +407,16 @@
   object-fit: cover;
   aspect-ratio: 382/289;
 }
+/* 작은 수조 — 원래 330x95 @97,371. 위로 55 늘려 윗끝(그림 y 4)을 쿨링타워 하부 빔 아래
+   (obj-1 top 68 + 252 = 320)에 붙였다(2026-10). 바닥(466)은 그대로다. ct-tank-small.svg 머리말 참고. */
 .cooling-tower .obj-2 {
   width: 330px;
-  height: 95px;
+  height: 150px;
   position: absolute;
   left: 97px;
-  top: 371px;
+  top: 316px;
   object-fit: cover;
-  aspect-ratio: 330/95;
+  aspect-ratio: 330/150;
 }
 .cooling-tower .obj-3 {
   width: 678px;
@@ -470,11 +472,14 @@
   object-fit: cover;
   aspect-ratio: 15/37;
 }
+/* 작은 수조 오른쪽 벽의 출구 부속 — 원래 left 397(벽에 걸침). 수조 안으로 들여
+   보이는 오른쪽 끝을 오른 기둥 안쪽 면(obj-2 left 97 + 그림 x 303 = 400)에 붙였다(2026-10).
+   obj-90.png는 오른쪽 2.5px이 투명이라(보이는 곳 x 2~12.5) 388 + 12.5 ≈ 400이 된다. */
 .cooling-tower .obj-9 {
   width: 15px;
   height: 37px;
   position: absolute;
-  left: 397px;
+  left: 388px;
   top: 400px;
   object-fit: cover;
   aspect-ratio: 15/37;
