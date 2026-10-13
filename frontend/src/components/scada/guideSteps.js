@@ -172,6 +172,16 @@ const GUIDE_STEPS = {
     { id: 'counts', target: '.an-head .al-count', split: true },
     { id: 'end' },
   ],
+  alarmHistory: [
+    { id: 'intro' },
+    // 기간 칸과 조회 버튼만 — 같은 줄 끝의 엑셀 버튼은 따로 짚는다
+    { id: 'period', target: '.ah-filter .ah-label, .ah-filter .react-datepicker-wrapper, .ah-filter .ah-btn:not(.is-excel)' },
+    { id: 'count', target: '.ah-count' },
+    { id: 'filter', target: '.ah-table .tabulator-header-filter', split: true },
+    { id: 'table', target: '.ah-table' },
+    { id: 'excel', target: '.ah-btn.is-excel' },
+    { id: 'end' },
+  ],
 };
 
 export default GUIDE_STEPS;

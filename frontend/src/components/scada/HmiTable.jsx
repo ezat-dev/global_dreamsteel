@@ -3,35 +3,53 @@ import { TabulatorFull as Tabulator } from 'tabulator-tables';
 import { useTranslation } from 'react-i18next';
 import 'tabulator-tables/dist/css/tabulator.min.css';
 
-/* 화면 설명서가 열리면 화면 전체를 transform: scale로 줄인다(ScreenGuide.css). Tabulator의
-   fitColumns는 표 폭을 getBoundingClientRect로 재는데(tabulator_esm.js의 fitColumns 첫 줄),
-   그 값은 배율이 곱해진 폭이라 열 합이 표 폭의 84%(1920)·77%(1280)로 그려져 오른쪽이 빈다.
-   배율이 걸려 있을 때만 그 한 번의 측정을 배치 폭(배율을 뺀 값)으로 돌려준다.
-   배율이 없으면(평소) 원래 함수를 그대로 부르므로 지금과 똑같다.
-   tabulator-tables를 올릴 때 fitColumns가 다른 방법으로 재게 바뀌면 이 덮개는 필요 없어진다.
+/* ── 화면 설명서의 축소(transform: scale)와 Tabulator ────────────────────────
+   설명서가 열리면 화면 전체를 transform: scale로 줄인다(ScreenGuide.css). Tabulator는 몇 군데서
+   크기를 getBoundingClientRect로 재는데(tabulator_esm.js), 그 값은 배율이 곱해진 화면 크기다.
+     - fitColumns   표 폭       → 열 합이 표 폭의 84%(1920)·77%(1280)로 그려져 오른쪽이 빈다
+     - Column.getHeight 열 머리 높이 → 머리줄이 53→45px로 눌려 검색칸이 삐져나오고 칸마다 높이가 어긋난다
+     - adjustTableSize  머리줄·바닥줄 높이 → 본문 칸 높이가 어긋난다
+   그 요소들에만 "크기는 배치 크기(배율을 뺀 값)로" 돌려주는 getBoundingClientRect를 인스턴스에
+   얹는다. 위치(left/top)는 그대로 둔다. 배율이 없으면(평소) 원래 값 그대로라 지금과 똑같다.
+   요소에 얹는 것이라 다른 화면·다른 코드(설명서가 짚을 곳을 재는 것 등)의 측정은 건드리지 않는다.
+   tabulator-tables를 올릴 때 이 측정들이 offsetWidth 등으로 바뀌면 이 덮개는 필요 없어진다. */
 
-   Layout 모듈은 밖으로 내보내지 않아서 공개 API(extendModule)로 바꿔 끼운다. 원래 함수는
-   모듈 묶음(moduleBindings)에서 꺼내는데, 빈 extendModule 호출이 그 묶음을 먼저 채운다.
-   못 찾으면(버전이 바뀌어 구조가 달라지면) 아무것도 안 바꾸고 원래대로 둔다. */
-Tabulator.extendModule('layout', 'modes', {});
-const fitColumnsOrig = Tabulator.moduleBindings?.layout?.modes?.fitColumns;
-if (fitColumnsOrig) {
-  Tabulator.extendModule('layout', 'modes', {
-    fitColumns(columns, forced) {
-      const el = this.table.rowManager.element;
-      const rect = el.getBoundingClientRect();
-      if (!el.offsetWidth || Math.abs(rect.width - el.offsetWidth) < 1) {
-        return fitColumnsOrig.call(this, columns, forced);
-      }
-      const k = rect.width / el.offsetWidth;
-      el.getBoundingClientRect = () => ({ ...rect.toJSON(), width: rect.width / k });
-      try {
-        return fitColumnsOrig.call(this, columns, forced);
-      } finally {
-        delete el.getBoundingClientRect;   // 인스턴스에 덮어쓴 것만 지운다 — 원래 메서드로 돌아간다
-      }
-    },
-  });
+/** 요소의 화면 사각형에서 크기(width/height)만 배치 크기로 되돌린다. 배율이 없으면 원래 사각형 그대로.
+    위치(left/top/right/bottom)는 화면 값 그대로 둔다 — 드롭다운·메뉴 자리처럼 위치를 쓰는 곳이
+    화면과 어긋나지 않게. 위 세 측정은 width/height만 읽는다. */
+function unscaledRect(el) {
+  const r = Element.prototype.getBoundingClientRect.call(el);
+  if (!el.offsetWidth || !el.offsetHeight) return r;
+  const kx = r.width / el.offsetWidth;
+  const ky = r.height / el.offsetHeight;
+  if (Math.abs(kx - 1) < 0.01 && Math.abs(ky - 1) < 0.01) return r;
+  return {
+    x: r.x, y: r.y, left: r.left, top: r.top, right: r.right, bottom: r.bottom,
+    width: r.width / kx, height: r.height / ky,
+    toJSON() { return this; },
+  };
+}
+
+/** 지금 표가 축소된 화면 안에 있는지 — 표 본문의 화면 폭과 배치 폭이 다르면 그렇다 */
+const isScaled = (el) => !!el?.offsetWidth
+  && Math.abs(Element.prototype.getBoundingClientRect.call(el).width - el.offsetWidth) >= 1;
+
+/** 위 세 측정이 쓰는 요소에 unscaledRect를 얹는다. 내부 구조가 다른 버전이면 손대지 않는다. */
+function applyLayoutRects(table) {
+  try {
+    [
+      table.rowManager.element,
+      table.columnManager.element,
+      table.footerManager?.element,
+      ...table.columnManager.columnsByIndex.map((c) => c.element),
+    ].filter(Boolean).forEach((el) => {
+      // eslint-disable-next-line no-param-reassign
+      el.getBoundingClientRect = () => unscaledRect(el);
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -61,6 +79,16 @@ export default function HmiTable({
   /* 칸에 맞춰 잰 행 높이. 바뀌면 아래 생성 effect가 표를 다시 만든다 —
      Tabulator는 rowHeight를 만들 때 한 번 읽고 나중에 바꿀 수 없다. */
   const [rowH, setRowH] = useState(30);
+  /* 아래 fit이 읽는 지금의 rowH. fit은 [fitRows, data, columns]가 바뀔 때만 새로 만들어져서
+     state를 그대로 읽으면 만들 때의 값(처음엔 30)에 갇힌다. 그러면 행이 이미 커진 뒤에
+     '테두리 몫(extra)'을 행 높이 차이만큼 크게 잡아 행을 그만큼 작게 다시 만든다 —
+     창 크기가 바뀔 때마다 표 아래가 비거나(설명서를 열고 닫을 때 150~200px) 넘쳤다. */
+  const rowHRef = useRef(30);
+  rowHRef.current = rowH;
+  /* 지금의 fit(아래 effect가 넣는다). 표를 다시 만든 뒤(tableBuilt) 한 번 더 재는 데 쓴다 —
+     창 크기가 바뀐 순간에는 아직 옛 표의 머리줄이 남아 있어 높이를 잘못 재는 일이 있다
+     (설명서를 닫을 때 머리줄이 46→54px로 바뀌어 행이 8px 넘쳤다). */
+  const fitRef = useRef(null);
 
   useEffect(() => {
     builtRef.current = false;
@@ -114,7 +142,13 @@ export default function HmiTable({
     });
     tableRef.current.on('tableBuilt', () => {
       builtRef.current = true;
-      onTableReady?.(tableRef.current);
+      const table = tableRef.current;
+      /* 이후의 측정이 배치 크기를 쓰게 한다. 축소된 채로 만들어졌으면 처음 그림은 이미
+         화면 크기로 재서 그린 것이라, 덮개를 얹은 뒤 한 번 다시 그린다(평소에는 다시 그리지 않는다). */
+      if (applyLayoutRects(table) && isScaled(table.rowManager.element)) table.redraw(true);
+      onTableReady?.(table);
+      // 새 표의 머리줄·바닥줄로 다시 잰다(fitRows일 때만 fitRef가 있다)
+      requestAnimationFrame(() => fitRef.current?.());
     });
 
     return () => {
@@ -135,8 +169,10 @@ export default function HmiTable({
      한 프레임 미뤄서(rAF) 재는 이유는 표가 그려진 뒤여야 헤더·푸터가 생기기 때문이다.
      창 크기가 바뀌면 ResizeObserver가 다시 잰다.
 
-     2px 미만 차이를 무시하는 것이 중요하다. rowH를 바꾸면 표를 다시 만들고, 그러면
-     이 effect가 또 돌아서 재는데, 그때 1px쯤 달라지면 끝없이 다시 만들게 된다. */
+     키울 때는 2px 미만 차이를 무시하는 것이 중요하다. rowH를 바꾸면 표를 다시 만들고,
+     다시 만든 뒤 또 재는데(tableBuilt), 그때 1px쯤 달라지면 끝없이 다시 만들게 된다.
+     줄일 때는 1px도 받는다 — 무시하면 20행이면 20px이 넘쳐 표 안에 스크롤이 생긴다.
+     줄인 뒤 다시 재서 1px 크게 나와도 키우는 쪽이라 무시되므로 왔다 갔다 하지 않는다. */
   useEffect(() => {
     if (!fitRows) return undefined;
     const wrap = wrapRef.current;
@@ -156,23 +192,25 @@ export default function HmiTable({
          조금 생긴다. 상수로 1을 빼지 않고 실제 행을 재는 것은 테두리 두께나 여백이
          바뀌어도 따라가게 하려는 것이다. */
       const row = wrap.querySelector('.tabulator-row');
-      const extra = row ? Math.max(0, row.offsetHeight - rowH) : 0;
+      const extra = row ? Math.max(0, row.offsetHeight - rowHRef.current) : 0;
 
       // 내림한다 — 올리면 마지막 행이 잘려 스크롤이 생긴다
       const fitted = Math.floor(avail / perPage) - extra;
       const next = Math.max(FIT_MIN_ROW_H, Math.min(FIT_MAX_ROW_H, fitted));
-      setRowH((prev) => (Math.abs(prev - next) < 2 ? prev : next));
+      setRowH((prev) => (next < prev || next - prev >= 2 ? next : prev));
     };
 
+    fitRef.current = fit;
     const raf = requestAnimationFrame(fit);
     const ro = new ResizeObserver(fit);
     ro.observe(wrap);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      fitRef.current = null;
     };
     // data가 들어온 뒤에야 헤더·푸터가 그려지므로 그때 다시 잰다.
-    // rowH는 실제 행 높이와 비교하는 데만 쓰고, 넣으면 재계산이 한 번 더 돌아 깜빡인다.
+    // rowH는 의존성에 넣지 않고 rowHRef로 읽는다 — 넣으면 재계산이 한 번 더 돌아 깜빡인다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fitRows, data, columns]);
 

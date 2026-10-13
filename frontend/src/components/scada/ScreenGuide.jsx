@@ -65,7 +65,30 @@ function targetRects(selector, split) {
     right: Math.max(...rs.map((r) => r.right)) + PAD,
     bottom: Math.max(...rs.map((r) => r.bottom)) + PAD,
   });
-  return split ? rects.map((r) => box([r])) : [box(rects)];
+  if (!split) return [box(rects)];
+
+  /* 따로 짚는 것끼리 PAD보다 가까이 붙어 있으면(표 머리 검색칸처럼 8px 간격) 넓힌 테두리가
+     서로 겹쳐 엇갈려 보인다. 겹치는 쪽만 두 요소 사이 간격의 가운데에서 자른다(1px씩 띄운다). */
+  const boxes = rects.map((r) => box([r]));
+  for (let i = 0; i < rects.length; i += 1) {
+    for (let j = 0; j < rects.length; j += 1) {
+      const a = rects[i];
+      const b = rects[j];
+      const sameRow = a.top < b.bottom && b.top < a.bottom;
+      const sameCol = a.left < b.right && b.left < a.right;
+      if (i !== j && sameRow && a.right <= b.left && boxes[i].right >= boxes[j].left) {
+        const mid = (a.right + b.left) / 2;
+        boxes[i].right = mid - 1;
+        boxes[j].left = mid + 1;
+      }
+      if (i !== j && sameCol && a.bottom <= b.top && boxes[i].bottom >= boxes[j].top) {
+        const mid = (a.bottom + b.top) / 2;
+        boxes[i].bottom = mid - 1;
+        boxes[j].top = mid + 1;
+      }
+    }
+  }
+  return boxes;
 }
 
 const sameRect = (a, b) => Math.abs(a.left - b.left) < 1 && Math.abs(a.top - b.top) < 1
