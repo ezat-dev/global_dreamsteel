@@ -693,6 +693,60 @@
       ]
     }
   },
+  "log": {
+    "intro": {
+      "title": "Log screen at a glance",
+      "body": [
+        "A record of values sent to the equipment with the buttons and input boxes on the screens: who sent which value to which address, when, and whether it succeeded.",
+        "When opened it shows the whole log with no period set, newest first.",
+        "It does not refresh by itself. Press [Search] again to see new records."
+      ]
+    },
+    "period": {
+      "title": "Logged period",
+      "body": [
+        "Pick the start and end time and press [Search] (or Enter in a box) to load the records in between.",
+        "You can pick the year and month at the top of the calendar, and clear a box with its ✕. A cleared side has no limit."
+      ]
+    },
+    "count": {
+      "title": "Count",
+      "body": [
+        "The total number of records loaded. While loading it shows 'Loading'."
+      ]
+    },
+    "filter": {
+      "title": "Header search boxes",
+      "body": [
+        "Type into the Name, Address or Value Sent box to keep only the loaded rows that contain that text.",
+        "For Result choose All, OK or Failed; for Failure Reason choose a kind of failure.",
+        "This narrows the list already loaded; it does not change the period."
+      ]
+    },
+    "table": {
+      "title": "Operation log",
+      "body": [
+        "Result shows OK in green [[on]] and Failed in red [[alarm]]. Old records from before results were kept show '—'.",
+        "Failed records also show a Failure Reason (Connection failed, Timed out, Server error, Write rejected, No response).",
+        "Tap a column title to sort by it. Each page has 20 rows; use the buttons under the table to change page."
+      ]
+    },
+    "excel": {
+      "title": "Export Excel",
+      "body": [
+        "Downloads exactly what the table shows now (including header-box filters and sort order) as an Excel file.",
+        "The file goes to this PC's Downloads folder. It cannot be pressed when no records are loaded."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "A button released before the hold delay is up sends no value, so it is not logged.",
+        "Changes to Operation Settings on the Engineering screen (hold delay, login time limit) are not logged here.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
+  },
   "engineering": {
     "intro": {
       "title": "Engineering screen at a glance",

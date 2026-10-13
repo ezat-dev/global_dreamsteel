@@ -182,6 +182,16 @@ const GUIDE_STEPS = {
     { id: 'excel', target: '.ah-btn.is-excel' },
     { id: 'end' },
   ],
+  // 로그 — 툴바·표가 경보이력과 같은 틀(ah-* 클래스)이라 짚는 곳도 같다
+  log: [
+    { id: 'intro' },
+    { id: 'period', target: '.ah-filter .ah-label, .ah-filter .react-datepicker-wrapper, .ah-filter .ah-btn:not(.is-excel)' },
+    { id: 'count', target: '.ah-count' },
+    { id: 'filter', target: '.ah-table .tabulator-header-filter', split: true },
+    { id: 'table', target: '.ah-table' },
+    { id: 'excel', target: '.ah-btn.is-excel' },
+    { id: 'end' },
+  ],
   /* 엔지니어링 — 설비 설정값 판들(구동부·연소부·분위기제어·온도 보정)은 항목이 아직 바뀔 수 있어서
      우선 조작 설정 판만 설명한다. 나머지 판은 항목이 정해지면 단계를 더한다. */
   engineering: [
