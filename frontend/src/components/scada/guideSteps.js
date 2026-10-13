@@ -116,6 +116,22 @@ const GUIDE_STEPS = {
     { id: 'delay', target: '.ct-delay' },
     { id: 'end' },
   ],
+  trend: [
+    { id: 'intro' },
+    { id: 'period', target: '.tr-filter' },
+    { id: 'quick', target: '.tr-quick' },
+    { id: 'follow', target: '.tr-follow' },
+    { id: 'memo', target: '.tr-memo' },
+    { id: 'export', target: '.tr-export' },
+    { id: 'chart', target: '.tr-chart' },
+    /* 오른쪽 판은 한 줄에 이름·스위치·값·범위가 있다. 값 칸과 범위는 위아래로 붙어 있어
+       한 상자로 묶으면 서로를 덮는다 — 그 둘은 줄마다 따로 짚는다 */
+    { id: 'values', target: '.tr-vbox', split: true },
+    { id: 'toggle', target: '.tr-toggle' },
+    { id: 'focus', target: '.tr-vlabel' },
+    { id: 'range', target: '.tr-vrange', split: true },
+    { id: 'end' },
+  ],
 };
 
 export default GUIDE_STEPS;

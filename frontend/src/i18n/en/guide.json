@@ -440,5 +440,93 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "trend": {
+    "intro": {
+      "title": "Trend screen at a glance",
+      "body": [
+        "See how the zone 1–7 temperatures and the O2 value changed over time, as a chart.",
+        "Top: period, auto refresh, memos, downloads / Center: chart / Right: values and line switches",
+        "When opened it shows the last 24 hours with auto refresh on."
+      ]
+    },
+    "period": {
+      "title": "Period search",
+      "body": [
+        "Pick the start and end time and press [Search] to draw that period.",
+        "Picking a date yourself turns auto refresh off."
+      ]
+    },
+    "quick": {
+      "title": "Quick periods",
+      "body": [
+        "Shows the last 1, 3, 6, 12 or 24 hours right away. The period boxes above are filled in too.",
+        "The button for the period you are viewing is lit. Pressing one turns auto refresh off."
+      ]
+    },
+    "follow": {
+      "title": "Auto Refresh",
+      "body": [
+        "While on ('Refreshing'), the last 24 hours are redrawn every 30 seconds so the chart keeps up with now.",
+        "Setting a period yourself turns it off. Press it again to turn it back on and return to the last 24 hours."
+      ]
+    },
+    "memo": {
+      "title": "Memos",
+      "body": [
+        "[Add Memo] opens a window. Enter the time, title and text and save — a memo card appears on the chart at that time.",
+        "Tap a card to edit or delete it. The number of memos in this period is shown next to the button."
+      ]
+    },
+    "export": {
+      "title": "Export Excel · Save Chart",
+      "body": [
+        "Export Excel: saves the values of the lines that are switched on, for the period you searched.",
+        "Save Chart: saves the chart you are looking at as a PNG image. Memo cards are not included.",
+        "Files go to this PC's Downloads folder and are also saved on the server PC under D:\\온도데이터, in the '엑셀 내려받기' and '트렌드 저장' folders."
+      ]
+    },
+    "chart": {
+      "title": "Chart",
+      "body": [
+        "Zone 1–7 temperatures use the right axis (℃); O2 uses the left axis (mmV).",
+        "Hover over the chart to see every value at that time."
+      ]
+    },
+    "values": {
+      "title": "End values",
+      "body": [
+        "The last value in the period you searched. The number has the same colour as its line.",
+        "If you search a past period, you see the values at the end of that period."
+      ]
+    },
+    "toggle": {
+      "title": "Line on/off",
+      "body": [
+        "Tap a switch to hide or show that line on the chart.",
+        "Only lines that are on go into Export Excel."
+      ]
+    },
+    "focus": {
+      "title": "View by this line's range",
+      "body": [
+        "Tap a name (1ZONE, O2, …) to set that line's axis to its own range so small changes show clearly. The name gets underlined.",
+        "Tap it again to go back to the default range."
+      ]
+    },
+    "range": {
+      "title": "Line ranges",
+      "body": [
+        "The min–max used by 'view by this line's range'. Saved ranges look bright; default ranges look dim.",
+        "With control permission, tap one to change the min and max, or press [Use Default]. Changes reach the other PCs too."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "Temperature data is saved automatically every day as an Excel file (온도데이터_date.xlsx) on the server PC in D:\\온도데이터\\일일온도데이터.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }
