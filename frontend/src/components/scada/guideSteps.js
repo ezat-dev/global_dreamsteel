@@ -31,6 +31,13 @@ const CB_ZONE_MODAL = {
   close: '.cb-zmodal-close',
 };
 
+/* 알람화면 첫 칸의 설명·파일 창 — 칸(div)은 조회 권한이어도 눌려서 창이 열린다(보기만) */
+const AL_DETAIL = {
+  trigger: '.al-grid > .al-cell:first-child',
+  check: '.ad-modal',
+  close: '.ad-close',
+};
+
 const GUIDE_STEPS = {
   drive: [
     { id: 'intro' },
@@ -130,6 +137,23 @@ const GUIDE_STEPS = {
     { id: 'toggle', target: '.tr-toggle' },
     { id: 'focus', target: '.tr-vlabel' },
     { id: 'range', target: '.tr-vrange', split: true },
+    { id: 'end' },
+  ],
+  alarm: [
+    { id: 'intro' },
+    { id: 'pager', target: '.al-pager' },
+    // 발생한 칸은 경보일 때만 빨갛다 — 이 장에서만 앞 칸 몇 개를 예시로 켠다(AlarmPage.css)
+    { id: 'cells', target: '.al-grid', preview: 'al-on' },
+    { id: 'count', target: '.al-count' },
+    { id: 'actions', target: '.al-action' },
+    { id: 'open', target: '.al-grid > .al-cell:first-child' },
+    // 설명·파일 창 안 — 첫 칸의 창을 열어 짚는다. 창 안 section은 설명·사진·PDF 순이다
+    { id: 'desc', target: '.ad-body > section.ad-sec:nth-of-type(1)', opens: AL_DETAIL },
+    {
+      id: 'files',
+      target: '.ad-body > section.ad-sec:nth-of-type(2), .ad-body > section.ad-sec:nth-of-type(3)',
+      opens: AL_DETAIL,
+    },
     { id: 'end' },
   ],
 };

@@ -26,6 +26,13 @@
   transform-origin: 0 0;
 }
 
+/* 화면 틀에 바로 그려지는 모달(알람 설명·파일 창 등 .hmi-umodal)은 위 축소를 받지 않고 창 전체
+   가운데에 뜬다 — 좁은 화면에서는 패널 밑으로 들어간다. 설명서가 열려 있는 동안은 왼쪽 화면
+   안에서만 가운데에 오게 오른쪽을 패널 폭만큼 비운다. */
+.hmi-root.has-guide .hmi-umodal-scrim {
+  right: var(--sg-panel-w);
+}
+
 .sg-root {
   position: fixed;
   inset: 0;

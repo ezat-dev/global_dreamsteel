@@ -528,5 +528,75 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "alarm": {
+    "intro": {
+      "title": "Alarms screen at a glance",
+      "body": [
+        "Lays out the equipment alarms as tiles and shows active alarms in red.",
+        "Top: page buttons, ALARM RESET, HORN STOP, active count / Below: alarm tiles (100 per page)",
+        "Without control permission the buttons are locked. You can still tap a tile to view its description and files."
+      ]
+    },
+    "pager": {
+      "title": "Pages",
+      "body": [
+        "There are more than 100 alarms, so they are split into pages. Tap a number or the ‹ › arrows to change page.",
+        "Next to them is the address range of the alarms on this page."
+      ]
+    },
+    "cells": {
+      "title": "Alarm tiles",
+      "body": [
+        "An active alarm lights its tile red [[alarm]]; when it clears, the tile goes back to normal.",
+        "A tile with a paperclip in the top-right corner has a description or files.",
+        "The first three red tiles you see now are examples shown for this guide."
+      ]
+    },
+    "count": {
+      "title": "Active count",
+      "body": [
+        "The number of alarms active right now, counting every page.",
+        "It turns red [[alarm]] when there is at least one."
+      ]
+    },
+    "actions": {
+      "title": "ALARM RESET · HORN STOP",
+      "body": [
+        "ALARM RESET resets alarms; HORN STOP silences the alarm horn.",
+        "Hold the button for the hold delay (2 s by default) to activate it. A bar fills under the button while you hold.",
+        "The button lights green [[on]] while active and releases when you let go. It works exactly like the same buttons on the Drive screen."
+      ]
+    },
+    "open": {
+      "title": "Alarm description · files window",
+      "body": [
+        "Tap an alarm tile to open its description, photo and PDF window.",
+        "The next pages open the first tile's window to explain it."
+      ]
+    },
+    "desc": {
+      "title": "Description",
+      "body": [
+        "Write the cause, corrective action, etc. for the alarm here (up to 255 characters), then press [Save].",
+        "Without control permission you can only read the description."
+      ]
+    },
+    "files": {
+      "title": "Photo · PDF · close",
+      "body": [
+        "You can upload one photo (JPG/PNG) and one PDF (up to 20MB each). Manage them with [Upload], [Replace] and [Delete].",
+        "Tap the photo to see it at full size; press [Open] to open the PDF in a new tab.",
+        "Close the window with ✕ at the top right, [Close], Esc, or by tapping outside."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "To see only the alarms active right now, use the Active Alarms screen; to search past alarms by period, use the Alarm History screen.",
+        "The hold delay can be changed on the Engineering screen and applies to every hold button.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }
