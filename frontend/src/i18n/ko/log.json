@@ -3,12 +3,14 @@
   "col": {
     "name": "이름",
     "address": "태그주소",
+    "description": "설명",
     "sendValue": "전송값",
     "result": "성공여부",
     "failReason": "실패사유",
     "time": "기록시각"
   },
   "addrSearch": "주소 검색",
+  "descSearch": "설명 검색",
   "ok": "성공",
   "fail": "실패",
   "reason": {

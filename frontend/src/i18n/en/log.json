@@ -3,12 +3,14 @@
   "col": {
     "name": "Name",
     "address": "Address",
+    "description": "Description",
     "sendValue": "Value Sent",
     "result": "Result",
     "failReason": "Failure Reason",
     "time": "Logged"
   },
   "addrSearch": "Search address",
+  "descSearch": "Search description",
   "ok": "OK",
   "fail": "Failed",
   "reason": {

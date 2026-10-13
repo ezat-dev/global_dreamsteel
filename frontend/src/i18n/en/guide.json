@@ -697,7 +697,7 @@
     "intro": {
       "title": "Log screen at a glance",
       "body": [
-        "A record of values sent to the equipment with the buttons and input boxes on the screens: who sent which value to which address, when, and whether it succeeded.",
+        "A record of values sent to the equipment with the buttons and input boxes on the screens: who sent which value to which address (which tag), when, and whether it succeeded.",
         "When opened it shows the whole log with no period set, newest first.",
         "It does not refresh by itself. Press [Search] again to see new records."
       ]
@@ -718,7 +718,7 @@
     "filter": {
       "title": "Header search boxes",
       "body": [
-        "Type into the Name, Address or Value Sent box to keep only the loaded rows that contain that text.",
+        "Type into the Name, Address, Description or Value Sent box to keep only the loaded rows that contain that text.",
         "For Result choose All, OK or Failed; for Failure Reason choose a kind of failure.",
         "This narrows the list already loaded; it does not change the period."
       ]
@@ -726,6 +726,7 @@
     "table": {
       "title": "Operation log",
       "body": [
+        "Description says what the tag is; it is kept as it was when the value was sent. Records from before descriptions existed, and tags without one, show '—'.",
         "Result shows OK in green [[on]] and Failed in red [[alarm]]. Old records from before results were kept show '—'.",
         "Failed records also show a Failure Reason (Connection failed, Timed out, Server error, Write rejected, No response).",
         "Tap a column title to sort by it. Each page has 20 rows; use the buttons under the table to change page."

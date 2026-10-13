@@ -97,10 +97,18 @@
     </update>
 
     <insert id="insertLog" parameterType="com.mes.domain.scada.ScadaUser">
-        INSERT INTO scada_log (
-    user_name, address, send_value, write_success, fail_reason
+        <!-- INSERT INTO scada_log (
+    user_name, address, send_value, write_success, fail_reason, description
     ) VALUES (
-    #{userName}, #{address}, #{sendValue}, #{writeSuccess}, #{failReason}
+    #{userName}, #{address}, #{sendValue}, #{writeSuccess}, #{failReason}, #{description}
+    ) -->
+        INSERT INTO scada_log (
+    user_name, address, send_value, write_success, fail_reason, description
+    ) VALUES (
+    #{userName}, #{address}, #{sendValue}, #{writeSuccess}, #{failReason},
+    /* 태그 설명을 기록 시점 그대로 복사한다. 태그가 없으면(쓰기 거부 등) 빈칸 */
+    COALESCE((SELECT description FROM ez_scada.folders_tags
+               WHERE folder_id = #{folderId} AND name = #{tagName}), '')
     )
     </insert>
 

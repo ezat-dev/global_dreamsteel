@@ -152,7 +152,11 @@ export default function LogPage() {
 
      폭 배분 — 래퍼가 layout: 'fitColumns'라서, width를 준 컬럼은 고정이고 width가
      없는 컬럼들이 남는 공간을 widthGrow 비율대로 나눠 갖는다. 번호/ID/시각처럼 값
-     길이가 일정한 컬럼은 width로 고정하고, 주소·전송값만 늘어나게 둔다. */
+     길이가 일정한 컬럼은 width로 고정하고, 주소·설명·전송값만 늘어나게 둔다(설명이 제일 길다).
+
+     고정폭 + minWidth의 합은 태블릿 가로(960px)에서 표에 남는 폭(약 925px)을 넘지 않아야
+     한다 — 넘으면 가로 스크롤이 생긴다. 지금 합은 916px이다(설명 열을 넣으면서 주소·전송값의
+     최소 폭을 줄였다. 주소는 'M3001'처럼 짧다). */
   const columns = useMemo(
     () => [
       { title: 'NO', formatter: 'rownum', hozAlign: 'center', width: 60 },
@@ -161,10 +165,19 @@ export default function LogPage() {
          태그주소에 먼저 붙인다. */
       { title: t('col.name'), field: 'userName', width: 110, hozAlign: 'center', headerFilter: 'input' },
       {
-        title: t('col.address'), field: 'address', minWidth: 160, widthGrow: 2, tooltip: true,
+        title: t('col.address'), field: 'address', minWidth: 110, widthGrow: 1, tooltip: true,
         hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: t('addrSearch'),
       },
-      { title: t('col.sendValue'), field: 'sendValue', minWidth: 120, widthGrow: 1, hozAlign: 'center', headerFilter: 'input' },
+      {
+        /* 태그 설명 — 값을 보낼 때 ez_scada.folders_tags.description을 그대로 복사해 둔 것이다
+           (ScadaUserMapper의 insertLog). 그래서 나중에 설명을 고쳐도 지난 기록은 그때 글자 그대로다.
+           설명 칸이 생기기 전에 쌓인 기록과 설명이 없는 태그는 비어 있다 — 실패사유처럼 '—'로 채운다.
+           글이 길어서 왼쪽 정렬, 잘리면 툴팁으로 다 보인다. */
+        title: t('col.description'), field: 'description', minWidth: 160, widthGrow: 3, tooltip: true,
+        hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: t('descSearch'),
+        formatter: (cell) => cell.getValue() || '—',
+      },
+      { title: t('col.sendValue'), field: 'sendValue', minWidth: 80, widthGrow: 1, hozAlign: 'center', headerFilter: 'input' },
       {
         /* PLC 쓰기 결과. 자바가 C# 응답을 확인해서 넣는다 — "웹이 값을 보냈고 C#이 썼다"는
            뜻이지, PLC 프로그램이 그 값을 받아 설비를 움직였다는 뜻은 아니다. */
