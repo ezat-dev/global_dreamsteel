@@ -33,6 +33,9 @@ const PAD = 6;
    (on 초록 / alarm 빨강 / warn 노랑 / off 회색 / unknown 점선). */
 const DOT_RE = /(\[\[(?:on|alarm|warn|unknown|off)\]\])/;
 
+/** 예시를 설명하는 줄의 머리표 — 예시가 화면에 실제로 떠 있을 때만 그 줄을 보여 준다 */
+const EX_MARK = '[[ex]]';
+
 function Line({ text }) {
   return String(text).split(DOT_RE).map((part, i) => {
     const m = part.match(/^\[\[(\w+)\]\]$/);
@@ -78,6 +81,10 @@ export default function ScreenGuide({ screenKey, onClose }) {
   const steps = GUIDE_STEPS[screenKey] ?? [];
   const [index, setIndex] = useState(0);
   const [rects, setRects] = useState([]);
+  /* 예시가 지금 실제로 보이는지(guideSteps의 previewShown 선택자, 아래 측정 effect가 잰다).
+     진짜 경보가 떠 있으면 예시가 안 그려지므로, 그때는 "지금 보이는 것은 예시"라는 줄
+     ([[ex]]로 시작)을 뺀다. */
+  const [exShown, setExShown] = useState(false);
   const currentTocRef = useRef(null);
 
   const step = steps[index];
@@ -85,7 +92,10 @@ export default function ScreenGuide({ screenKey, onClose }) {
   const last = index === total - 1;
   const base = `${screenKey}.${step?.id}`;
   const lines = t(`${base}.body`, { returnObjects: true });
-  const body = Array.isArray(lines) ? lines : [String(lines ?? '')];
+  /* [[ex]]로 시작하는 줄은 예시를 설명하는 줄 — 예시가 실제로 보일 때만 싣는다(아래 exShown) */
+  const body = (Array.isArray(lines) ? lines : [String(lines ?? '')])
+    .filter((line) => !String(line).startsWith(EX_MARK) || exShown)
+    .map((line) => (String(line).startsWith(EX_MARK) ? String(line).slice(EX_MARK.length) : line));
 
   const go = useCallback((n) => setIndex((i) => Math.min(Math.max(n(i), 0), total - 1)), [total]);
 
@@ -132,13 +142,19 @@ export default function ScreenGuide({ screenKey, onClose }) {
 
   /* 평소엔 안 보이는 것을 보여 주는 단계(guideSteps의 preview) — 그 단계에 있는 동안만
      .hmi-root에 data-sg-preview를 단다. 화면 CSS가 이걸 보고 예시를 그린다(값은 건드리지 않는다).
+     진짜가 하나라도 떠 있으면 화면 CSS가 예시를 그리지 않는다 — 진짜와 예시가 섞이지 않게.
+     --sg-ex는 예시 위에 붙이는 딱지 글자('예시')다. 화면 CSS의 content: var(--sg-ex)가 읽는다.
      다른 단계로 가거나 설명서를 닫으면 뗀다. */
   useEffect(() => {
     const root = document.querySelector('.hmi-root');
     if (!root || !step?.preview) return undefined;
     root.dataset.sgPreview = step.preview;
-    return () => { delete root.dataset.sgPreview; };
-  }, [step]);
+    root.style.setProperty('--sg-ex', JSON.stringify(t('ui.example')));
+    return () => {
+      delete root.dataset.sgPreview;
+      root.style.removeProperty('--sg-ex');
+    };
+  }, [step, t]);
 
   /* 단계가 바뀌면 대상을 화면 안으로 끌어온다(본문이 스크롤되는 화면이 있다).
      패널이 열리며 화면 틀이 줄어드는 중일 수 있어 한 박자 뒤에 한다. */
@@ -157,10 +173,13 @@ export default function ScreenGuide({ screenKey, onClose }) {
   /* 짚을 상자를 잰다. 패널이 열리며 화면이 줄어들고, 값이 들어오며 판 크기가 바뀌거나,
      창 크기·스크롤이 바뀔 수 있어 열려 있는 동안 짧게 되풀이해 잰다(바뀌었을 때만 다시 그린다). */
   useEffect(() => {
-    const measure = () => setRects((prev) => {
-      const next = targetRects(step?.target, step?.split);
-      return sameRects(prev, next) ? prev : next;
-    });
+    const measure = () => {
+      setRects((prev) => {
+        const next = targetRects(step?.target, step?.split);
+        return sameRects(prev, next) ? prev : next;
+      });
+      setExShown(targetRects(step?.previewShown, true).length > 0);
+    };
     measure();
     const timer = setInterval(measure, 200);
     window.addEventListener('resize', measure);

@@ -17,6 +17,9 @@
      preview: 평소엔 안 보이는 것(경보일 때만 뜨는 띠 등)을 이 단계에서만 예시로 보여 줄 때 —
               이름 하나. 그 단계에 있는 동안 .hmi-root에 data-sg-preview="<이름>"이 붙고,
               화면 CSS가 그걸 보고 예시를 그린다. 값·PLC는 건드리지 않는다.
+              진짜가 하나라도 떠 있으면 화면 CSS가 예시를 그리지 않는다(진짜와 섞이지 않게).
+     previewShown: 예시가 실제로 그려졌을 때 보이는 요소의 선택자. 보일 때만 글 중 [[ex]]로
+              시작하는 줄("지금 보이는 것은 예시")을 싣는다 — 진짜가 떠 있을 때 틀린 말을 하지 않게.
 
    선택자는 각 화면이 이미 쓰는 클래스 이름이다. 화면을 고치다 클래스 이름이 바뀌면
    그 단계는 오류 없이 "짚지 않는 카드"로 나온다 — 설명서를 열어 보면 바로 티가 난다.
@@ -118,8 +121,8 @@ const GUIDE_STEPS = {
         + '.cooling-tower .arrow-8, .cooling-tower .arrow-9, .cooling-tower .arrow-11',
       split: true,
     },
-    /* 경보 띠는 경보일 때만 보인다 — 이 단계에서만 두 띠를 예시로 띄워 짚는다(CoolingPage.css) */
-    { id: 'level', target: '.ct-banner', preview: 'ct-level' },
+    /* 경보 띠는 경보일 때만 보인다 — 진짜 띠가 없으면 이 단계에서만 두 띠를 예시로 띄워 짚는다(CoolingPage.css) */
+    { id: 'level', target: '.ct-banner', preview: 'ct-level', previewShown: '.ct-banner.is-off' },
     { id: 'delay', target: '.ct-delay' },
     { id: 'end' },
   ],
@@ -142,8 +145,13 @@ const GUIDE_STEPS = {
   alarm: [
     { id: 'intro' },
     { id: 'pager', target: '.al-pager' },
-    // 발생한 칸은 경보일 때만 빨갛다 — 이 장에서만 앞 칸 몇 개를 예시로 켠다(AlarmPage.css)
-    { id: 'cells', target: '.al-grid', preview: 'al-on' },
+    // 발생한 칸은 경보일 때만 빨갛다 — 발생한 칸이 없으면 이 장에서만 앞 세 칸을 예시로 켠다(AlarmPage.css)
+    {
+      id: 'cells',
+      target: '.al-grid',
+      preview: 'al-on',
+      previewShown: '.al-grid:not(:has(.al-cell.on)) > .al-cell:not(.is-empty)',
+    },
     { id: 'count', target: '.al-count' },
     { id: 'actions', target: '.al-action' },
     { id: 'open', target: '.al-grid > .al-cell:first-child' },
@@ -159,8 +167,8 @@ const GUIDE_STEPS = {
   alarmNow: [
     { id: 'intro' },
     { id: 'hist', target: '.an-hist .ah-table' },
-    // 켜진 램프가 없으면 판이 비어 있다 — 이 장에서만 예시 세 칸을 띄운다(AlarmNowPage.css)
-    { id: 'lamps', target: '.an-lamp', preview: 'an-lamp' },
+    // 켜진 램프가 없으면 판이 비어 있다 — 그때만 이 장에서 예시 세 칸을 띄운다(AlarmNowPage.css)
+    { id: 'lamps', target: '.an-lamp', preview: 'an-lamp', previewShown: '.an-lamps--sample .an-lamp-cell' },
     { id: 'counts', target: '.an-head .al-count', split: true },
     { id: 'end' },
   ],

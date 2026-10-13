@@ -116,6 +116,21 @@
   display: none;
 }
 
+/* 예시 칸 위 '예시' 딱지 — 글자는 ScreenGuide가 넣는 --sg-ex(화면 언어) */
+.an-lamps--sample .an-lamp-cell::after {
+  content: var(--sg-ex);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #0b1220;
+  color: #ffd24a;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 15px;
+}
+
 /* 좁은 화면 — 두 판을 위아래로 쌓는다(표가 위) */
 @media (max-width: 860px) {
   .an-page {

@@ -234,9 +234,25 @@
 }
 
 /* 화면 설명서의 '집수조 LEVEL HIGH · LOW' 장에서만 두 띠를 예시로 꺼낸다
-   (ScreenGuide가 그 장에 있는 동안 .hmi-root에 data-sg-preview="ct-level"을 단다). */
-.hmi-root[data-sg-preview="ct-level"] .ct-banner.is-off {
+   (ScreenGuide가 그 장에 있는 동안 .hmi-root에 data-sg-preview="ct-level"을 단다).
+   진짜 띠가 하나라도 떠 있으면 꺼내지 않는다(:not(:has(...))) — 진짜와 예시가 섞이면
+   어느 쪽이 진짜 경보인지 헷갈린다. 예시에는 '예시' 딱지(--sg-ex, ScreenGuide가 넣는다)를 붙인다. */
+.hmi-root[data-sg-preview="ct-level"] .ct-overlay:not(:has(.ct-banner:not(.is-off))) .ct-banner.is-off {
   display: block;
+}
+
+.hmi-root[data-sg-preview="ct-level"] .ct-banner.is-off::after {
+  content: var(--sg-ex);
+  position: absolute;
+  top: -9px;
+  right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #0b1220;
+  color: #ffd24a;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 17px;
 }
 
 /* ===== 냉각수 알람 지연시간 ============================================= */

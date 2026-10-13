@@ -7,7 +7,8 @@
     "close": "Close guide",
     "count": "{{n}} / {{total}}",
     "keys": "Use ← → to move, Esc to close",
-    "toc": "Contents"
+    "toc": "Contents",
+    "example": "Example"
   },
   "drive": {
     "intro": {
@@ -423,7 +424,8 @@
       "title": "SUMP LEVEL HIGH · LOW",
       "body": [
         "When the sump level is high, a red 'SUMP LEVEL HIGH' band appears in the sump; when low, 'SUMP LEVEL LOW'.",
-        "Normally no band is shown. The two bands you see now are examples shown for this guide."
+        "Normally no band is shown.",
+        "[[ex]]The two bands marked 'Example' are shown for this guide because there is no alarm right now."
       ]
     },
     "delay": {
@@ -550,7 +552,7 @@
       "body": [
         "An active alarm lights its tile red [[alarm]]; when it clears, the tile goes back to normal.",
         "A tile with a paperclip in the top-right corner has a description or files.",
-        "The first three red tiles you see now are examples shown for this guide."
+        "[[ex]]The first three tiles marked 'Example' are shown for this guide because no alarm is active on this page."
       ]
     },
     "count": {
@@ -621,7 +623,7 @@
       "body": [
         "Shows only the tiles lit red on the Alarms screen. Top: alarm message; bottom: tag name and address.",
         "They are in the same order as the table on the left so you can match them easily. With none lit, 'No lamps are on.' is shown.",
-        "The three tiles you see now are examples shown for this guide."
+        "[[ex]]The three tiles marked 'Example' are shown for this guide because no tile is lit right now."
       ]
     },
     "counts": {

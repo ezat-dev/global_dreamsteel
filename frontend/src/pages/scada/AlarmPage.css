@@ -197,12 +197,28 @@
 
 /* 화면 설명서의 '알람 칸' 장에서만 앞의 세 칸을 발생한 모습으로 예시 표시한다
    (ScreenGuide가 그 장에 있는 동안 .hmi-root에 data-sg-preview="al-on"을 단다). 값은 그대로다.
-   점선(is-unknown)보다 이겨야 해서 선택자를 길게 쓴다. */
-.hmi-root[data-sg-preview="al-on"] .al-grid > .al-cell:not(.is-empty):nth-child(-n+3) {
+   이 장에 진짜로 발생한 칸이 하나라도 있으면 예시를 띄우지 않는다(:not(:has(.al-cell.on))) —
+   진짜와 섞이면 어느 칸이 진짜 경보인지 헷갈린다.
+   점선(is-unknown)보다 이겨야 해서 선택자를 길게 쓴다. 예시에는 '예시' 딱지(--sg-ex)를 붙인다. */
+.hmi-root[data-sg-preview="al-on"] .al-grid:not(:has(.al-cell.on)) > .al-cell:not(.is-empty):nth-child(-n+3) {
   border-style: solid;
   border-color: #dc2626;
   background: #dc2626;
   color: #ffffff;
+}
+
+.hmi-root[data-sg-preview="al-on"] .al-grid:not(:has(.al-cell.on)) > .al-cell:not(.is-empty):nth-child(-n+3)::after {
+  content: var(--sg-ex);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: #0b1220;
+  color: #ffd24a;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 15px;
 }
 
 /* ===== 하단 조작 ===== */
