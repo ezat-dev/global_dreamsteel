@@ -38,6 +38,36 @@
   transform-origin: top center;
 }
 
+/* ===== 설명서가 열려 세로가 남을 때 ========================================
+
+   --at-gap은 AtmospherePage.jsx가 넣는 남는 세로(그림 좌표 px)다. 설명서가 닫혀 있으면 0.
+   위쪽 배관 묶음(블로워·가스·주배관·발생기, y 0~290)은 그대로 두고, 아래 묶음
+   (로·로내 투입 화살표·조건판·O2·로내 투입 판, y 460~742)을 그만큼 내린다.
+   로로 내려가는 관(pipe-10)은 아래끝이 로에 붙어 있어야 하므로 같이 내리면서 그만큼 늘린다
+   — -90도 돌린 막대라(작화 CSS) 폭이 곧 세로 길이고, 늘어난 만큼 위로 자라 윗끝(129)은
+   제자리다. 밸브 조작판은 두 묶음 사이에 떠 있게 반만 내린다.
+
+   transform이 아니라 translate 속성을 쓴다 — 작화(pipe-10의 rotate)와 좁은 화면 규칙
+   (조건판·O2의 scale)이 transform을 쓰고 있어서, transform으로 쓰면 그쪽을 덮어 버린다.
+   translate 속성은 transform과 따로 합쳐진다. */
+.at-stage-inner .atmosphere .obj-4,
+.at-stage-inner .atmosphere .down-1,
+.at-stage-inner .atmosphere .down-2,
+.at-overlay > .at-slot--cond,
+.at-overlay > .at-plate--furnace,
+.at-overlay > .at-o2 {
+  translate: 0 var(--at-gap, 0px);
+}
+
+.at-stage-inner .atmosphere .pipe-10 {
+  width: calc(471px + var(--at-gap, 0px));
+  translate: 0 var(--at-gap, 0px);
+}
+
+.at-overlay > .at-slot--valve {
+  translate: 0 calc(var(--at-gap, 0px) / 2);
+}
+
 /* ===== 왼쪽 위 배관 부속 다섯 ==============================================
 
    값이 1이면 초록, 0이거나 못 읽으면 회색이다.

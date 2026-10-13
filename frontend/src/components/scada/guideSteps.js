@@ -75,6 +75,28 @@ const GUIDE_STEPS = {
     { id: 'limit', target: '.tz-grid > .tz-panel:first-child .tz-limit' },
     { id: 'end' },
   ],
+  atmosphere: [
+    { id: 'intro' },
+    /* 제목판·OPEN/CLOSE 칸은 감싸는 묶음이 없어 그 뒤의 설비 상자 그림(.blowe / .gas)을 짚는다.
+       둘을 한 상자로 묶으면 블로워 그림 한가운데를 가로지른다 — 따로 짚는다 */
+    { id: 'addition', target: '.blowe, .gas', split: true },
+    { id: 'pipeLamps', target: '.at-pipe-label' },
+    // 그림 속 부속 — 블로워·압력 조절밸브·솔레노이드 밸브·컨트롤 밸브·경광등. 흩어져 있어 따로 짚는다
+    {
+      id: 'fittings',
+      target: '.motor-1, .blowe-pre, .blowe-sol, .gas-pre, .gas-sol, .valve-1, .alarm-1',
+      split: true,
+    },
+    { id: 'valveValues', target: '.at-valve-boxes > .at-box:first-child' },
+    { id: 'pid', target: '.at-valve-boxes > .at-box:last-child' },
+    { id: 'refTemp', target: '.at-reftemp' },
+    { id: 'mode', target: '.at-mode' },
+    { id: 'manualMv', target: '.at-manual' },
+    { id: 'cond', target: '.at-cond' },
+    { id: 'gen', target: '.at-plate--gen, .at-plate--gen + .at-openclose' },
+    { id: 'o2', target: '.at-o2' },
+    { id: 'end' },
+  ],
 };
 
 export default GUIDE_STEPS;

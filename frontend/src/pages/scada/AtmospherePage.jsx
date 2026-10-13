@@ -138,15 +138,25 @@ export default function AtmospherePage() {
   const { t, i18n } = useTranslation('atmosphere');
   const stageRef = useRef(null);
   const [scale, setScale] = useState(0);
+  /* 설명서가 열렸을 때 그림 아래 남는 세로(그림 좌표 px). 그림은 비율이 고정이라 폭이
+     줄면 세로도 같이 줄어 아래가 빈다 — 그 높이만큼 아래 묶음(로·화살표·조건판·O2)을
+     내리고 내림관을 늘려서 채운다(AtmospherePage.css의 --at-gap). 그림을 늘리지는 않는다.
+     설명서가 닫혀 있으면 0 — 평소 화면은 그대로다. */
+  const [gap, setGap] = useState(0);
 
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return undefined;
 
+    /* 설명서를 열고 닫으면 화면 세로(--sg-scale)가 바뀌어 여기가 다시 불린다 —
+       has-guide 클래스는 그 전에 붙고 떨어져 있다(ScadaLayout이 먼저 그린다). */
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       if (!width || !height) return;
-      setScale(Math.min(width / STAGE_W, height / STAGE_H));
+      const s = Math.min(width / STAGE_W, height / STAGE_H);
+      setScale(s);
+      const guideOpen = el.closest('.hmi-root')?.classList.contains('has-guide');
+      setGap(guideOpen ? Math.max(0, Math.floor(height / s - STAGE_H)) : 0);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -402,7 +412,8 @@ export default function AtmospherePage() {
           className={`at-stage-inner${fittingClasses}${beaconClass}`}
           style={{
             width: STAGE_W,
-            height: STAGE_H,
+            height: STAGE_H + gap,
+            '--at-gap': `${gap}px`,
             marginLeft: -STAGE_W / 2,
             transform: `scale(${scale})`,
             visibility: scale ? 'visible' : 'hidden',

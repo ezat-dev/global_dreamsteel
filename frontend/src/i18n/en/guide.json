@@ -292,5 +292,102 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "atmosphere": {
+    "intro": {
+      "title": "Atmosphere screen at a glance",
+      "body": [
+        "Monitor and operate the ADDITION BLOWER and GAS lines and the ADDITION CONTROL MOTOR VALVE.",
+        "Top left: ADDITION BLOWER/GAS / Center: control valve panel / Bottom left: auto-mode conditions / Right: generator, to furnace, O2 SENSOR",
+        "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
+      ]
+    },
+    "addition": {
+      "title": "ADDITION BLOWER · GAS",
+      "body": [
+        "Hold OPEN/CLOSE for the hold delay (2 s by default) to operate it. A bar fills under the button while you hold.",
+        "When open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]].",
+        "It stays that way after you let go. To change it, hold the other button."
+      ]
+    },
+    "pipeLamps": {
+      "title": "PRESS ABNORMAL · SOL SHUT",
+      "body": [
+        "Status lamps under the pressure control valves and solenoid valves.",
+        "They show the state in green [[on]] / red [[alarm]]."
+      ]
+    },
+    "fittings": {
+      "title": "Equipment drawing",
+      "body": [
+        "The drawing changes with the equipment state.",
+        "Blower, pressure control valves, solenoid valves: green [[on]] when operating, grey [[off]] otherwise",
+        "Control valve on the main pipe: spins while operating · Beacon above the generator: shows the state in green [[on]] / red [[alarm]]."
+      ]
+    },
+    "valveValues": {
+      "title": "Control valve — PV · SV · MV",
+      "body": [
+        "PV (red) is the current value; MV (orange) is the output (%).",
+        "SV (green) is the set value. Tap it to open the number pad (0–1200 mmV)."
+      ]
+    },
+    "pid": {
+      "title": "Control valve — P · I · D",
+      "body": [
+        "Control settings that decide the output in AUTO. P is the proportional band, I the integral time, D the derivative time.",
+        "Tap a box to open the number pad. Input ranges — P 0–1200, I 0–2400, D 0–600"
+      ]
+    },
+    "refTemp": {
+      "title": "Allowed ref. temp",
+      "body": [
+        "Tap the box to open the number pad (650–1000℃).",
+        "When the temperature reaches the allowed reference temperature, the lamp on the left lights green [[on]]. It is one of the auto-mode conditions."
+      ]
+    },
+    "mode": {
+      "title": "AUTO · MANUAL",
+      "body": [
+        "The current mode lights green [[on]].",
+        "Hold the mode you want for the hold delay to switch to it; it stays after you let go.",
+        "In AUTO, the output (MV) is set automatically to reach the set value (SV)."
+      ]
+    },
+    "manualMv": {
+      "title": "MANUAL MV (manual output)",
+      "body": [
+        "Sets the output (%) directly in MANUAL mode. Tap the box to open the number pad (0–100%).",
+        "In AUTO mode the box is dimmed and locked."
+      ]
+    },
+    "cond": {
+      "title": "Auto-mode conditions",
+      "body": [
+        "The seven conditions needed for atmosphere control to run in AUTO.",
+        "[[on]] Green: met   [[alarm]] Red: not met",
+        "If AUTO will not run, check the red lamps first."
+      ]
+    },
+    "gen": {
+      "title": "GENERATOR",
+      "body": [
+        "When the generator GAS is open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]].",
+        "It cannot be opened or closed from this screen."
+      ]
+    },
+    "o2": {
+      "title": "O2 SENSOR",
+      "body": [
+        "The O2 sensor value inside the furnace (mmV)."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "The hold delay can be changed on the Engineering screen and applies to every hold button.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }
