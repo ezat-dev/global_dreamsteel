@@ -228,5 +228,69 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "temp": {
+    "intro": {
+      "title": "Temp Control screen at a glance",
+      "body": [
+        "Monitor and set the temperature of zones 1–7, one panel per zone.",
+        "All seven panels are laid out the same way. This guide uses the 1ZONE panel.",
+        "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
+      ]
+    },
+    "panel": {
+      "title": "One zone panel",
+      "body": [
+        "Top left: PV, SV and MV bar gauges with their values",
+        "Bottom left: AUTO/MANUAL mode button and Manual output (MV)",
+        "Right: alarm settings (HH, H, L, LL) and OUTPUT LIMIT"
+      ]
+    },
+    "gauges": {
+      "title": "PV · SV · MV",
+      "body": [
+        "PV (red) is the current temperature, SV (green) the set temperature, MV (blue) the output (%).",
+        "Tap SV to open the number pad (0–1000℃). It shows the setting in effect, which may move gradually toward your entry.",
+        "SV matches the Combustion and Drive screens; MV matches the zone opening (%) on the Combustion screen."
+      ]
+    },
+    "mode": {
+      "title": "AUTO · MANUAL",
+      "body": [
+        "The button shows the current mode: AUTO in green [[on]], MANUAL in red [[alarm]].",
+        "In AUTO, the output (MV) is set automatically to reach the set temperature (SV).",
+        "Hold the button for the hold delay (2 s by default) to switch modes. A bar fills under the button while you hold."
+      ]
+    },
+    "manualMv": {
+      "title": "Manual output (MV)",
+      "body": [
+        "Sets the output (%) directly in MANUAL mode. Tap the box to open the number pad (0–100%).",
+        "In AUTO mode the box is dimmed and locked."
+      ]
+    },
+    "alarm": {
+      "title": "Alarm settings HH · H · L · LL",
+      "body": [
+        "HH, H, L and LL are the reference values for the high-high, high, low and low-low alarms.",
+        "Tap a box to open the number pad. Input ranges — HH 0–500, H 0–200, L 0–200, LL 0–400",
+        "Values outside the range cannot be entered."
+      ]
+    },
+    "limit": {
+      "title": "OUTPUT LIMIT (MV%)",
+      "body": [
+        "Sets the range the output (MV) can move in. The output never goes below Low or above High.",
+        "Tap a box to open the number pad (High and Low both 0–100%)."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "2–7ZONE panels work exactly like 1ZONE. Each panel's values apply only to its own zone.",
+        "The hold delay can be changed on the Engineering screen and applies to every hold button.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }

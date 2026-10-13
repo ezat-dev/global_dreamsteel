@@ -64,6 +64,17 @@ const GUIDE_STEPS = {
     { id: 'purge', target: '.cb-action--purge' },
     { id: 'end' },
   ],
+  /* 온도제어 — 7개 존 판이 모두 같은 구성이라 1ZONE 판(첫 판) 하나로 설명한다 */
+  temp: [
+    { id: 'intro' },
+    { id: 'panel', target: '.tz-grid > .tz-panel:first-child' },
+    { id: 'gauges', target: '.tz-grid > .tz-panel:first-child .tz-gauges' },
+    { id: 'mode', target: '.tz-grid > .tz-panel:first-child .tz-mode-btn' },
+    { id: 'manualMv', target: '.tz-grid > .tz-panel:first-child .tz-manual-mv' },
+    { id: 'alarm', target: '.tz-grid > .tz-panel:first-child .tz-side-group:not(.tz-limit)' },
+    { id: 'limit', target: '.tz-grid > .tz-panel:first-child .tz-limit' },
+    { id: 'end' },
+  ],
 };
 
 export default GUIDE_STEPS;
