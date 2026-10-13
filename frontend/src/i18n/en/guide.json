@@ -692,5 +692,44 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "engineering": {
+    "intro": {
+      "title": "Engineering screen at a glance",
+      "body": [
+        "Change equipment settings and how the screens are operated.",
+        "This guide covers the Operation Settings panel.",
+        "Without control permission, 'View only' appears next to the title and inputs are locked."
+      ]
+    },
+    "operation": {
+      "title": "Operation Settings",
+      "body": [
+        "Settings for how the screens are used. Tap a box to open the number pad; the value is saved right away.",
+        "A change applies not only to this PC but to every PC and every user."
+      ]
+    },
+    "hold": {
+      "title": "Button hold delay",
+      "body": [
+        "Control buttons on every screen (ON/OFF, OPEN/CLOSE, RESET, …) must be held this long to act. This stops equipment from moving on an accidental touch.",
+        "Enter 0–5 s in 0.1 s steps (2 s by default). At 0 a button acts as soon as it is pressed.",
+        "Other PCs pick it up when they change screen or within 30 seconds."
+      ]
+    },
+    "session": {
+      "title": "Login time limit",
+      "body": [
+        "Once this time has passed since login, the screen returns to the login page and the user must log in again.",
+        "Enter minutes. 0 means unlimited; the maximum is 1440 min (24 h)."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "Drive, Combustion and Atmosphere Settings and Temperature Calibration will be added to this guide once their items are settled.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }

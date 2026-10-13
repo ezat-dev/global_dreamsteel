@@ -149,6 +149,38 @@
   font-size: 11px;
 }
 
+/* ===== 설명서가 열려 세로가 남을 때 =====
+   설명서가 열리면 화면을 줄이는 대신 세로를 늘린다(ScreenGuide.css). 이 화면은 내용 높이만큼만
+   차지해서 늘어난 세로가 통째로 아래 빈칸이 됐다. 판 셋(구동부·연소부·분위기제어)이 남는 높이를
+   나눠 갖고, 판 안의 여덟 줄이 고르게 벌어진다 — 조작 설정·온도 보정 판은 그대로다.
+   설명서가 닫혀 있으면 아무것도 바뀌지 않는다. 내용이 화면보다 길면(좁은 화면) min-height가
+   안 걸려 지금처럼 스크롤된다. */
+.hmi-root.has-guide .eng-page {
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
+.hmi-root.has-guide .eng-sections {
+  flex: 1 0 auto;
+}
+
+.hmi-root.has-guide .eng-sections > .eng-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 줄마다 자기 높이는 지키고 남는 높이만 똑같이 더한다(flex-grow). grid의 1fr로 나누면
+   모든 줄이 가장 높은 줄(이름이 두세 줄로 꺾인 줄)에 맞춰져 좁은 화면에서 오히려 길어진다. */
+.hmi-root.has-guide .eng-sections .eng-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hmi-root.has-guide .eng-sections .eng-rows > .eng-row {
+  flex: 1 0 auto;
+}
+
 /* ===== 좁은 화면 =====
    1100px 이하(태블릿 세로·작은 노트북)에서는 판 셋이 나란히 서기에 좁다 — 이름이
    두세 줄로 꺾여 줄 높이가 판마다 달라진다. 860px 아래에서 한 줄에 하나씩 쌓는다. */

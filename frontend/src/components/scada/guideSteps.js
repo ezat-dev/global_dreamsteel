@@ -182,6 +182,15 @@ const GUIDE_STEPS = {
     { id: 'excel', target: '.ah-btn.is-excel' },
     { id: 'end' },
   ],
+  /* 엔지니어링 — 설비 설정값 판들(구동부·연소부·분위기제어·온도 보정)은 항목이 아직 바뀔 수 있어서
+     우선 조작 설정 판만 설명한다. 나머지 판은 항목이 정해지면 단계를 더한다. */
+  engineering: [
+    { id: 'intro' },
+    { id: 'operation', target: '.eng-section--operation' },
+    { id: 'hold', target: '.eng-rows--operation > .eng-row:nth-child(1)' },
+    { id: 'session', target: '.eng-rows--operation > .eng-row:nth-child(2)' },
+    { id: 'end' },
+  ],
 };
 
 export default GUIDE_STEPS;
