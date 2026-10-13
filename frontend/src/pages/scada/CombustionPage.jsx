@@ -597,9 +597,10 @@ export default function CombustionPage() {
 
                 덕분에 작화 이름이 역순인 문제(rev-1이 맨 오른쪽)를 신경 쓰지 않아도 된다.
                 위아래가 같은 값이라 어느 쪽에 어느 존을 넣든 결과가 같기 때문이다. */}
+            {/* cb-per--top — 화면 설명서(guideSteps)가 위쪽 개도 줄만 짚을 때 쓰는 이름. 모양에는 안 쓴다 */}
             {ZONES.map((n) => (
               <span
-                className="cb-per"
+                className="cb-per cb-per--top"
                 key={`top${n}`}
                 style={{ left: topCx(n), top: PER_TOP }}
                 data-tag={zoneTag(n, 'mv')}

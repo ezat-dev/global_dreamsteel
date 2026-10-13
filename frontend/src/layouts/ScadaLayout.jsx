@@ -114,7 +114,8 @@ export default function ScadaLayout() {
   };
 
   return (
-    <div className="hmi-root" onContextMenu={blockLongPressMenu}>
+    /* has-guide — 설명서가 열려 있는 동안 화면 틀을 오른쪽 패널 폭만큼 줄인다(ScreenGuide.css) */
+    <div className={`hmi-root${guideOpen ? ' has-guide' : ''}`} onContextMenu={blockLongPressMenu}>
       <div className="hmi-shell">
         <div className="hmi-header">
           <ScadaLogo />

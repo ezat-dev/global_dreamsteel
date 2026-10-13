@@ -7,7 +7,7 @@
     "close": "Close guide",
     "count": "{{n}} / {{total}}",
     "keys": "Use ← → to move, Esc to close",
-    "goto": "Go to step {{n}}"
+    "toc": "Contents"
   },
   "drive": {
     "intro": {
@@ -24,7 +24,7 @@
         "Mode (MANUAL/AUTO) shows which way the selector on the field OP panel is set. It cannot be changed from this screen.",
         "When AUTO RUN is lit, the line is running automatically.",
         "When E-STOP lights red [[alarm]], an emergency stop is active.",
-        "The DISCHARGE OP PANEL at the far right works the same way."
+        "The DISCHARGE OP PANEL works the same way."
       ]
     },
     "alarmSw": {
@@ -39,7 +39,7 @@
     "cond": {
       "title": "Charge / Discharge auto-run conditions",
       "body": [
-        "State of the conditions needed for auto run. These are status lamps, not buttons.",
+        "State of the conditions needed for auto run.",
         "[[on]] Green: met   [[alarm]] Red: not met",
         "If auto run will not start, check the red lamps first."
       ]
@@ -97,8 +97,128 @@
     "boards": {
       "title": "Sensor and valve lamps",
       "body": [
-        "Charge/discharge SOL VALVEs, limit switches (L/S), proximity sensors (P/X) and product detection. Status lamps only.",
+        "Charge/discharge SOL VALVEs, limit switches (L/S), proximity sensors (P/X) and product detection.",
         "[[on]] Green: on / detected   [[alarm]] Red: off"
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "The hold delay can be changed on the Engineering screen and applies to every hold button.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
+  },
+  "combustion": {
+    "intro": {
+      "title": "Combustion screen at a glance",
+      "body": [
+        "Operate the gas, combustion blower and burners, and watch zone 1–7 temperatures and burner state.",
+        "Top: equipment drawing (MAIN GAS, COMBUSTION BLOWER, BURNER COOL, zone temperatures and openings) / Middle: per-zone burn controls / Bottom: recent alarms and alarm/PURGE panels",
+        "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
+      ]
+    },
+    "mainGas": {
+      "title": "MAIN GAS",
+      "body": [
+        "Opens and closes the MAIN GAS valve.",
+        "Hold OPEN/CLOSE for the hold delay (2 s by default) to operate it. A bar fills under the button while you hold.",
+        "When open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]]."
+      ]
+    },
+    "pipeLamps": {
+      "title": "Pipe status lamps",
+      "body": [
+        "Status lamps under the pipe fittings: MAIN GAS PRESS NORMAL and SOL SHUT, and COMBUSTION BLOWER PRESS ABNORMAL.",
+        "They show the state in green [[on]] / red [[alarm]]."
+      ]
+    },
+    "blower": {
+      "title": "COMBUSTION BLOWER",
+      "body": [
+        "Starts and stops the combustion blower.",
+        "Hold ON/OFF for the hold delay to operate it.",
+        "While running, ON lights green [[on]]; when stopped, OFF lights red [[alarm]]."
+      ]
+    },
+    "burnerCool": {
+      "title": "BURNER COOL",
+      "body": [
+        "Turns burner cooling on and off. Hold ON/OFF for the hold delay to operate it.",
+        "When on, ON lights green [[on]]; when off, OFF lights red [[alarm]]."
+      ]
+    },
+    "zones": {
+      "title": "Zone 1–7 temperatures",
+      "body": [
+        "PV is each zone's current temperature; SV is the set temperature.",
+        "Tap SV to open the number pad (0–1000℃). These are the same values as on the Temp Control and Drive screens."
+      ]
+    },
+    "per": {
+      "title": "Zone opening (%)",
+      "body": [
+        "The % boxes above and below each zone show its burner opening (output). Both boxes show the same value.",
+        "It is the same value as the output (MV) on the Temp Control screen."
+      ]
+    },
+    "zoneBurn": {
+      "title": "Zone BURN ON/OFF",
+      "body": [
+        "Turns burning on and off for a whole zone. Hold BURN ON/OFF for the hold delay to operate it.",
+        "While burning, ON lights green [[on]]; when stopped, OFF lights red [[alarm]]."
+      ]
+    },
+    "zoneModal": {
+      "title": "Zone burners",
+      "body": [
+        "Tap 'N ZONE BURNERS' to open the burner window for that zone.",
+        "In the window you can turn burners on and off one by one, or purge just that zone. The next pages open the zone 1 window to explain it."
+      ]
+    },
+    "zmBurners": {
+      "title": "Burner window — BURN ON/OFF",
+      "body": [
+        "Each row is one burner. Burners 1 and 2 are on the left (L), 3 and 4 on the right (R).",
+        "Hold BURN ON/OFF for the hold delay to turn just that burner on or off.",
+        "While burning, BURN ON lights green [[on]]; when stopped, BURN OFF lights red [[alarm]]."
+      ]
+    },
+    "zmPurge": {
+      "title": "Burner window — zone PURGE · close",
+      "body": [
+        "Hold START PURGE for the hold delay to purge just this zone. It lights green [[on]] while purging.",
+        "Close the window with ✕ at the top right, Esc, or by tapping outside."
+      ]
+    },
+    "stage": {
+      "title": "Equipment drawing",
+      "body": [
+        "The drawing changes with the equipment state.",
+        "The MAIN GAS valves and the combustion blower valve and fan keep their own colour when open/running and turn red [[alarm]] when closed/stopped.",
+        "The lightning marks behind the flames appear only while igniting."
+      ]
+    },
+    "alarms": {
+      "title": "Recent alarms",
+      "body": [
+        "Shows the latest 100 alarms.",
+        "Status 'Active' [[alarm]] means the alarm has not cleared yet; 'Cleared' means it is over.",
+        "To search by period or download to Excel, use the Alarm History screen."
+      ]
+    },
+    "alarmReset": {
+      "title": "MISFIRE ALARM · BURNER ALARM",
+      "body": [
+        "MISFIRE lights red [[alarm]] on a misfire, and ABNORMAL lights red [[alarm]] on a burner fault.",
+        "Hold RESET for the hold delay to reset that alarm. The RESET buttons are always yellow."
+      ]
+    },
+    "purge": {
+      "title": "ALL PURGE",
+      "body": [
+        "Hold ON for the hold delay to start PURGE for all zones.",
+        "Progress lights up in order: PURGE READY (red [[alarm]]) → PURGING (yellow [[warn]]) → PURGE DONE (green [[on]])."
       ]
     },
     "end": {
