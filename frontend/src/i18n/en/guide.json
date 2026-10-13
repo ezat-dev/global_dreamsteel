@@ -598,5 +598,45 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "alarmNow": {
+    "intro": {
+      "title": "Active Alarms screen at a glance",
+      "body": [
+        "Collects only the alarms that are active right now. It is a view-only screen with no buttons to press.",
+        "Left: alarm history entries not yet cleared / Right: tiles lit red on the Alarms screen",
+        "Left open, it refreshes by itself. There is no need to press Search."
+      ]
+    },
+    "hist": {
+      "title": "Active alarm table",
+      "body": [
+        "Columns are NO, Tag Name, Address, Alarm Message and Occurred; the most recent alarm is at the top.",
+        "When an alarm clears it leaves the table. Over 20 entries, use the pages under the table.",
+        "To search cleared alarms by period too, use the Alarm History screen."
+      ]
+    },
+    "lamps": {
+      "title": "Lit alarm tiles",
+      "body": [
+        "Shows only the tiles lit red on the Alarms screen. Top: alarm message; bottom: tag name and address.",
+        "They are in the same order as the table on the left so you can match them easily. With none lit, 'No lamps are on.' is shown.",
+        "The three tiles you see now are examples shown for this guide."
+      ]
+    },
+    "counts": {
+      "title": "Active counts",
+      "body": [
+        "The count for each side. It turns red [[alarm]] when there is at least one.",
+        "A new alarm appears on the right first and shows up in the table on the left a few seconds later."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "To reset alarms (ALARM RESET) or silence the horn (HORN STOP), use the buttons on the Alarms or Drive screen.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }

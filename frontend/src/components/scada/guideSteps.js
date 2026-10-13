@@ -156,6 +156,14 @@ const GUIDE_STEPS = {
     },
     { id: 'end' },
   ],
+  alarmNow: [
+    { id: 'intro' },
+    { id: 'hist', target: '.an-hist .ah-table' },
+    // 켜진 램프가 없으면 판이 비어 있다 — 이 장에서만 예시 세 칸을 띄운다(AlarmNowPage.css)
+    { id: 'lamps', target: '.an-lamp', preview: 'an-lamp' },
+    { id: 'counts', target: '.an-head .al-count', split: true },
+    { id: 'end' },
+  ],
 };
 
 export default GUIDE_STEPS;

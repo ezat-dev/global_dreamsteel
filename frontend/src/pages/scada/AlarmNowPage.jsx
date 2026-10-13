@@ -222,9 +222,22 @@ export default function AlarmNowPage() {
             ))}
           </div>
         ) : (
-          <div className={`an-empty${tagError || (!lampValues && lampError) ? ' is-error' : ''}`}>
-            {lampEmpty}
-          </div>
+          <>
+            <div className={`an-empty${tagError || (!lampValues && lampError) ? ' is-error' : ''}`}>
+              {lampEmpty}
+            </div>
+            {/* 화면 설명서 예시 — 평소엔 숨어 있고, 설명서가 이 판을 설명하는 장에서만
+                켜진 칸이 어떻게 보이는지 앞의 알람 세 개로 보여 준다(AlarmNowPage.css의 data-sg-preview).
+                켜진 램프가 실제로 있으면 위쪽 진짜 칸이 그려지므로 예시는 나오지 않는다. */}
+            <div className="an-lamps an-lamps--sample" aria-hidden="true">
+              {tags.slice(0, 3).map((tag) => (
+                <div key={tag.tagName} className="al-cell on an-lamp-cell">
+                  <span className="an-lamp-msg">{alarmMsgOf(tag, lang) || tag.tagName}</span>
+                  <span className="an-lamp-tag">{`${tag.tagName} · ${tag.address}`}</span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </section>
     </div>

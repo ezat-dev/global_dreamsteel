@@ -3,6 +3,37 @@ import { TabulatorFull as Tabulator } from 'tabulator-tables';
 import { useTranslation } from 'react-i18next';
 import 'tabulator-tables/dist/css/tabulator.min.css';
 
+/* 화면 설명서가 열리면 화면 전체를 transform: scale로 줄인다(ScreenGuide.css). Tabulator의
+   fitColumns는 표 폭을 getBoundingClientRect로 재는데(tabulator_esm.js의 fitColumns 첫 줄),
+   그 값은 배율이 곱해진 폭이라 열 합이 표 폭의 84%(1920)·77%(1280)로 그려져 오른쪽이 빈다.
+   배율이 걸려 있을 때만 그 한 번의 측정을 배치 폭(배율을 뺀 값)으로 돌려준다.
+   배율이 없으면(평소) 원래 함수를 그대로 부르므로 지금과 똑같다.
+   tabulator-tables를 올릴 때 fitColumns가 다른 방법으로 재게 바뀌면 이 덮개는 필요 없어진다.
+
+   Layout 모듈은 밖으로 내보내지 않아서 공개 API(extendModule)로 바꿔 끼운다. 원래 함수는
+   모듈 묶음(moduleBindings)에서 꺼내는데, 빈 extendModule 호출이 그 묶음을 먼저 채운다.
+   못 찾으면(버전이 바뀌어 구조가 달라지면) 아무것도 안 바꾸고 원래대로 둔다. */
+Tabulator.extendModule('layout', 'modes', {});
+const fitColumnsOrig = Tabulator.moduleBindings?.layout?.modes?.fitColumns;
+if (fitColumnsOrig) {
+  Tabulator.extendModule('layout', 'modes', {
+    fitColumns(columns, forced) {
+      const el = this.table.rowManager.element;
+      const rect = el.getBoundingClientRect();
+      if (!el.offsetWidth || Math.abs(rect.width - el.offsetWidth) < 1) {
+        return fitColumnsOrig.call(this, columns, forced);
+      }
+      const k = rect.width / el.offsetWidth;
+      el.getBoundingClientRect = () => ({ ...rect.toJSON(), width: rect.width / k });
+      try {
+        return fitColumnsOrig.call(this, columns, forced);
+      } finally {
+        delete el.getBoundingClientRect;   // 인스턴스에 덮어쓴 것만 지운다 — 원래 메서드로 돌아간다
+      }
+    },
+  });
+}
+
 /**
  * Tabulator 공용 래퍼 — 초기화·해제·데이터 갱신을 감싼다.
  * 경보이력·로그처럼 목록을 뿌리는 화면들이 같이 쓴다.

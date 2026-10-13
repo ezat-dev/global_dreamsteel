@@ -102,6 +102,20 @@
   color: #f0a39b;
 }
 
+/* 화면 설명서 예시 칸 — 평소엔 숨긴다. 설명서가 '켜진 램프' 장에 있는 동안만
+   (.hmi-root에 data-sg-preview="an-lamp") 빈 판 문구 대신 예시 세 칸을 보여 준다. */
+.an-lamps--sample {
+  display: none;
+}
+
+.hmi-root[data-sg-preview="an-lamp"] .an-lamps--sample {
+  display: grid;
+}
+
+.hmi-root[data-sg-preview="an-lamp"] .an-lamp .an-empty {
+  display: none;
+}
+
 /* 좁은 화면 — 두 판을 위아래로 쌓는다(표가 위) */
 @media (max-width: 860px) {
   .an-page {
