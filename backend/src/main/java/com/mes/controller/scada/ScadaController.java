@@ -279,10 +279,10 @@ public class ScadaController {
             try {
                 ms = Integer.parseInt(scadaSetting.getSettingValue());
             } catch (NumberFormatException e) {
-                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 시간은 숫자여야 합니다.");
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 지연 시간은 숫자여야 합니다.");
             }
             if (ms < 0 || ms > 5000) {
-                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 시간은 0~5초 사이여야 합니다.");
+                throw new BusinessException(ErrorCode.INVALID_PARAMETER, "누름 지연 시간은 0~5초 사이여야 합니다.");
             }
         }
         // 로그인 유지시간(분). 0 = 무제한, 최대 24시간

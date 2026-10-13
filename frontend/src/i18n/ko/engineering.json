@@ -23,9 +23,9 @@
     "eng_purge_time": "최소 1분(60초) 이상 PURGE 설정상태"
   },
   "hold": {
-    "label": "버튼 누름 시간",
+    "label": "버튼 누름 지연 시간",
     "note": "모든 화면의 조작 버튼이 이 시간만큼 눌려야 값을 보냅니다 (0 ~ 5초, 0.1초 단위)",
-    "tip": "버튼 누름 시간 / scada_setting.{{key}} = {{ms}}ms"
+    "tip": "버튼 누름 지연 시간 / scada_setting.{{key}} = {{ms}}ms"
   },
   "session": {
     "label": "로그인 유지 시간",

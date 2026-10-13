@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { IconLogout } from '@tabler/icons-react';
+import { IconHelp, IconLogout } from '@tabler/icons-react';
 import { findScadaMenu, filterScadaMenu } from '../constants/scadaMenu';
 import ScadaLogo from '../components/scada/ScadaLogo';
 import ScadaClock from '../components/scada/ScadaClock';
@@ -8,6 +8,8 @@ import { useAuth } from '../context/AuthContext';
 import { checkSession } from '../api/scada/scadaAuthApi';
 import { HoldMsProvider } from '../components/scada/HoldMsContext';
 import LangToggle from '../components/scada/LangToggle';
+import ScreenGuide from '../components/scada/ScreenGuide';
+import { hasGuide } from '../components/scada/guideSteps';
 import { useTranslation } from 'react-i18next';
 import '../styles/scada.css';
 
@@ -42,6 +44,12 @@ export default function ScadaLayout() {
   /* 제어 권한이 없으면 화면 전체를 잠근다. 단 lockScreen: false인 화면(트렌드)은 대부분이
      조회라 잠그지 않고, 제어가 필요한 일부를 그 화면이 직접 막는다(scadaMenu 참고). */
   const locked = current.lockScreen !== false && !canControl(current.key);
+
+  /* 화면 설명서 — 헤더의 ? 버튼으로 연다. 설명서가 있는 화면에만 버튼이 생긴다(guideSteps).
+     다른 화면으로 옮기면 닫는다 — 열린 채 넘어가면 엉뚱한 화면을 짚는다. */
+  const [guideOpen, setGuideOpen] = useState(false);
+  const showGuideBtn = hasGuide(current.key);
+  useEffect(() => { setGuideOpen(false); }, [location.pathname]);
 
   /* 화면을 옮길 때마다 서버 세션이 살아 있는지 확인한다.
 
@@ -120,6 +128,20 @@ export default function ScadaLayout() {
 
           <ScadaClock />
 
+          {/* 화면 설명서 열기 — 날짜 오른쪽(날짜와 한/영 사이). 메인화면처럼 설명서가 없는 화면에는 없다.
+              메인화면의 관리자 버튼은 오른쪽 끝(로그아웃) 기준으로 서고, 메인화면에는 이 버튼이 없어 영향이 없다. */}
+          {showGuideBtn && (
+            <button
+              type="button"
+              className="hmi-help"
+              onClick={() => setGuideOpen(true)}
+              title={t('guide:ui.open')}
+              aria-label={t('guide:ui.open')}
+            >
+              <IconHelp size={22} />
+            </button>
+          )}
+
           {/* 한/영 전환 — 로그아웃 왼쪽. 아래 관리자 버튼들은 로그아웃 폭에 맞춰 있어 영향이 없다 */}
           <LangToggle />
 
@@ -163,6 +185,8 @@ export default function ScadaLayout() {
           </div>
         )}
       </div>
+
+      {guideOpen && <ScreenGuide screenKey={current.key} onClose={() => setGuideOpen(false)} />}
     </div>
   );
 }

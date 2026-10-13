@@ -1,0 +1,252 @@
+/* 화면 설명서(ScreenGuide) — 화면을 어둡게 덮고 설명하는 곳만 뚫어 짚는다.
+   숫자패드·모달(z-index 1500)보다 위에 뜬다. 카드는 작화 위에 얹히므로 불투명하게 깐다
+   (다크 테마 규칙: 작화 위에 얹히는 건 불투명). */
+
+.sg-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  /* 루트는 판만 잡고 누름은 막·카드가 받는다 */
+  pointer-events: none;
+}
+
+/* 뒤 화면 누름을 막는 판. 짚는 곳이 있을 때는 투명하고(어둠은 .sg-hole의 그림자),
+   짚는 곳이 없는 단계(처음·끝 요약)에는 이 판이 직접 어둡게 덮는다. */
+.sg-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+
+.sg-backdrop.is-dim {
+  background: rgba(4, 8, 16, .62);
+}
+
+/* 뚫린 상자 — 바깥으로 아주 큰 그림자를 드리워 나머지를 어둡게 하고, 자기 안은 비워 둔다.
+   누름은 뒤 판이 받는다(이 상자는 그리기만). 단계를 넘기면 다음 자리로 미끄러져 간다. */
+.sg-hole {
+  position: absolute;
+  border-radius: 10px;
+  border: 2px solid #5eb7ff;
+  box-shadow: 0 0 0 200vmax rgba(4, 8, 16, .62), 0 0 0 5px rgba(94, 183, 255, .25);
+  pointer-events: none;
+  transition: left .25s ease, top .25s ease, width .25s ease, height .25s ease;
+}
+
+.sg-card {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(94, 183, 255, .45);
+  border-radius: 12px;
+  background: #141c2c;
+  box-shadow: 0 18px 44px -12px rgba(0, 0, 0, .75);
+  color: #eaf0f8;
+  /* 한글을 글자 단위가 아니라 띄어쓰기 단위로 접는다("없/습니다"처럼 끊기지 않게).
+     띄어쓰기 없이 긴 영문·태그 이름은 anywhere가 칸 안에서 접어 준다. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  /* 자리 이동 애니메이션은 두지 않는다 — 카드는 구석에 고정이고, 드물게 다른 구석으로 옮길 때
+     화면을 가로질러 미끄러지면 오히려 눈이 따라가게 된다. 바로 옮긴다. */
+}
+
+.sg-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sg-count {
+  flex: none;
+  margin-top: 1px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(94, 183, 255, .16);
+  color: #9fd2ff;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sg-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.sg-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px -6px 0 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #9aa8bd;
+  cursor: pointer;
+}
+
+.sg-close:hover {
+  background: rgba(255, 255, 255, .08);
+  color: #eaf0f8;
+}
+
+.sg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  padding: 0 0 0 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #d5deea;
+}
+
+.sg-body li::marker {
+  color: #5eb7ff;
+}
+
+/* 문구 속 램프 색 점([[on]] 등) — 화면 램프와 같은 색 */
+.sg-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 2px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+
+.sg-dot.is-on { background: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, .7); }
+.sg-dot.is-alarm { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, .7); }
+.sg-dot.is-off { background: #6b7280; }
+.sg-dot.is-unknown { border: 1.5px dashed #94a3b8; }
+
+.sg-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+/* 몇 번째인지 점으로 — 눌러서 바로 건너뛸 수 있다 */
+.sg-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.sg-dotbtn {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .22);
+  cursor: pointer;
+  transition: width .2s, background .2s;
+}
+
+.sg-dotbtn.is-current {
+  width: 20px;
+  background: #5eb7ff;
+}
+
+.sg-nav {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+.sg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .06);
+  color: #eaf0f8;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sg-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, .12);
+}
+
+.sg-btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.sg-btn.is-primary {
+  border-color: #3b8fd9;
+  background: #2b7bc4;
+}
+
+.sg-btn.is-primary:hover {
+  background: #3489d6;
+}
+
+.sg-btn:focus-visible,
+.sg-dotbtn:focus-visible,
+.sg-close:focus-visible {
+  outline: 2px solid #9fd2ff;
+  outline-offset: 2px;
+}
+
+.sg-keys {
+  font-size: 11px;
+  color: #7f8ca0;
+  text-align: right;
+}
+
+/* 터치 기기(태블릿)에는 키보드가 없다 — 키 안내를 숨긴다 */
+@media (pointer: coarse) {
+  .sg-keys {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-hole,
+  .sg-dotbtn {
+    transition: none;
+  }
+}
+
+/* ===== 헤더의 ? 버튼 — 한/영 버튼과 같은 유리 정사각 버튼 ===== */
+.hmi-help {
+  flex-shrink: 0;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--g-glass-line);
+  background: var(--g-glass);
+  color: var(--g-ink);
+  cursor: pointer;
+}
+
+.hmi-help:hover {
+  background: var(--g-glass-hi);
+  border-color: rgba(94, 183, 255, .55);
+}

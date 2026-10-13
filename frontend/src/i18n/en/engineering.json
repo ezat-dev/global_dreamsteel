@@ -23,9 +23,9 @@
     "eng_purge_time": "PURGE must be set to at least 1 min (60 s)"
   },
   "hold": {
-    "label": "Button hold time",
+    "label": "Button hold delay",
     "note": "Control buttons on every screen must be held this long to send a value (0 – 5 s, 0.1 s steps)",
-    "tip": "Button hold time / scada_setting.{{key}} = {{ms}}ms"
+    "tip": "Button hold delay / scada_setting.{{key}} = {{ms}}ms"
   },
   "session": {
     "label": "Login time limit",

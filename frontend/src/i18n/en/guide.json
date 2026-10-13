@@ -1,0 +1,112 @@
+{
+  "ui": {
+    "open": "Screen guide",
+    "prev": "Back",
+    "next": "Next",
+    "done": "Done",
+    "close": "Close guide",
+    "count": "{{n}} / {{total}}",
+    "keys": "Use ← → to move, Esc to close",
+    "goto": "Go to step {{n}}"
+  },
+  "drive": {
+    "intro": {
+      "title": "Drive screen at a glance",
+      "body": [
+        "Monitor and operate the conveyor drives, from the CHARGE POCKET to the DISCHARGE TABLE DRIVE.",
+        "Top: operation status, auto-run conditions, time settings / Middle: equipment drawing / Bottom: recent alarms and sensor lamps",
+        "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
+      ]
+    },
+    "opPanel": {
+      "title": "Charge / Discharge OP PANEL",
+      "body": [
+        "Mode (MANUAL/AUTO) shows which way the selector on the field OP panel is set. It cannot be changed from this screen.",
+        "When AUTO RUN is lit, the line is running automatically.",
+        "When E-STOP lights red [[alarm]], an emergency stop is active.",
+        "The DISCHARGE OP PANEL at the far right works the same way."
+      ]
+    },
+    "alarmSw": {
+      "title": "ALARM SWITCH",
+      "body": [
+        "ALARM RESET resets alarms; HORN STOP silences the alarm horn.",
+        "Hold the button for the hold delay (2 s by default) to activate it. A bar fills under the button while you hold.",
+        "The button lights green [[on]] while active and releases when you let go.",
+        "It works exactly like the same buttons on the Alarms screen."
+      ]
+    },
+    "cond": {
+      "title": "Charge / Discharge auto-run conditions",
+      "body": [
+        "State of the conditions needed for auto run. These are status lamps, not buttons.",
+        "[[on]] Green: met   [[alarm]] Red: not met",
+        "If auto run will not start, check the red lamps first."
+      ]
+    },
+    "time": {
+      "title": "Discharge auto-run TIME settings",
+      "body": [
+        "Tap a number to open the number pad; the value (seconds) is applied right away.",
+        "Input ranges — Product align (delay) TIME 0–600, Product detect clear TIME 0–600, SIDE CONVEYOR forward TIME 15–50",
+        "Values outside the range cannot be entered."
+      ]
+    },
+    "drivePanel": {
+      "title": "Drive control boxes",
+      "body": [
+        "The CHARGE TABLE DRIVE, MAIN/CC DRIVE and DISCHARGE TABLE DRIVE boxes all work the same way.",
+        "ON/OFF: hold for the hold delay (2 s by default) to start or stop. A bar fills under the button while you hold.",
+        "While running, ON lights green [[on]]; when stopped, OFF lights red [[alarm]].",
+        "PV is the current speed; SV is the speed setting. Tap SV to open the number pad (charge and MAIN/CC 0–2610, discharge 0–4110 mm/Min).",
+        "DRIVE DETECT NORMAL: green [[on]] means normal, red [[alarm]] means abnormal."
+      ]
+    },
+    "zones": {
+      "title": "MAIN DRIVE zone 1–7 temperatures",
+      "body": [
+        "PV is each zone's current temperature; SV is the set temperature.",
+        "Tap SV to open the number pad (0–1000℃). These are the same values as on the Temp Control screen."
+      ]
+    },
+    "facilityOff": {
+      "title": "Equipment OFF temperature",
+      "body": [
+        "The red number is the temperature at which the equipment is switched off.",
+        "Each time you hold the OFF button for the hold delay it toggles on/off, and it stays that way after you let go.",
+        "Green [[on]] means on; red [[alarm]] means off."
+      ]
+    },
+    "stage": {
+      "title": "Equipment drawing",
+      "body": [
+        "The drawing changes with the equipment state.",
+        "Motors: green when running, grey when stopped · Rollers and rails: roll while running · Circulation fans: spin while running",
+        "SIDE CONVEYOR arrows: shown only while rising or lowering · DOOR: green [[on]] / red [[alarm]] shows the door state · MAIN zones: orange while active",
+        "The rotation detect lamps under the motors and the product detect lamp light green [[on]] when detected."
+      ]
+    },
+    "alarms": {
+      "title": "Recent alarms",
+      "body": [
+        "Shows the latest 100 alarms.",
+        "Status 'Active' [[alarm]] means the alarm has not cleared yet; 'Cleared' means it is over.",
+        "To search by period or download to Excel, use the Alarm History screen."
+      ]
+    },
+    "boards": {
+      "title": "Sensor and valve lamps",
+      "body": [
+        "Charge/discharge SOL VALVEs, limit switches (L/S), proximity sensors (P/X) and product detection. Status lamps only.",
+        "[[on]] Green: on / detected   [[alarm]] Red: off"
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "The hold delay can be changed on the Engineering screen and applies to every hold button.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
+  }
+}
