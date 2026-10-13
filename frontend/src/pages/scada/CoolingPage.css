@@ -32,6 +32,68 @@
   transform-origin: top center;
 }
 
+/* ===== 설명서가 열려 세로가 남을 때 ========================================
+
+   --ct-gap은 CoolingPage.jsx가 넣는 남는 세로(그림 좌표 px)다. 설명서가 닫혀 있으면 0.
+
+   그림을 위아래 두 묶음으로 나눠, 아래 묶음만 그만큼 내린다.
+     위   타워·상부 모터·위 배관, 타워 아래 수조, 냉각수펌프 묶음(pipe-19~33), COOLING CHAMBER
+     아래 순환펌프 묶음(pipe-5~17, pump-1·2, obj-5~8), 복귀관(pipe-18, obj-14, arrow-7),
+          집수조(obj-3·4), 챔버 세로관 아래끝 부속(obj-17), 그 위에 얹힌 이름판·경보 띠·지연시간판
+   두 묶음을 잇는 것은 곧은 세로관 둘뿐이다 — 왼쪽 상승관(pipe-4, y 92~574)과 챔버에서
+   집수조로 내려가는 관(pipe-36, y 237~561). 이 둘은 윗끝을 두고 아래로 그만큼 늘린다.
+   곧은 관이라 길이로 늘어나도 모양이 그대로다(엘보가 든 조각은 늘리지 않는다).
+   그 관 위의 화살표(arrow-2, arrow-11)는 늘어난 관의 가운데쯤에 있게 반만 내린다.
+
+   transform이 아니라 translate 속성을 쓴다 — 작화가 반전·회전(scale(-1,1), rotate)을
+   transform으로 걸어 두었고 좁은 화면 규칙(.ct-delay)도 transform이라, transform으로
+   쓰면 그쪽을 덮어 버린다. translate 속성은 transform과 따로 합쳐진다.
+   작화를 바꿔 조각이 늘거나 자리가 바뀌면 이 목록도 같이 봐야 한다. */
+.ct-stage-inner .cooling-tower .pipe-4 {
+  height: calc(482px + var(--ct-gap, 0px));
+}
+
+.ct-stage-inner .cooling-tower .pipe-36 {
+  height: calc(324px + var(--ct-gap, 0px));
+}
+
+.ct-stage-inner .arrow-2,
+.ct-stage-inner .arrow-11 {
+  translate: 0 calc(var(--ct-gap, 0px) / 2);
+}
+
+.ct-stage-inner .pipe-5,
+.ct-stage-inner .pipe-6,
+.ct-stage-inner .pipe-7,
+.ct-stage-inner .pipe-8,
+.ct-stage-inner .pipe-9,
+.ct-stage-inner .pipe-10,
+.ct-stage-inner .pipe-11,
+.ct-stage-inner .pipe-12,
+.ct-stage-inner .pipe-13,
+.ct-stage-inner .pipe-14,
+.ct-stage-inner .pipe-15,
+.ct-stage-inner .pipe-16,
+.ct-stage-inner .pipe-17,
+.ct-stage-inner .pipe-18,
+.ct-stage-inner .pump-1,
+.ct-stage-inner .pump-2,
+.ct-stage-inner .obj-3,
+.ct-stage-inner .obj-4,
+.ct-stage-inner .obj-5,
+.ct-stage-inner .obj-6,
+.ct-stage-inner .obj-7,
+.ct-stage-inner .obj-8,
+.ct-stage-inner .obj-14,
+.ct-stage-inner .obj-17,
+.ct-stage-inner .arrow-7,
+.ct-overlay > .ct-pump-plate--circ1,
+.ct-overlay > .ct-pump-plate--circ2,
+.ct-overlay > .ct-banner,
+.ct-overlay > .ct-delay {
+  translate: 0 var(--ct-gap, 0px);
+}
+
 /* ===== 쿨링타워 상부 모터 ==================================================
 
    값이 1이면 초록, 0이면 작화 그대로, 못 읽으면 회색이다.
@@ -164,6 +226,17 @@
   font-weight: 700;
   text-align: center;
   white-space: nowrap;
+}
+
+/* 경보가 아닌 띠는 숨긴다 — 평소 화면에서는 경보일 때만 띠가 보인다 */
+.ct-banner.is-off {
+  display: none;
+}
+
+/* 화면 설명서의 '집수조 LEVEL HIGH · LOW' 장에서만 두 띠를 예시로 꺼낸다
+   (ScreenGuide가 그 장에 있는 동안 .hmi-root에 data-sg-preview="ct-level"을 단다). */
+.hmi-root[data-sg-preview="ct-level"] .ct-banner.is-off {
+  display: block;
 }
 
 /* ===== 냉각수 알람 지연시간 ============================================= */

@@ -14,6 +14,9 @@
               같은 창을 쓰는 단계들은 같은 객체를 써야 한다(같은 창인지 객체로 가린다).
               조회 권한이라 화면이 잠겨 있으면 trigger가 눌리지 않아 창이 안 열린다 — 그 단계는
               짚지 않고 설명만 나온다(그 사용자는 어차피 창을 쓸 수 없다).
+     preview: 평소엔 안 보이는 것(경보일 때만 뜨는 띠 등)을 이 단계에서만 예시로 보여 줄 때 —
+              이름 하나. 그 단계에 있는 동안 .hmi-root에 data-sg-preview="<이름>"이 붙고,
+              화면 CSS가 그걸 보고 예시를 그린다. 값·PLC는 건드리지 않는다.
 
    선택자는 각 화면이 이미 쓰는 클래스 이름이다. 화면을 고치다 클래스 이름이 바뀌면
    그 단계는 오류 없이 "짚지 않는 카드"로 나온다 — 설명서를 열어 보면 바로 티가 난다.
@@ -95,6 +98,22 @@ const GUIDE_STEPS = {
     { id: 'cond', target: '.at-cond' },
     { id: 'gen', target: '.at-plate--gen, .at-plate--gen + .at-openclose' },
     { id: 'o2', target: '.at-o2' },
+    { id: 'end' },
+  ],
+  cooling: [
+    { id: 'intro' },
+    { id: 'motor', target: '.cooling-tower .motor-1' },
+    // 펌프 넷 — 냉각수펌프 둘(가운데)과 순환펌프 둘(왼쪽 아래)이 떨어져 있어 따로 짚는다
+    { id: 'pumps', target: '.cooling-tower .pump-1, .cooling-tower .pump-2, .cooling-tower .pump-3, .cooling-tower .pump-4', split: true },
+    {
+      id: 'arrows',
+      target: '.cooling-tower .arrow-1, .cooling-tower .arrow-2, .cooling-tower .arrow-6, .cooling-tower .arrow-7, '
+        + '.cooling-tower .arrow-8, .cooling-tower .arrow-9, .cooling-tower .arrow-11',
+      split: true,
+    },
+    /* 경보 띠는 경보일 때만 보인다 — 이 단계에서만 두 띠를 예시로 띄워 짚는다(CoolingPage.css) */
+    { id: 'level', target: '.ct-banner', preview: 'ct-level' },
+    { id: 'delay', target: '.ct-delay' },
     { id: 'end' },
   ],
 };

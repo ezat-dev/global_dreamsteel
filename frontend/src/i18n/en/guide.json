@@ -389,5 +389,56 @@
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
+  },
+  "cooling": {
+    "intro": {
+      "title": "Cooling screen at a glance",
+      "body": [
+        "Monitor how the cooling water circulates and set the cooling alarm delay.",
+        "The water flows from the tank under the tower → cooling pumps → COOLING CHAMBER → sump → circulation pumps → cooling tower.",
+        "Without control permission, 'View only' appears next to the title and inputs are locked."
+      ]
+    },
+    "motor": {
+      "title": "Cooling tower top motor",
+      "body": [
+        "It turns green [[on]] while running and keeps its normal colour when stopped."
+      ]
+    },
+    "pumps": {
+      "title": "Cooling pumps · circulation pumps",
+      "body": [
+        "The two in the middle are NO.1/NO.2 COOLING PUMP; the two at the bottom left are NO.1/NO.2 CIRC. PUMP.",
+        "They turn green [[on]] while running and keep their normal colour when stopped."
+      ]
+    },
+    "arrows": {
+      "title": "Cooling water flow arrows",
+      "body": [
+        "The arrows blink on pipes where cooling water is flowing. They stay still when there is no flow.",
+        "The arrow points in the direction the water flows."
+      ]
+    },
+    "level": {
+      "title": "SUMP LEVEL HIGH · LOW",
+      "body": [
+        "When the sump level is high, a red 'SUMP LEVEL HIGH' band appears in the sump; when low, 'SUMP LEVEL LOW'.",
+        "Normally no band is shown. The two bands you see now are examples shown for this guide."
+      ]
+    },
+    "delay": {
+      "title": "COOLING ALARM DELAY",
+      "body": [
+        "The alarm delay (minutes) for HIGH and LOW.",
+        "Tap a box to open the number pad. Enter 0 or more."
+      ]
+    },
+    "end": {
+      "title": "Good to know",
+      "body": [
+        "Nothing is switched on or off from this screen. The pumps, motor and arrows show the equipment state.",
+        "You can reopen this guide any time with the ? button at the top right."
+      ]
+    }
   }
 }

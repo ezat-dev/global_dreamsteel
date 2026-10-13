@@ -67,7 +67,7 @@ const PUMP_PLATES = [
   { key: 'circ2', cx: 230, top: 608 },   // NO.2 순환펌프
 ];
 
-/* 집수조 안의 빨간 경보 띠. 값이 1일 때만 보이고, 0이거나 못 읽으면 아예 안 그린다.
+/* 집수조 안의 빨간 경보 띠. 값이 1일 때만 보이고, 0이거나 못 읽으면 숨긴다(is-off).
    못 읽을 때 숨기는 쪽으로 정한 이유: 확인할 수 없는 경보를 띄우면 오보가 된다.
    대신 값을 못 받고 있다는 것 자체는 화면 아래 토스트가 알린다. */
 const LEVEL_BANNERS = [
@@ -101,15 +101,26 @@ export default function CoolingPage() {
   const { t, i18n } = useTranslation('cooling');
   const stageRef = useRef(null);
   const [scale, setScale] = useState(0);
+  /* 설명서가 열렸을 때 그림 아래 남는 세로(그림 좌표 px). 그림은 비율이 고정이라 폭이
+     줄면 세로도 같이 줄어 아래가 빈다 — 그 높이만큼 아래 묶음(순환펌프·집수조·복귀관·
+     지연시간판)을 내리고, 위아래를 잇는 세로관 둘을 늘려서 채운다(CoolingPage.css의 --ct-gap).
+     그림을 늘리지는 않는다. 설명서가 닫혀 있으면 0 — 평소 화면은 그대로다.
+     분위기제어(AtmospherePage)와 같은 방식이다. */
+  const [gap, setGap] = useState(0);
 
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return undefined;
 
+    /* 설명서를 열고 닫으면 화면 세로(--sg-scale)가 바뀌어 여기가 다시 불린다 —
+       has-guide 클래스는 그 전에 붙고 떨어져 있다(ScadaLayout이 먼저 그린다). */
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       if (!width || !height) return;
-      setScale(Math.min(width / STAGE_W, height / STAGE_H));
+      const s = Math.min(width / STAGE_W, height / STAGE_H);
+      setScale(s);
+      const guideOpen = el.closest('.hmi-root')?.classList.contains('has-guide');
+      setGap(guideOpen ? Math.max(0, Math.floor(height / s - STAGE_H)) : 0);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -192,7 +203,8 @@ export default function CoolingPage() {
           className={`ct-stage-inner${motorClass}${pumpClasses}${arrowBlinkClasses}`}
           style={{
             width: STAGE_W,
-            height: STAGE_H,
+            height: STAGE_H + gap,
+            '--ct-gap': `${gap}px`,
             marginLeft: -STAGE_W / 2,
             transform: `scale(${scale})`,
             visibility: scale ? 'visible' : 'hidden',
@@ -214,7 +226,7 @@ export default function CoolingPage() {
 
             {PUMP_PLATES.map((p) => (
               <span
-                className="ct-plate ct-pump-plate"
+                className={`ct-plate ct-pump-plate ct-pump-plate--${p.key}`}
                 key={p.key}
                 style={{ left: p.cx, top: p.top, transform: 'translateX(-50%)' }}
               >
@@ -222,11 +234,12 @@ export default function CoolingPage() {
               </span>
             ))}
 
+            {/* 경보가 아닌 띠도 그려 두되 is-off로 숨긴다 — 화면 설명서가 이 띠를 설명하는
+                장에서만 예시로 꺼내 보여 준다(CoolingPage.css의 data-sg-preview). 평소 모습은 같다. */}
             {LEVEL_BANNERS
-              .filter((b) => tagState(tagValues?.[b.tag]) === TAG_ON)
               .map((b) => (
                 <span
-                  className="ct-banner"
+                  className={`ct-banner${tagState(tagValues?.[b.tag]) === TAG_ON ? '' : ' is-off'}`}
                   key={b.key}
                   data-tag={b.tag}
                   title={t('bannerTip', { what: t(`banner.${b.tag}`), tag: b.tag })}

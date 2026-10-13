@@ -130,6 +130,16 @@ export default function ScreenGuide({ screenKey, onClose }) {
     if (cur && document.querySelector(cur.check)) document.querySelector(cur.close)?.click();
   }, []);
 
+  /* 평소엔 안 보이는 것을 보여 주는 단계(guideSteps의 preview) — 그 단계에 있는 동안만
+     .hmi-root에 data-sg-preview를 단다. 화면 CSS가 이걸 보고 예시를 그린다(값은 건드리지 않는다).
+     다른 단계로 가거나 설명서를 닫으면 뗀다. */
+  useEffect(() => {
+    const root = document.querySelector('.hmi-root');
+    if (!root || !step?.preview) return undefined;
+    root.dataset.sgPreview = step.preview;
+    return () => { delete root.dataset.sgPreview; };
+  }, [step]);
+
   /* 단계가 바뀌면 대상을 화면 안으로 끌어온다(본문이 스크롤되는 화면이 있다).
      패널이 열리며 화면 틀이 줄어드는 중일 수 있어 한 박자 뒤에 한다. */
   useEffect(() => {
