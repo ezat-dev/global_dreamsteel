@@ -6,7 +6,13 @@ import { translateServerMessage } from '../i18n';
 // VITE_API_BASE_URL이 없으면, 지금 프론트에 접속한 주소(호스트명)를 그대로 백엔드 주소로 쓴다.
 // localhost:5051로 열든 192.168.x.x:5051로 열든 백엔드(8081)도 같은 호스트를 보게 되어,
 // 다른 PC에서 접속했을 때 "그 PC의 localhost:8081"을 잘못 호출하는 문제를 방지한다.
-const defaultBaseUrl = `http://${window.location.hostname}:8081`;
+//
+// 빌드한 화면(npm run build)은 jar 안에 들어가 백엔드와 같은 주소·포트에서 나간다(backend/build.gradle의
+// buildFrontend, SpaForwardController). 그때는 지금 연 주소 그대로(origin)를 부른다 — 포트를 8081로 박아 두면
+// 서비스 포트를 바꾸거나 시험용 포트로 띄웠을 때 엉뚱한 백엔드를 부른다. 개발(vite 5051)에서만 8081을 본다.
+const defaultBaseUrl = import.meta.env.DEV
+  ? `http://${window.location.hostname}:8081`
+  : window.location.origin;
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || defaultBaseUrl,

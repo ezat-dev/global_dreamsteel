@@ -1,13 +1,10 @@
 @echo off
-REM Copy this file to run-backend.bat and set the real DB_PASSWORD below.
-REM run-backend.bat is gitignored so real credentials never get committed.
+REM Copy this file to run-backend.bat and set JAVA_HOME to this PC's JDK 17.
+REM DB host / user / password are NOT here any more - put them in local.yml at the repo root
+REM (copy local.yml.example). The backend reads that one file whether started here or as a service.
 title SCADA Backend (8081)
 set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
-REM global_dream schema - host/port/name default to 127.0.0.1 / 3306 / global_dream
-REM (override with DB_HOST / DB_PORT / DB_NAME if the server moves)
-set "DB_USERNAME=root"
-set "DB_PASSWORD=your-password-here"
 cd /d "%~dp0backend"
 REM --console=plain: turn off Gradle's progress bar. The bar redraws every second
 REM ("<====----> 75% EXECUTING [3m 12s]"), which yanks the console back to the

@@ -1,0 +1,22 @@
+# PC마다 다른 백엔드 설정 — 이 파일을 local.yml로 복사해서 이 PC에 맞게 채운다.
+# local.yml은 git에 안 올라간다(.gitignore). 비밀번호가 들어가므로 커밋하지 말 것.
+#
+# 백엔드(run-backend.bat의 bootRun, 서비스의 jar 둘 다)가 기동할 때 이 파일을 읽는다
+# (backend/src/main/resources/application.yml의 spring.config.import).
+# 같은 이름의 환경변수가 있으면 환경변수가 이긴다.
+#
+# 서버 IP가 바뀌어도 서버 PC의 local.yml은 고칠 것이 없다 — 자기 자신은 127.0.0.1이다.
+# 고칠 곳은 DB를 원격으로 쓰는 개발 PC의 DB_HOST뿐이다(IP 대신 서버 PC 이름을 적어도 된다).
+
+# DB(MariaDB) — 서버 PC는 127.0.0.1, 개발 PC는 서버 PC 주소(예: 192.168.1.7 또는 DESKTOP-F3GDH6M)
+DB_HOST: 127.0.0.1
+DB_PORT: 3306
+DB_NAME: global_dreamsteel
+DB_USERNAME: root
+DB_PASSWORD: your-password-here
+
+# C# PlcApiServer — 서버 PC는 같은 PC라 그대로 둔다
+PLC_API_BASE_URL: http://127.0.0.1:5050
+
+# 로그 폴더 — 비워 두면 application.yml의 기본 경로(D:/글로벌드림스틸/web/global_dreamsteel/logs)
+# LOG_DIR: D:/글로벌드림스틸/web/global_dreamsteel/logs
