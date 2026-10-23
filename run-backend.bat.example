@@ -4,7 +4,7 @@ REM run-backend.bat is gitignored so real credentials never get committed.
 title SCADA Backend (8081)
 set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
-REM global_dream schema - host/port/name default to 192.168.1.45 / 3306 / global_dream
+REM global_dream schema - host/port/name default to 127.0.0.1 / 3306 / global_dream
 REM (override with DB_HOST / DB_PORT / DB_NAME if the server moves)
 set "DB_USERNAME=root"
 set "DB_PASSWORD=your-password-here"

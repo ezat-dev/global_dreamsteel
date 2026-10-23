@@ -20,7 +20,7 @@ spring:
     # SCADA 화면이 쓰는 스키마(global_dream, 별도 서버 192.168.1.45).
     # 계정/비밀번호는 레포에 커밋하지 않고 환경변수로 주입한다 — run-backend.bat 참고.
     # 실행 전 DB_USERNAME, DB_PASSWORD 필수 / DB_HOST, DB_PORT, DB_NAME은 기본값 있음.
-    url: jdbc:mariadb://${DB_HOST:192.168.1.45}:${DB_PORT:3306}/${DB_NAME:global_dreamsteel}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    url: jdbc:mariadb://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:global_dreamsteel}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
