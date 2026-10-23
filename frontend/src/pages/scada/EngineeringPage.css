@@ -12,6 +12,167 @@
   gap: 14px;
 }
 
+/* ===== 탭 (기본 설정 / 버너제어 1~4존 / 버너제어 5~7존) ===== */
+
+.eng-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.eng-tab {
+  min-width: 150px;
+  padding: 7px 16px;
+  border: 1px solid var(--hmi-light);
+  border-radius: 8px;
+  background: var(--hmi-panel);
+  color: var(--hmi-text-sub);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.eng-tab:hover {
+  color: var(--hmi-text);
+}
+
+.eng-tab.is-on {
+  border-color: var(--hmi-blue-edge);
+  background: rgba(94, 183, 255, .16);
+  color: var(--hmi-text);
+  box-shadow: inset 0 -2px 0 #5eb7ff;
+}
+
+/* ===== 버너제어 탭 — 존 판(BurnerZonePanel) =====
+   2열 격자. 판 안은 왼쪽 설정 목록 / 오른쪽 출력구간 표. 줄 높이는 줄 수가 가장 많은
+   왼쪽 목록(설정 5 + 버너 8 = 13줄)이 1920x1000에서 두 줄의 판이 한 화면에 들어가도록 잡았다. */
+
+.bz-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.bz-panel {
+  --eng-tone: #f08a5d;
+}
+
+.bz-panel .hmi-group-title {
+  box-shadow: inset 0 -2px 0 var(--eng-tone);
+}
+
+.bz-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.bz-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+/* 줄 높이 24px — 1~4존 탭의 판 두 줄(왼쪽 목록 13줄씩)이 1920x1000 한 화면에 들어가는 높이다.
+   27px이면 아래 판의 마지막 두 줄이 메뉴바 밑으로 내려가 스크롤이 생겼다. */
+.bz-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  padding: 0 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
+}
+
+.bz-row:last-child {
+  border-bottom: none;
+}
+
+.bz-label {
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--hmi-text);
+}
+
+.bz-sec-title {
+  margin-bottom: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(240, 138, 93, .14);
+  font-size: 12.5px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--hmi-text);
+}
+
+.bz-sec-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bz-sec-table th,
+.bz-sec-table td {
+  padding: 1px 3px;
+  height: 25px;
+  white-space: nowrap;
+}
+
+.bz-sec-table th {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  color: var(--hmi-text);
+}
+
+/* 구간 아래끝 — 앞 구간 상한을 보여 주기만 한다(입력칸과 구분되게 LED가 아니라 글자로) */
+.bz-sec-low {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--hmi-text-sub);
+}
+
+.bz-sec-low i {
+  margin-left: 3px;
+  font-style: normal;
+  font-size: 11px;
+}
+
+.bz-sec-sep {
+  width: 14px;
+  text-align: center;
+  color: var(--hmi-text-sub);
+}
+
+.bz-sec-table .hmi-led-input,
+.bz-row .hmi-led-input {
+  padding: 3px 6px;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* 값칸 폭을 고정한다 — 단위(sec·%)가 붙은 칸과 안 붙은 칸(버너수량·순번)이 섞여 있어서,
+   그냥 두면 단위 없는 칸만 늘어나 세로줄이 어긋난다. 단위 자리(26px)는 비어 있어도 남는다. */
+.bz-row .hmi-led-input {
+  flex: none;
+  width: 80px;
+}
+
+.bz-sec-table .hmi-led-unit,
+.bz-row .hmi-led-unit {
+  width: 26px;
+  font-size: 11px;
+}
+
 /* ===== 설정 판 셋 ===== */
 
 .eng-sections {
@@ -187,6 +348,16 @@
 @media (max-width: 1100px) {
   .eng-zones {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* 존 판이 둘씩 서기에 좁다 — 하나씩 쌓고 세로로 스크롤한다 */
+  .bz-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .eng-tab {
+    min-width: 0;
+    flex: 1;
   }
 }
 

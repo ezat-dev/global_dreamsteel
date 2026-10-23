@@ -41,6 +41,13 @@ const AL_DETAIL = {
   close: '.ad-close',
 };
 
+/* 엔지니어링 기본 설정 탭 — 조작 설정 판이 이 탭에 있다. 닫을 것이 없어 close는 두지 않는다
+   (설명서를 닫아도 기본 설정 탭에 그대로 둔다) */
+const ENG_BASIC_TAB = {
+  trigger: '.eng-tab[data-tab="basic"]',
+  check: '.eng-section--operation',
+};
+
 const GUIDE_STEPS = {
   drive: [
     { id: 'intro' },
@@ -195,10 +202,11 @@ const GUIDE_STEPS = {
   /* 엔지니어링 — 설비 설정값 판들(구동부·연소부·분위기제어·온도 보정)은 항목이 아직 바뀔 수 있어서
      우선 조작 설정 판만 설명한다. 나머지 판은 항목이 정해지면 단계를 더한다. */
   engineering: [
-    { id: 'intro' },
-    { id: 'operation', target: '.eng-section--operation' },
-    { id: 'hold', target: '.eng-rows--operation > .eng-row:nth-child(1)' },
-    { id: 'session', target: '.eng-rows--operation > .eng-row:nth-child(2)' },
+    { id: 'intro', target: '.eng-tabs' },
+    // 버너제어 탭을 보던 중에 열어도 기본 설정 탭으로 넘겨서 짚는다(탭은 div라 조회 권한도 넘어간다)
+    { id: 'operation', target: '.eng-section--operation', opens: ENG_BASIC_TAB },
+    { id: 'hold', target: '.eng-rows--operation > .eng-row:nth-child(1)', opens: ENG_BASIC_TAB },
+    { id: 'session', target: '.eng-rows--operation > .eng-row:nth-child(2)', opens: ENG_BASIC_TAB },
     { id: 'end' },
   ],
 };

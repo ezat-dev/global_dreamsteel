@@ -1,4 +1,23 @@
 {
+  "tab": {
+    "basic": "General",
+    "burnerA": "Burner Control 1–4",
+    "burnerB": "Burner Control 5–7"
+  },
+  "burner": {
+    "title": "{{n}}ZONE Burner Control Settings",
+    "zone": "{{n}}ZONE",
+    "purge": "Purge timer (s)",
+    "cycle": "Burner pulse control cycle timer (s)",
+    "count": "Pulse control burner count",
+    "allOn": "All-burners-on output (%)",
+    "order": "Burner {{n}}-{{b}} pulse order",
+    "secTitle": "Burner Pulse Control Output Ranges",
+    "sec": "Range ({{k}})",
+    "secHigh": "upper (%)",
+    "secBurners": "burners",
+    "unitBurners": "pcs"
+  },
   "section": {
     "drive": "Drive Settings",
     "combustion": "Combustion Settings",

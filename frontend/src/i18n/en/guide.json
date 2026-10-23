@@ -752,8 +752,8 @@
     "intro": {
       "title": "Engineering screen at a glance",
       "body": [
-        "Change equipment settings and how the screens are operated.",
-        "This guide covers the Operation Settings panel.",
+        "Change equipment settings and how the screens are operated. Use the tabs at the top to switch between General and Burner Control (zones 1–4, 5–7).",
+        "This guide covers the Operation Settings panel on the General tab.",
         "Without control permission, 'View only' appears next to the title and inputs are locked."
       ]
     },

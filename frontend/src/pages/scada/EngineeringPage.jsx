@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import { LedInput } from '../../components/scada/HmiParts';
 import { writeTag } from '../../api/scada/foldertagApi';
+import EngBurnerSettings from '../../components/scada/EngBurnerSettings';
 import { getSettingList, updateSetting } from '../../api/scada/scadaSettingApi';
 import {
   HOLD_MS_KEY, HOLD_MS_MAX, HOLD_MS_MIN, useHoldMsControl,
@@ -86,10 +87,19 @@ const ZONES = [
   { key: 'cool2', pv: 'tic_cool2_pv', offset: 'tic_cool2_pv_offset' },         // 냉각대 (2)
 ];
 
+/* 화면 위 탭. 글자는 사전의 tab.<key>. 버너제어 탭은 놓을 존(zones)만 다르다. */
+const TABS = [
+  { key: 'basic' },
+  { key: 'burnerA', zones: [1, 2, 3, 4] },
+  { key: 'burnerB', zones: [5, 6, 7] },
+];
+
 export default function EngineeringPage() {
   const { t } = useTranslation('engineering');
   const zoneLabel = (z) => z.label ?? t(`zone.${z.key}`);
   const { values: tagValues, error: tagValueError } = useFolderTagValues(ENG_FOLDER_ID);
+  // 지금 탭(TABS의 key). 처음엔 기본 설정 — 화면 설명서도 이 탭을 설명한다
+  const [tab, setTab] = useState('basic');
   const [writeError, setWriteError] = useState('');
 
   /* 버튼 누름 시간 — PLC 태그가 아니라 DB(scada_setting의 hold_ms)에 있는 화면 설정이다.
@@ -171,6 +181,31 @@ export default function EngineeringPage() {
   return (
     /* hmi-dark — 어두운 배경·유리 판은 scada.css의 공용 규칙이 맡는다 */
     <div className="eng-page hmi-dark">
+      {/* 탭 — 기본 설정(아래 판들) / 버너제어 1~4존 / 버너제어 5~7존.
+          버너제어는 존 판이 커서 한 화면에 넷까지만 둔다(EngBurnerSettings).
+          button이 아니라 div다 — 조회 권한이면 본문이 <fieldset disabled>라 button은 눌리지 않는데,
+          조회 권한도 탭을 넘겨 값을 볼 수는 있어야 한다(알람화면 칸과 같은 이유). */}
+      <div className="eng-tabs" role="tablist">
+        {TABS.map((tb) => (
+          <div
+            role="tab"
+            tabIndex={0}
+            key={tb.key}
+            data-tab={tb.key}
+            aria-selected={tab === tb.key}
+            className={`eng-tab${tab === tb.key ? ' is-on' : ''}`}
+            onClick={() => setTab(tb.key)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setTab(tb.key); }}
+          >
+            {t(`tab.${tb.key}`)}
+          </div>
+        ))}
+      </div>
+
+      {tab !== 'basic' && <EngBurnerSettings zones={TABS.find((tb) => tb.key === tab).zones} />}
+
+      {tab === 'basic' && (
+      <>
       <div className="eng-sections">
         {SECTIONS.map((s) => (
           <section className={`hmi-group eng-section eng-section--${s.key}`} key={s.key}>
@@ -299,6 +334,8 @@ export default function EngineeringPage() {
 
       {(writeError || tagValueError) && (
         <div className="hmi-toast">{writeError || tagValueError}</div>
+      )}
+      </>
       )}
     </div>
   );
