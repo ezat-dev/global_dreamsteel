@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconChevronLeft, IconChevronRight, IconPaperclip } from '@tabler/icons-react';
 import {
-  ALARM_LAMP_FOLDER_ID, getAlarmLampValues, getAlarmTagList, lampNameOf,
+  ALARM_BLINK, ALARM_LAMP_FOLDER_ID, ALARM_ON, ALARM_UNKNOWN, alarmStateOf, getAlarmLampValues,
+  getAlarmTagList, isAlarmActive, lampNameOf,
 } from '../../api/scada/alarmTagApi';
 import { writeTag } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
@@ -15,7 +16,8 @@ import './AlarmPage.css';
 
 /* ===========================================================================
    알람 화면 — ez_scada.tb_alarm_tag의 알람 정의를 격자로 늘어놓고,
-   램프 값(folders_tags, 알람 주소 +200)이 1이 된 칸만 빨갛게 켠다.
+   발생 비트(alarm_1000, M1000~)가 1이면 빨갛게 깜빡이고, 램프 비트(alarm_1000_lamp,
+   알람 주소 +200)도 1이면 빨갛게 켠다. 판정은 alarmTagApi의 alarmStateOf가 한다.
 
    알람 이름을 화면에 적어 두지 않는다 — 200개가 DB에 있고 PLC가 기준이므로,
    여기서 다시 적으면 둘이 어긋나는 순간 엉뚱한 이름이 켜진다.
@@ -250,8 +252,9 @@ export default function AlarmPage() {
     return [...slice, ...Array(Math.max(0, PER_PAGE - slice.length)).fill(null)];
   }, [tags, page]);
 
+  // 깜빡이는 칸(발생)과 켜진 칸(점등)을 같이 센다
   const activeCount = useMemo(
-    () => (values ? tags.filter((tag) => lampState(values[lampNameOf(tag.tagName)]) === ON).length : 0),
+    () => (values ? tags.filter((tag) => isAlarmActive(alarmStateOf(values, tag.tagName))).length : 0),
     [tags, values],
   );
 
@@ -373,9 +376,11 @@ export default function AlarmPage() {
              통신 전인데 전부 '정상'으로 보이면 알람이 없는 것으로 오해한다.
 
              짝이 되는 램프 태그가 없거나 비활성(enabled=0)이면 응답에 아예 없으므로
-             undefined가 되고, lampState가 UNKNOWN(점선)을 돌려준다. */
+             alarmStateOf가 UNKNOWN(점선)을 돌려준다.
+             깜빡임은 켜진 칸(on)에 is-blink를 더한다 — 설명서 예시·현재경보가 .on으로
+             '발생한 칸'을 찾으므로, 깜빡이는 칸도 같은 이름으로 잡혀야 한다. */
           const lampName = lampNameOf(tag.tagName);
-          const state = values ? lampState(values[lampName]) : null;
+          const state = values ? alarmStateOf(values, tag.tagName) : null;
           // 설명이나 파일이 있는 칸 — 오른쪽 위에 클립 표시를 달아 눌러 볼 게 있음을 알린다
           const hasInfo = !!(tag.alarmDesc || tag.pdfFile || tag.imgFile);
 
@@ -384,7 +389,8 @@ export default function AlarmPage() {
           return (
             <div
               key={tag.tagName}
-              className={`al-cell${state === ON ? ' on' : ''}${state === UNKNOWN ? ' is-unknown' : ''}`}
+              className={`al-cell${state === ALARM_ON ? ' on' : ''}${state === ALARM_BLINK ? ' on is-blink' : ''}`
+                + (state === ALARM_UNKNOWN ? ' is-unknown' : '')}
               title={`${t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampName })}\n${t('detail.openTip')}`}
               role="button"
               tabIndex={0}

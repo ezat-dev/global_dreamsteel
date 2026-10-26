@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
 import { alarmMsgOf, withShownMsg } from '../../components/scada/alarmMsg';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
-import { getAlarmLampValues, getAlarmTagList, lampNameOf } from '../../api/scada/alarmTagApi';
+import {
+  ALARM_BLINK, alarmStateOf, getAlarmLampValues, getAlarmTagList, isAlarmActive, lampNameOf,
+} from '../../api/scada/alarmTagApi';
 /* 표·안내줄은 경보이력(ah-*), 알람 칸은 알람화면(al-*)의 것을 그대로 쓴다 —
    같은 정보를 다른 모양으로 그리면 화면을 오갈 때 다른 것처럼 보인다. */
 import './AlarmHistPage.css';
@@ -15,7 +17,8 @@ import './AlarmNowPage.css';
 
    왼쪽  : 경보이력 중 '발생'(해제 시각이 없는 행)만. ez_scada.vw_alarm_history의 alarm_status = 'ACTIVE'.
            C#이 알람 태그가 1이 될 때 넣고 0이 될 때 해제 시각을 찍는다.
-   오른쪽: 알람화면의 램프(alarm_xxxx_lamp) 중 값이 1인 것만.
+   오른쪽: 알람화면에서 깜빡이거나 켜진 칸만(발생 비트 alarm_xxxx 또는 램프 alarm_xxxx_lamp가 1).
+           깜빡임·켜짐 판정은 알람화면과 같은 alarmStateOf다.
 
    두 쪽은 출처가 다르다(이력은 C#이 기록한 것, 램프는 PLC 값). 어긋나는 경우는 나중에
    따로 다루기로 하고, 지금은 각자 있는 그대로 보여 준다.
@@ -29,13 +32,6 @@ const HIST_POLL_MS = 5000;
 
 /* 램프 값 주기 — C#이 메모리에 들고 있는 값을 받는 것이라 PLC 부하가 늘지 않는다(알람화면과 같다). */
 const LAMP_POLL_MS = 1000;
-
-/** 램프 값 → 켜짐 여부. null(못 읽음)은 켜짐이 아니다 — 오른쪽에 안 올린다. */
-const isOn = (raw) => {
-  if (raw == null || raw === '') return false;
-  const n = Number(raw);
-  return Number.isFinite(n) && n > 0;
-};
 
 export default function AlarmNowPage() {
   const { t, i18n } = useTranslation('alarmNow');
@@ -164,15 +160,16 @@ export default function AlarmNowPage() {
     const histOrder = new Map();
     histRows.forEach((r, i) => { if (!histOrder.has(r.tagName)) histOrder.set(r.tagName, i); });
 
+    /* 못 읽은 칸(모름)은 올리지 않는다 — 켜짐이 아니다. 깜빡임 여부는 칸 모양에 쓰려고 같이 들고 간다. */
     return tags
-      .map((tag, addrIdx) => ({ tag, addrIdx }))
-      .filter(({ tag }) => isOn(lampValues[lampNameOf(tag.tagName)]))
+      .map((tag, addrIdx) => ({ tag, addrIdx, state: alarmStateOf(lampValues, tag.tagName) }))
+      .filter(({ state }) => isAlarmActive(state))
       .sort((a, b) => {
         const ha = histOrder.get(a.tag.tagName) ?? Infinity;
         const hb = histOrder.get(b.tag.tagName) ?? Infinity;
         return ha !== hb ? ha - hb : a.addrIdx - b.addrIdx;
       })
-      .map(({ tag }) => tag);
+      .map(({ tag, state }) => ({ tag, blink: state === ALARM_BLINK }));
   }, [tags, lampValues, histRows]);
 
   /* 오른쪽이 비었을 때 문구 — 값을 아직 못 받았거나 못 받는 중이면 '없음'이라고 하지 않는다
@@ -210,10 +207,10 @@ export default function AlarmNowPage() {
 
         {activeLamps.length > 0 ? (
           <div className="an-lamps">
-            {activeLamps.map((tag) => (
+            {activeLamps.map(({ tag, blink }) => (
               <div
                 key={tag.tagName}
-                className="al-cell on an-lamp-cell"
+                className={`al-cell on${blink ? ' is-blink' : ''} an-lamp-cell`}
                 title={t('lampTip', { tag: tag.tagName, address: tag.address, lamp: lampNameOf(tag.tagName) })}
               >
                 <span className="an-lamp-msg">{alarmMsgOf(tag, lang) || tag.tagName}</span>

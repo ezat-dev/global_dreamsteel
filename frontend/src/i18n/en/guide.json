@@ -555,7 +555,7 @@
     "cells": {
       "title": "Alarm tiles",
       "body": [
-        "An active alarm lights its tile red [[alarm]]; when it clears, the tile goes back to normal.",
+        "When an alarm occurs its tile flashes red [[alarm]]; once the lamp is lit it stays steady red. When it clears, the tile goes back to normal.",
         "A tile with a paperclip in the top-right corner has a description or files.",
         "[[ex]]The first three tiles marked 'Example' are shown for this guide because no alarm is active on this page."
       ]
@@ -563,7 +563,7 @@
     "count": {
       "title": "Active count",
       "body": [
-        "The number of alarms active right now, counting every page.",
+        "The number of alarms active right now — flashing and steady tiles alike, counting every page.",
         "It turns red [[alarm]] when there is at least one."
       ]
     },
@@ -611,7 +611,7 @@
       "title": "Active Alarms screen at a glance",
       "body": [
         "Collects only the alarms that are active right now. It is a view-only screen with no buttons to press.",
-        "Left: alarm history entries not yet cleared / Right: tiles lit red on the Alarms screen",
+        "Left: alarm history entries not yet cleared / Right: tiles flashing or lit red on the Alarms screen",
         "Left open, it refreshes by itself. There is no need to press Search."
       ]
     },
@@ -626,7 +626,7 @@
     "lamps": {
       "title": "Lit alarm tiles",
       "body": [
-        "Shows only the tiles lit red on the Alarms screen. Top: alarm message; bottom: tag name and address.",
+        "Shows only the tiles flashing or lit red on the Alarms screen, flashing and lit exactly as they are there. Top: alarm message; bottom: tag name and address.",
         "They are in the same order as the table on the left so you can match them easily. With none lit, 'No lamps are on.' is shown.",
         "[[ex]]The three tiles marked 'Example' are shown for this guide because no tile is lit right now."
       ]

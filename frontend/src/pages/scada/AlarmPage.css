@@ -186,13 +186,26 @@
 }
 
 /* 발생 중인 알람 — 박스 자체가 켜진다(글자색만 바꾸면 밝은 박스 위에서 눈에 덜 띈다).
-
-   깜빡이지 않는다. 이 화면은 계속 켜 두고 보는 판이라, 여러 칸이 동시에 깜빡이면
-   눈이 아파서 오히려 안 보게 된다. 어두운 바탕에서는 채운 빨강만으로도 충분히 뜬다. */
+   램프 비트까지 1이면 이 모양으로 계속 켜져 있다. */
 .al-cell.on {
   border-color: #dc2626;
   background: #dc2626;
   color: #ffffff;
+}
+
+/* 발생 비트만 1인 알람 — 켜진 빨강과 꺼진 칸을 0.5초씩 번갈아 보인다.
+   스르르 바뀌지 않고 딱 끊어 바뀌게 step-end로 둔다(현장 경광등처럼 보이게).
+   .on을 같이 달고 있어서 '발생한 칸'으로는 켜진 칸과 똑같이 잡힌다(설명서 예시·현재경보). */
+.al-cell.on.is-blink {
+  animation: al-blink 1s step-end infinite;
+}
+
+@keyframes al-blink {
+  50% {
+    border-color: var(--hmi-light);
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+  }
 }
 
 /* 화면 설명서의 '알람 칸' 장에서만 앞의 세 칸을 발생한 모습으로 예시 표시한다

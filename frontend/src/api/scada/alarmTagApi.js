@@ -11,7 +11,7 @@ import plcApiInstance from '../plcApiInstance';
    서로 다른 서버를 보므로 인스턴스도 둘이다(정의는 자바 8081, 값은 C# 5050).
    =========================================================================== */
 
-/** ez_scada.folders.id — 폴더 이름 '알람페이지_램프'. 알람화면 램프 200개가 이 폴더에 있다.
+/** ez_scada.folders.id — 폴더 이름 '알람페이지_램프'. 알람화면 램프 200개와 발생 비트 200개가 이 폴더에 있다.
     ALARM RESET / HORN STOP 명령 태그도 같은 폴더라, 화면이 쓸 때 쓰라고 내보낸다
     (두 파일에 6을 각각 적어 두면 폴더를 옮길 때 한쪽만 고치게 된다). */
 export const ALARM_LAMP_FOLDER_ID = 6;
@@ -23,6 +23,53 @@ const LAMP_SUFFIX = '_lamp';
 export function lampNameOf(tagName) {
   return `${tagName}${LAMP_SUFFIX}`;
 }
+
+/* ---------------------------------------------------------------------------
+   알람 칸 하나의 상태 — 알람화면 격자와 현재경보 오른쪽 판이 같이 쓴다.
+
+   비트가 둘이다(같은 폴더 6에 이름으로 들어 있다):
+     alarm_1000       M1000~M1199  알람 발생 비트
+     alarm_1000_lamp  M1200~M1399  램프(점등) 비트
+   발생만 1이면 깜빡이고(BLINK), 램프가 1이면 그대로 켠다(ON) — 램프만 1이고 발생이
+   0인 경우도 켠다. 예전엔 램프만 보고 켰던 것이라, 그때 보이던 칸이 사라지지 않게 했다.
+
+   발생 비트가 아예 응답에 없으면(태그를 아직 안 넣었으면) 없는 셈 치고 램프만 본다 —
+   점선(모름)으로 바꾸면 태그를 넣기 전까지 200칸이 다 점선이 된다.
+   발생 비트를 읽다 실패한 것(null)은 '모름'이다(꺼짐으로 보지 않는다).
+
+   DB의 알람 이력(tb_alarm_history)은 이것과 상관없다 — C#이 tb_alarm_tag 기준으로 따로 쌓는다.
+   ------------------------------------------------------------------------- */
+export const ALARM_ON = 'on';
+export const ALARM_BLINK = 'blink';
+export const ALARM_OFF = 'off';
+export const ALARM_UNKNOWN = 'unknown';
+
+/** 값 하나 → 'on' | 'off' | 'unknown' | 'none'(응답에 그 태그가 없음) */
+const bitOf = (raw) => {
+  if (raw === undefined) return 'none';
+  if (raw == null || raw === '') return 'unknown';
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 'unknown';
+  return n > 0 ? 'on' : 'off';
+};
+
+/**
+ * @param values  getAlarmLampValues의 { 이름: 값 }
+ * @param tagName 알람 정의의 tagName(alarm_1000)
+ * @returns ALARM_ON | ALARM_BLINK | ALARM_OFF | ALARM_UNKNOWN
+ */
+export function alarmStateOf(values, tagName) {
+  const alarm = bitOf(values?.[tagName]);
+  const lamp = bitOf(values?.[lampNameOf(tagName)]);
+  if (lamp === 'on') return ALARM_ON;
+  if (alarm === 'on') return ALARM_BLINK;
+  // 램프 태그가 없거나(none) 못 읽었거나, 발생 비트를 못 읽었으면 판정하지 않는다
+  if (lamp !== 'off' || alarm === 'unknown') return ALARM_UNKNOWN;
+  return ALARM_OFF;
+}
+
+/** 발생 중(깜빡임·켜짐)인지 — 건수 세기·현재경보에 올릴지 고르는 데 쓴다 */
+export const isAlarmActive = (state) => state === ALARM_ON || state === ALARM_BLINK;
 
 /**
  * 알람 정의 목록 — tag_id(=주소) 순서로 내려온다. 이 순서가 곧 화면 격자 순서다.
