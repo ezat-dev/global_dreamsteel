@@ -180,7 +180,8 @@
     "zmBurners": {
       "title": "Burner window — BURN ON/OFF",
       "body": [
-        "Each row is one burner. Burners 1 and 2 are on the left (L), 3 and 4 on the right (R).",
+        "Each row is one burner, and the zone has as many burners as it has flames.",
+        "Like the drawing, they are split into a top row and a bottom row. Numbering starts at the left of the top row and continues from the left of the bottom row.",
         "Hold BURN ON/OFF for the hold delay to turn just that burner on or off.",
         "While burning, BURN ON lights green [[on]]; when stopped, BURN OFF lights red [[alarm]]."
       ]
@@ -189,6 +190,7 @@
       "title": "Burner window — zone PURGE · close",
       "body": [
         "Hold START PURGE for the hold delay to purge just this zone. It lights green [[on]] while purging.",
+        "Hold STOP PURGE for the hold delay to stop this zone's purge. It lights red [[alarm]] when the stop is active.",
         "Close the window with ✕ at the top right, Esc, or by tapping outside."
       ]
     },
@@ -218,8 +220,9 @@
     "purge": {
       "title": "ALL PURGE",
       "body": [
-        "Hold ON for the hold delay to start PURGE for all zones.",
-        "Progress lights up in order: PURGE READY (red [[alarm]]) → PURGING (yellow [[warn]]) → PURGE DONE (green [[on]])."
+        "Hold ON for the hold delay to start PURGE for all zones; hold OFF to stop it.",
+        "ON lights green [[on]] when active, and OFF lights red [[alarm]] when active.",
+        "Progress lights up in order: READY (red [[alarm]]) → PURGING (yellow [[warn]]) → DONE (green [[on]])."
       ]
     },
     "end": {

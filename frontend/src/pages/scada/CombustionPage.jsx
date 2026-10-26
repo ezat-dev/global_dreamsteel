@@ -12,7 +12,8 @@ import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 import {
-  FITTING_TAGS, THUNDER_TAGS, fittingRedClass, thunderHideClass, thunderTag,
+  FIRE_TAGS, FITTING_TAGS, THUNDER_TAGS, fireHideClass, fireTag, fittingRedClass,
+  thunderHideClass, thunderTag,
 } from '../../components/scada/combustionArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
@@ -253,7 +254,8 @@ const ZONE_BURN_BUTTONS = [
 
    칸이 세 종류다.
      kind: 'btn'  RESET — 누르는 버튼. 색은 값과 무관하게 늘 노랑이다(.cb-action-btn).
-     cmd          램프이면서 버튼(ALL PURGE의 ON). 색은 _cmd_lamp가 정한다.
+     cmd          램프이면서 버튼(ALL PURGE의 ON/OFF). 색은 _cmd_lamp가 정한다 —
+                  1이면 lit 색(ON 초록 / OFF 빨강, 본판의 다른 ON/OFF와 같은 짝), 0이면 회색.
      tag          누를 수 없는 표시 램프. 값이 1이면 lit 색, 0이면 회색, 못 읽으면 점선.
 
    lit이 칸마다 다르다 — 퍼지 단계는 준비(빨강) → 중(노랑) → 완료(초록)로 넘어간다.
@@ -278,7 +280,8 @@ const ACTION_PANELS = [
   {
     key: 'purge',     // ALL PURGE
     items: [
-      { text: 'ON', cmd: 'all_purge_on_cmd' },
+      { text: 'ON', cmd: 'all_purge_on_cmd', lit: ' is-on' },
+      { text: 'OFF', cmd: 'all_purge_off_cmd', lit: ' is-alarm' },
       { tag: 'all_purge_ready_lamp', lit: ' is-alarm' },      // PURGE 준비
       { tag: 'all_purge_doing_lamp', lit: ' is-warn' },       // PURGE 중
       { tag: 'all_purge_complete_lamp', lit: ' is-on' },      // PURGE 완료
@@ -335,6 +338,13 @@ export default function CombustionPage() {
   const thunderHideClasses = Object.keys(THUNDER_TAGS)
     .filter((cls) => tagState(tagValues?.[thunderTag(cls)]) !== TAG_ON)
     .map((cls) => ` ${thunderHideClass(cls)}`)
+    .join('');
+
+  /* 존 불꽃 53개 — 번개와 같은 규칙·같은 방식이다(1이면 보이고 0이거나 못 읽으면 숨김).
+     지금은 53개가 같은 주소(D100, 임시)라 다 같이 켜지고 꺼진다. */
+  const fireHideClasses = Object.keys(FIRE_TAGS)
+    .filter((cls) => tagState(tagValues?.[fireTag(cls)]) !== TAG_ON)
+    .map((cls) => ` ${fireHideClass(cls)}`)
     .join('');
 
   const [writeError, setWriteError] = useState('');
@@ -509,7 +519,7 @@ export default function CombustionPage() {
           배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}
       <div className="cb-stage" ref={stageRef}>
         <div
-          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}`}
+          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}${fireHideClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_TOTAL_H,
@@ -768,7 +778,7 @@ export default function CombustionPage() {
                   );
                 }
 
-                /* 명령 태그가 붙은 칸(ALL PURGE의 ON)은 램프이면서 버튼이다.
+                /* 명령 태그가 붙은 칸(ALL PURGE의 ON/OFF)은 램프이면서 버튼이다.
                    본판 OPEN/CLOSE와 같은 모멘터리다: holdMs만큼 누르면 1, 떼면 0.
                    색은 누른 것과 무관하게 램프(_cmd_lamp)가 정한다.
                    disabled를 걸지 않는 이유도 같다 — 비활성 요소는 뗌 이벤트를 못 받아서
@@ -778,7 +788,7 @@ export default function CombustionPage() {
                     <button
                       type="button"
                       key={it.text}
-                      className={`cb-action-lamp hmi-lampbox${lampClass(it.cmd, ' is-on')}`
+                      className={`cb-action-lamp hmi-lampbox${lampClass(it.cmd, it.lit)}`
                         + (heldTag === it.cmd ? ' is-held' : '')
                         + (armedTag === it.cmd ? ' is-armed' : '')}
                       onPointerDown={() => handlePress(it.cmd)}

@@ -220,7 +220,7 @@ html[lang="en"] .cb-dev--burnerCool .cb-plate {
 }
 
 /* ===== momentary 버튼 공통 =============================================
-   누르고 있는 동안만 명령이 걸리는 버튼들(본판 OPEN/CLOSE, 개별연소 모달 9개).
+   누르고 있는 동안만 명령이 걸리는 버튼들(본판 OPEN/CLOSE, 개별연소 모달의 버너·PURGE).
 
    touch-action: none — 현장 터치 패널에서 손가락을 누른 채 조금이라도 움직이면
    브라우저가 스크롤로 가로채고 pointercancel이 떠서 명령이 끊긴다. 그걸 막는다.
@@ -229,6 +229,7 @@ html[lang="en"] .cb-dev--burnerCool .cb-plate {
 .cb-onoff > button,
 .cb-zmodal-state > button,
 .cb-zmodal-purge,
+.cb-zmodal-purgestop,
 button.cb-action-lamp,
 .cb-action-btn {
   touch-action: none;
@@ -241,6 +242,7 @@ button.cb-action-lamp,
 .cb-onoff > button,
 .cb-zmodal-state > button,
 .cb-zmodal-purge,
+.cb-zmodal-purgestop,
 button.cb-action-lamp,
 .cb-action-btn {
   position: relative;
@@ -262,6 +264,7 @@ button.cb-action-lamp {
 .cb-onoff > button.is-held,
 .cb-zmodal-state > button.is-held,
 .cb-zmodal-purge.is-held,
+.cb-zmodal-purgestop.is-held,
 button.cb-action-lamp.is-held,
 .cb-action-btn.is-held {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45);
@@ -489,9 +492,9 @@ html[lang="en"] .cb-pipe-label {
 }
 
 .cb-zmodal {
-  /* 버튼을 손가락에 맞게 키우면서 폭도 같이 늘렸다(470 → 520). 폭을 그대로 두고
-     버튼만 키우면 ON/OFF가 가로로 둘씩 들어가는 자리라 글자가 눌린다. */
-  width: 520px;
+  /* 버너를 위 줄 / 아래 줄 두 칸으로 나란히 놓아 폭이 두 배 가까이 됐다(520 → 760).
+     한 칸에 버너 이름 + ON/OFF 둘이 들어간다. 좁은 화면에서는 화면 폭에 맞춰 줄어든다. */
+  width: min(760px, calc(100vw - 32px));
   border: 1px solid var(--hmi-shadow-dark);
   border-radius: 14px;
   background: var(--hmi-panel);
@@ -534,24 +537,53 @@ html[lang="en"] .cb-pipe-label {
 }
 
 .cb-zmodal-body {
-  padding: 18px 26px 22px;
+  padding: 14px 22px 18px;
 }
 
-/* 왼쪽 존 이름 / 오른쪽 상태 두 칸. 이름 칸을 고정 폭으로 잡아
-   ON·OFF 글씨가 줄마다 같은 자리에 선다(원본 작화와 같은 배치). */
+/* 위 줄 / 아래 줄 두 칸 — 그림의 불꽃 줄과 같은 배치. 4·5·6존은 위 줄이 3개라
+   왼쪽 칸이 한 줄 짧다(빈 자리로 둔다 — 늘이면 버튼 높이가 칸마다 달라진다). */
+.cb-zmodal-burners {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 0 26px;
+}
+
+.cb-zmodal-colhead {
+  padding: 0 0 4px;
+  border-bottom: 1px solid var(--hmi-light);
+  color: var(--hmi-text-sub);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* 왼쪽 버너 번호 / 오른쪽 ON·OFF. 번호 칸을 고정 폭으로 잡아
+   ON·OFF 글씨가 줄마다 같은 자리에 선다. */
 .cb-zmodal-row {
   display: grid;
-  grid-template-columns: 190px minmax(0, 1fr);
+  grid-template-columns: 52px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  padding: 12px 0;
+  gap: 8px;
+  padding: 6px 0;
 }
 
 .cb-zmodal-name {
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 700;
   color: #101010;
   white-space: nowrap;
+}
+
+/* 존 PURGE 시작 / 정지 — 버너 칸 아래에 선을 긋고 한 줄로 둔다 */
+.cb-zmodal-purgerow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hmi-light);
 }
 
 /* .cb-onoff의 absolute를 풀고 이 줄 안에서 흐르게 한다 */
@@ -565,9 +597,25 @@ html[lang="en"] .cb-pipe-label {
 .cb-zmodal-state .hmi-lampbox {
   /* 높이가 약 54px이 된다(14px일 때 46px). 현장에서 장갑을 끼고 누르는 자리라
      터치 권장 크기(44~48px)보다 넉넉하게 잡았다. */
-  padding: 18px 6px;
+  padding: 16px 6px;
   border-radius: 4px;
   font-size: 16px;
+  cursor: pointer;
+}
+
+/* PURGE 정지 — 버너 연소 OFF와 같은 램프 칸(걸려 있으면 빨강, 아니면 회색, 못 읽으면 점선).
+   크기·글씨는 옆의 PURGE 시작과 맞춘다 — 한 줄에 나란히 서는 두 버튼이라 어긋나면 눈에 띈다. */
+.cb-zmodal-purgestop {
+  /* 높이는 줄에 맞춰 늘린다 — 램프 칸(.hmi-lampbox)과 시작 버튼은 테두리·줄높이가 달라
+     같은 padding으로도 3px 어긋난다 */
+  align-self: stretch;
+  width: 100%;
+  padding: 18px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -678,7 +726,7 @@ html[lang="en"] .cb-pipe-label {
 }
 
 /* 램프를 키운 뒤에도 좁은 화면에서 삐져나오지 않게 줄바꿈을 허용한다
-   (ALL PURGE는 항목이 4개라 폭을 가장 많이 쓴다). */
+   (ALL PURGE는 항목이 5개라 폭을 가장 많이 쓴다). */
 .cb-action-row {
   display: flex;
   align-items: center;
@@ -697,11 +745,24 @@ html[lang="en"] .cb-pipe-label {
 }
 
 /* 램프·버튼이 판의 남는 폭을 나눠 갖는다 — 항목이 2개인 판(실화/이상)은 크게,
-   4개인 판(ALL PURGE)은 그만큼 좁게 자동으로 잡힌다.
+   5개인 판(ALL PURGE)은 그만큼 좁게 자동으로 잡힌다.
    고정 크기로 두면 2개짜리 판에 빈 자리가 남는다. */
 .cb-action-row > .cb-action-lamp,
 .cb-action-row > .cb-action-btn {
   flex: 1 1 auto;
+}
+
+/* ALL PURGE는 ON·OFF + 램프 셋으로 5칸이다. 넓은 화면에서는 한 줄로 둔다 — 판 높이(96px)에
+   두 줄은 안 들어가서, 접히면 마지막 칸(PURGE 완료)이 판 밖으로 잘린다.
+   글씨·좌우 여백을 조금 줄여야 1920 폭(판 약 440px)에 다섯 칸이 들어간다. */
+.cb-action--purge .cb-action-row {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.cb-action--purge .cb-action-lamp {
+  padding: 7px 6px;
+  font-size: 14px;
 }
 
 /* RESET만 조작 버튼이다 — 사진처럼 노란 바탕.
@@ -882,8 +943,8 @@ html[lang="en"] .cb-pipe-label {
    크게 잡아 둔 글씨(15px, 화면의 다른 글씨는 11~13px이다)를 12.5px로 내려
    두 줄이 88px 안에 들어오게 한다.
 
-   접히는 모양은 2x2로 못박는다. 그냥 두면 폭에 따라 3+1이나 2+1+1로 갈려서
-   줄 수가 들쭉날쭉해진다. */
+   접히는 모양은 'ON·OFF / 램프 셋' 두 줄로 못박는다. 그냥 두면 폭에 따라 3+2나 2+2+1로
+   갈려서 줄 수가 들쭉날쭉해진다. 6칸 격자에 버튼은 3칸씩, 램프는 2칸씩 차지한다. */
 @media (max-width: 1700px) {
   .cb-action {
     gap: 6px;
@@ -905,9 +966,29 @@ html[lang="en"] .cb-pipe-label {
     font-size: 12.5px;
   }
 
+  /* 아랫줄에 램프 셋이 나란히 서야 해서 다른 두 판보다 폭을 더 받는다
+     (같은 폭이면 1024에서 칸이 약 50px이라 'PURGE 준비'가 잘린다). */
+  .cb-action--purge {
+    flex-grow: 1.6;
+  }
+
   .cb-action--purge .cb-action-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px 6px;
+  }
+
+  .cb-action--purge .cb-action-lamp {
+    padding: 3px 4px;
+    font-size: 12.5px;
+  }
+
+  .cb-action--purge .cb-action-row > button {
+    grid-column: span 3;
+  }
+
+  .cb-action--purge .cb-action-row > span {
+    grid-column: span 2;
   }
 }
 
@@ -993,11 +1074,12 @@ html[lang="en"] .cb-pipe-label {
     font-size: 12px;
   }
 
-  /* ALL PURGE만 항목이 4개다. 남는 폭(약 165px)에 한 줄로는 절대 안 들어가고,
-     그냥 접히게 두면 2+1+1로 세 줄이 되어 88px을 넘쳐 마지막 칸이 잘린다.
-     2×2로 못박으면 두 줄로 끝나고, 위에서 줄인 글씨 크기라면 88px 안에 들어온다. */
-  .cb-action--purge .cb-action-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .cb-action--purge .cb-action-lamp {
+    padding: 3px 4px;
+    font-size: 11px;
   }
+
+  /* ALL PURGE의 두 줄 접기(ON·OFF / 램프 셋)는 위 1700px 규칙이 그대로 이어진다.
+     남는 폭(약 165px)에 한 줄로는 절대 안 들어가고, 그냥 접히게 두면 세 줄이 되어
+     88px을 넘쳐 마지막 칸이 잘린다. */
 }

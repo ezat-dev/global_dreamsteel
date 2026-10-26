@@ -10,9 +10,9 @@
     "combustion_blower_pressure_abnormal_lamp": "PRESS\nABNORMAL",
     "misfire_alarm_misfire_lamp": "MISFIRE",
     "burner_alarm_abnormal_lamp": "ABNORMAL",
-    "all_purge_ready_lamp": "PURGE READY",
+    "all_purge_ready_lamp": "READY",
     "all_purge_doing_lamp": "PURGING",
-    "all_purge_complete_lamp": "PURGE DONE"
+    "all_purge_complete_lamp": "DONE"
   },
   "pipeTip": "{{what}} — read only / {{tag}} — green at {{v}}, red otherwise",
   "burn": {
@@ -30,18 +30,20 @@
   "pvWhat": "{{n}}ZONE current temp (PV)",
   "modal": {
     "title": "{{zone}}ZONE BURNER OPERATION",
-    "left": "L",
-    "right": "R",
+    "top": "Top row",
+    "bottom": "Bottom row",
     "burnOn": "BURN ON",
     "burnOff": "BURN OFF",
-    "purgeStart": "START PURGE"
+    "purgeStart": "START PURGE",
+    "purgeStop": "STOP PURGE"
   },
   "art": {
     "main_gas_valve_lamp": "MAIN GAS pressure control valve",
     "main_gas_sol_valve_lamp": "MAIN GAS solenoid valve",
     "combustion_blower_valve_lamp": "Combustion BLOWER valve",
     "combustion_blower_motor_lamp": "Combustion BLOWER fan",
-    "thunder": "Ignition mark {{n}}"
+    "thunder": "Ignition mark {{n}}",
+    "fire": "Flame {{n}}"
   },
   "rule": {
     "fitting": "normal color at 1 / red at 0 or if unreadable",

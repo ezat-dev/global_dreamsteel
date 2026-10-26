@@ -82,3 +82,29 @@ export const thunderTitle = (cls) =>
 
 /* 숨길 때 무대에 붙는 클래스. combustionOverview.css의 선택자와 짝이 맞아야 한다. */
 export const thunderHideClass = (cls) => `hide-${cls}`;
+
+/* ---------------------------------------------------------------------------
+   존 불꽃 53개 — 번개와 같은 규칙이다: 1이면 보이고 0이거나 못 읽으면 숨긴다.
+
+   불꽃과 번개는 같은 버너 자리에 한 쌍씩 있어서 번호도 번개와 똑같이 짝짓는다
+   (for-fire-N ↔ for-thun-N, rev-fire-N ↔ rev-thun-N — 아래 줄이 오→왼인 것도 같다).
+   그래서 표를 따로 적지 않고 번개 표에서 이름만 바꿔 만든다.
+
+   주소는 53개가 전부 D100으로 같다(임시, sql/combustion_fire_tags.sql). 그래서 지금은
+   다 같이 켜지고 꺼진다. 실주소가 나오면 DB의 address만 UPDATE 하면 되고 이 파일은 손대지 않는다.
+   ------------------------------------------------------------------------- */
+
+/* 작화 클래스 → 태그 번호. 예: 'for-fire-1' → 1, 'rev-fire-28' → 26 */
+export const FIRE_TAGS = Object.fromEntries(
+  Object.entries(THUNDER_TAGS).map(([cls, n]) => [cls.replace('-thun-', '-fire-'), n]),
+);
+
+/** 작화 클래스 → 태그 이름. 예: 'for-fire-1' → 'combustion_fire1_lamp' */
+export const fireTag = (cls) => `combustion_fire${FIRE_TAGS[cls]}_lamp`;
+
+/** 그림 위에 뜨는 글(태그 매핑한 그림에는 툴팁을 단다) */
+export const fireTitle = (cls) =>
+  `${i18n.t('combustion:art.fire', { n: FIRE_TAGS[cls] })} / ${fireTag(cls)} — ${i18n.t('combustion:rule.thunder')}`;
+
+/* 숨길 때 무대에 붙는 클래스. combustionOverview.css의 선택자와 짝이 맞아야 한다. */
+export const fireHideClass = (cls) => `hide-${cls}`;

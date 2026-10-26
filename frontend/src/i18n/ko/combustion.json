@@ -30,18 +30,20 @@
   "pvWhat": "{{n}}ZONE 현재온도(PV)",
   "modal": {
     "title": "{{zone}}ZONE BURNER 운전",
-    "left": "좌",
-    "right": "우",
+    "top": "위 줄",
+    "bottom": "아래 줄",
     "burnOn": "연소 ON",
     "burnOff": "연소 OFF",
-    "purgeStart": "PURGE 시작"
+    "purgeStart": "PURGE 시작",
+    "purgeStop": "PURGE 정지"
   },
   "art": {
     "main_gas_valve_lamp": "MAIN GAS 압력 조절밸브",
     "main_gas_sol_valve_lamp": "MAIN GAS 솔레노이드 밸브",
     "combustion_blower_valve_lamp": "연소 BLOWER 밸브",
     "combustion_blower_motor_lamp": "연소 BLOWER 송풍기",
-    "thunder": "번개 {{n}}"
+    "thunder": "번개 {{n}}",
+    "fire": "불꽃 {{n}}"
   },
   "rule": {
     "fitting": "값이 1이면 제 색 / 0이거나 못 읽으면 빨강",

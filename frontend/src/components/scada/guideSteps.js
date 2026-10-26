@@ -75,9 +75,9 @@ const GUIDE_STEPS = {
     { id: 'per', target: '.cb-per--top' },
     { id: 'zoneBurn', target: '.cb-zonebar .cb-onoff' },
     { id: 'zoneModal', target: '.cb-zonebar .cb-plate--btn' },
-    // 개별연소 창 안 — 1ZONE 창을 열어 짚는다(버너 4줄 / 존 PURGE 줄)
-    { id: 'zmBurners', target: '.cb-zmodal-body > .cb-zmodal-row:not(:last-child)', opens: CB_ZONE_MODAL },
-    { id: 'zmPurge', target: '.cb-zmodal-body > .cb-zmodal-row:last-child, .cb-zmodal-close', split: true, opens: CB_ZONE_MODAL },
+    // 개별연소 창 안 — 1ZONE 창을 열어 짚는다(버너 위 줄·아래 줄 / 존 PURGE 시작·정지 줄)
+    { id: 'zmBurners', target: '.cb-zmodal-burners', opens: CB_ZONE_MODAL },
+    { id: 'zmPurge', target: '.cb-zmodal-purgerow, .cb-zmodal-close', split: true, opens: CB_ZONE_MODAL },
     { id: 'stage', target: '.cb-stage' },
     { id: 'alarms', target: '.cb-alarm' },
     { id: 'alarmReset', target: '.cb-action--misfire, .cb-action--burner' },
