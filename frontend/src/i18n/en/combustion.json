@@ -43,10 +43,14 @@
     "combustion_blower_valve_lamp": "Combustion BLOWER valve",
     "combustion_blower_motor_lamp": "Combustion BLOWER fan",
     "thunder": "Ignition mark {{n}}",
-    "fire": "Flame {{n}}"
+    "fire": "Flame {{n}}",
+    "gasValve": "Gas valve {{n}}",
+    "airValve": "Air valve {{n}}",
+    "burner": "zone {{zone}} burner {{zone}}-{{no}}"
   },
   "rule": {
     "fitting": "normal color at 1 / red at 0 or if unreadable",
-    "thunder": "shown only at 1 / hidden at 0 or if unreadable"
+    "thunder": "shown only at 1 / hidden at 0 or if unreadable",
+    "valve": "green at 1 / red at 0 or if unreadable"
   }
 }

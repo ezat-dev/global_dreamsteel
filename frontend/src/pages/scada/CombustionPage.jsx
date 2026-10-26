@@ -12,8 +12,8 @@ import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 import {
-  FIRE_TAGS, FITTING_TAGS, THUNDER_TAGS, fireHideClass, fireTag, fittingRedClass,
-  thunderHideClass, thunderTag,
+  FIRE_TAGS, FITTING_TAGS, THUNDER_TAGS, VALVE_TAGS, fireHideClass, fireTag, fittingRedClass,
+  thunderHideClass, thunderTag, valveOnClass, valveTag,
 } from '../../components/scada/combustionArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
@@ -234,7 +234,7 @@ const ALARM_OPTIONS = { pagination: false };
 
 /* 존 전체의 연소 ON/OFF 명령 — ez_scada.folders_tags.name과 반드시 같아야 한다.
    개별 버너가 cb_z1_b1_on_cmd(1존 1번 버너)라, 존 전체는 버너 번호 자리에 burn을 넣어
-   cb_z1_burn_on_cmd로 구분한다(M361~M374 / 램프 M661~M674).
+   cb_z1_burn_on_cmd로 구분한다(M362~M375 / 램프 M662~M675 — 존마다 ON·OFF 두 칸씩).
    램프 이름은 여기에 '_lamp'를 붙인 것이고, 그 규칙은 foldertagApi의 lampOf가 갖고 있다. */
 const zoneBurnCmd = (zone, action) => `cb_z${zone}_burn_${action}_cmd`;
 
@@ -331,20 +331,25 @@ export default function CombustionPage() {
 
   /* 불꽃 뒤 번개 53개 — 1이면 보이고 0이거나 못 읽으면 숨긴다.
      위 부속과 달리 색이 아니라 숨김이라, 꺼진 것들의 클래스를 모아 무대에 붙이고
-     실제로 감추는 일은 combustionOverview.css가 맡는다.
-
-     지금은 53개가 같은 주소(M300)라 다 같이 켜지고 꺼진다. 실주소가 나뉘면
-     DB만 고치면 되고 이 코드는 그대로다. */
+     실제로 감추는 일은 combustionOverview.css가 맡는다. */
   const thunderHideClasses = Object.keys(THUNDER_TAGS)
     .filter((cls) => tagState(tagValues?.[thunderTag(cls)]) !== TAG_ON)
     .map((cls) => ` ${thunderHideClass(cls)}`)
     .join('');
 
-  /* 존 불꽃 53개 — 번개와 같은 규칙·같은 방식이다(1이면 보이고 0이거나 못 읽으면 숨김).
-     지금은 53개가 같은 주소(D100, 임시)라 다 같이 켜지고 꺼진다. */
+  /* 존 불꽃 53개 — 번개와 같은 규칙·같은 방식이다(1이면 보이고 0이거나 못 읽으면 숨김). */
   const fireHideClasses = Object.keys(FIRE_TAGS)
     .filter((cls) => tagState(tagValues?.[fireTag(cls)]) !== TAG_ON)
     .map((cls) => ` ${fireHideClass(cls)}`)
+    .join('');
+
+  /* 버너 밸브 106개(가스·공기 x 53) — 1이면 초록, 0이거나 못 읽으면 빨강.
+     번개와 반대로 '켜진 것'에 클래스를 붙인다 — 기본이 빨강이라 값을 받기 전에도 빨강이다.
+     색을 바꾸는 일은 CombustionPage.css(filter: url(#cb-green) / #cb-red)가 맡는다. */
+  const valveOnClasses = Object.keys(VALVE_TAGS)
+    .flatMap((cls) => ['gas', 'air'].map((kind) => [cls, kind]))
+    .filter(([cls, kind]) => tagState(tagValues?.[valveTag(cls, kind)]) === TAG_ON)
+    .map(([cls, kind]) => ` ${valveOnClass(cls, kind)}`)
     .join('');
 
   const [writeError, setWriteError] = useState('');
@@ -512,6 +517,18 @@ export default function CombustionPage() {
                     0       0       0       1 0"
           />
         </filter>
+        {/* 버너 밸브가 열렸을 때의 초록. 빨강과 같은 방식(밝기를 한 축에 싣기)이되
+            초록 줄을 0.95배로만 실어 형광이 되지 않게 했다(분위기화면 at-green에서 겪은 일).
+            R은 밝기 x 0.2, B는 x 0.45를 남겨 #2bcc60 근처의 초록이 된다. */}
+        <filter id="cb-green" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.04252 0.14304 0.01444 0 0
+                    0.20197 0.67944 0.06859 0 0
+                    0.09567 0.32184 0.03249 0 0
+                    0       0       0       1 0"
+          />
+        </filter>
       </svg>
 
       {/* 줄인 뒤의 실제 높이만큼만 자리를 차지하게 한다 */}
@@ -519,7 +536,7 @@ export default function CombustionPage() {
           배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}
       <div className="cb-stage" ref={stageRef}>
         <div
-          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}${fireHideClasses}`}
+          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}${fireHideClasses}${valveOnClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_TOTAL_H,
