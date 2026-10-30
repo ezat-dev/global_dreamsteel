@@ -4,7 +4,8 @@ import { LedInput } from './HmiParts';
 /* ===========================================================================
    존 하나의 버너제어 사용자 설정 판 — 엔지니어링 화면의 '버너제어' 탭(EngBurnerSettings)이 쓴다.
 
-   양식은 'PLC Point Configuration_EZ26391_버너설정(임시).xlsx'의 버너설정 시트 그대로다.
+   양식은 'PLC Point Configuration_EZ26391_버너설정(임시).xlsx'의 버너설정 시트 그대로다
+   (주소는 그 뒤 '_261030 (버너부분 수정).xlsx'로 갱신 — 퍼지 타이머만 옮겨졌다).
      왼쪽  퍼지 타이머 / 펄스제어 싸이클 타이머 / 버너수량 / 전 버너 켜짐 출력치 ×2 / 버너별 펄스제어 순번
      오른쪽 펄스제어 온도제어 출력구간(버너 수만큼) — "앞 구간 상한 % ~ 이 구간 상한 % → 켤 버너 수"
 
@@ -22,7 +23,7 @@ export const ZONE_BURNERS = { 1: 8, 2: 8, 3: 8, 4: 7, 5: 7, 6: 7, 7: 8 };
 
 /** 태그 이름 — DB의 folders_tags.name과 반드시 같아야 한다(등록 SQL과 같은 규칙) */
 export const burnerTag = {
-  purge: (n) => `bc_z${n}_purge_timer`,            // R n30 퍼지 타이머 (초)
+  purge: (n) => `bc_z${n}_purge_timer`,            // R n10 퍼지 타이머 (초) — 10/30 주소표에서 R n30 → R n10
   cycle: (n) => `bc_z${n}_pulse_cycle_timer`,      // R n32 펄스제어 싸이클 타이머 (초)
   count: (n) => `bc_z${n}_pulse_burner_count`,     // R n34 펄스제어 버너수량 (개)
   allOn1: (n) => `bc_z${n}_all_on_output_1`,       // R n38 전 버너 켜짐 출력치 (%)
@@ -93,21 +94,30 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
           ))}
         </ol>
 
-        {/* 오른쪽 — 출력구간. 구간 k의 아래끝은 앞 구간의 상한 그대로라 보여 주기만 한다(1구간은 0) */}
+        {/* 오른쪽 — 출력구간. 구간 k의 시작(아래끝)은 앞 구간의 상한과 같은 값이다 — PLC에 따로 칸이
+            없고 한 레지스터를 두 자리에서 보여 준다. 그래서 시작칸도 입력칸으로 두되, 고치면 앞 구간의
+            상한(secHi(k-1))이 바뀐다(앞 줄의 상한 칸도 같이 바뀐다). 1구간 시작은 0 고정이라 표시 전용 칸이다. */}
         <div className="bz-sections">
           <div className="bz-sec-title">{t('burner.secTitle')}</div>
           <table className="bz-sec-table">
             <tbody>
               {sections.map((k) => {
                 const hiLabel = `${t('burner.sec', { k })} ${t('burner.secHigh')}`;
+                const loLabel = `${t('burner.sec', { k })} ${t('burner.secLow')}`;
                 const cntLabel = `${t('burner.sec', { k })} ${t('burner.secBurners')}`;
                 return (
                   <tr key={k}>
                     <th scope="row">{t('burner.sec', { k })}</th>
-                    <td className="bz-sec-low">
-                      {k === 1 ? '0' : text(burnerTag.secHi(zone, k - 1))}
-                      <i>%</i>
-                    </td>
+                    {/* 1구간 시작은 0 고정 — 고칠 수 없는 칸이지만 아래 줄들과 같은 칸 모양(표시 전용)으로
+                        둬야 세로줄이 맞는다. 글자로 두면 칸 폭·% 자리가 달라 어긋난다. */}
+                    {k === 1 ? (
+                      <td>
+                        <LedInput value="0" color="green" size="sm" unit="%" readOnly
+                          title={`${t('burner.sec', { k })} ${t('burner.secLowFixed')}`} />
+                      </td>
+                    ) : (
+                      <td>{input(burnerTag.secHi(zone, k - 1), loLabel, 0, 100, '%')}</td>
+                    )}
                     <td className="bz-sec-sep">~</td>
                     <td>{input(burnerTag.secHi(zone, k), hiLabel, 0, 100, '%')}</td>
                     <td className="bz-sec-sep">→</td>

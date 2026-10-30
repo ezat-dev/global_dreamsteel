@@ -191,6 +191,7 @@
       "body": [
         "Hold START PURGE for the hold delay to purge just this zone. It lights green [[on]] while purging.",
         "Hold STOP PURGE for the hold delay to stop this zone's purge. It lights red [[alarm]] when the stop is active.",
+        "The window opens beside its zone so the zone stays visible. You can also drag the title bar to move it.",
         "Close the window with ✕ at the top right, Esc, or by tapping outside."
       ]
     },
@@ -281,6 +282,13 @@
         "HH, H, L and LL are the reference values for the high-high, high, low and low-low alarms.",
         "Tap a box to open the number pad. Input ranges — HH 0–500, H 0–200, L 0–200, LL 0–400",
         "Values outside the range cannot be entered."
+      ]
+    },
+    "pid": {
+      "title": "PID P · I · D",
+      "body": [
+        "P is the proportional band, I the integral time and D the derivative time. They set the output (MV) in AUTO mode.",
+        "Tap a box to open the number pad. Input ranges — P 0–1200, I 0–2400, D 0–600"
       ]
     },
     "limit": {

@@ -14,6 +14,9 @@
     "alarm_h": "상한 경보 (H)",
     "alarm_l": "하한 경보 (L)",
     "alarm_ll": "하하한 경보 (LL)",
+    "pid_p": "비례대 (P)",
+    "pid_i": "적분시간 (I)",
+    "pid_d": "미분시간 (D)",
     "range_hi": "출력 상한 (MV%)",
     "range_lo": "출력 하한 (MV%)"
   },

@@ -599,20 +599,22 @@ html[lang="en"] .cb-pipe-label {
    원본 작화 031_1ZONE연소 — 주황 제목바 + 살구빛 본문. 이 화면에서만 쓰는 톤이라
    scada.css의 공용 모달(.hmi-umodal)과 섞지 않고 여기에 따로 둔다. */
 
+/* 막은 옅게만 깐다 — 창을 존 옆에 띄우는 이유가 조작하면서 그 존의 불꽃·밸브를 보려는 것이라
+   진하게 덮으면 의미가 없다. 막을 누르면 닫히는 것은 그대로다. */
 .cb-zmodal-scrim {
   position: fixed;
   inset: 0;
   z-index: 1500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, .45);
+  background: rgba(0, 0, 0, .12);
 }
 
 .cb-zmodal {
+  /* 자리는 ZoneBurnerModal이 left/top으로 준다(존 옆, 끌면 따라온다) */
+  position: absolute;
   /* 버너를 위 줄 / 아래 줄 두 칸으로 나란히 놓아 폭이 두 배 가까이 됐다(520 → 760).
-     한 칸에 버너 이름 + ON/OFF 둘이 들어간다. 좁은 화면에서는 화면 폭에 맞춰 줄어든다. */
-  width: min(760px, calc(100vw - 32px));
+     한 칸에 버너 이름 + ON/OFF 둘이 들어간다. 좁은 화면에서는 막 폭에 맞춰 줄어든다
+     (100vw가 아니라 100% — 설명서를 열면 막이 줄어든 화면 안에 갇히므로 막 기준이어야 한다). */
+  width: min(760px, calc(100% - 24px));
   border: 1px solid var(--hmi-shadow-dark);
   border-radius: 14px;
   background: var(--hmi-panel);
@@ -629,6 +631,11 @@ html[lang="en"] .cb-pipe-label {
   font-size: 20px;
   font-weight: 700;
   text-align: center;
+  /* 제목줄을 끌어서 창을 옮긴다. touch-action: none — 태블릿에서 끄는 동작을 화면 스크롤로 뺏기지 않게 */
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .cb-zmodal-close {
@@ -719,6 +726,57 @@ html[lang="en"] .cb-pipe-label {
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
+}
+
+/* 촘촘한 배치 — 존 옆자리가 좁아 창을 줄였을 때(태블릿의 가운데 존, ZoneBurnerModal의 COMPACT_BELOW).
+   버너 두 칸이 420px까지 들어가게 글자·여백을 줄인다. 버튼 높이는 40px 아래로 내리지 않는다
+   (장갑 낀 손가락으로 누르는 자리). */
+.cb-zmodal.is-compact .cb-zmodal-title {
+  padding: 7px 36px;
+  font-size: 17px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-body {
+  padding: 10px 12px 12px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-burners {
+  gap: 0 12px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-colhead {
+  font-size: 13px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-row {
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 5px;
+  padding: 4px 0;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-name {
+  font-size: 15px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-state {
+  gap: 5px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-state .hmi-lampbox {
+  padding: 11px 2px;
+  font-size: 13px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-purgerow {
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 10px;
+}
+
+.cb-zmodal.is-compact .cb-zmodal-purge,
+.cb-zmodal.is-compact .cb-zmodal-purgestop {
+  padding: 12px 4px;
+  font-size: 14px;
 }
 
 /* PURGE 정지 — 버너 연소 OFF와 같은 램프 칸(걸려 있으면 빨강, 아니면 회색, 못 읽으면 점선).
@@ -1033,8 +1091,13 @@ html[lang="en"] .cb-pipe-label {
   background: var(--g-solid);
 }
 
+/* 옅게 — 창 옆의 존이 보여야 한다(위 .cb-zmodal-scrim 참고). 대신 창 그림자를 진하게 해서 떠 보이게 한다 */
 .cb-page.hmi-dark .cb-zmodal-scrim {
-  background: rgba(3, 7, 14, .62);
+  background: rgba(3, 7, 14, .22);
+}
+
+.cb-page.hmi-dark .cb-zmodal {
+  box-shadow: 0 18px 48px -8px rgba(0, 0, 0, .85), 0 0 0 1px rgba(150, 190, 240, .25);
 }
 
 /* 존 이름만 색이 값으로 박혀 있었다(#101010) — 어두운 판에서는 안 보인다 */

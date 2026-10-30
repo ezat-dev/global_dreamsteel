@@ -15,6 +15,8 @@
     "secTitle": "버너 펄스제어 온도제어 출력구간 설정",
     "sec": "구간({{k}})",
     "secHigh": "상한 (%)",
+    "secLow": "시작 (%) — 앞 구간 상한과 같은 값",
+    "secLowFixed": "시작 (%) — 0 고정",
     "secBurners": "버너 수 (개)",
     "unitBurners": "개"
   },

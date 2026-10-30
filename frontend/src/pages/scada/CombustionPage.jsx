@@ -240,14 +240,14 @@ const zoneBurnCmd = (zone, action) => `cb_z${zone}_burn_${action}_cmd`;
 
 /* 존 연소 두 칸. 서로를 보고 그리지 않고 각자 자기 램프 값만 본다.
 
-   켜지는 값이 둘이 다르다 — ON은 1일 때 초록, OFF는 0일 때 빨강이다(PLC가 그렇게 준다).
-   MAIN GAS CLOSE와 같은 경우로, lampClassOf의 litWhen이 이걸 위해 있다.
-   그래서 연소 중이면 ON=1(초록) / OFF=1(회색)이고, 정지 중이면 ON=0(회색) / OFF=0(빨강)이다.
+   둘 다 자기 램프가 1일 때 색이 나온다 — ON은 초록, OFF는 빨강, 0이면 회색이다.
+   (예전에는 OFF가 0일 때 빨강이었는데, 실주소(M662~M675)로 바꾼 뒤 PLC가 OFF 램프도
+   걸렸을 때 1을 주므로 다른 ON/OFF 버튼과 같은 규칙으로 맞췄다 — 2026-10-30 요청)
    값을 못 읽으면 둘 다 점선(is-unknown)으로 '모름'을 표시한다. */
 /* 글자는 combustion.json의 burn.<action>("연소\nON") */
 const ZONE_BURN_BUTTONS = [
   { action: 'on', lit: ' is-on' },
-  { action: 'off', lit: ' is-alarm', litWhen: TAG_OFF },
+  { action: 'off', lit: ' is-alarm' },
 ];
 
 /* 화면 맨 아래 조작판 — 실화/버너 경보와 퍼지.
@@ -466,7 +466,7 @@ export default function CombustionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* 존 PV/SV — 온도제어·구동화면과 같은 PLC 주소를 본다(D101/D100/R100).
+  /* 존 PV/SV — 온도제어·구동화면과 같은 PLC 주소를 본다(1존 PV R100 / Working SV R102 / 설정 SV R120).
      세 화면이 같은 값을 보므로 한 곳에서 SV를 바꾸면 나머지에도 1초 안에 반영된다.
      값을 못 받았으면 0이 아니라 '---'로 둔다 — 읽지 못한 온도를 0으로 그리면
      노가 식은 것으로 오해한다. */
@@ -477,7 +477,7 @@ export default function CombustionPage() {
     return v == null || v === '' ? '---' : String(v);
   };
 
-  /* 표시는 tic_zN_sv(D100, 실제 적용 중인 목표값), 입력은 tic_zN_sv_cmd(R100).
+  /* 표시는 tic_zN_sv(Working SV, 실제 적용 중인 목표값), 입력은 tic_zN_sv_cmd(설정 SV).
      램프 프로그램이 돌면 930을 넣어도 표시는 850→880→910으로 따라 올라간다. */
   const handleZoneSv = (n, value) => {
     const num = Math.round(Number(value));

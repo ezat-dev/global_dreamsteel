@@ -14,6 +14,9 @@
     "alarm_h": "High alarm (H)",
     "alarm_l": "Low alarm (L)",
     "alarm_ll": "Low-low alarm (LL)",
+    "pid_p": "Proportional band (P)",
+    "pid_i": "Integral time (I)",
+    "pid_d": "Derivative time (D)",
     "range_hi": "Output high limit (MV%)",
     "range_lo": "Output low limit (MV%)"
   },

@@ -14,8 +14,6 @@ const RANGE = {
   alarm_h: { min: 0, max: 200 },
   alarm_l: { min: 0, max: 200 },
   alarm_ll: { min: 0, max: 400 },
-  /* PID 셋은 화면에서 뺐지만(아래 tz-side 참고) 범위는 남겨 둔다 —
-     되살릴 때 이 값을 다시 찾아 적을 일이 없게. */
   pid_p: { min: 0, max: 1200 },
   pid_i: { min: 0, max: 2400 },
   pid_d: { min: 0, max: 600 },
@@ -27,18 +25,20 @@ const RANGE = {
 /**
  * ZONE 1개짜리 온도제어 패널. 값은 전부 PLC 태그에서 온다(자동/수동 버튼만 아직 더미).
  *
- *   PV       tic_zN_pv         D101   읽기 전용
- *   SV       tic_zN_sv         D100   읽기 — Working SV(제어기가 지금 실제로 쓰는 목표값)
- *            tic_zN_sv_cmd     R100   쓰기 — 작업자가 넣는 목표값
- *   MV       tic_zN_mv         D102   읽기 전용
- *   PID      tic_zN_pid_p/i/d  R101~103  읽기+쓰기 — 지금은 화면에 안 띄운다(아래 tz-side)
- *   MANUAL   tic_zN_manual_mv  R104      읽기+쓰기
- *   출력제한 tic_zN_range_hi/lo R105~106 읽기+쓰기
- *   경보기준 tic_zN_alarm_hh/h/l/ll R110~113 읽기+쓰기
+ * 주소는 2026-10-30 PLC 주소표(버너부분 수정) 기준이다. 존마다 R 100개(1존 R100~, 2존 R200~ …),
+ * 아래는 1존 기준이고 실제 주소는 DB(folders_tags)에만 있다 — sql/temp_burner_tags_261030.sql.
+ *   PV       tic_zN_pv         R100   읽기 전용
+ *   SV       tic_zN_sv         R102   읽기 — Working SV(제어기가 지금 실제로 쓰는 목표값)
+ *            tic_zN_sv_cmd     R120   쓰기 — 작업자가 넣는 목표값
+ *   MV       tic_zN_mv         R101   읽기 전용
+ *   PID      tic_zN_pid_p/i/d  R121~123  읽기+쓰기
+ *   MANUAL   tic_zN_manual_mv  R124      읽기+쓰기
+ *   경보기준 tic_zN_alarm_hh/h/l/ll R126~129 읽기+쓰기
+ *   출력제한 tic_zN_range_hi/lo R136~137 읽기+쓰기
  *
  * SV만 읽는 곳과 쓰는 곳이 다르다. PLC 설계가 그렇다 — 램프 프로그램이 돌면 930을
- * 넣어도 Working SV는 850→880→910으로 서서히 올라간다. 그래서 칸에는 D100(실제 적용 중)을
- * 보여주고 입력은 R100으로 보낸다. R100을 되돌려 보여주면 PLC가 어디까지 왔는지 알 수 없다.
+ * 넣어도 Working SV는 850→880→910으로 서서히 올라간다. 그래서 칸에는 Working SV(실제 적용 중)를
+ * 보여주고 입력은 설정 SV로 보낸다. 설정 SV를 되돌려 보여주면 PLC가 어디까지 왔는지 알 수 없다.
  * 나머지 R 항목은 한 레지스터를 읽고 쓰므로 태그가 하나뿐이고, 그래서 이름에 _cmd가 없다.
  *
  * 자동/수동 모드는 momentary 비트다:
@@ -122,7 +122,7 @@ export default function TempZonePanel({
             />
           </div>
           <div className="tz-gauge-col">
-            {/* 게이지와 칸은 Working SV(D100)를 보여주고, 입력은 R100으로 나간다 */}
+            {/* 게이지와 칸은 Working SV(1존 R102)를 보여주고, 입력은 설정 SV(1존 R120)로 나간다 */}
             <BarGauge label="SV" color="green" value={raw('sv')} max={1000} ticks={TEMP_TICKS} />
             <LedInput
               value={text('sv')} onChange={(v) => writeNumber('sv_cmd', v)}
@@ -179,7 +179,7 @@ export default function TempZonePanel({
         </div>
         </div>
 
-        {/* 우측 세로 열 — 경보 설정 / 출력 제한 (가운데 PID 묶음은 아래 주석 참고) */}
+        {/* 우측 세로 열 — 경보 설정 / PID / 출력 제한 */}
         <div className="tz-side">
           <div className="tz-side-group">
             <div className="tz-field"><label>HH</label>
@@ -192,11 +192,15 @@ export default function TempZonePanel({
               <LedInput {...rwProps('alarm_ll')} color="yellow" size="sm" /></div>
           </div>
 
-          {/* PID(P·I·D) 묶음이 여기 있었는데 화면에서만 뺐다 — 현장에서 손댈 칸이
-              아니라고 확인받았다. DB 태그(tic_zN_pid_p/i/d, R101~103)와 아래 RANGE의
-              허용 범위는 그대로 둔다. 되살리려면 이 자리에 tz-side-group 하나를 두고
-              rwProps('pid_p'/'pid_i'/'pid_d')를 다시 넣으면 된다.
-              .tz-side-group이 flex:1이라 남은 둘이 알아서 높이를 나눠 갖는다. */}
+          {/* PID — 10/02에 화면에서 뺐다가 10/30 요청으로 되살렸다(엔지니어링으로 옮기지 않고 제자리) */}
+          <div className="tz-side-group tz-pid">
+            <div className="tz-field"><label>P</label>
+              <LedInput {...rwProps('pid_p')} color="white" size="sm" /></div>
+            <div className="tz-field"><label>I</label>
+              <LedInput {...rwProps('pid_i')} color="white" size="sm" /></div>
+            <div className="tz-field"><label>D</label>
+              <LedInput {...rwProps('pid_d')} color="white" size="sm" /></div>
+          </div>
 
           <div className="tz-side-group tz-limit">
             <div className="tz-limit-title">{t('limitTitle')}<br />(MV%)</div>

@@ -171,7 +171,7 @@ const MOTOR_GRAY = Object.entries(MOTOR_TAGS).map(([cls, t]) => ({
   grayClass: motorGrayClass(cls),
 }));
 
-/* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(D101/D100/R100).
+/* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(1존 PV R100 / Working SV R102 / 설정 SV R120).
    같은 주소가 폴더 8과 9에 각각 한 행씩 있다 — 화면마다 폴더 하나만 폴링하려고
    복제한 것이다. PLC 왕복은 늘지 않는다(C# 폴러가 주소를 Distinct로 묶어 읽는다).
    주소가 바뀌면 두 폴더를 함께 고쳐야 한다는 점만 주의. */

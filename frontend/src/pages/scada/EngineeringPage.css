@@ -50,6 +50,13 @@
    왼쪽 목록(설정 5 + 버너 8 = 13줄)이 1920x1000에서 두 줄의 판이 한 화면에 들어가도록 잡았다. */
 
 .bz-grid {
+  /* 줄 높이 — 창 높이에 따라 24px에서 20px까지 줄어든다. 1~4존 탭은 판 두 줄(왼쪽 목록 13줄씩)이
+     세로로 쌓이는데, 브라우저 주소창·작업표시줄 때문에 쓸 수 있는 높이가 950px 아래로 내려가면
+     24px로는 아래 판 끝이 몇십 px 넘쳐 스크롤이 살짝 생겼다.
+     계산(1920 폭에서 잰 값): 판 두 줄의 높이 = 192 + 24 × 줄 높이, 그 위에 머리·메뉴바 112 + 탭 54
+           + 아래 여백 6 → 줄 높이 ≤ (100vh - 364px) / 24. 몇 px 여유를 두어 370으로 쓴다.
+     20px 아래로는 줄이지 않는다 — 숫자 칸이 그보다 얇으면 누르기 어렵다. 그보다 낮은 창은 스크롤로 본다. */
+  --bz-row: clamp(20px, calc((100vh - 370px) / 24), 24px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
@@ -79,14 +86,14 @@
   gap: 2px;
 }
 
-/* 줄 높이 24px — 1~4존 탭의 판 두 줄(왼쪽 목록 13줄씩)이 1920x1000 한 화면에 들어가는 높이다.
+/* 줄 높이는 위 .bz-grid의 --bz-row(창 높이에 따라 20~24px).
    27px이면 아래 판의 마지막 두 줄이 메뉴바 밑으로 내려가 스크롤이 생겼다. */
 .bz-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 112px;
   align-items: center;
   gap: 8px;
-  min-height: 24px;
+  min-height: var(--bz-row, 24px);
   padding: 0 2px;
   border-bottom: 1px solid rgba(255, 255, 255, .05);
 }
@@ -122,7 +129,7 @@
 .bz-sec-table th,
 .bz-sec-table td {
   padding: 1px 3px;
-  height: 25px;
+  height: calc(var(--bz-row, 24px) + 1px);
   white-space: nowrap;
 }
 
@@ -133,29 +140,17 @@
   color: var(--hmi-text);
 }
 
-/* 구간 아래끝 — 앞 구간 상한을 보여 주기만 한다(입력칸과 구분되게 LED가 아니라 글자로) */
-.bz-sec-low {
-  font-size: 12.5px;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  color: var(--hmi-text-sub);
-}
-
-.bz-sec-low i {
-  margin-left: 3px;
-  font-style: normal;
-  font-size: 11px;
-}
-
 .bz-sec-sep {
   width: 14px;
   text-align: center;
   color: var(--hmi-text-sub);
 }
 
+/* 위아래 여백은 줄 높이를 따라 줄어든다(24px 줄 → 3px, 20px 줄 → 1px) — 칸이 줄보다 커지면
+   줄이 칸 높이로 다시 늘어나 위에서 줄인 것이 소용없어진다. */
 .bz-sec-table .hmi-led-input,
 .bz-row .hmi-led-input {
-  padding: 3px 6px;
+  padding: max(1px, calc((var(--bz-row, 24px) - 18px) / 2)) 6px;
   font-size: 12.5px;
   text-align: center;
 }

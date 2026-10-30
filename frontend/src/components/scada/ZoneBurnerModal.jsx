@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { lampClassOf, lampOf } from '../../api/scada/foldertagApi';
 
 /* ===========================================================================
    존 개별연소 모달 — 연소화면에서 "N ZONE 개별연소" 이름표를 누르면 열린다.
+   그 존이 가려지지 않게 존 옆에 열리고, 제목줄을 끌어서 옮길 수 있다(아래 '창 위치').
 
    버너 수는 연소화면 그림의 그 존 불꽃 개수와 같다 — 위 줄 4·4·4·3·3·3·4개,
    아래 줄은 존마다 4개라 존별로 8/8/8/7/7/7/8개다(엑셀·알람 태그와도 일치).
@@ -25,6 +26,18 @@ import { lampClassOf, lampOf } from '../../api/scada/foldertagApi';
    낙관적으로 켜면 설비는 안 움직이는데 화면만 켜진 상태가 된다.
    (누르고 있다는 것 자체는 is-held로 따로 표시한다 — 그건 PLC 상태 주장이 아니라 입력 반응이다.)
    =========================================================================== */
+
+/* 창 위치 — 그 존이 가려지지 않게 존 옆에 연다(존이 화면 왼쪽 절반이면 오른쪽 옆, 아니면 왼쪽 옆).
+   좁은 화면에서 옆자리가 모자라면 화면 안으로 밀어 넣으므로 조금 겹칠 수 있다 — 그때는
+   제목줄을 끌어서 옮긴다. 화면 가장자리와 존 사이에 둘 여백(px). */
+const EDGE = 12;
+const GAP = 14;
+/* 존 옆자리가 760px보다 좁으면(태블릿에서 가운데 존) 창을 그 자리만큼 줄인다. 이보다 좁게는
+   줄이지 않는다 — 420px이면 글자를 줄인 촘촘한 배치(is-compact)로 버너 두 칸이 들어간다.
+   그보다 좁은 자리는 조금 겹치게 두고 끌어서 옮기게 한다. 600px 아래부터 촘촘한 배치를 쓴다. */
+const NATURAL_W = 760;
+const MIN_W = 420;
+const COMPACT_BELOW = 600;
 
 /* 존 번호 → [위 줄 버너 수, 아래 줄 버너 수]. 연소화면 그림의 불꽃 개수 그대로다. */
 const ZONE_BURNERS = {
@@ -76,6 +89,90 @@ export default function ZoneBurnerModal({
 
   const lampClass = (cmdName, onClassName) => lampClassOf(values, cmdName, onClassName);
 
+  /* ── 창 위치 ─────────────────────────────────────────────────────────────
+     좌표는 막(.cb-zmodal-scrim) 안의 px다. 막이 position: fixed라 보통은 화면 기준이지만,
+     설명서를 열면 화면 전체(.hmi-shell)가 transform: scale로 줄어서 막도 그 안에 갇힌다
+     (transform이 걸린 조상이 fixed의 기준이 된다). 그래서 화면에서 잰 값(getBoundingClientRect)을
+     배율 k로 나눠 막 안의 좌표로 바꾼다 — 안 그러면 설명서를 연 상태에서 창이 엉뚱한 데 뜬다. */
+  const modalRef = useRef(null);
+  const [size, setSize] = useState(null); // { w, compact, side, colL, colR } — 창 폭과 놓을 쪽
+  const [pos, setPos] = useState(null);   // null = 아직 안 쟀다(첫 프레임은 숨긴다)
+  const dragRef = useRef(null);
+
+  const box = () => {
+    const scrim = modalRef.current?.parentElement;
+    if (!scrim || !scrim.offsetWidth) return null;
+    const r = scrim.getBoundingClientRect();
+    return { r, k: r.width / scrim.offsetWidth, w: scrim.offsetWidth, h: scrim.offsetHeight };
+  };
+
+  /** 창이 막 밖으로 나가지 않게 — 제목줄을 잃어버리면 다시 끌 수 없다 */
+  const clamp = (x, y) => {
+    const b = box();
+    const m = modalRef.current;
+    if (!b || !m) return { x, y };
+    const maxX = Math.max(EDGE, b.w - m.offsetWidth - EDGE);
+    const maxY = Math.max(EDGE, b.h - m.offsetHeight - EDGE);
+    return { x: Math.min(Math.max(EDGE, x), maxX), y: Math.min(Math.max(EDGE, y), maxY) };
+  };
+
+  /* 처음 열 때(그리고 다른 존으로 바뀔 때) 그 존 옆에 놓는다. 두 단계다 —
+     ① 놓을 쪽과 폭을 정하고(옆자리가 좁으면 폭을 줄인다), ② 그 폭으로 그려진 높이를 재서 자리를 잡는다.
+     폭이 바뀌면 줄바꿈이 달라져 높이도 바뀌므로 한 번에 못 한다. 둘 다 그리기 전에 끝나서
+     (useLayoutEffect) 창이 한가운데에 잠깐 떴다가 옮겨지는 깜빡임은 없다.
+     존 칸은 개별연소 판(.cb-burn)으로 잰다 — 그림의 존 기둥과 폭·위치를 맞춰 둔 판이다. */
+  useLayoutEffect(() => {
+    const b = box();
+    if (!b) return;
+    const natural = Math.min(NATURAL_W, b.w - EDGE * 2);
+    const col = document.querySelectorAll('.cb-zonebar .cb-burn')[zone - 1];
+    if (!col) {
+      setSize({ w: natural, compact: natural < COMPACT_BELOW, side: 'center' });
+      return;
+    }
+    const c = col.getBoundingClientRect();
+    const colL = (c.left - b.r.left) / b.k;
+    const colR = (c.right - b.r.left) / b.k;
+    const side = (colL + colR) / 2 < b.w / 2 ? 'right' : 'left';
+    const avail = side === 'right' ? b.w - colR - GAP - EDGE : colL - GAP - EDGE;
+    const w = Math.max(Math.min(MIN_W, natural), Math.min(natural, avail));
+    setSize({ w, compact: w < COMPACT_BELOW, side, colL, colR });
+  }, [zone]);
+
+  useLayoutEffect(() => {
+    const b = box();
+    const m = modalRef.current;
+    if (!size || !b || !m) return;
+    let x = (b.w - size.w) / 2;
+    if (size.side === 'right') x = size.colR + GAP;
+    if (size.side === 'left') x = size.colL - GAP - size.w;
+    setPos(clamp(x, (b.h - m.offsetHeight) / 2));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [size]);
+
+  // 창 크기가 바뀌면(태블릿 회전 등) 화면 안으로 다시 넣는다
+  useEffect(() => {
+    const onResize = () => setPos((p) => (p ? clamp(p.x, p.y) : p));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* 제목줄을 끌어서 옮긴다. pointer capture로 손가락·마우스가 제목줄 밖으로 나가도 계속 따라온다.
+     닫기(✕)를 누른 것은 끌기가 아니다. */
+  const onDragStart = (e) => {
+    if (e.button !== 0 || !pos || e.target.closest('.cb-zmodal-close')) return;
+    const b = box();
+    dragRef.current = { sx: e.clientX, sy: e.clientY, ox: pos.x, oy: pos.y, k: b ? b.k : 1 };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onDragMove = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    setPos(clamp(d.ox + (e.clientX - d.sx) / d.k, d.oy + (e.clientY - d.sy) / d.k));
+  };
+  const onDragEnd = () => { dragRef.current = null; };
+
   /* 누름 버튼 하나 — 램프 색·누름 표시·진행 바가 모든 버튼에 똑같이 붙는다. */
   const pressButton = (cmd, className, label) => (
     <button
@@ -104,8 +201,21 @@ export default function ZoneBurnerModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="cb-zmodal">
-        <div className="cb-zmodal-title">
+      <div
+        className={`cb-zmodal${size?.compact ? ' is-compact' : ''}`}
+        ref={modalRef}
+        style={{
+          ...(size ? { width: size.w } : {}),
+          ...(pos ? { left: pos.x, top: pos.y } : { visibility: 'hidden' }),
+        }}
+      >
+        <div
+          className="cb-zmodal-title"
+          onPointerDown={onDragStart}
+          onPointerMove={onDragMove}
+          onPointerUp={onDragEnd}
+          onPointerCancel={onDragEnd}
+        >
           <span>{t('modal.title', { zone })}</span>
           <button
             type="button"
