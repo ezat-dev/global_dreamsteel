@@ -153,6 +153,7 @@
   "hmi": {
     "holdSend": "{{cmd}} / lamp {{lamp}} — hold {{sec}}s to send",
     "holdMomentary": "{{tag}} — hold {{sec}}s to send 1, release to send 0",
+    "pressMomentary": "{{tag}} — 1 while pressed, 0 on release (no hold delay)",
     "readOnly": "{{what}} — read only / {{tag}}",
     "greenAt1": "{{what}} — read only / {{tag}} — green at 1",
     "releaseFailed": "{{name}} release failed — {{msg}}",

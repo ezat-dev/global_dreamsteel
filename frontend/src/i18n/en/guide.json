@@ -32,9 +32,9 @@
       "title": "ALARM SWITCH",
       "body": [
         "ALARM RESET resets alarms; HORN STOP silences the alarm horn.",
-        "Hold the button for the hold delay (2 s by default) to activate it. A bar fills under the button while you hold.",
+        "It acts the moment you press it — there is no hold delay.",
         "The button lights green [[on]] while active and releases when you let go.",
-        "It works exactly like the same buttons on the Alarms screen."
+        "It works exactly like the same buttons right of the title on the Alarms, Active Alarms and Alarm History screens."
       ]
     },
     "cond": {
@@ -549,7 +549,7 @@
       "title": "Alarms screen at a glance",
       "body": [
         "Lays out the equipment alarms as tiles and shows active alarms in red.",
-        "Top: page buttons, ALARM RESET, HORN STOP, active count / Below: alarm tiles (100 per page)",
+        "Top: page buttons, active count / Below: alarm tiles (100 per page) / Right of the title: ALARM RESET, HORN STOP",
         "Without control permission the buttons are locked. You can still tap a tile to view its description and files."
       ]
     },
@@ -578,9 +578,9 @@
     "actions": {
       "title": "ALARM RESET · HORN STOP",
       "body": [
-        "ALARM RESET resets alarms; HORN STOP silences the alarm horn.",
-        "Hold the button for the hold delay (2 s by default) to activate it. A bar fills under the button while you hold.",
-        "The button lights green [[on]] while active and releases when you let go. It works exactly like the same buttons on the Drive screen."
+        "Right of the title, ALARM RESET resets alarms and HORN STOP silences the alarm horn.",
+        "They act the moment you press them — there is no hold delay. The button lights green [[on]] while active and releases when you let go.",
+        "They sit in the same place on Active Alarms and Alarm History and work like the same buttons on the Drive screen. Control permission for the Alarms screen is needed to press them."
       ]
     },
     "open": {
@@ -618,7 +618,7 @@
     "intro": {
       "title": "Active Alarms screen at a glance",
       "body": [
-        "Collects only the alarms that are active right now. It is a view-only screen with no buttons to press.",
+        "Collects only the alarms that are active right now. The lists are view-only; the only buttons are ALARM RESET and HORN STOP right of the title.",
         "Left: alarm history entries not yet cleared / Right: tiles flashing or lit red on the Alarms screen",
         "Left open, it refreshes by itself. There is no need to press Search."
       ]
@@ -646,10 +646,18 @@
         "A new alarm appears on the right first and shows up in the table on the left a few seconds later."
       ]
     },
+    "actions": {
+      "title": "ALARM RESET · HORN STOP",
+      "body": [
+        "ALARM RESET resets alarms; HORN STOP silences the alarm horn.",
+        "They act the moment you press them — there is no hold delay. The button lights green [[on]] while active and releases when you let go.",
+        "They sit in the same place on Alarms and Alarm History. Control permission for the Alarms screen is needed to press them."
+      ]
+    },
     "end": {
       "title": "Good to know",
       "body": [
-        "To reset alarms (ALARM RESET) or silence the horn (HORN STOP), use the buttons on the Alarms or Drive screen.",
+        "To reset alarms (ALARM RESET) or silence the horn (HORN STOP), use the buttons right of the title or on the Drive screen.",
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }
@@ -696,6 +704,14 @@
       "body": [
         "Downloads exactly what the table shows now (including header-box filters and sort order) as an Excel file.",
         "The file goes to this PC's Downloads folder. It cannot be pressed when no alarms are loaded."
+      ]
+    },
+    "actions": {
+      "title": "ALARM RESET · HORN STOP",
+      "body": [
+        "ALARM RESET resets alarms; HORN STOP silences the alarm horn.",
+        "They act the moment you press them — there is no hold delay. The button lights green [[on]] while active and releases when you let go.",
+        "They sit in the same place on Alarms and Active Alarms. Control permission for the Alarms screen is needed to press them."
       ]
     },
     "end": {

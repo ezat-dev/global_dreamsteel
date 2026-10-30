@@ -10,6 +10,7 @@ import { HoldMsProvider } from '../components/scada/HoldMsContext';
 import LangToggle from '../components/scada/LangToggle';
 import ScreenGuide from '../components/scada/ScreenGuide';
 import { hasGuide } from '../components/scada/guideSteps';
+import AlarmSwitchButtons from '../components/scada/AlarmSwitchButtons';
 import { useTranslation } from 'react-i18next';
 import '../styles/scada.css';
 
@@ -27,6 +28,9 @@ import '../styles/scada.css';
  * 화면 제목은 각 페이지가 따로 넘기지 않고 현재 경로로 scadaMenu에서 찾는다.
  * 하단 메뉴와 제목이 항상 같은 출처를 보므로 둘이 어긋날 일이 없다.
  */
+/* 머리줄 제목 칸 오른쪽에 ALARM RESET / HORN STOP을 두는 화면(scadaMenu의 key) */
+const ALARM_SWITCH_SCREENS = ['alarm', 'alarmNow', 'alarmHistory'];
+
 export default function ScadaLayout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,6 +53,12 @@ export default function ScadaLayout() {
      다른 화면으로 옮기면 닫는다 — 열린 채 넘어가면 엉뚱한 화면을 짚는다. */
   const [guideOpen, setGuideOpen] = useState(false);
   const showGuideBtn = hasGuide(current.key);
+
+  /* ALARM RESET / HORN STOP — 경보 세 화면에서만 제목 칸 오른쪽에 둔다. 레이아웃이 그려서
+     세 화면의 자리가 픽셀까지 같다. 머리줄은 화면 잠금(.hmi-body의 fieldset) 밖이라
+     권한을 따로 본다 — 알람화면의 제어 권한이 있어야 누를 수 있다(현재경보·경보이력은
+     보기 화면이라 그 화면 권한으로는 가를 수 없다). */
+  const showAlarmSwitches = ALARM_SWITCH_SCREENS.includes(current.key);
   useEffect(() => { setGuideOpen(false); }, [location.pathname]);
 
   /* 화면을 옮길 때마다 서버 세션이 살아 있는지 확인한다.
@@ -120,12 +130,23 @@ export default function ScadaLayout() {
         <div className="hmi-header">
           <ScadaLogo />
 
-          <div className="hmi-title">
-            <span className="hmi-title-text">{menuName(current)}</span>
-            {/* 잠긴 이유를 적어 두지 않으면 현장에서는 "화면이 고장났다"로 읽힌다.
-                화면을 회색으로 덮지 않는 것도 같은 이유다 — 값은 계속 또렷해야 한다. */}
-            {locked && <span className="hmi-readonly-badge">{t('layout.readonly')}</span>}
-          </div>
+          {showAlarmSwitches ? (
+            /* 제목(+잠금 표시)을 한 덩어리로 묶어 가운데 칸에, 버튼은 오른쪽 칸에 둔다(scada.css) */
+            <div className="hmi-title has-switches">
+              <span className="hmi-title-main">
+                <span className="hmi-title-text">{menuName(current)}</span>
+                {locked && <span className="hmi-readonly-badge">{t('layout.readonly')}</span>}
+              </span>
+              <AlarmSwitchButtons canPress={canControl('alarm')} className="is-header" />
+            </div>
+          ) : (
+            <div className="hmi-title">
+              <span className="hmi-title-text">{menuName(current)}</span>
+              {/* 잠긴 이유를 적어 두지 않으면 현장에서는 "화면이 고장났다"로 읽힌다.
+                  화면을 회색으로 덮지 않는 것도 같은 이유다 — 값은 계속 또렷해야 한다. */}
+              {locked && <span className="hmi-readonly-badge">{t('layout.readonly')}</span>}
+            </div>
+          )}
 
           <ScadaClock />
 

@@ -153,6 +153,7 @@
   "hmi": {
     "holdSend": "{{cmd}} / 램프 {{lamp}} — {{sec}}초 누르면 전송",
     "holdMomentary": "{{tag}} — {{sec}}초 누르면 1, 떼면 0",
+    "pressMomentary": "{{tag}} — 누르는 동안 1, 떼면 0 (누름 지연 시간 없음)",
     "readOnly": "{{what}} — 읽기 전용 / {{tag}}",
     "greenAt1": "{{what}} — 읽기 전용 / {{tag}} — 1이면 초록",
     "releaseFailed": "{{name}} 해제 실패 — {{msg}}",

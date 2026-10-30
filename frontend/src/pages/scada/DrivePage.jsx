@@ -139,7 +139,7 @@ const FACILITY_OFF_BTN_TAG = 'facility_off_temp_toggle_button';
    여기에 있어야 읽기와 쓰기가 한 폴더에서 끝난다).
 
    값을 쓰는 태그와 상태를 읽는 태그가 하나다 — 짝이 되는 _lamp가 없다.
-   2초 누르면 1이 나가고 떼면 0, 그리고 1인 동안 버튼이 초록으로 켜진다. */
+   누르는 순간 1이 나가고(누름 지연 시간 없음) 떼면 0, 그리고 1인 동안 버튼이 초록으로 켜진다. */
 const ALARM_SWITCHES = [
   { tag: 'alarm_reset', text: 'ALARM RESET' },
   { tag: 'alarm_horn_stop', text: 'HORN STOP' },
@@ -843,6 +843,12 @@ export default function DrivePage() {
     return st === TAG_ON ? ' is-on' : '';
   };
 
+  /* ALARM SWITCH(ALARM RESET / HORN STOP)는 누름 지연 시간 없이 누르는 순간 1이 나간다
+     (2026-10-30 — 경보 세 화면 머리줄의 같은 버튼과 같다, AlarmSwitchButtons).
+     너무 짧게 톡 치면 PLC가 1을 못 볼 수 있어서 1을 쓴 뒤 이만큼은 지나야 0을 보낸다. */
+  const MIN_PULSE_MS = 300;
+  const onAtRef = useRef(0);
+
   const handleDrivePress = (name) => {
     if (heldRef.current) return;   // ON과 OFF를 동시에 누르는 상황은 만들지 않는다
     heldRef.current = name;
@@ -853,6 +859,7 @@ export default function DrivePage() {
 
     holdTimerRef.current = setTimeout(() => {
       armedRef.current = true;
+      onAtRef.current = Date.now();
       // 지금부터 이 버튼의 0이 나가야 한다 — 그 전에는 로그인 화면으로 넘어가지 않는다(pressGuard)
       beginPress();
       setArmedTag(name);
@@ -869,7 +876,7 @@ export default function DrivePage() {
           readWhileHeld(watchTag, () => heldRef.current === name);
         })
         .catch((e) => setWriteError(`${name} — ${e.message}`));
-    }, holdMs);
+    }, isAlarmSwitch(name) ? 0 : holdMs);
   };
 
   const handleDriveRelease = () => {
@@ -892,7 +899,9 @@ export default function DrivePage() {
 
     /* 1이 실패했어도 0은 보낸다 — 나갔는지 모르는 상태로 두는 것보다 확실히 내리는
        쪽이 안전하다. log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
+    const wait = Math.max(0, MIN_PULSE_MS - (Date.now() - onAtRef.current));
     chainRef.current = chainRef.current
+      .then(() => new Promise((r) => setTimeout(r, wait)))
       .then(() => writeTag(DR_FOLDER_ID, name, 0, false))
       .catch((e) => setWriteError(t('common:hmi.releaseFailed', { name, msg: e.message })))
       .finally(endPress);
@@ -1031,8 +1040,8 @@ export default function DrivePage() {
 
         <div className="hmi-group dr-panel dr-alarm-sw">
           <span className="hmi-group-title">ALARM SWITCH</span>
-          {/* 알람화면의 같은 버튼과 동작이 같다 — 2초 누르면 1, 떼면 0.
-              disabled를 걸지 않는 이유는 다른 momentary 버튼과 같다:
+          {/* 경보 세 화면 머리줄의 같은 버튼과 동작이 같다 — 누르는 순간 1, 떼면 0(누름 지연 시간 없음).
+              그래서 진행 바도 없다. disabled를 걸지 않는 이유는 다른 momentary 버튼과 같다:
               비활성 요소는 뗌 이벤트를 못 받아서 비트가 1로 남는다. */}
           {ALARM_SWITCHES.map((b) => (
             <button
@@ -1043,12 +1052,9 @@ export default function DrivePage() {
                 + (armedTag === b.tag ? ' is-armed' : '')}
               onPointerDown={() => handleDrivePress(b.tag)}
               data-tag={b.tag}
-              title={t('common:hmi.holdMomentary', { tag: b.tag, sec: holdMs / 1000 })}
+              title={t('common:hmi.pressMomentary', { tag: b.tag })}
             >
               {b.text}
-              {heldTag === b.tag && (
-                <span className="dr-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
-              )}
             </button>
           ))}
         </div>

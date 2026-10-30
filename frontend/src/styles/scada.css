@@ -230,6 +230,80 @@ button {
   text-overflow: ellipsis;
 }
 
+/* ── 제목 칸 오른쪽의 ALARM RESET / HORN STOP (경보 세 화면, AlarmSwitchButtons) ──
+   세 칸 격자 [왼쪽 여백 | 제목 | 버튼]. 양쪽 칸이 1fr로 같아서 자리가 넉넉하면 제목이 칸
+   한가운데에 서고, 좁으면(1280 폭 등) 오른쪽 칸이 버튼 폭(max-content) 아래로는 안 줄어드니
+   왼쪽 칸이 먼저 줄어 제목이 왼쪽으로 비켜난다 — 제목이 버튼 밑으로 들어가지 않는다.
+   레이아웃이 그리므로 세 화면에서 자리가 같다. */
+.hmi-title.has-switches {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+  align-items: center;
+  /* 좁아서 제목이 비켜날 때도 버튼에 딱 붙지 않게 */
+  column-gap: 12px;
+  padding: 0 7px;
+}
+
+.hmi-title-main {
+  grid-column: 2;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hmi-alarm-sw.is-header {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  gap: 6px;
+}
+
+.hmi-alarm-sw-btn {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 120, 110, .55);
+  border-radius: 7px;
+  background: rgba(200, 55, 45, .18);
+  color: #ffb4ad;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  white-space: nowrap;
+  cursor: pointer;
+  /* 누르는 동안만 1이 나가는 버튼이다 — 손가락을 조금 움직였다고 스크롤로 뺏기거나
+     글자 선택·롱프레스 메뉴가 뜨면 조작이 끊긴다 */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* PLC가 1을 주는 동안 초록(알람화면에 있던 같은 버튼과 같은 색) */
+.hmi-alarm-sw-btn.is-on {
+  border-color: #15803d;
+  background: #15803d;
+  color: #ffffff;
+}
+
+/* 값을 못 읽은 상태 — 경보처럼 보이지 않게 중립으로 낮추고 점선 */
+.hmi-alarm-sw-btn.is-unknown {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, .38);
+  background: rgba(255, 255, 255, .08);
+  color: var(--g-muted);
+}
+
+.hmi-alarm-sw-btn.is-held {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45);
+}
+
+/* 알람화면 제어 권한이 없을 때 */
+.hmi-alarm-sw-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
 /* 우측 상단 시계 — 참고 HMI와 같이 YYYY/MM/DD HH:mm:ss */
 .hmi-clock {
   flex-shrink: 0;
@@ -2288,6 +2362,14 @@ html[lang="en"] .hmi-authgrid-row {
     text-indent: 5px;
   }
 
+  /* 머리줄이 48px로 낮아지고 제목 칸도 좁다 — 버튼을 한 단 줄인다 */
+  .hmi-alarm-sw-btn {
+    height: 30px;
+    padding: 0 9px;
+    font-size: 11.5px;
+    letter-spacing: 0;
+  }
+
   /* 최소폭 72 — 메뉴가 12칸(관리자)이면 80×12에 간격을 더해 1024 폭을 넘어 끝 칸이 가려진다 */
   .hmi-menu-item {
     font-size: 13px;
@@ -2615,7 +2697,8 @@ html[lang="en"] .hmi-authgrid-row {
 /* ── 쓰기 실패 알림(화면 아래에 뜨는 띠) ──
    연한 빨강을 채운 칩이라 어두운 화면에서 혼자 튄다. 다른 오류 표시와 같은 방식으로
    뒤집되, 눈에 띄어야 하는 알림이라 테두리는 진하게 남긴다. */
-.hmi-dark .hmi-toast {
+.hmi-dark .hmi-toast,
+.hmi-toast.is-dark {
   border-color: rgba(255, 120, 110, .65);
   background: #2a100e;
   color: #ffb4ad;

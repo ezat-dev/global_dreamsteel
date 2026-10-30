@@ -129,6 +129,21 @@ function lookupAddress(folderId, name) {
 }
 
 /**
+ * 태그 하나의 폴링값(C# 캐시)을 이름으로 받는다 — PLC 왕복이 없어 주기적으로 불러도 된다.
+ * 폴더 전체(getFolderTagValues)를 받기엔 볼 태그가 한두 개뿐일 때 쓴다(머리줄의 ALARM RESET 등).
+ * 같은 이름이 여러 폴더에 있으면 folderId 쪽을 고른다. 태그가 없으면 undefined, 못 읽었으면 null.
+ */
+export function getTagValueByName(folderId, name) {
+  return plcApiInstance
+    .get('/api/foldertag/value/by-name', { params: { name } })
+    .then((res) => {
+      const tags = res.data?.tags ?? [];
+      const tag = tags.find((x) => x.folderId === folderId) ?? tags[0];
+      return tag ? tag.value : undefined;
+    });
+}
+
+/**
  * 태그의 지금 값을 PLC에서 직접 읽는다. 실패하면 reject하므로 호출부가 삼키면 된다 —
  * 못 읽어도 폴링이 곧 같은 값을 가져오니 지금까지와 같아질 뿐이다.
  *

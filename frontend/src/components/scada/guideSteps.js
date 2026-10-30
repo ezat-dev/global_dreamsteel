@@ -161,7 +161,8 @@ const GUIDE_STEPS = {
       previewShown: '.al-grid:not(:has(.al-cell.on)) > .al-cell:not(.is-empty)',
     },
     { id: 'count', target: '.al-count' },
-    { id: 'actions', target: '.al-action' },
+    // 머리줄 제목 칸 오른쪽(ScadaLayout) — 현재경보·경보이력도 같은 자리를 짚는다
+    { id: 'actions', target: '.hmi-alarm-sw.is-header' },
     { id: 'open', target: '.al-grid > .al-cell:first-child' },
     // 설명·파일 창 안 — 첫 칸의 창을 열어 짚는다. 창 안 section은 설명·사진·PDF 순이다
     { id: 'desc', target: '.ad-body > section.ad-sec:nth-of-type(1)', opens: AL_DETAIL },
@@ -178,6 +179,7 @@ const GUIDE_STEPS = {
     // 켜진 램프가 없으면 판이 비어 있다 — 그때만 이 장에서 예시 세 칸을 띄운다(AlarmNowPage.css)
     { id: 'lamps', target: '.an-lamp', preview: 'an-lamp', previewShown: '.an-lamps--sample .an-lamp-cell' },
     { id: 'counts', target: '.an-head .al-count', split: true },
+    { id: 'actions', target: '.hmi-alarm-sw.is-header' },
     { id: 'end' },
   ],
   alarmHistory: [
@@ -188,6 +190,7 @@ const GUIDE_STEPS = {
     { id: 'filter', target: '.ah-table .tabulator-header-filter', split: true },
     { id: 'table', target: '.ah-table' },
     { id: 'excel', target: '.ah-btn.is-excel' },
+    { id: 'actions', target: '.hmi-alarm-sw.is-header' },
     { id: 'end' },
   ],
   // 로그 — 툴바·표가 경보이력과 같은 틀(ah-* 클래스)이라 짚는 곳도 같다
