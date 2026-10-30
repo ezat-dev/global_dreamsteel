@@ -10,7 +10,7 @@ import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import {
-  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
+  lampClassOf, lampOf, stateLampsOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
 import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
@@ -871,9 +871,14 @@ export default function DrivePage() {
              그대로 읽고, 구동부 ON/OFF는 짝이 되는 _lamp를 봐야 색이 정해진다.
              후자는 우리가 쓴 값이 아니라 PLC 래더가 만들어 주는 값이라, 설비 로직이
              조건을 보고 늦게 켜면 0이 읽힐 수 있다 — 그때는 폴링을 기다리던
-             지금까지와 같아질 뿐이다. */
-          const watchTag = isAlarmSwitch(name) ? name : lampOf(name);
-          readWhileHeld(watchTag, () => heldRef.current === name);
+             지금까지와 같아질 뿐이다.
+
+             붙드는 방식도 갈린다. ALARM SWITCH는 떼면 0이 나가 값도 0이 되므로 누르는 동안만
+             붙들고(readWhileHeld, 뗄 때 버림), 구동부 ON/OFF 램프는 떼도 바뀐 상태로 남으므로
+             짝(ON↔OFF) 램프까지 같이 읽어 폴링이 따라잡을 때까지 붙든다(readAndHold, 최대 3초).
+             후자를 떼는 순간 버리면 예전 값인 폴링으로 돌아가 잠깐 예전 색이 된다(10/30 지적). */
+          if (isAlarmSwitch(name)) readWhileHeld(name, () => heldRef.current === name);
+          else readAndHold(stateLampsOf(name));
         })
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, isAlarmSwitch(name) ? 0 : holdMs);
@@ -889,9 +894,9 @@ export default function DrivePage() {
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
 
-    /* 직접 읽어 둔 값을 버리고 폴링에 맡긴다 — 떼면 0이 나가므로 꺼지는 것이 맞다.
-       아직 안 읽었으면 예약만 취소한다(뗀 뒤에는 읽을 이유가 없다). */
-    clearLive();
+    /* ALARM SWITCH만 직접 읽어 둔 값을 버리고 폴링에 맡긴다 — 떼면 0이 나가므로 꺼지는 것이 맞다.
+       구동부 ON/OFF 램프는 떼도 상태가 남으므로 버리지 않는다(위 readAndHold 주석). */
+    if (isAlarmSwitch(name)) clearLive();
 
     // 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;

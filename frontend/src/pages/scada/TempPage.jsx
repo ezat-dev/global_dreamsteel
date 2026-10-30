@@ -27,7 +27,7 @@ export default function TempPage() {
      폴링이 보는 C# 캐시는 최악 2초 늦어서, 2초를 눌러 값을 보내도 램프가 바로
      안 바뀌기 때문이다. 아래는 얹힌 뒤의 tagValues만 보면 된다. */
   const { values: polledValues, error: tagValueError } = useFolderTagValues(TC_FOLDER_ID);
-  const { values: tagValues, readWhileHeld, clearLive } = useLiveTagRead(TC_FOLDER_ID, polledValues);
+  const { values: tagValues, readAndHold } = useLiveTagRead(TC_FOLDER_ID, polledValues);
 
   const [writeError, setWriteError] = useState('');
 
@@ -81,8 +81,13 @@ export default function TempPage() {
         /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
            버튼 색은 짝이 되는 _lamp가 정하므로 그쪽을 읽는다. 그 램프는 우리가 쓴
            값이 아니라 PLC가 모드를 바꾸고 돌려주는 값이라, 전환이 늦으면 0이 읽힐 수
-           있다 — 그때는 폴링을 기다리던 지금까지와 같아질 뿐이다. */
-        .then(() => readWhileHeld(lampOf(name), () => heldRef.current === name))
+           있다 — 그때는 폴링을 기다리던 지금까지와 같아질 뿐이다.
+
+           readAndHold(래치)를 쓴다 — 모드 램프는 버튼을 떼도 바뀐 모드 그대로 남는 값이다.
+           readWhileHeld(떼면 버림)로 두면 떼는 순간 아직 예전 값인 폴링(최악 2~3초 지연)으로
+           돌아가서, 수동으로 바뀐 것이 잠깐 자동으로 되돌아갔다가 다시 수동이 됐다(10/30 지적).
+           폴링이 같은 값을 가져오면 그때 놓는다(최대 3초). */
+        .then(() => readAndHold(lampOf(name)))
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, holdMs);
   };
@@ -97,9 +102,8 @@ export default function TempPage() {
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
 
-    /* 직접 읽어 둔 램프 값을 버리고 폴링에 맡긴다 — 떼면 0이 나가므로 꺼지는 것이 맞다.
-       아직 안 읽었으면 예약만 취소한다(뗀 뒤에는 읽을 이유가 없다). */
-    clearLive();
+    /* 직접 읽어 둔 램프 값은 버리지 않는다 — 모드는 떼도 남는다(위 readAndHold 주석).
+       폴링이 따라잡거나 3초가 지나면 useLiveTagRead가 알아서 놓는다. */
 
     // 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;

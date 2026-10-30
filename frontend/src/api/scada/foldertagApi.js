@@ -46,6 +46,27 @@ export function lampOf(cmdName) {
   return `${cmdName}_lamp`;
 }
 
+/* 짝 버튼 — ON↔OFF, OPEN↔CLOSE, PURGE 시작↔정지. 한쪽을 누르면 PLC가 두 램프를 같이
+   바꾸므로(ON 램프 1, OFF 램프 0), 누른 직후 직접 읽을 때도 둘을 같이 읽어야 한다 —
+   누른 쪽만 읽으면 반대쪽이 한동안 예전 색으로 남아 둘 다 켜진 것처럼 보인다. */
+const PAIR_RULES = [
+  [/_on_cmd$/, '_off_cmd'], [/_off_cmd$/, '_on_cmd'],
+  [/_open_cmd$/, '_close_cmd'], [/_close_cmd$/, '_open_cmd'],
+  [/_purge_stop_cmd$/, '_purge_cmd'], [/_purge_cmd$/, '_purge_stop_cmd'],
+];
+
+/**
+ * 버튼을 누른 뒤 읽어서 붙들어 둘 램프들 — 자기 램프 + 짝이 있으면 짝의 램프.
+ * 예: cb_z1_burn_on_cmd → [cb_z1_burn_on_cmd_lamp, cb_z1_burn_off_cmd_lamp]
+ *     misfire_alarm_reset_cmd → [misfire_alarm_reset_cmd_lamp] (짝 없음)
+ */
+export function stateLampsOf(cmdName) {
+  const rule = PAIR_RULES.find(([re]) => re.test(cmdName));
+  const lamps = [lampOf(cmdName)];
+  if (rule) lamps.push(lampOf(cmdName.replace(rule[0], rule[1])));
+  return lamps;
+}
+
 /**
  * 명령 태그의 램프 상태를 클래스 문자열로 바꾼다. 켜진 램프에 붙일 클래스를 받는다 —
  * 같은 1이라도 화면마다 뜻이 달라서(운전 중이면 초록, 정지 중이면 빨강) 색은 호출부가 정한다.
