@@ -10,9 +10,8 @@ import { LedInput } from '../../components/scada/HmiParts';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import {
-  lampClassOf, lampOf, stateLampsOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
+  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_OFF, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
-import useLiveTagRead from '../../components/scada/useLiveTagRead';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 // 작화 도구가 뽑아준 설비 그림 스타일. 무수정 원본이라 우리 CSS보다 먼저 깐다.
@@ -710,13 +709,9 @@ export default function DrivePage() {
   };
 
   /* 이 화면의 PLC 값 — 램프·PV/SV·조작 상태가 전부 여기서 온다.
-     조작 버튼을 누른 직후에는 그 태그 하나만 PLC에서 직접 읽어 얹는다. 폴링이 보는
-     C# 캐시는 최악 2초 늦어서, 2초를 눌러 값을 보내도 램프가 바로 안 바뀌기 때문이다.
-     아래 렌더는 얹힌 뒤의 tagValues만 보면 된다. */
-  const { values: polledValues, error: tagValueError } = useFolderTagValues(DR_FOLDER_ID);
-  const {
-    values: tagValues, readWhileHeld, readAndHold, clearLive,
-  } = useLiveTagRead(DR_FOLDER_ID, polledValues);
+     조작 버튼을 누른 뒤에도 PLC를 따로 바로 읽지 않는다 — 바뀐 값은 0.9초 폴링으로만
+     들어온다(10/30 사용자 결정, foldertagApi의 PLC_POLL_MS). */
+  const { values: tagValues, error: tagValueError } = useFolderTagValues(DR_FOLDER_ID);
   const [writeError, setWriteError] = useState('');
 
   /* SIDE CONVEYOR 화살표 — 값이 1인 방향만 보인다(0이거나 못 읽으면 숨긴다).
@@ -864,22 +859,6 @@ export default function DrivePage() {
       beginPress();
       setArmedTag(name);
       chainRef.current = writeTag(DR_FOLDER_ID, name, 1)
-        .then(() => {
-          /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
-
-             읽을 태그가 버튼마다 다르다. ALARM SWITCH는 쓰는 태그가 곧 상태라
-             그대로 읽고, 구동부 ON/OFF는 짝이 되는 _lamp를 봐야 색이 정해진다.
-             후자는 우리가 쓴 값이 아니라 PLC 래더가 만들어 주는 값이라, 설비 로직이
-             조건을 보고 늦게 켜면 0이 읽힐 수 있다 — 그때는 폴링을 기다리던
-             지금까지와 같아질 뿐이다.
-
-             붙드는 방식도 갈린다. ALARM SWITCH는 떼면 0이 나가 값도 0이 되므로 누르는 동안만
-             붙들고(readWhileHeld, 뗄 때 버림), 구동부 ON/OFF 램프는 떼도 바뀐 상태로 남으므로
-             짝(ON↔OFF) 램프까지 같이 읽어 폴링이 따라잡을 때까지 붙든다(readAndHold, 최대 3초).
-             후자를 떼는 순간 버리면 예전 값인 폴링으로 돌아가 잠깐 예전 색이 된다(10/30 지적). */
-          if (isAlarmSwitch(name)) readWhileHeld(name, () => heldRef.current === name);
-          else readAndHold(stateLampsOf(name));
-        })
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, isAlarmSwitch(name) ? 0 : holdMs);
   };
@@ -893,10 +872,6 @@ export default function DrivePage() {
 
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
-
-    /* ALARM SWITCH만 직접 읽어 둔 값을 버리고 폴링에 맡긴다 — 떼면 0이 나가므로 꺼지는 것이 맞다.
-       구동부 ON/OFF 램프는 떼도 상태가 남으므로 버리지 않는다(위 readAndHold 주석). */
-    if (isAlarmSwitch(name)) clearLive();
 
     // 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;
@@ -944,10 +919,8 @@ export default function DrivePage() {
 
     offBtnTimerRef.current = setTimeout(() => {
       setOffBtnArmed(true);
+      // 바뀐 값은 0.9초 폴링으로 들어온다(PLC를 따로 바로 읽지 않는다)
       writeTag(DR_FOLDER_ID, FACILITY_OFF_BTN_TAG, next)
-        /* 위 ON/OFF와 달리 떼도 값이 남는 버튼이라, 뗌을 해제 신호로 쓸 수 없다.
-           폴링이 같은 값을 가져올 때까지 붙들고 그래도 안 오면 3초에서 끊는다. */
-        .then(() => readAndHold(FACILITY_OFF_BTN_TAG))
         .catch((e) => setWriteError(`${FACILITY_OFF_BTN_TAG} — ${e.message}`));
     }, holdMs);
   };

@@ -5,6 +5,7 @@ import {
   ALARM_BLINK, ALARM_ON, ALARM_UNKNOWN, alarmStateOf, getAlarmLampValues,
   getAlarmTagList, isAlarmActive, lampNameOf,
 } from '../../api/scada/alarmTagApi';
+import { PLC_POLL_MS } from '../../api/scada/foldertagApi';
 import { alarmMsgOf } from '../../components/scada/alarmMsg';
 import AlarmDetailModal from '../../components/scada/AlarmDetailModal';
 import { useAuth } from '../../context/AuthContext';
@@ -30,9 +31,9 @@ const COLS = 10;
 const ROWS = 10;
 const PER_PAGE = COLS * ROWS;
 
-/* 값 폴링 주기. C#이 1초마다 PLC를 읽고 메모리에 들고 있는 것을 받아오는 것이라
-   여기서 자주 불러도 PLC 왕복은 늘지 않는다. */
-const POLL_MS = 1000;
+/* 값 폴링 주기(0.9초, foldertagApi의 PLC_POLL_MS — 모든 화면 공통). C#이 PLC를 읽어
+   메모리에 들고 있는 것을 받아오는 것이라 여기서 자주 불러도 PLC 왕복은 늘지 않는다. */
+const POLL_MS = PLC_POLL_MS;
 
 /* C#의 lastPollAt이 이만큼 지나 있으면 폴러가 멈춘 것으로 본다.
    1초 주기라 여유를 두고 10초 — PLC 한 대가 응답 없을 때 한 사이클이 몇 초씩

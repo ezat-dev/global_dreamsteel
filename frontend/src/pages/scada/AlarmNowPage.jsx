@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import HmiTable from '../../components/scada/HmiTable';
 import { alarmMsgOf, withShownMsg } from '../../components/scada/alarmMsg';
 import { getAlarmList } from '../../api/scada/alarmHistApi';
+import { PLC_POLL_MS } from '../../api/scada/foldertagApi';
 import {
   ALARM_BLINK, alarmStateOf, getAlarmLampValues, getAlarmTagList, isAlarmActive, lampNameOf,
 } from '../../api/scada/alarmTagApi';
@@ -30,8 +31,8 @@ import './AlarmNowPage.css';
 /* 이력 다시 받는 주기. 타이머 조회라 autoPoll을 붙여 접근 로그에 남기지 않는다. */
 const HIST_POLL_MS = 5000;
 
-/* 램프 값 주기 — C#이 메모리에 들고 있는 값을 받는 것이라 PLC 부하가 늘지 않는다(알람화면과 같다). */
-const LAMP_POLL_MS = 1000;
+/* 램프 값 주기(0.9초, 모든 화면 공통) — C#이 메모리에 들고 있는 값을 받는 것이라 PLC 부하가 늘지 않는다. */
+const LAMP_POLL_MS = PLC_POLL_MS;
 
 export default function AlarmNowPage() {
   const { t, i18n } = useTranslation('alarmNow');

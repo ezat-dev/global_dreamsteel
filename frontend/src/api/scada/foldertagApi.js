@@ -15,6 +15,11 @@ import i18n from '../../i18n';
           로그 요청이 실패하는 경우에 기록이 비어 버린다.
    =========================================================================== */
 
+/* PLC 값 폴링 주기 — 모든 화면이 이 값 하나로 C# 캐시를 받아 온다(2026-10-30 0.9초로 통일).
+   버튼을 누른 뒤에도 PLC를 따로 바로 읽지 않는다 — 바뀐 값은 이 주기의 폴링으로만 들어온다
+   (예전엔 누른 직후 그 램프를 PLC에서 직접 읽었는데, 사용자 결정으로 없앴다). */
+export const PLC_POLL_MS = 900;
+
 /** 램프/값 상태 — C#은 읽기 실패나 아직 안 읽은 태그를 null로 준다. */
 export const TAG_ON = 'on';
 export const TAG_OFF = 'off';
@@ -46,26 +51,6 @@ export function lampOf(cmdName) {
   return `${cmdName}_lamp`;
 }
 
-/* 짝 버튼 — ON↔OFF, OPEN↔CLOSE, PURGE 시작↔정지. 한쪽을 누르면 PLC가 두 램프를 같이
-   바꾸므로(ON 램프 1, OFF 램프 0), 누른 직후 직접 읽을 때도 둘을 같이 읽어야 한다 —
-   누른 쪽만 읽으면 반대쪽이 한동안 예전 색으로 남아 둘 다 켜진 것처럼 보인다. */
-const PAIR_RULES = [
-  [/_on_cmd$/, '_off_cmd'], [/_off_cmd$/, '_on_cmd'],
-  [/_open_cmd$/, '_close_cmd'], [/_close_cmd$/, '_open_cmd'],
-  [/_purge_stop_cmd$/, '_purge_cmd'], [/_purge_cmd$/, '_purge_stop_cmd'],
-];
-
-/**
- * 버튼을 누른 뒤 읽어서 붙들어 둘 램프들 — 자기 램프 + 짝이 있으면 짝의 램프.
- * 예: cb_z1_burn_on_cmd → [cb_z1_burn_on_cmd_lamp, cb_z1_burn_off_cmd_lamp]
- *     misfire_alarm_reset_cmd → [misfire_alarm_reset_cmd_lamp] (짝 없음)
- */
-export function stateLampsOf(cmdName) {
-  const rule = PAIR_RULES.find(([re]) => re.test(cmdName));
-  const lamps = [lampOf(cmdName)];
-  if (rule) lamps.push(lampOf(cmdName.replace(rule[0], rule[1])));
-  return lamps;
-}
 
 /**
  * 명령 태그의 램프 상태를 클래스 문자열로 바꾼다. 켜진 램프에 붙일 클래스를 받는다 —
@@ -112,47 +97,12 @@ export function getFolderTagValues(folderId) {
     });
 }
 
-/* ---------------------------------------------------------------------------
-   PLC에서 지금 값을 직접 읽기 — 폴링이 보는 값과 경로가 다르다.
-
-   위 getFolderTagValues가 받아오는 것은 C#이 2초마다 PLC를 읽어 메모리에 쌓아 둔
-   캐시다. 그래서 웹이 무언가를 쓴 직후에는 최악 2초 동안 예전 값이 보인다.
-   모멘터리 버튼을 2초나 누르고 있었는데 램프가 안 켜지는 것이 이 때문이다.
-
-   아래 readTagLive는 그 캐시를 건너뛰고 PLC를 그 자리에서 읽는다.
-   PLC 왕복이 실제로 일어나므로 폴링처럼 주기적으로 부르면 안 된다 —
-   사람이 버튼을 눌렀을 때 한 번만 쓴다.
-   --------------------------------------------------------------------------- */
-
-/* 태그 이름 → { plcId, address }. 주소는 DB를 고치지 않는 한 바뀌지 않으므로 태그마다
-   한 번만 조회하고 들고 있는다. 버튼을 누를 때마다 두 번 왕복하지 않게 하려는 것이다. */
-const addressCache = new Map();
-
-function lookupAddress(folderId, name) {
-  const key = `${folderId}:${name}`;
-  const hit = addressCache.get(key);
-  if (hit) return Promise.resolve(hit);
-
-  return plcApiInstance
-    .get('/api/foldertag/value/by-name', { params: { name } })
-    .then((res) => {
-      /* 이 API는 folderId 파라미터를 무시하고 같은 이름을 가진 태그를 전부 준다.
-         alarm_reset은 알람화면(6)과 구동화면(9)에 같은 주소로 들어 있어서 둘 다 온다 —
-         부르는 쪽 폴더를 골라 쓰고, 없으면 첫 번째를 쓴다. */
-      const tags = res.data?.tags ?? [];
-      const tag = tags.find((t) => t.folderId === folderId) ?? tags[0];
-      if (!tag?.address || !tag?.plcId) throw new Error(i18n.t('api.addressNotFound', { name }));
-
-      const found = { plcId: tag.plcId, address: tag.address };
-      addressCache.set(key, found);
-      return found;
-    });
-}
-
 /**
  * 태그 하나의 폴링값(C# 캐시)을 이름으로 받는다 — PLC 왕복이 없어 주기적으로 불러도 된다.
  * 폴더 전체(getFolderTagValues)를 받기엔 볼 태그가 한두 개뿐일 때 쓴다(머리줄의 ALARM RESET 등).
- * 같은 이름이 여러 폴더에 있으면 folderId 쪽을 고른다. 태그가 없으면 undefined, 못 읽었으면 null.
+ * 이 API는 folderId를 안 받고 같은 이름을 가진 태그를 전부 준다 — alarm_reset은 알람화면(6)과
+ * 구동화면(9)에 같은 주소로 들어 있어서 둘 다 온다. 부르는 쪽 폴더를 골라 쓰고, 없으면 첫 번째.
+ * 태그가 없으면 undefined, 못 읽었으면 null.
  */
 export function getTagValueByName(folderId, name) {
   return plcApiInstance
@@ -162,29 +112,6 @@ export function getTagValueByName(folderId, name) {
       const tag = tags.find((x) => x.folderId === folderId) ?? tags[0];
       return tag ? tag.value : undefined;
     });
-}
-
-/**
- * 태그의 지금 값을 PLC에서 직접 읽는다. 실패하면 reject하므로 호출부가 삼키면 된다 —
- * 못 읽어도 폴링이 곧 같은 값을 가져오니 지금까지와 같아질 뿐이다.
- *
- * 주소를 코드에 적지 않는다. by-name이 address와 plcId를 같이 주므로, 현장 주소가
- * 바뀌어도 DB의 address만 고치면 되는 이 프로젝트의 방식이 그대로 유지된다.
- *
- * C#이 주소 문자열(X012)을 그대로 받아 자기가 파싱한다. 번지를 숫자로 넘기는
- * /api/plc/read 쪽은 쓰지 않는다 — 미쓰비시는 X가 16진수(X012는 12가 아니라 18)고
- * M·R·D는 10진수라, 프론트가 진법을 잘못 맞추면 엉뚱한 번지를 읽으면서도
- * 에러가 나지 않는다(그 번지도 멀쩡한 주소라서 값이 정상으로 돌아온다).
- */
-export function readTagLive(folderId, name) {
-  return lookupAddress(folderId, name)
-    .then(({ plcId, address }) => plcApiInstance
-      .get('/api/foldertag/read/by-address', { params: { plcId, address } })
-      .then((res) => {
-        const body = res.data ?? {};
-        if (!body.success) throw new Error(body.message || i18n.t('api.plcReadFailed'));
-        return body.value;
-      }));
 }
 
 /**

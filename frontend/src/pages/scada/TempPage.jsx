@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TempZonePanel from '../../components/scada/TempZonePanel';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
-import { lampOf, writeTag } from '../../api/scada/foldertagApi';
-import useLiveTagRead from '../../components/scada/useLiveTagRead';
+import { writeTag } from '../../api/scada/foldertagApi';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 import './TempPage.css';
@@ -23,11 +22,9 @@ export default function TempPage() {
   /* PV/SV/MV 실시간값. 존 7개를 화면이 한 번만 폴링해서 나눠 준다 —
      패널마다 폴링하면 요청이 7배가 된다.
 
-     모드 버튼을 누른 직후에는 그 버튼의 램프 태그 하나만 PLC에서 직접 읽어 얹는다.
-     폴링이 보는 C# 캐시는 최악 2초 늦어서, 2초를 눌러 값을 보내도 램프가 바로
-     안 바뀌기 때문이다. 아래는 얹힌 뒤의 tagValues만 보면 된다. */
-  const { values: polledValues, error: tagValueError } = useFolderTagValues(TC_FOLDER_ID);
-  const { values: tagValues, readAndHold } = useLiveTagRead(TC_FOLDER_ID, polledValues);
+     모드 버튼을 누른 뒤에도 PLC를 따로 바로 읽지 않는다 — 바뀐 램프는 0.9초 폴링으로만
+     들어온다(10/30 사용자 결정, foldertagApi의 PLC_POLL_MS). */
+  const { values: tagValues, error: tagValueError } = useFolderTagValues(TC_FOLDER_ID);
 
   const [writeError, setWriteError] = useState('');
 
@@ -78,16 +75,6 @@ export default function TempPage() {
       beginPress();
       setArmedTag(name);
       chainRef.current = writeTag(TC_FOLDER_ID, name, 1)
-        /* 1이 실제로 나갔을 때만 읽는다 — 쓰기가 실패했으면 읽어 봐야 0이다.
-           버튼 색은 짝이 되는 _lamp가 정하므로 그쪽을 읽는다. 그 램프는 우리가 쓴
-           값이 아니라 PLC가 모드를 바꾸고 돌려주는 값이라, 전환이 늦으면 0이 읽힐 수
-           있다 — 그때는 폴링을 기다리던 지금까지와 같아질 뿐이다.
-
-           readAndHold(래치)를 쓴다 — 모드 램프는 버튼을 떼도 바뀐 모드 그대로 남는 값이다.
-           readWhileHeld(떼면 버림)로 두면 떼는 순간 아직 예전 값인 폴링(최악 2~3초 지연)으로
-           돌아가서, 수동으로 바뀐 것이 잠깐 자동으로 되돌아갔다가 다시 수동이 됐다(10/30 지적).
-           폴링이 같은 값을 가져오면 그때 놓는다(최대 3초). */
-        .then(() => readAndHold(lampOf(name)))
         .catch((e) => setWriteError(`${name} — ${e.message}`));
     }, holdMs);
   };
@@ -101,9 +88,6 @@ export default function TempPage() {
 
     clearTimeout(holdTimerRef.current);
     holdTimerRef.current = null;
-
-    /* 직접 읽어 둔 램프 값은 버리지 않는다 — 모드는 떼도 남는다(위 readAndHold 주석).
-       폴링이 따라잡거나 3초가 지나면 useLiveTagRead가 알아서 놓는다. */
 
     // 시간을 못 채웠으면 1을 보낸 적이 없으니 0도 보낼 필요가 없다
     if (!armedRef.current) return;

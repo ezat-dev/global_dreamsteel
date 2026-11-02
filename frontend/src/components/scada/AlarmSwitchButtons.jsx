@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { getTagValueByName, tagState, TAG_ON, TAG_UNKNOWN, writeTag } from '../../api/scada/foldertagApi';
+import {
+  getTagValueByName, PLC_POLL_MS, tagState, TAG_ON, TAG_UNKNOWN, writeTag,
+} from '../../api/scada/foldertagApi';
 import { ALARM_LAMP_FOLDER_ID } from '../../api/scada/alarmTagApi';
-import useLiveTagRead from './useLiveTagRead';
 import { beginPress, endPress } from './pressGuard';
 
 /* ===========================================================================
@@ -15,7 +16,8 @@ import { beginPress, endPress } from './pressGuard';
    대신 너무 짧게 톡 치면 PLC가 1을 못 볼 수 있어서, 1을 쓴 뒤 최소 MIN_PULSE_MS는 지나야 0을 보낸다.
 
    값을 쓰는 태그와 상태를 읽는 태그가 같은 하나다(짝이 되는 _lamp가 없다) — 1인 동안 초록.
-   상태는 이 두 태그만 1초마다 이름으로 받는다(폴더 전체를 받을 이유가 없다).
+   상태는 이 두 태그만 0.9초마다 이름으로 받는다(폴더 전체를 받을 이유가 없다).
+   누른 뒤에도 PLC를 따로 바로 읽지 않는다 — 바뀐 값은 이 폴링으로만 들어온다(10/30 사용자 결정).
    =========================================================================== */
 
 const SWITCHES = [
@@ -23,7 +25,7 @@ const SWITCHES = [
   { tag: 'alarm_horn_stop', text: 'HORN STOP' },
 ];
 
-const POLL_MS = 1000;
+const POLL_MS = PLC_POLL_MS;
 /* 1을 쓴 뒤 0을 보내기까지의 최소 간격. PLC 스캔(수십 ms)이 1을 확실히 한 번은 보게 한다 */
 const MIN_PULSE_MS = 300;
 
@@ -37,8 +39,7 @@ export default function AlarmSwitchButtons({
   folderId = ALARM_LAMP_FOLDER_ID, canPress = true, className = '', btnClassName = '',
 }) {
   const { t } = useTranslation();
-  const [polled, setPolled] = useState(null);
-  const { values, readWhileHeld, clearLive } = useLiveTagRead(folderId, polled);
+  const [values, setPolled] = useState(null);
   const [heldTag, setHeldTag] = useState('');
   const [error, setError] = useState('');
 
@@ -71,11 +72,7 @@ export default function AlarmSwitchButtons({
     beginPress();   // 지금부터 이 버튼의 0이 나가야 한다(그 전에는 로그인 화면으로 넘어가지 않는다)
     onAtRef.current = Date.now();
     chainRef.current = writeTag(folderId, name, 1)
-      .then(() => {
-        onAtRef.current = Date.now();
-        // 폴링(최악 2초 지연)을 기다리지 않고 바로 초록이 되게 그 태그만 PLC에서 읽는다
-        readWhileHeld(name, () => heldRef.current === name);
-      })
+      .then(() => { onAtRef.current = Date.now(); })
       .catch((e) => setError(`${name} — ${e.message}`));
   };
 
@@ -84,7 +81,6 @@ export default function AlarmSwitchButtons({
     if (!name) return;
     heldRef.current = null;
     setHeldTag('');
-    clearLive();
     /* 1이 실패했어도 0은 보낸다 — 확실히 내리는 쪽이 안전하다.
        log=false: 이 0은 사람이 한 조작이 아니라 누름의 자동 해제다. */
     chainRef.current = chainRef.current

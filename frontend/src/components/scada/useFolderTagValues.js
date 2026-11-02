@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getFolderTagValues } from '../../api/scada/foldertagApi';
+import { getFolderTagValues, PLC_POLL_MS } from '../../api/scada/foldertagApi';
 
-/* 값 폴링 주기. C#이 자기 주기로 PLC를 읽어 메모리에 들고 있는 것을 받아오는 것이라
-   화면이 자주 불러도 PLC 왕복은 늘지 않는다. */
-const POLL_MS = 1000;
+/* 값 폴링 주기(0.9초, foldertagApi의 PLC_POLL_MS — 모든 화면 공통). C#이 자기 주기로 PLC를
+   읽어 메모리에 들고 있는 것을 받아오는 것이라 화면이 자주 불러도 PLC 왕복은 늘지 않는다. */
+const POLL_MS = PLC_POLL_MS;
 
 /* C#의 lastPollAt이 이만큼 지나 있으면 폴러가 멈춘 것으로 본다.
    1초 주기라 여유를 두고 10초 — PLC 한 대가 응답 없을 때 한 사이클이 몇 초씩
@@ -15,7 +15,7 @@ const pad2 = (n) => String(n).padStart(2, '0');
 const clockText = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
 
 /**
- * 한 폴더의 태그 값을 1초마다 받아 온다. 화면이 마운트된 동안만 돈다.
+ * 한 폴더의 태그 값을 0.9초마다 받아 온다. 화면이 마운트된 동안만 돈다.
  *
  * @param folderId ez_scada.folders.id. null/undefined면 폴링하지 않는다.
  * @returns {{
