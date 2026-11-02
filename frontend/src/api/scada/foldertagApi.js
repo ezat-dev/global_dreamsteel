@@ -18,7 +18,7 @@ import i18n from '../../i18n';
 /* PLC 값 폴링 주기 — 모든 화면이 이 값 하나로 C# 캐시를 받아 온다(2026-10-30 0.9초로 통일).
    버튼을 누른 뒤에도 PLC를 따로 바로 읽지 않는다 — 바뀐 값은 이 주기의 폴링으로만 들어온다
    (예전엔 누른 직후 그 램프를 PLC에서 직접 읽었는데, 사용자 결정으로 없앴다). */
-export const PLC_POLL_MS = 900;
+export const PLC_POLL_MS = 250;
 
 /** 램프/값 상태 — C#은 읽기 실패나 아직 안 읽은 태그를 null로 준다. */
 export const TAG_ON = 'on';
