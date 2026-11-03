@@ -168,6 +168,96 @@
   font-size: 11px;
 }
 
+/* ===== 버너 순번 배치도 =====
+   연소화면처럼 위 줄 / 노 / 아래 줄로 버너를 늘어놓고 자리마다 순번 칸을 붙인다.
+   불꽃은 연소화면과 같은 zone-fire.svg — 위 줄은 버너가 위에 있어 아래로 쏘는 그림 그대로,
+   아래 줄은 뒤집어 위로 쏘게 한다(연소화면 작화의 rotate(-180deg)와 같다).
+   줄마다 버너를 칸 폭에 고르게 나눈다 — 위 줄이 3개인 존(4~6존)도 양끝이 맞는다. */
+.bz-left {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* 크기는 바꾸기 전 목록 여덟 줄(약 210px)을 채우도록 잡았다 — 그래야 판 높이가 옆 판(순번을
+   목록으로 둔 판)과 같고, 2열 격자의 아래 줄 판이 어긋나지 않는다. */
+.bz-map-box {
+  display: grid;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .22);
+}
+
+.bz-map-row {
+  display: flex;
+  justify-content: space-around;
+}
+
+/* 한 자리 = 불꽃 + 번호·칸 묶음을 세로로. 위 줄은 불꽃 뿌리가 판 위끝(버너 쪽)에 오도록 불꽃이 먼저,
+   아래 줄은 거꾸로(column-reverse) 묶음이 위·불꽃이 아래 끝에 온다. */
+.bz-map-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.bz-map-row.is-bot .bz-map-cell {
+  flex-direction: column-reverse;
+}
+
+.bz-map-set {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 불꽃 그림 칸 비율은 22:36(zone-fire.svg의 viewBox) — 어긋나면 그림이 잘린다 */
+.bz-map-fire {
+  width: 26px;
+  height: 42px;
+  flex: none;
+}
+
+.bz-map-row.is-bot .bz-map-fire {
+  transform: rotate(180deg);
+}
+
+/* 번호표 — 연소화면의 버너 번호표(.cb-burner-no)와 같은 모양 */
+.bz-map-no {
+  min-width: 18px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: #1f2732;
+  border: 1px solid rgba(255, 255, 255, .25);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* 순번 칸 — 1~8 한 자리라 좁게. 위아래 여백은 목록 칸과 같은 식이다. */
+.bz-map .hmi-led-input {
+  flex: none;
+  width: 46px;
+  padding: max(1px, calc((var(--bz-row, 24px) - 18px) / 2)) 4px;
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* 위아래 줄 사이 노 자리. padding은 판 높이를 옆 판(목록 8줄)에 맞추는 값이다 — 1920x940에서 잼 */
+.bz-map-zone {
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-align: center;
+  color: var(--hmi-text-sub);
+}
+
 /* ===== 설정 판 셋 ===== */
 
 .eng-sections {

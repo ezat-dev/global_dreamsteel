@@ -24,7 +24,11 @@
   "openCloseTip": "{{sec}}초 누르면 {{other}}=0, {{cmd}}=1 / 램프 {{lamp}}",
   "genOpenTip": "발생기 OPEN — 읽기 전용 / {{tag}} — 0이면 초록",
   "genCloseTip": "발생기 CLOSE — 읽기 전용 / {{tag}} — 1이면 빨강",
-  "pipeTip": "{{what}} — 읽기 전용 / {{tag}} — 1이면 초록, 0이면 빨강",
+  "pipe": {
+    "press": { "on": "압력 정상", "off": "압력 이상", "unknown": "압력" },
+    "sol": { "on": "SOL열림", "off": "SOL닫힘", "unknown": "SOL" }
+  },
+  "pipeTip": "{{tag}} — 읽기 전용 / 1이면 초록 {{on}}, 0이면 빨강 {{off}}",
   "o2Tip": "O2 SENSOR — 읽기 전용 / o2_pv (D241)",
   "valve": {
     "autoMode": "자동모드",

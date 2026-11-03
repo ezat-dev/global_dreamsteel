@@ -445,6 +445,31 @@ html[lang="en"] .cb-pipe-label {
   white-space: nowrap;
 }
 
+/* ===== 버너 번호표 ======================================================
+   left는 버너 가운데 x(CombustionPage.jsx의 BURNER_NOS)다. 위 줄은 불꽃 왼쪽,
+   아래 줄은 오른쪽에 붙인다 — 불꽃이 폭 12쯤이라 가운데에서 7px 떨어뜨리면 안 닿는다.
+   작화 위에 얹히는 것이라 바탕을 불투명하게 둔다(밝은/다크 테마 둘 다 읽히게). */
+.cb-burner-no {
+  min-width: 10px;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: #1f2732;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 11px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.cb-burner-no.is-top {
+  transform: translateX(calc(-100% - 7px));
+}
+
+.cb-burner-no.is-bot {
+  transform: translateX(7px);
+}
+
 /* ===== 존 이름표 + PV / SV ============================================== */
 
 .cb-zone-title {

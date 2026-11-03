@@ -19,10 +19,12 @@ import i18n from '../../i18n';
 
 /* 키는 작화 클래스 이름 그대로다 — 빨강 클래스(red-<키>)와 짝이 눈으로 맞춰진다.
    넷 다 작화 위쪽 배관에 있고, 앞 둘이 MAIN GAS 쪽, 뒤 둘이 연소 BLOWER 쪽이다.
-     gas-pre     x 258 y  8  MAIN GAS 압력 조절밸브
-     gas-sol     x 310 y  9  MAIN GAS 솔레노이드 밸브
-     blower-pre  x 920 y  4  연소 BLOWER 압력계 + 밸브
-     blower-pump x1001 y 26  연소 BLOWER 송풍기 */
+     gas-pre     x 252 y  9  MAIN GAS 압력 조절밸브
+     gas-sol     x 317 y  8  MAIN GAS 솔레노이드 밸브
+     blower-pre  x 917 y  9  연소 BLOWER 압력 조절밸브
+     blower-pump x1001 y 26  연소 BLOWER 송풍기
+   (2026-11 압력·솔 그림을 모양에 맞게 바꿔 끼웠다 — combustionOverview.css의 .gas-pre 주석.
+    키와 태그는 자리를 따라가므로 그대로다) */
 export const FITTING_TAGS = {
   'gas-pre': { tag: 'main_gas_valve_lamp' },
   'gas-sol': { tag: 'main_gas_sol_valve_lamp' },
@@ -48,10 +50,11 @@ export const fittingRedClass = (cls) => `red-${cls}`;
    그래서 1존은 위 1~4 → 1-1~1-4, 아래 26~29 → 1-5~1-8이다.
    ------------------------------------------------------------------------- */
 
-/* 존별 위 줄 버너 수. 아래 줄은 존마다 4개다. */
-const ZONE_TOP = [4, 4, 4, 3, 3, 3, 4];
+/* 존별 위 줄 버너 수. 아래 줄은 존마다 4개다.
+   (CombustionPage의 버너 번호표도 이 둘로 자리와 번호를 만든다.) */
+export const ZONE_TOP = [4, 4, 4, 3, 3, 3, 4];
 const TOP_TOTAL = ZONE_TOP.reduce((a, b) => a + b, 0);   // 25
-const BOTTOM_EACH = 4;
+export const BOTTOM_EACH = 4;
 
 /** 화면 번호 → { zone, no }. 예: 1 → 1존 1번, 26 → 1존 5번, 53 → 7존 8번 */
 export const burnerOf = (n) => {

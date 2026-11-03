@@ -91,13 +91,17 @@ const DEVICE_PANELS = [
      gas-pre   x 227~305 → 266    gas-sol   x 373~441 → 407
    두 그림은 원본 작화와 맞바꿔 그렸다(atmosphereOverview.css의 .blowe-pre 주석) —
    가운데를 그대로 두었으므로 이 값은 그때 바꾸지 않았다. */
-/* 넷 다 켜지고 꺼지는 램프가 아니라 늘 빨강 아니면 초록이다 — 0이면 빨강, 1이면 초록.
-   값을 못 읽으면 점선(모름)이다. */
+/* 넷 다 켜지고 꺼지는 램프가 아니라 늘 빨강 아니면 초록이고, 글씨도 값에 따라 바뀐다.
+   연소화면 배관 램프와 같은 규칙이다(11/03 사용자 지정):
+     1 → 초록  압력 정상 / SOL열림
+     0 → 빨강  압력 이상 / SOL닫힘
+   값을 못 읽으면 점선(모름)에 '압력' / 'SOL'만 쓴다. 글씨는 atmosphere.json의 pipe.<kind>.
+   태그 이름(…_abnormal / …_close)은 뜻과 반대다(1이 정상·열림) — 이름이 아니라 위 규칙을 따른다. */
 const PIPE_LABELS = [
-  { key: 'bPre', cx: 368, top: 82, tag: 'add_blowe_pressure_abnormal_lamp' },   // 압력 이상
-  { key: 'bSol', cx: 495, top: 82, tag: 'add_blowe_sol_close_lamp' },           // SOL닫힘
-  { key: 'gPre', cx: 266, top: 244, tag: 'add_gas_pressure_abnormal_lamp' },    // 압력 이상
-  { key: 'gSol', cx: 407, top: 244, tag: 'add_gas_sol_close_lamp' },            // SOL닫힘
+  { key: 'bPre', cx: 368, top: 82, tag: 'add_blowe_pressure_abnormal_lamp', kind: 'press' },
+  { key: 'bSol', cx: 495, top: 82, tag: 'add_blowe_sol_close_lamp', kind: 'sol' },
+  { key: 'gPre', cx: 266, top: 244, tag: 'add_gas_pressure_abnormal_lamp', kind: 'press' },
+  { key: 'gSol', cx: 407, top: 244, tag: 'add_gas_sol_close_lamp', kind: 'sol' },
 ];
 
 /* 로(obj-4, y 600~742)로 내려가는 관 끝에 붙는 이름판.
@@ -137,25 +141,23 @@ export default function AtmospherePage() {
   const { t, i18n } = useTranslation('atmosphere');
   const stageRef = useRef(null);
   const [scale, setScale] = useState(0);
-  /* 설명서가 열렸을 때 그림 아래 남는 세로(그림 좌표 px). 그림은 비율이 고정이라 폭이
-     줄면 세로도 같이 줄어 아래가 빈다 — 그 높이만큼 아래 묶음(로·화살표·조건판·O2)을
+  /* 그림 아래 남는 세로(그림 좌표 px). 그림은 비율이 고정이라 창이 세로로 넉넉하면
+     (F11 전체화면, 설명서를 연 동안) 아래가 빈다 — 그 높이만큼 아래 묶음(로·화살표·조건판·O2)을
      내리고 내림관을 늘려서 채운다(AtmospherePage.css의 --at-gap). 그림을 늘리지는 않는다.
-     설명서가 닫혀 있으면 0 — 평소 화면은 그대로다. */
+     세로가 모자라 세로 기준으로 줄어든 창에서는 0이다. */
   const [gap, setGap] = useState(0);
 
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return undefined;
 
-    /* 설명서를 열고 닫으면 화면 세로(--sg-scale)가 바뀌어 여기가 다시 불린다 —
-       has-guide 클래스는 그 전에 붙고 떨어져 있다(ScadaLayout이 먼저 그린다). */
+    /* 설명서를 열고 닫거나 F11로 창 세로가 바뀌면 여기가 다시 불린다. */
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       if (!width || !height) return;
       const s = Math.min(width / STAGE_W, height / STAGE_H);
       setScale(s);
-      const guideOpen = el.closest('.hmi-root')?.classList.contains('has-guide');
-      setGap(guideOpen ? Math.max(0, Math.floor(height / s - STAGE_H)) : 0);
+      setGap(Math.max(0, Math.floor(height / s - STAGE_H)));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -170,10 +172,13 @@ export default function AtmospherePage() {
 
   /** 압력계·솔밸브 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
       늘 초록 아니면 빨강이고, 못 읽을 때만 점선이다. */
-  const pipeClass = (l) => {
+  /** 배관 상태 램프 — 1이면 초록·on 글씨, 0이면 빨강·off 글씨, 못 읽으면 점선·unknown 글씨 */
+  const pipeState = (l) => {
     const st = tagState(tagValues?.[l.tag]);
-    if (st === TAG_UNKNOWN) return ' is-unknown';
-    return st === TAG_ON ? ' is-on' : ' is-alarm';
+    if (st === TAG_UNKNOWN) return { cls: ' is-unknown', text: t(`pipe.${l.kind}.unknown`) };
+    return st === TAG_ON
+      ? { cls: ' is-on', text: t(`pipe.${l.kind}.on`) }
+      : { cls: ' is-alarm', text: t(`pipe.${l.kind}.off`) };
   };
 
   /* 왼쪽 위 배관 부속 다섯 — 값이 1이면 초록, 0이거나 못 읽으면 회색.
@@ -481,21 +486,24 @@ export default function AtmospherePage() {
               </Fragment>
             ))}
 
-            {/* 압력 이상·SOL닫힘 — 설명 글씨가 아니라 이상을 알리는 램프다 */}
-            {PIPE_LABELS.map((l) => (
-              <span
-                className={`at-pipe-label hmi-lampbox${pipeClass(l)}`}
-                key={l.key}
-                data-tag={l.tag}
-                title={t('pipeTip', { what: t(`lamp.${l.tag}`), tag: l.tag })}
-                /* 가운데 맞춤(translateX(-50%))은 CSS(.at-pipe-label)가 한다 —
-                   인라인 transform으로 두면 좁은 화면에서 판을 키우는 규칙이 먹지 않는다
-                   (인라인이 스타일시트를 이긴다). */
-                style={{ left: l.cx, top: l.top }}
-              >
-                {t(`lamp.${l.tag}`)}
-              </span>
-            ))}
+            {/* 압력·SOL 상태 램프 — 설명 글씨가 아니라 상태를 알리는 램프다(글씨도 값 따라 바뀜) */}
+            {PIPE_LABELS.map((l) => {
+              const ps = pipeState(l);
+              return (
+                <span
+                  className={`at-pipe-label hmi-lampbox${ps.cls}`}
+                  key={l.key}
+                  data-tag={l.tag}
+                  title={t('pipeTip', { tag: l.tag, on: t(`pipe.${l.kind}.on`), off: t(`pipe.${l.kind}.off`) })}
+                  /* 가운데 맞춤(translateX(-50%))은 CSS(.at-pipe-label)가 한다 —
+                     인라인 transform으로 두면 좁은 화면에서 판을 키우는 규칙이 먹지 않는다
+                     (인라인이 스타일시트를 이긴다). */
+                  style={{ left: l.cx, top: l.top }}
+                >
+                  {ps.text}
+                </span>
+              );
+            })}
 
             <span className="at-plate at-plate--furnace" style={FURNACE_PLATE}>
               {t('furnace')}

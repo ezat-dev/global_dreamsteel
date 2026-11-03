@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 29" width="44" height="29">
+  <!-- MAIN GAS 압력 조절밸브 — 넓적한 다이어프램 돔이 얹힌 모양. 원본 gas-sol0.png(44x29)와 같은 실루엣.
+       같은 기기의 파랑판이 cb-regulator-air.svg다(연소 BLOWER 배관용). 모양은 같고 색만 다르다.
+
+       원본 작화는 이 그림을 솔밸브 자리(gas-sol)에 두었는데, 모양으로 보면 압력 조절기라
+       압력 자리(gas-pre)로 옮겼다(2026-11). 분위기제어에서 같은 그림을 맞바꾼 것과 같은 판단이다
+       (atmosphereOverview.css의 .blowe-pre 주석, at-regulator-gas.svg).
+       예전 파일(gas-sol0.svg)은 이것을 '솔레노이드 코일'로 잘못 보고 있었다.
+
+       색 — 파랑판(cb-regulator-air)과 같은 명암 폭으로 맞췄다(2026-11). 원래 노랑은 밝은 쪽과 어두운 쪽
+       차이가 작고 테두리(#c47f00)가 몸통과 비슷해서, 같은 도형인데도 파랑판보다 흐릿하고 납작해 보였다.
+       노란 배관 위에 얹히는 그림이라 테두리를 진하게 둬야 플랜지가 배관에 묻히지 않는다. -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd76a"/>
+      <stop offset=".42" stop-color="#f5a800"/>
+      <stop offset="1" stop-color="#c27400"/>
+    </linearGradient>
+    <linearGradient id="dome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe28e"/>
+      <stop offset=".5" stop-color="#f5a800"/>
+      <stop offset="1" stop-color="#c27400"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9a9a9"/>
+      <stop offset=".45" stop-color="#7e7e7e"/>
+      <stop offset="1" stop-color="#5f5f5f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 좌우 플랜지 -->
+  <rect x=".6" y="15.4" width="6.4" height="13.2" rx="1" fill="url(#body)" stroke="#8a5300" stroke-width=".8"/>
+  <rect x="37" y="15.4" width="6.4" height="13.2" rx="1" fill="url(#body)" stroke="#8a5300" stroke-width=".8"/>
+  <!-- 플랜지와 본체 사이 강관 -->
+  <rect x="6.8" y="18" width="7.6" height="8.4" fill="url(#steel)"/>
+  <rect x="29.6" y="18" width="7.6" height="8.4" fill="url(#steel)"/>
+  <!-- 밸브 본체 -->
+  <rect x="14.2" y="14.6" width="15.6" height="14" rx="1.6" fill="url(#body)" stroke="#8a5300" stroke-width=".8"/>
+  <!-- 돔 목 -->
+  <rect x="15.6" y="9.4" width="12.8" height="4.6" rx=".8" fill="url(#dome)" stroke="#8a5300" stroke-width=".7"/>
+  <!-- 다이어프램 돔 -->
+  <ellipse cx="22" cy="5.8" rx="14.4" ry="5.2" fill="url(#dome)" stroke="#8a5300" stroke-width=".8"/>
+  <ellipse cx="22" cy="4.6" rx="10.6" ry="2.6" fill="#fff1c2" opacity=".6"/>
+</svg>

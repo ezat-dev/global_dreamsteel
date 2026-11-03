@@ -14,7 +14,11 @@
     "all_purge_doing_lamp": "PURGING",
     "all_purge_complete_lamp": "DONE"
   },
-  "pipeTip": "{{what}} — read only / {{tag}} — green at {{v}}, red otherwise",
+  "pipe": {
+    "press": { "on": "PRESS\nNORMAL", "off": "PRESS\nABNORMAL", "unknown": "PRESS" },
+    "sol": { "on": "SOL\nOPEN", "off": "SOL\nSHUT", "unknown": "SOL" }
+  },
+  "pipeTip": "{{tag}} — read only / green {{on}} at 1, red {{off}} at 0",
   "burn": {
     "on": "BURN\nON",
     "off": "BURN\nOFF"
@@ -40,7 +44,7 @@
   "art": {
     "main_gas_valve_lamp": "MAIN GAS pressure control valve",
     "main_gas_sol_valve_lamp": "MAIN GAS solenoid valve",
-    "combustion_blower_valve_lamp": "Combustion BLOWER valve",
+    "combustion_blower_valve_lamp": "Combustion BLOWER pressure control valve",
     "combustion_blower_motor_lamp": "Combustion BLOWER fan",
     "thunder": "Ignition mark {{n}}",
     "fire": "Flame {{n}}",

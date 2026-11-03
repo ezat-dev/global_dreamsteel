@@ -1359,10 +1359,10 @@
 }
 .combustion .pipe130 {
   background: #ffcc00;
-  width: 14px;
+  width: 21px;     /* 원래 14 @354 — 솔밸브 그림이 좁아져 생긴 틈을 메운다(아래 .gas-pre 주석) */
   height: 10px;
   position: absolute;
-  left: 354px;
+  left: 347px;
   top: 27px;
 }
 .combustion .pipe131 {
@@ -1377,29 +1377,36 @@
 }
 .combustion .pipe132 {
   background: #ffcc00;
-  width: 21px;
+  width: 28px;     /* 원래 21 — 솔밸브 그림이 오른쪽으로 옮겨 생긴 틈을 메운다(아래 .gas-pre 주석) */
   height: 10px;
   position: absolute;
   left: 289px;
   top: 27px;
 }
+/* 압력(pre)·솔밸브(sol) 두 자리 — 원본 작화와 그림이 서로 바뀌어 있어(압력 자리에 솔레노이드,
+   솔 자리에 압력 조절기 모양) 그림을 맞바꿨다(2026-11). 분위기제어에서 같은 이유로 맞바꾼 것과 같다
+   (atmosphereOverview.css의 .blowe-pre 주석). 다이어프램 돔 = 압력 조절밸브, 네모 상자+옆 단자 = 솔레노이드.
+   그림마다 크기가 달라서 크기·좌표를 새로 잡았고, 가운데 x는 원래 자리 그대로 두어 아래 상태 램프
+   (CombustionPage의 PIPE_LABELS cx 273·332)가 그대로 맞는다.
+   원래 값: gas-pre 31x31 @258,8 / gas-sol 44x29 @310,9.
+   틈이 생긴 쪽은 pipe132·pipe130을 몇 px 늘려 메웠다(배관이 그림 밑에 깔린다). */
 .combustion .gas-pre {
-  width: 31px;
-  height: 31px;
-  position: absolute;
-  left: 258px;
-  top: 8px;
-  object-fit: cover;
-  aspect-ratio: 1;
-}
-.combustion .gas-sol {
   width: 44px;
   height: 29px;
   position: absolute;
-  left: 310px;
+  left: 252px;
   top: 9px;
   object-fit: cover;
   aspect-ratio: 44/29;
+}
+.combustion .gas-sol {
+  width: 31px;
+  height: 31px;
+  position: absolute;
+  left: 317px;
+  top: 8px;
+  object-fit: cover;
+  aspect-ratio: 1;
 }
 .combustion .main-blower {
   width: 377px;
@@ -1455,14 +1462,19 @@
   transform-origin: 0 0;
   transform: rotate(0deg) scale(-1, 1);
 }
+/* 연소 BLOWER 압력 조절밸브 — 원본은 네모 상자+옆 단자(솔레노이드 모양)였는데, 맞바꿀 솔밸브 짝이
+   없어서 MAIN GAS 쪽 압력 조절밸브 그림을 파랑으로 칠해 끼웠다(2026-11, cb-regulator-air.svg).
+   크기가 MAIN GAS 쪽(44x29)과 같아졌고, 가운데 x(938.5)와 배관 높이(y 27~37)는 원래대로다 —
+   좌우 배관(pipe134 912~926, pipe136 951~1002)이 그림 밑으로 들어가 틈이 없다.
+   원래 값: 37x39 @920,4. */
 .combustion .blower-pre {
-  width: 37px;
-  height: 39px;
+  width: 44px;
+  height: 29px;
   position: absolute;
-  left: 920px;
-  top: 4px;
+  left: 917px;
+  top: 9px;
   object-fit: cover;
-  aspect-ratio: 37/39;
+  aspect-ratio: 44/29;
 }
 .combustion .blower-pump {
   width: 43px;

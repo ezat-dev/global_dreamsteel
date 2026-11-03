@@ -13,6 +13,7 @@ import {
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 import {
+  BOTTOM_EACH, ZONE_TOP,
   FIRE_TAGS, FITTING_TAGS, THUNDER_TAGS, VALVE_TAGS, fireHideClass, fireTag, fittingRedClass,
   thunderHideClass, thunderTag, valveOnClass, valveTag,
 } from '../../components/scada/combustionArtTags';
@@ -68,8 +69,8 @@ const STAGE_TOTAL_H = DRAW_SHIFT + STAGE_H;
      하단 개도 rev-N-zone-per : 중심 x 267 + (i)*147,    y 466~496
      존 박스   zon-box        : x 120~1155, y 191~369
      MAIN GAS  main-gas       : x   0~ 378, y   0~ 93
-     압력계    gas-pre        : x 258~ 289, y   8~ 39
-     솔밸브    gas-sol        : x 310~ 354, y   9~ 38
+     압력조절  gas-pre        : x 252~ 296, y   9~ 38
+     솔밸브    gas-sol        : x 317~ 348, y   8~ 39
      오른쪽 배관 끝           : x 2101 (여기에 연소 BLOWER 패널이 붙는다)
 
    ※ 하단 개도는 작화 이름이 역순이다(rev-1이 맨 오른쪽). 화면에는 사진대로
@@ -113,6 +114,34 @@ const PER_BOT = 442;   // 하단 개도 글씨 top (박스 y 437~467 안쪽 — 
    불꽃을 덮는다. 제목이 위 불꽃 안쪽까지 들어가 있는 것은 일부러 그렇게 둔 것이다:
    글자는 불꽃 위로 읽히지만 값 칸은 불투명 박스라 가린다.
    값을 고칠 때는 이 셋과 padding을 같이 봐야 한다. */
+/* 버너 번호표 — 존 안에서 1번부터(8·8·8·7·7·7·8개). 번호 규칙은 combustionArtTags의
+   burnerOf와 같다: 위 줄 왼쪽부터 1번, 아래 줄 왼쪽부터 이어서(1존이면 위 1~4, 아래 5~8).
+
+   자리는 작화 CSS의 불꽃 left에서 잰 버너 가운데 x다.
+     위 줄  for-fire-N : 가운데 = left + 8.5   → 1존 157.5, 184.5, 212.5, 239.5
+     아래 줄 rev-fire-N : 가운데 = left - 8.5   → 1존 158.5, 185.5, 213.5, 240.5
+     (아래 줄은 rotate(-180deg) + transform-origin: 0 0 이라 left가 오른쪽 끝이다)
+   존 간격은 147로 일정하고, 존 안 간격은 4개짜리가 27·28·27, 3개짜리(4~6존 위 줄)가 41·41이다.
+
+   번개가 위 줄은 불꽃 오른쪽 위, 아래 줄은 왼쪽 아래에 있어서 번호표는 그 반대편에 둔다 —
+   위 줄은 불꽃 왼쪽 뿌리 옆, 아래 줄은 불꽃 오른쪽 뿌리 옆. 뿌리 높이라 존 이름표(217~)와
+   SV 칸(~325)에 닿지 않는다. 불꽃이 꺼져도(숨겨져도) 번호표는 남는다. */
+const BURNER_DX = { 4: [0, 27, 55, 82], 3: [0, 41, 82] };
+const BURNER_TOP_CX0 = 157.5;
+const BURNER_BOT_CX0 = 158.5;
+const BURNER_TOP_Y = 197;   // 위 줄 번호표 top (불꽃 뿌리 195 바로 아래)
+const BURNER_BOT_Y = 350;   // 아래 줄 번호표 top (불꽃 뿌리 363 바로 위)
+const BURNER_NOS = ZONES.flatMap((z) => {
+  const x0 = (z - 1) * ZONE_STEP;
+  const top = BURNER_DX[ZONE_TOP[z - 1]].map((dx, k) => (
+    { zone: z, no: k + 1, cx: BURNER_TOP_CX0 + x0 + dx, row: 'top' }
+  ));
+  const bot = BURNER_DX[BOTTOM_EACH].map((dx, k) => (
+    { zone: z, no: ZONE_TOP[z - 1] + k + 1, cx: BURNER_BOT_CX0 + x0 + dx, row: 'bot' }
+  ));
+  return [...top, ...bot];
+});
+
 const ZONE_TITLE_TOP = 217;
 const ZONE_PV_TOP = 247;
 const ZONE_SV_TOP = 288;
@@ -188,16 +217,20 @@ const DEVICE_PANELS = [
 
 /* 배관 부속 아래에 붙는 상태 램프. cx는 그 부속이 그려지는 가운데 x다.
 
-   이 셋은 켜지고 꺼지는 램프가 아니라 늘 초록 아니면 빨강이다. greenWhen이 초록이 되는
-   값이고 나머지 값이 빨강이다 — 셋이 서로 다르다. 값을 못 읽으면 점선(모름)이다.
+   이 셋은 켜지고 꺼지는 램프가 아니라 늘 초록 아니면 빨강이고, 글씨도 값에 따라 바뀐다.
+   셋 다 같은 규칙이다(11/03 사용자 지정):
+     1 → 초록  압력 정상 / SOL열림
+     0 → 빨강  압력 이상 / SOL닫힘
+   값을 못 읽으면 점선(모름)에 '압력' / 'SOL'만 쓴다 — 정상/이상 어느 쪽도 단정하지 않는다.
+   글씨는 사전 combustion.json의 pipe.<kind>.on/off/unknown.
 
-   압력 정상만 0에서 초록인 것이 눈에 거슬리지만 PLC가 그렇게 준다. 거꾸로 보이면
-   여기 greenWhen부터 확인할 것. */
+   태그 이름(…_normal / …_close / …_abnormal)은 등록 당시 이름이라 뜻과 안 맞는 것이 있다
+   (sol_close가 1이면 열림, pressure_abnormal이 1이면 정상). 이름이 아니라 위 규칙을 따른다. */
 const PIPE_LABELS = [
-  { key: 'gasPre', cx: 273, top: 44, tag: 'main_gas_pressure_normal_lamp', greenWhen: TAG_OFF },   // 압력 정상
-  { key: 'gasSol', cx: 332, top: 44, tag: 'main_gas_sol_close_lamp', greenWhen: TAG_ON },          // SOL닫힘
-  // 블로워 압력계(blower-pre, x 920~957 / y 4~43) 바로 아래
-  { key: 'blowPre', cx: 938, top: 48, tag: 'combustion_blower_pressure_abnormal_lamp', greenWhen: TAG_ON }, // 압력 이상
+  { key: 'gasPre', cx: 273, top: 44, tag: 'main_gas_pressure_normal_lamp', kind: 'press' },
+  { key: 'gasSol', cx: 332, top: 44, tag: 'main_gas_sol_close_lamp', kind: 'sol' },
+  // 블로워 압력 조절밸브(blower-pre, x 917~961 / y 9~38) 바로 아래
+  { key: 'blowPre', cx: 938, top: 48, tag: 'combustion_blower_pressure_abnormal_lamp', kind: 'press' },
 ];
 
 /* 좌측 하단 경보 목록 — 경보이력·구동화면과 같은 API(getAlarmList)를 최근 100건만 받아 쓴다.
@@ -379,10 +412,13 @@ export default function CombustionPage() {
 
   /** 배관 부속 아래 램프 — 이름 자체가 상태값이라(_cmd가 없다) 값을 바로 읽는다.
       늘 초록 아니면 빨강이고, 못 읽을 때만 점선이다. */
-  const pipeClass = (l) => {
+  /** 배관 상태 램프 — 1이면 초록·on 글씨, 0이면 빨강·off 글씨, 못 읽으면 점선·unknown 글씨 */
+  const pipeState = (l) => {
     const st = tagState(tagValues?.[l.tag]);
-    if (st === TAG_UNKNOWN) return ' is-unknown';
-    return st === l.greenWhen ? ' is-on' : ' is-alarm';
+    if (st === TAG_UNKNOWN) return { cls: ' is-unknown', text: t(`pipe.${l.kind}.unknown`) };
+    return st === TAG_ON
+      ? { cls: ' is-on', text: t(`pipe.${l.kind}.on`) }
+      : { cls: ' is-alarm', text: t(`pipe.${l.kind}.off`) };
   };
 
   /** 하단 조작판의 표시 램프 — 1이면 그 칸의 lit 색, 0이면 회색, 못 읽으면 점선. */
@@ -596,17 +632,24 @@ export default function CombustionPage() {
               </span>
             ))}
 
-            {PIPE_LABELS.map((l) => (
-              <span
-                className={`cb-pipe-label hmi-lampbox${pipeClass(l)}`}
-                key={l.key}
-                style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
-                data-tag={l.tag}
-                title={t('pipeTip', { what: t(`lamp.${l.tag}`).replace('\n', ' '), tag: l.tag, v: l.greenWhen === TAG_ON ? 1 : 0 })}
-              >
-                {t(`lamp.${l.tag}`)}
-              </span>
-            ))}
+            {PIPE_LABELS.map((l) => {
+              const ps = pipeState(l);
+              return (
+                <span
+                  className={`cb-pipe-label hmi-lampbox${ps.cls}`}
+                  key={l.key}
+                  style={{ left: l.cx, top: l.top, transform: 'translateX(-50%)' }}
+                  data-tag={l.tag}
+                  title={t('pipeTip', {
+                    tag: l.tag,
+                    on: t(`pipe.${l.kind}.on`).replace('\n', ' '),
+                    off: t(`pipe.${l.kind}.off`).replace('\n', ' '),
+                  })}
+                >
+                  {ps.text}
+                </span>
+              );
+            })}
 
             {/* ── 개도 % — 작화가 그려둔 박스 위에 글씨만 얹는다.
                 온도제어의 출력(MV)과 같은 값이다(tic_zN_mv, D102/D122/…/D222).
@@ -624,6 +667,17 @@ export default function CombustionPage() {
                 title={t('common:hmi.readOnly', { what: t('common:hmi.zoneMv', { n }), tag: zoneTag(n, 'mv') })}
               >
                 {zoneText(n, 'mv')} %
+              </span>
+            ))}
+            {/* ── 버너 번호표 — 위 BURNER_NOS 참고 ── */}
+            {BURNER_NOS.map((b) => (
+              <span
+                className={`cb-burner-no is-${b.row}`}
+                key={`burner${b.zone}-${b.no}`}
+                style={{ left: b.cx, top: b.row === 'top' ? BURNER_TOP_Y : BURNER_BOT_Y }}
+                title={t('art.burner', { zone: b.zone, no: b.no })}
+              >
+                {b.no}
               </span>
             ))}
             {ZONES.map((n) => (

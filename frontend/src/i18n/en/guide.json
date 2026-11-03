@@ -130,8 +130,8 @@
     "pipeLamps": {
       "title": "Pipe status lamps",
       "body": [
-        "Status lamps under the pipe fittings: MAIN GAS PRESS NORMAL and SOL SHUT, and COMBUSTION BLOWER PRESS ABNORMAL.",
-        "They show the state in green [[on]] / red [[alarm]]."
+        "Status lamps under the pipe fittings: MAIN GAS pressure and SOL valve, and COMBUSTION BLOWER pressure.",
+        "Normal or open shows green [[on]]; abnormal or shut shows red [[alarm]]. The text changes with it."
       ]
     },
     "blower": {
@@ -325,10 +325,10 @@
       ]
     },
     "pipeLamps": {
-      "title": "PRESS ABNORMAL · SOL SHUT",
+      "title": "Pressure · SOL status",
       "body": [
         "Status lamps under the pressure control valves and solenoid valves.",
-        "They show the state in green [[on]] / red [[alarm]]."
+        "Normal or open shows green [[on]]; abnormal or shut shows red [[alarm]]. The text changes with it."
       ]
     },
     "fittings": {

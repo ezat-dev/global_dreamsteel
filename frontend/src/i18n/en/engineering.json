@@ -12,6 +12,7 @@
     "count": "Pulse control burner count",
     "allOn": "All-burners-on output (%)",
     "order": "Burner {{n}}-{{b}} pulse order",
+    "orderMap": "Burner Pulse Control Order",
     "secTitle": "Burner Pulse Control Output Ranges",
     "sec": "Range ({{k}})",
     "secHigh": "upper (%)",

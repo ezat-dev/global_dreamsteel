@@ -14,7 +14,11 @@
     "all_purge_doing_lamp": "PURGE 중",
     "all_purge_complete_lamp": "PURGE 완료"
   },
-  "pipeTip": "{{what}} — 읽기 전용 / {{tag}} — 값이 {{v}}이면 초록, 아니면 빨강",
+  "pipe": {
+    "press": { "on": "압력 정상", "off": "압력 이상", "unknown": "압력" },
+    "sol": { "on": "SOL열림", "off": "SOL닫힘", "unknown": "SOL" }
+  },
+  "pipeTip": "{{tag}} — 읽기 전용 / 1이면 초록 {{on}}, 0이면 빨강 {{off}}",
   "burn": {
     "on": "연소\nON",
     "off": "연소\nOFF"
@@ -40,7 +44,7 @@
   "art": {
     "main_gas_valve_lamp": "MAIN GAS 압력 조절밸브",
     "main_gas_sol_valve_lamp": "MAIN GAS 솔레노이드 밸브",
-    "combustion_blower_valve_lamp": "연소 BLOWER 밸브",
+    "combustion_blower_valve_lamp": "연소 BLOWER 압력 조절밸브",
     "combustion_blower_motor_lamp": "연소 BLOWER 송풍기",
     "thunder": "번개 {{n}}",
     "fire": "불꽃 {{n}}",

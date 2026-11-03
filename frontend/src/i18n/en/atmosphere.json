@@ -24,7 +24,11 @@
   "openCloseTip": "Hold {{sec}}s to send {{other}}=0, {{cmd}}=1 / lamp {{lamp}}",
   "genOpenTip": "Generator OPEN — read only / {{tag}} — green at 0",
   "genCloseTip": "Generator CLOSE — read only / {{tag}} — red at 1",
-  "pipeTip": "{{what}} — read only / {{tag}} — green at 1, red at 0",
+  "pipe": {
+    "press": { "on": "PRESS NORMAL", "off": "PRESS ABNORMAL", "unknown": "PRESS" },
+    "sol": { "on": "SOL OPEN", "off": "SOL SHUT", "unknown": "SOL" }
+  },
+  "pipeTip": "{{tag}} — read only / green {{on}} at 1, red {{off}} at 0",
   "o2Tip": "O2 SENSOR — read only / o2_pv (D241)",
   "valve": {
     "autoMode": "AUTO",
