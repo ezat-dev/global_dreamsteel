@@ -93,7 +93,7 @@
    LIMIT은 헐거워진다. 칸 높이나 제목 줄 수를 바꾸면 이 비율도 다시 봐야 한다.
    (PID는 10/02에 뺐다가 10/30에 되살렸다.) */
 .tz-side-group {
-  flex: 10;
+  flex: 11;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -136,6 +136,7 @@
 }
 
 .tz-limit {
+  display: none;
   flex: 7;
 }
 

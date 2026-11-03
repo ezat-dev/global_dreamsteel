@@ -69,9 +69,8 @@ const LABELS = [
   { key: 'mainDrive', cx: 872, top: 168 },    // MAIN DRIVE
   /* 사진처럼 두 줄로(COOLING CHAMBER / TABLE DRIVE). 사전 글자의 \n은 .dr-tag의
      white-space: pre-line이 살린다.
-     판을 폭 216 → 108로 줄이면서 오른쪽에 빈 자리(x1245~1353)가 생겼는데, 글자를
-     좁아진 판 위에 두면 양옆으로 비어져 나온다. 빈 자리 가운데(1299)로 옮겨 둔다. */
-  { key: 'coolTable', cx: 1299, top: 168 },
+     쿨링챔버 판(x1137~1353) 가운데 1245에 맞춘다 — 판 위의 팬 둘도 같은 가운데를 쓴다. */
+  { key: 'coolTable', cx: 1245, top: 168 },
   { key: 'exitPocket', cx: 1535, top: -2 },   // 출구 POCKET
   { key: 'exitSide', cx: 1535, top: 70 },     // 출구 SIDE CONVEYOR
   { key: 'exitTable', cx: 1540, top: 357 },   // 출구 TABLE DRIVE
@@ -190,8 +189,8 @@ const FAN_SIZE = 40;
 const FAN_TOP = 264;
 
 const FANS = [
-  { key: 'cc1', left: 1147 },
-  { key: 'cc2', left: 1195 },
+  { key: 'cc1', left: 1185 },
+  { key: 'cc2', left: 1265 },
 ];
 
 /* 팬 그림 두 벌 — 도는 것과 멈춘 것. 롤러와 같은 이유로 파일을 바꿔 끼운다
@@ -999,6 +998,20 @@ export default function DrivePage() {
             values="0.16583 0.55786 0.05632 0 0.41294
                     0.06236 0.20979 0.02118 0 0.15529
                     0.00850 0.02861 0.00289 0 0.02118
+                    0       0       0       1 0"
+          />
+        </filter>
+        {/* 쿨링챔버 판(main-obj-2)을 차가운 푸른색으로 — 작화 원본은 회갈색(베이지) 그라디언트다.
+            색이 옅은 그림이라 hue-rotate로는 파랑이 거의 안 나와서, 밝기만 남겨 푸른 축에 싣는다
+            (위 초록·주황과 같은 방식). 각 줄 = 고정분 + 밝기 × 배수:
+            R 0.15+0.5L, G 0.25+0.6L, B 0.40+0.6L — 밝은 띠는 #9fd1f7 근처, 가운데 어두운 띠는 #6085ab 근처.
+            고정분을 두는 이유는 어두운 띠가 검게 꺼지지 않고 '쇠 빛 도는 파랑'으로 남게 하려는 것이다. */}
+        <filter id="dr-blue" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.10630 0.35760 0.03610 0 0.15
+                    0.12756 0.42912 0.04332 0 0.25
+                    0.12756 0.42912 0.04332 0 0.40
                     0       0       0       1 0"
           />
         </filter>
