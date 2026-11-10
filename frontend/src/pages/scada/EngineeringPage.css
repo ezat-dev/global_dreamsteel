@@ -6,7 +6,12 @@
    밑줄에만 남긴다. 판 전체를 칠하면 이 화면만 톤이 튀고, 어느 판인지는 이 정도로도 갈린다.
    =========================================================================== */
 
+/* 본문(hmi-body)을 꽉 채운다 — 내용 높이만큼만 차지하면 F11 전체화면이나 설명서를 열어 세로가
+   늘었을 때 그만큼이 통째로 아래 빈칸이 된다. 남는 높이는 탭마다 판들이 나눠 갖는다(아래 각 절).
+   내용이 화면보다 길면(좁은·낮은 화면) min-height가 안 걸려 지금처럼 스크롤된다. */
 .eng-page {
+  box-sizing: border-box;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -46,8 +51,9 @@
 }
 
 /* ===== 버너제어 탭 — 존 판(BurnerZonePanel) =====
-   2열 격자. 판 안은 왼쪽 설정 목록 / 오른쪽 출력구간 표. 줄 높이는 줄 수가 가장 많은
-   왼쪽 목록(설정 5 + 버너 8 = 13줄)이 1920x1000에서 두 줄의 판이 한 화면에 들어가도록 잡았다. */
+   2열 격자. 판 안은 왼쪽 설정 목록 + 순번 배치도 / 오른쪽 출력구간 표. 판에서 가장 긴 것은 왼쪽 열이다.
+   (아래 줄 높이 식은 순번이 목록 8줄이던 때 13줄 기준으로 잡은 것이다. 배치도로 바꾼 뒤에도 버너 그림이
+   줄 높이를 따라 줄어서 1920 폭 850px 높이까지 스크롤 없이 들어간다 — headless로 잼) */
 
 .bz-grid {
   /* 줄 높이 — 창 높이에 따라 24px에서 20px까지 줄어든다. 1~4존 탭은 판 두 줄(왼쪽 목록 13줄씩)이
@@ -57,14 +63,46 @@
            + 아래 여백 6 → 줄 높이 ≤ (100vh - 364px) / 24. 몇 px 여유를 두어 370으로 쓴다.
      20px 아래로는 줄이지 않는다 — 숫자 칸이 그보다 얇으면 누르기 어렵다. 그보다 낮은 창은 스크롤로 본다. */
   --bz-row: clamp(20px, calc((100vh - 370px) / 24), 24px);
+  /* 남는 세로를 판 두 줄이 똑같이 나눠 갖는다(1fr) — 5~7존 탭도 판이 두 줄이라 같다 */
+  flex: 1 0 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   gap: 14px;
-  align-items: start;
 }
 
+/* 판 안도 늘어난 높이를 나눠 갖는다 — 왼쪽은 설정 줄들과 배치도, 오른쪽은 구간 표의 줄들.
+   줄마다 자기 높이(--bz-row)는 지키고 남는 높이만 더한다(flex-grow) */
 .bz-panel {
   --eng-tone: #f08a5d;
+  display: flex;
+  flex-direction: column;
+}
+
+.bz-panel > .bz-body {
+  flex: 1 0 auto;
+}
+
+.bz-left,
+.bz-sections,
+.bz-map {
+  display: flex;
+  flex-direction: column;
+}
+
+.bz-list,
+.bz-map,
+.bz-map-box {
+  flex: 1 0 auto;
+}
+
+.bz-list > .bz-row {
+  flex: 1 0 auto;
+}
+
+/* 표는 높이를 주면 남는 높이를 줄들에 고르게 나눈다 */
+.bz-sec-table {
+  flex: 1 0 auto;
 }
 
 .bz-panel .hmi-group-title {
@@ -75,14 +113,14 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   gap: 14px;
-  align-items: start;
 }
 
 .bz-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 2px;
 }
 
@@ -170,20 +208,20 @@
 
 /* ===== 버너 순번 배치도 =====
    연소화면처럼 위 줄 / 노 / 아래 줄로 버너를 늘어놓고 자리마다 순번 칸을 붙인다.
-   불꽃은 연소화면과 같은 zone-fire.svg — 위 줄은 버너가 위에 있어 아래로 쏘는 그림 그대로,
+   그림은 버너(public/scada/engineering/eng-burner.svg) — 위 줄은 머리가 위·관이 아래로 뻗는 그림 그대로,
    아래 줄은 뒤집어 위로 쏘게 한다(연소화면 작화의 rotate(-180deg)와 같다).
    줄마다 버너를 칸 폭에 고르게 나눈다 — 위 줄이 3개인 존(4~6존)도 양끝이 맞는다. */
 .bz-left {
-  display: grid;
   gap: 8px;
   min-width: 0;
 }
 
-/* 크기는 바꾸기 전 목록 여덟 줄(약 210px)을 채우도록 잡았다 — 그래야 판 높이가 옆 판(순번을
-   목록으로 둔 판)과 같고, 2열 격자의 아래 줄 판이 어긋나지 않는다. */
+/* 늘어난 높이는 위 줄 / 노 / 아래 줄 사이에 고르게 벌린다. 고정 간격(gap·노 자리 padding)은
+   낮은 창에서 판이 넘치지 않게 작게 둔다 — 높은 창에서는 어차피 space-evenly가 벌려 준다. */
 .bz-map-box {
   display: grid;
-  gap: 4px;
+  align-content: space-evenly;
+  gap: 2px;
   padding: 0 8px;
   border: 1px solid rgba(255, 255, 255, .12);
   border-radius: 6px;
@@ -195,8 +233,8 @@
   justify-content: space-around;
 }
 
-/* 한 자리 = 불꽃 + 번호·칸 묶음을 세로로. 위 줄은 불꽃 뿌리가 판 위끝(버너 쪽)에 오도록 불꽃이 먼저,
-   아래 줄은 거꾸로(column-reverse) 묶음이 위·불꽃이 아래 끝에 온다. */
+/* 한 자리 = 버너 + 번호·칸 묶음을 세로로. 위 줄은 버너 머리가 판 위끝(노 벽 쪽)에 오도록 버너가 먼저,
+   아래 줄은 거꾸로(column-reverse) 묶음이 위·버너가 아래 끝에 온다. */
 .bz-map-cell {
   display: flex;
   flex-direction: column;
@@ -214,14 +252,16 @@
   gap: 4px;
 }
 
-/* 불꽃 그림 칸 비율은 22:36(zone-fire.svg의 viewBox) — 어긋나면 그림이 잘린다 */
-.bz-map-fire {
-  width: 26px;
-  height: 42px;
+/* 버너 그림 칸 = eng-burner.svg의 viewBox 비율(26:42) — 어긋나면 그림이 찌그러진다.
+   높이는 줄 높이를 따라 준다(24px 줄 → 42px, 20px 줄 → 35px). 낮은 창에서 목록 줄만 줄고 그림이
+   그대로면 배치도가 있는 왼쪽 열이 판에서 가장 길어져 아래 판 끝이 넘친다. */
+.bz-map-burner {
+  height: calc(var(--bz-row, 24px) * 1.75);
+  aspect-ratio: 26 / 42;
   flex: none;
 }
 
-.bz-map-row.is-bot .bz-map-fire {
+.bz-map-row.is-bot .bz-map-burner {
   transform: rotate(180deg);
 }
 
@@ -248,9 +288,9 @@
   text-align: center;
 }
 
-/* 위아래 줄 사이 노 자리. padding은 판 높이를 옆 판(목록 8줄)에 맞추는 값이다 — 1920x940에서 잼 */
+/* 위아래 줄 사이 노 자리 */
 .bz-map-zone {
-  padding: 4px 0;
+  padding: 2px 0;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -395,35 +435,27 @@
   font-size: 11px;
 }
 
-/* ===== 설명서가 열려 세로가 남을 때 =====
-   설명서가 열리면 화면을 줄이는 대신 세로를 늘린다(ScreenGuide.css). 이 화면은 내용 높이만큼만
-   차지해서 늘어난 세로가 통째로 아래 빈칸이 됐다. 판 셋(구동부·연소부·분위기제어)이 남는 높이를
-   나눠 갖고, 판 안의 여덟 줄이 고르게 벌어진다 — 조작 설정·온도 보정 판은 그대로다.
-   설명서가 닫혀 있으면 아무것도 바뀌지 않는다. 내용이 화면보다 길면(좁은 화면) min-height가
-   안 걸려 지금처럼 스크롤된다. */
-.hmi-root.has-guide .eng-page {
-  box-sizing: border-box;
-  min-height: 100%;
-}
-
-.hmi-root.has-guide .eng-sections {
+/* ===== 기본 설정 탭 — 세로가 남을 때 =====
+   F11 전체화면이나 설명서(세로를 늘린다, ScreenGuide.css)로 세로가 남으면 판 셋(구동부·연소부·
+   분위기제어)이 남는 높이를 나눠 갖고, 판 안의 여덟 줄이 고르게 벌어진다 — 조작 설정·온도 보정 판은 그대로다. */
+.eng-sections {
   flex: 1 0 auto;
 }
 
-.hmi-root.has-guide .eng-sections > .eng-section {
+.eng-sections > .eng-section {
   display: flex;
   flex-direction: column;
 }
 
 /* 줄마다 자기 높이는 지키고 남는 높이만 똑같이 더한다(flex-grow). grid의 1fr로 나누면
    모든 줄이 가장 높은 줄(이름이 두세 줄로 꺾인 줄)에 맞춰져 좁은 화면에서 오히려 길어진다. */
-.hmi-root.has-guide .eng-sections .eng-rows {
+.eng-sections .eng-rows {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.hmi-root.has-guide .eng-sections .eng-rows > .eng-row {
+.eng-sections .eng-rows > .eng-row {
   flex: 1 0 auto;
 }
 

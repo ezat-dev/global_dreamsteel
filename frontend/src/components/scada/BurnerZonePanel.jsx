@@ -66,10 +66,7 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
     />
   );
 
-  /* 버너별 펄스제어 순번 — 목록 줄로 늘어놓는 대신 연소화면과 같은 버너 배치도에 칸을 붙인다.
-     (시험 중: 1존 판에만 먼저 넣어 보고, 확인받으면 나머지 존도 바꾼다.) */
-  const orderMap = zone === 1;
-
+  /* 버너별 펄스제어 순번 — 목록 줄로 늘어놓는 대신 연소화면과 같은 버너 배치도에 칸을 붙인다(모든 존). */
   const orders = Array.from({ length: burners }, (_, i) => ({
     b: i + 1,
     tag: burnerTag.order(zone, i + 1),
@@ -82,16 +79,17 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
     { tag: burnerTag.count(zone), label: t('burner.count'), min: 1, max: burners },
     { tag: burnerTag.allOn1(zone), label: t('burner.allOn'), min: 0, max: 100, unit: '%' },
     { tag: burnerTag.allOn2(zone), label: t('burner.allOn'), min: 10, max: 100, unit: '%' },
-    ...(orderMap ? [] : orders.map((o) => ({ tag: o.tag, label: o.label, min: 1, max: burners }))),
   ];
 
-  /* 배치도의 버너 한 자리 — 불꽃 + (번호표·순번 칸 한 묶음).
-     번호와 칸을 불꽃 옆에 나란히 두면 칸이 옆 버너의 번호와 붙어 어느 버너 것인지 헷갈려서,
-     불꽃 바로 밑(아래 줄은 위)에 묶어 세운다.
+  /* 배치도의 버너 한 자리 — 버너 그림 + (번호표·순번 칸 한 묶음).
+     순번은 불이 붙었는지가 아니라 버너 기기에 매기는 설정이라 불꽃이 아니라 버너 그림을 쓴다.
+     번호와 칸을 그림 옆에 나란히 두면 칸이 옆 버너의 번호와 붙어 어느 버너 것인지 헷갈려서,
+     그림 바로 밑(아래 줄은 위)에 묶어 세운다.
      번호는 연소화면 번호표와 같다: 위 줄 왼쪽부터 1번, 아래 줄 왼쪽부터 이어서. */
   const mapCell = (o) => (
     <div className="bz-map-cell" key={o.tag}>
-      <img className="bz-map-fire" src="/scada/combustion/zone-fire.svg?v=5" alt="" />
+      <img className="bz-map-burner" src="/scada/engineering/eng-burner.svg?v=1" alt=""
+        title={`${o.label} / ${o.tag}`} />
       <div className="bz-map-set">
         <span className="bz-map-no">{o.b}</span>
         {input(o.tag, o.label, 1, burners)}
@@ -107,7 +105,7 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
       <span className="hmi-group-title">{t('burner.title', { n: zone })}</span>
 
       <div className="bz-body">
-        {/* 왼쪽 — 설정 목록(+ 순번 배치도) */}
+        {/* 왼쪽 — 설정 목록 + 순번 배치도 */}
         <div className="bz-left">
           <ol className="bz-list">
             {settings.map((s) => (
@@ -118,16 +116,14 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
             ))}
           </ol>
 
-          {orderMap && (
-            <div className="bz-map">
-              <div className="bz-sec-title">{t('burner.orderMap')}</div>
-              <div className="bz-map-box">
-                <div className="bz-map-row is-top">{orders.slice(0, topCount).map(mapCell)}</div>
-                <div className="bz-map-zone">{t('burner.zone', { n: zone })}</div>
-                <div className="bz-map-row is-bot">{orders.slice(topCount).map(mapCell)}</div>
-              </div>
+          <div className="bz-map">
+            <div className="bz-sec-title">{t('burner.orderMap')}</div>
+            <div className="bz-map-box">
+              <div className="bz-map-row is-top">{orders.slice(0, topCount).map(mapCell)}</div>
+              <div className="bz-map-zone">{t('burner.zone', { n: zone })}</div>
+              <div className="bz-map-row is-bot">{orders.slice(topCount).map(mapCell)}</div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* 오른쪽 — 출력구간. 구간 k의 시작(아래끝)은 앞 구간의 상한과 같은 값이다 — PLC에 따로 칸이
