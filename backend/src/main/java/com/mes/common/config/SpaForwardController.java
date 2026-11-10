@@ -20,6 +20,12 @@ import org.springframework.web.bind.annotation.GetMapping;
  * </p>
  *
  * <p>
+ * /scada/… 도 점이 없는 주소만 넘긴다. 작화 그림이 public/scada/ 아래 있어서(/scada/combustion/zone-fire.svg)
+ * /scada/** 로 통째로 받으면 그림 요청까지 index.html이 나가 jar로 띄운 화면의 그림이 전부 깨진다.
+ * 컨트롤러 매핑이 static 파일보다 먼저 잡히기 때문이다. vite로 띄울 때는 vite가 그림을 내보내 안 드러난다.
+ * </p>
+ *
+ * <p>
  * com.mes.controller가 아니라 여기 두는 이유: ControllerLogAspect가 controller 패키지의 요청을 전부
  * 로그 파일에 남기는데, 화면을 열 때마다 이 요청이 찍히면 로그만 늘어난다.
  * </p>
@@ -32,7 +38,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class SpaForwardController {
 
-    @GetMapping({ "/", "/{path:[^\\.]*}", "/scada/**" })
+    @GetMapping({ "/", "/{path:[^\\.]*}", "/scada/{path:[^\\.]*}", "/scada/{dir}/{path:[^\\.]*}" })
     public String forwardToIndex() {
         return "forward:/index.html";
     }
