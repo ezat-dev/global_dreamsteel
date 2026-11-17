@@ -42,12 +42,12 @@
     /* 한 바퀴에 4 만큼만 민다 — 자국 간격과 같아야 이어 붙는다.
        linear 이어야 멈칫하지 않는다(ease 를 쓰면 매번 끊기는 느낌이 난다).
 
-       +4 인 것이 입구용(roller.svg)과 다른 유일한 부분이다.
+       -4 인 것이 입구용(roller.svg)과 다른 유일한 부분이다.
        출구 롤러는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 그리므로, 파일 안에서
-       오른쪽으로 흘려야 화면에서는 왼쪽으로 흐른다. 입구와 같은 -4를 주면
-       화면에서 반대로 돈다. */
+       왼쪽으로 흘려야 화면에서는 오른쪽으로 흐른다(제품 흐름 방향 — 2026-11-17
+       사용자 지정, 그 전에는 +4로 반대였다). 입구와 같은 +4를 주면 화면에서 반대로 돈다. */
     .roll { animation: roller-spin 1.1s linear infinite; }
-    @keyframes roller-spin { to { transform: translateX(4px); } }
+    @keyframes roller-spin { to { transform: translateX(-4px); } }
 
     /* 움직임을 꺼 달라는 설정이면 멈춘다. 현장 패널에서 18개가 계속 도는 게
        거슬린다는 사람도 있어서, 그 설정을 존중한다. */

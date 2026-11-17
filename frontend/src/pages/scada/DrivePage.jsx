@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DriveOverview from '../../components/scada/DriveOverview';
 import {
-  ARROW_TAGS, DOOR_TAG, FAN_TAGS, MOTOR_TAGS, RAIL_TAGS, ROLLER_TAGS, ZONE_TAGS,
-  artTitle, doorGrayClass, doorGreenClass, motorGrayClass, railRollClass, zoneHotClass,
+  ARROW_TAGS, FAN_TAGS, MOTOR_TAGS, RAIL_TAGS, ROLLER_TAGS, ZONE_TAGS,
+  artTitle, motorGrayClass, motorYellowClass, railRollClass, zoneHotClass,
 } from '../../components/scada/driveArtTags';
 import HmiTable from '../../components/scada/HmiTable';
 import { LedInput } from '../../components/scada/HmiParts';
@@ -57,20 +57,25 @@ const STAGE_PAD_B = 48;
    설비 조각이 화면에 실제로 그려지는 범위 — 라벨을 옮길 때 참고.
    (출구 쪽은 반전 때문에 CSS의 left 값과 다르다. 위 STAGE_W 주석 참고.)
      입구 POCKET   x  56~320,  y   1~207      입구 TABLE DRIVE x  56~494,  y 216~350
-     DOOR          x 494~525,  y 200~368      MAIN ZONE1~7     x 609~1136, y 200~366
-     COOLING CH.   x1137~1353, y 200~368      출구 POCKET      x1403~1667, y   0~206
-     출구 TABLE DR.x1353~1667, y 215~349      맨 오른쪽 모터   x1667~1723
+     MAIN ZONE1~7  x 494~1124, y 200~366      COOLING CH.      x1124~1353, y 200~368
+     출구 POCKET   x1403~1667, y   0~206      출구 TABLE DR.   x1353~1667, y 215~349
+     맨 오른쪽 모터 x1667~1723
+
+   DOOR(x 494~525)와 그 오른쪽 빈 판(525~609)은 2026-11-17에 지웠다. 그 115px만큼
+   MAIN 존을 왼쪽으로 당기고, 존 한 칸을 75 → 90px로, 쿨링챔버 판을 216 → 229px로
+   다시 나눴다 — 작화 원본 CSS는 그대로 두고 DrivePage.css의 'DOOR 자리 비우기'가
+   덮어쓴다. 출구 쪽은 그대로다.
    ------------------------------------------------------------------------- */
 /* 글자는 drive.json의 label.<key> */
 const LABELS = [
   { key: 'entPocket', cx: 188, top: -2 },     // 입구 POCKET
   { key: 'entSide', cx: 188, top: 70 },       // 입구 SIDE CONVEYOR
   { key: 'entTable', cx: 190, top: 360 },     // 입구 TABLE DRIVE
-  { key: 'mainDrive', cx: 872, top: 168 },    // MAIN DRIVE
+  { key: 'mainDrive', cx: 809, top: 168 },    // MAIN DRIVE — 존(x 494~1124) 가운데
   /* 사진처럼 두 줄로(COOLING CHAMBER / TABLE DRIVE). 사전 글자의 \n은 .dr-tag의
      white-space: pre-line이 살린다.
-     쿨링챔버 판(x1137~1353) 가운데 1245에 맞춘다 — 판 위의 팬 둘도 같은 가운데를 쓴다. */
-  { key: 'coolTable', cx: 1245, top: 168 },
+     쿨링챔버 판(x1124~1353) 가운데 1238에 맞춘다. */
+  { key: 'coolTable', cx: 1238, top: 168 },
   { key: 'exitPocket', cx: 1535, top: -2 },   // 출구 POCKET
   { key: 'exitSide', cx: 1535, top: 70 },     // 출구 SIDE CONVEYOR
   { key: 'exitTable', cx: 1540, top: 357 },   // 출구 TABLE DRIVE
@@ -113,10 +118,12 @@ const DRIVE_PANELS = [
   },
 ];
 
-// MAIN DRIVE 존 — 작화 존 이미지 위에 PV/SV를 그대로 얹는다(존 폭 75.5px 간격).
-const ZONE_LEFT = 609;
-const ZONE_STEP = 75.5;
-const ZONE_W = 75;
+/* MAIN DRIVE 존 — 작화 존 이미지 위에 PV/SV를 그대로 얹는다(존 폭 90px 간격).
+   494는 DOOR를 지우고 당긴 자리, 90은 쿨링챔버 폭을 넘겨받아 넓힌 칸이다 —
+   DrivePage.css의 존 left/width 값과 같이 움직인다. */
+const ZONE_LEFT = 494;
+const ZONE_STEP = 90;
+const ZONE_W = 90;
 const ZONES = [1, 2, 3, 4, 5, 6, 7];
 
 /* 존 SV 허용 범위 — 7개 존이 모두 같다. 온도(0~1000℃)라 온도제어 화면과 같은 값이다.
@@ -151,6 +158,8 @@ const isAlarmSwitch = (name) => ALARM_SWITCHES.some((b) => b.tag === name);
      charge    M300 ON / M301 OFF   램프 M600 / M601   입구 TABLE DRIVE
      maincc    M302 / M303          램프 M602 / M603   MAIN/CC DRIVE
      discharge M304 / M305          램프 M604 / M605   출구 TABLE DRIVE
+     fan2      M306 / M307          램프 M606 / M607   쿨링챔버 왼쪽 팬(FANS)
+     fan3      M308 / M309          램프 M608 / M609   쿨링챔버 오른쪽 팬
    램프 이름은 lampOf()가 cmd + '_lamp'로 조립하므로 DB에도 그 이름 그대로 있어야 한다.
    ON/OFF 각각 램프가 따로 있어서(M600·M601) 두 칸이 서로를 보고 그리지 않는다 —
    둘 다 0이면 둘 다 꺼진 채로 둔다. 구동부가 어느 쪽도 아닌 상태(기동 중·고장)를
@@ -163,10 +172,14 @@ const driveCmd = (unit, action) => `${unit}_${action}_cmd`;
 
    화살표: 값이 1이면 보이고 0이거나 못 읽으면 숨긴다. 숨기는 일은 DrivePage.css가 맡는다.
    모터:   값이 1이면 지금 색(초록), 아니면 회색. 모터 그림이 초록 한 색이라 filter 한 줄로 된다.
+           yellowTag가 있는 모터(입구 모터 1·출구 모터 4)는 초록이 아닐 때 그 태그가 1이면
+           회색 대신 노랑이다(#dr-yellow).
            어느 자리가 어느 태그인지는 driveArtTags.js의 MOTOR_TAGS 주석에 좌표까지 적혀 있다. */
-const MOTOR_GRAY = Object.entries(MOTOR_TAGS).map(([cls, t]) => ({
+const MOTOR_COLOR = Object.entries(MOTOR_TAGS).map(([cls, t]) => ({
   tag: t.tag,
+  yellowTag: t.yellowTag,
   grayClass: motorGrayClass(cls),
+  yellowClass: motorYellowClass(cls),
 }));
 
 /* 존 PV/SV는 온도제어 화면과 같은 PLC 주소를 본다(1존 PV R100 / Working SV R102 / 설정 SV R120).
@@ -177,21 +190,31 @@ const zoneTag = (n, suffix) => `tic_z${n}_${suffix}`;
 
 /* 로 순환 팬 둘 — 쿨링챔버 판(main-obj-2) 위에 나란히.
 
-   그 판을 폭 216 → 108로 줄이면서(DrivePage.css) 팬도 64 → 40으로 줄이고 다시 놓았다.
-   64짜리 둘은 128px이라 좁힌 판에 아예 안 들어간다. 지금은 판 가운데(x1191)를 기준으로
-   40+8+40 = 88px이 들어가고 좌우에 10px씩 남는다.
-   top은 판 세로 가운데(y200~368의 284)에서 팬 절반을 뺀 값이다.
+   판이 x1124~1353(229px)이고(2026-11-17) 팬은 40 → 64로 키웠다.
+   판을 4등분한 1/4·3/4 지점(x1181 / x1296)에 팬 가운데를 맞춘다 — left는 거기서
+   팬 절반(32)을 뺀 값이다. top은 아래 ON/OFF 버튼 자리를 남기려고 판 위쪽에 붙였다
+   (팬 240~304, 버튼 312~334, 판 아래 끝 368).
 
    DOOR 오른쪽 판(main-obj-1)에도 하나 있었는데 지웠다 — 그 자리에 팬이 없다고
-   확인받았다. 태그(fan1_lamp)는 driveArtTags에서 같이 뺐다.
+   확인받았다(판 자체도 지금은 없다). 태그(fan1_lamp)는 driveArtTags에서 같이 뺐다.
    둘 다 같은 top을 쓴다 — 따로 두면 높이가 어긋난다. */
-const FAN_SIZE = 40;
-const FAN_TOP = 264;
+const FAN_SIZE = 64;
+const FAN_TOP = 240;
 
+/* unit은 팬 ON/OFF 버튼 태그의 앞부분이다(driveCmd — fan2_on_cmd 등). 구동부 버튼과 같은 구조:
+     fan2  ON M306 / OFF M307   램프 M606 / M607   쿨링챔버 왼쪽 팬
+     fan3  ON M308 / OFF M309   램프 M608 / M609   쿨링챔버 오른쪽 팬
+   팬이 도는 그림은 FAN_TAGS(fan2_lamp / fan3_lamp)가 보는데, 그 주소도 ON 램프와 같은
+   M606 / M608이다 — ON 램프가 켜진 것과 팬이 도는 것이 같은 값이다. */
 const FANS = [
-  { key: 'cc1', left: 1185 },
-  { key: 'cc2', left: 1265 },
+  { key: 'cc1', unit: 'fan2', left: 1149 },
+  { key: 'cc2', unit: 'fan3', left: 1264 },
 ];
+
+/* 팬 아래 ON/OFF 한 쌍. 버튼 폭 44(.dr-onoff) x 2 + 사이 4 = 92px을 팬 가운데에 맞춘다.
+   두 쌍 사이는 23px이고 오른쪽 쌍 끝(1342)이 판 오른쪽 끝(1353) 안에 든다. */
+const FAN_BTN_TOP = 312;
+const FAN_BTN_W = 92;
 
 /* 팬 그림 두 벌 — 도는 것과 멈춘 것. 롤러와 같은 이유로 파일을 바꿔 끼운다
    (<img>로 띄운 SVG 안의 애니메이션은 바깥 CSS로 멈출 수 없다).
@@ -248,90 +271,87 @@ const EXIT_TIMES = [
    하단 램프판 — 묶음별 램프 목록
    ------------------------------------------------------------------------- */
 /* tag는 ez_scada.folders_tags.name이다(위 조건 램프와 같은 규칙).
-   주소는 아직 전부 M000이라 26개가 같이 움직인다 — 현장 주소를 받으면 DB만 고치면 된다.
-   글자는 drive.json의 lamp.<태그>(두 줄짜리는 사전 글자에 \n이 들어 있다). */
-const LAMP_BOARDS = [
-  {
-    key: 'entSol',
-    lamps: [
-      { tag: 'charge_pocket_sol_valve_up_lamp' },
-      { tag: 'charge_pocket_sol_valve_down_lamp' },
-      { tag: 'charge_side_conveyor_sol_valve_up_lamp' },
-      { tag: 'charge_side_conveyor_sol_valve_down_lamp' },
+   글자는 drive.json의 lamp.<태그>.
+
+   2026-11-17 현장 I/O 표로 통째로 바꿨다(예전 SOL VALVE / P/X 등 26개는 DB에서도 지웠다).
+   표의 이름을 줄이지 않고 한 줄에 다 보이게 둔다(사용자 요청 — 칸 모양으로 줄여 봤다가
+   되돌렸다). 순서는 표 그대로(Y 출력 → X 입력)이고 위에서 아래로 채운 뒤 다음 열로 간다.
+
+   cols는 판의 열 수다. 1920 화면에서 실제로 재서 정했다(이 화면 글꼴 11.5px):
+     입구 — 가장 긴 이름(스토퍼 …감지 L/S) 249px이라 3열은 안 들어간다 → 2열 x 7줄
+            (마침 왼쪽 열이 Y 7개, 오른쪽 열이 X 7개로 갈린다)
+     출구 — 가장 긴 이름 210px → 3열 x 6줄. 17개라 한 자리가 남는데, 첫 열 마지막을
+            비워(null) 둘째 열이 사이드 콘베어 상승부터, 셋째 열이 L/S 상승-하강 짝으로
+            줄마다 맞게 했다(사용자 제안).
+   열 폭은 글자 길이에 맞춰지고(max-content) 경보 표가 남는 폭을 가져간다(DrivePage.css).
+   주소는 줄 끝 주석. */
+const LAMP_BOARDS = {
+  ent: {
+    cols: 2,
+    tags: [
+      'charge_table_hyd_unit_on_lamp',                // Y0C8 장입 테이블 유압유닛 ON
+      'charge_pocket_lift_motor_up_lamp',             // Y0C9 장입포켓 승강모터 상승
+      'charge_pocket_lift_motor_down_lamp',           // Y0CA 장입포켓 승강모터 하강
+      'charge_side_conveyor_up_lamp',                 // Y198 장입 테이블 사이드 콘베어 상승
+      'charge_side_conveyor_down_lamp',               // Y199 장입 테이블 사이드 콘베어 하강
+      'charge_side_conveyor_forward_lamp',            // Y0CB 장입 테이블 사이드 콘베어 전진
+      'charge_side_conveyor_backward_lamp',           // Y0CC 장입 테이블 사이드 콘베어 후진
+      'charge_pocket_up_ls_lamp',                     // X099 장입포켓 상승감지 L/S
+      'charge_pocket_down_ls_lamp',                   // X09A 장입포켓 하강감지 L/S
+      'charge_side_conveyor_up_ls_lamp',              // X09B 사이드 콘베어 상승감지 L/S
+      'charge_side_conveyor_down_ls_lamp',            // X09C 사이드 콘베어 하강감지 L/S
+      'charge_side_conveyor_stopper_up_ls_lamp',      // X09D 스토퍼 상승감지 L/S
+      'charge_side_conveyor_stopper_down_ls_lamp',    // X09E 스토퍼 하강감지 L/S
+      'charge_side_conveyor_stopper_product_ls_lamp', // X09F 스토퍼 제품감지 L/S
     ],
   },
-  {
-    key: 'entLs',
-    lamps: [
-      { tag: 'charge_pocket_up_ls_lamp' },
-      { tag: 'charge_pocket_down_ls_lamp' },
-      { tag: 'charge_side_conveyor_up_ls_lamp' },
-      { tag: 'charge_side_conveyor_down_ls_lamp' },
+  exit: {
+    cols: 3,
+    tags: [
+      'discharge_table_hyd_unit_on_lamp',             // Y0CF 추출 테이블 유압유닛 ON
+      'discharge_pocket1_lift_motor_up_lamp',         // Y0D0 No.1 추출포켓 승강모터 상승
+      'discharge_pocket1_lift_motor_down_lamp',       // Y0D1 No.1 추출포켓 승강모터 하강
+      'discharge_pocket2_lift_motor_up_lamp',         // Y0D2 No.2 추출포켓 승강모터 상승
+      'discharge_pocket2_lift_motor_down_lamp',       // Y0D3 No.2 추출포켓 승강모터 하강
+      null,                                           // 빈칸 — 첫 열 마지막을 비워 다음 열부터 상승-하강 짝이 줄마다 맞게 한다
+      'discharge_side_conveyor_up_lamp',              // Y19A 추출 테이블 사이드 콘베어 상승
+      'discharge_side_conveyor_down_lamp',            // Y19B 추출 테이블 사이드 콘베어 하강
+      'discharge_side_conveyor_forward_lamp',         // Y0CD 추출 테이블 사이드 콘베어 전진
+      'discharge_side_conveyor_backward_lamp',        // Y0CE 추출 테이블 사이드 콘베어 후진
+      'discharge_product_detect_ls_lamp',             // X0B8 출구 제품 감지 L/S
+      'discharge_product_arrive_detect_ls_lamp',      // X0B9 출구 제품도착 감지 L/S
+      'discharge_side_conveyor_up_ls_lamp',           // X0BA 사이드 콘베어 상승감지 L/S
+      'discharge_side_conveyor_down_ls_lamp',         // X0BB 사이드 콘베어 하강감지 L/S
+      'discharge_pocket1_up_ls_lamp',                 // X0BC No.1 추출포켓 상승감지 L/S
+      'discharge_pocket1_down_ls_lamp',               // X0BD No.1 추출포켓 하강감지 L/S
+      'discharge_pocket2_up_ls_lamp',                 // X0BE No.2 추출포켓 상승감지 L/S
+      'discharge_pocket2_down_ls_lamp',               // X0BF No.2 추출포켓 하강감지 L/S
     ],
   },
-  {
-    key: 'entPx',
-    lamps: [
-      { tag: 'charge_side_conveyor_forward_px_lamp' },
-      { tag: 'charge_side_conveyor_backward_px_lamp' },
-      { tag: 'charge_door_open_px_lamp' },
-      { tag: 'charge_door_close_px_lamp' },
-    ],
-  },
-  {
-    key: 'entEtc',
-    lamps: [
-      { tag: 'charge_product_detect_px_lamp' },
-      { tag: 'charge_product_sort_stopper_down_lamp' },
-    ],
-  },
-  {
-    key: 'exitSol',
-    lamps: [
-      { tag: 'discharge_side_conveyor_sol_valve_up_lamp' },
-      { tag: 'discharge_side_conveyor_sol_valve_down_lamp' },
-      { tag: 'discharge_side_conveyor_up_ls_lamp' },
-      { tag: 'discharge_side_conveyor_down_ls_lamp' },
-    ],
-  },
-  {
-    key: 'exitPx',
-    lamps: [
-      { tag: 'discharge_side_conveyor_forward_px_lamp' },
-      { tag: 'discharge_side_conveyor_backward_px_lamp' },
-      { tag: 'discharge_product_speed_detect_ph_lamp' },
-      { tag: 'discharge_product_arrive_detect_ls_lamp' },
-    ],
-  },
-  {
-    key: 'exitPocket',
-    lamps: [
-      { tag: 'discharge_pocket_product_detect_px_lamp' },
-      { tag: 'discharge_pocket_product_detect_top_lamp' },
-      { tag: 'discharge_pocket_product_detect_mid_lamp' },
-      { tag: 'discharge_pocket_product_detect_bottom_lamp' },
-    ],
-  },
-];
+};
 
 /* 회전감지 램프 — 각각 짝이 되는 모터 바로 아래에 붙는다.
    cx는 그 모터가 화면에 실제로 그려지는 가운데 x다(MAIN 쪽 둘은 반전이라
    CSS의 left 값과 다르니 주의):
-     ent-motor-4  x 332~356  → 344       main-motor-1 x  609~ 633 → 621
-     main-motor-2 x1138~1162 → 1150      exit-motor-5 x 1403~1427 → 1415
+     ent-motor-4  x 332~356  → 344       main-motor-1 x  494~ 518 → 506
+     exit-motor-5 x 1403~1427 → 1415
+   (main-motor-1은 DOOR 자리를 지우면서 115px 당겼다 — DrivePage.css)
+   C/C TABLE DRIVE / CONVEYOR 회전감지(cc_table_status_lamp)는 그 위 모터(main-motor-2)와
+   함께 2026-11-17에 지웠다(사용자 요청).
    글자는 drive.json의 lamp.<태그>. 그 안의 \n 줄바꿈은 DrivePage.css의 .dr-trip-lamp에서
    white-space: pre-line으로 살린다. */
 const TRIP_TOP = 410;
 
-/* 네 램프는 값이 1이면 초록, 0이면 회색, 못 읽으면 점선이다.
+/* 세 램프는 점만 바뀐다 — 값이 1이면 빨간 점, 0이면 꺼진 동그라미, 못 읽으면 점선.
+   글씨는 값과 상관없이 늘 보인다(2026-11-17 사용자 지정 — 그 전에는 1 초록이었다).
+   판정은 아래 tripLampClass.
 
    바로 위 모터에도 회전감지 이름의 태그가 따로 붙어 있다(driveArtTags.js의 MOTOR_TAGS —
    main_table_drive_conveyor_rotate_detect_lamp 등). 이름이 겹치지만 다른 태그다.
    모터는 그림 색, 여기는 글씨 램프라 따로 움직인다 — 한쪽만 바뀌어도 고장이 아니다. */
 const TRIP_LAMPS = [
   { key: 'ent', cx: 344, tag: 'charge_table_status_lamp' },      // 입구 TABLE DRIVE / CONVEYOR 회전감지
-  { key: 'main', cx: 621, tag: 'main_table_status_lamp' },       // MAIN TABLE DRIVE / CONVEYOR 회전감지
-  { key: 'cc', cx: 1150, tag: 'cc_table_status_lamp' },          // C/C TABLE DRIVE / CONVEYOR 회전감지
+  { key: 'main', cx: 506, tag: 'main_table_status_lamp' },       // MAIN TABLE DRIVE / CONVEYOR 회전감지
   { key: 'exit', cx: 1415, tag: 'discharge_table_status_lamp' }, // 출구 TABLE DRIVE / CONVEYOR 회전감지
 ];
 
@@ -358,11 +378,11 @@ const PRODUCT_LAMP = { cx: 483, top: 265, tag: 'product_detect_lamp' };
    value를 주면 그 부분만 앞에 빨간 숫자로 붙는다(나머지 text는 검은 글씨).
    글자는 drive.json의 note.<key>, 값 설명은 note.<key>Value. */
 const NOTES = [
-  // MAIN DRIVE 존(x 609~1136, 아래끝 y 366) 바로 밑 — "####℃ 이하시 설비 [OFF]"
+  // MAIN DRIVE 존(x 494~1124, 아래끝 y 366) 바로 밑 — "####℃ 이하시 설비 [OFF]"
   /* lamp를 주면 글자 뒤에 빨간 램프 칸이 붙는다 — 이 줄의 "OFF"는 설명이 아니라
      설비가 실제로 꺼졌음을 알리는 표시등이다. */
   {
-    key: 'tempOff', cx: 872, top: 372, lamp: 'OFF',
+    key: 'tempOff', cx: 809, top: 372, lamp: 'OFF',
     /* 앞의 빨간 숫자를 PLC에서 읽는다. 못 읽으면 '---'로 둔다 — 0으로 그리면
        0℃ 이하에서 끈다는 말이 되어 설정을 잘못 읽는다. */
     valueTag: 'facility_off_temp',
@@ -374,9 +394,9 @@ const NOTES = [
   // ent-motor-4(x 332~356, y 360~401) 오른쪽 옆. 모터 세로 가운데에 맞춘다.
   { key: 'stopper', left: 362, top: 372 },   // STOPPER 하강 감지
   /* DOOR 위에 '입구문 열림'(cx 510, top 142)이 하나 더 있었는데 그 아래 모터
-     (ent-motor-3)와 함께 지웠다 — 현장에 없는 설비다. 문 그림 자체의 색 표시
-     (DOOR_TAG, ent_door_open_close_lamp)는 그대로 남아 있고, 지운 모터가 보던
-     charge_door_open_lamp는 이제 화면 어디에서도 쓰지 않는다. */
+     (ent-motor-3)와 함께 지웠다 — 현장에 없는 설비다. 그 모터가 보던
+     charge_door_open_lamp는 화면 어디에서도 쓰지 않는다. 문 그림(ent-door-1)과
+     그 색 표시(ent_door_open_close_lamp)도 2026-11-17에 지웠다. */
 ];
 
 /* ---------------------------------------------------------------------------
@@ -427,14 +447,26 @@ function OpPanel({ title, values, autoTag, manualTag, autoDriveTag, stopTag }) {
   /* 이 태그들은 이름 자체가 램프다(_cmd_lamp가 아니다). lampClassOf는 명령 이름에
      '_lamp'를 붙여 찾으므로 여기서는 값을 바로 읽는다.
 
-     켜지는 값이 둘이 다르다 — 자동은 1일 때, 수동은 0일 때 켜진다(PLC가 그렇게 준다).
-     연소화면의 MAIN GAS CLOSE와 같은 경우다. 그래서 몇에서 켜지는지를 호출부가 정한다. */
-  const lampClass = (name, litWhen, onClassName = ' is-on') => {
+     점등 규칙(2026-11-17 사용자 지정, 입구·출구 공통):
+       수동      1 → 노랑 / 0 → 꺼짐      (예전에는 0일 때 초록이었다)
+       자동      1 → 초록 / 0 → 꺼짐
+       자동운전  1 → 초록 / 0 → 꺼짐
+       비상정지  1 → 초록 / 0 → 빨강      (꺼진 상태가 없다 — 아래 stopClass)
+     못 읽으면 넷 다 점선이다. */
+  const lampClass = (name, onClassName) => {
     if (!values) return ' is-unknown';
     const st = tagState(values[name]);
     if (st === TAG_UNKNOWN) return ' is-unknown';
-    return st === litWhen ? onClassName : '';
+    return st === TAG_ON ? onClassName : '';
   };
+
+  /* 비상정지는 두 갈래 색이다 — 1이 정상(초록), 0이 비상정지 걸림(빨강). */
+  const stopClass = (() => {
+    if (!values) return ' is-unknown';
+    const st = tagState(values[stopTag]);
+    if (st === TAG_UNKNOWN) return ' is-unknown';
+    return st === TAG_ON ? ' is-on' : ' is-alarm';
+  })();
 
   return (
     <div className="hmi-group dr-panel">
@@ -443,14 +475,14 @@ function OpPanel({ title, values, autoTag, manualTag, autoDriveTag, stopTag }) {
       <div className="dr-op-row">
         <span className="dr-op-label">{t('op.select')}</span>
         <span
-          className={`dr-op-btn dr-op-lamp${lampClass(manualTag, TAG_OFF)}`}
+          className={`dr-op-btn dr-op-lamp${lampClass(manualTag, ' is-warn')}`}
           data-tag={manualTag}
           title={t('op.manualTip', { tag: manualTag })}
         >
           {t('op.manual')}
         </span>
         <span
-          className={`dr-op-btn dr-op-lamp${lampClass(autoTag, TAG_ON)}`}
+          className={`dr-op-btn dr-op-lamp${lampClass(autoTag, ' is-on')}`}
           data-tag={autoTag}
           title={t('op.autoTip', { tag: autoTag })}
         >
@@ -459,18 +491,18 @@ function OpPanel({ title, values, autoTag, manualTag, autoDriveTag, stopTag }) {
       </div>
 
       {/* 자동운전·비상정지도 램프다 — 기동과 정지는 현장 OP 패널에서 하고, 화면은
-          지금 어떤 상태인지만 비춘다. 둘 다 값이 1일 때 켜지고, 색만 다르다:
-          운전 중은 초록, 비상정지가 걸리면 빨강(다른 화면의 경보 색과 같다). */}
+          지금 어떤 상태인지만 비춘다. 자동운전은 1일 때 초록, 비상정지는 1이면 초록(정상)
+          0이면 빨강(걸림)이다. */}
       <div className="dr-op-row">
         <span
-          className={`dr-op-btn dr-op-lamp is-wide${lampClass(autoDriveTag, TAG_ON)}`}
+          className={`dr-op-btn dr-op-lamp is-wide${lampClass(autoDriveTag, ' is-on')}`}
           data-tag={autoDriveTag}
           title={t('op.autoDriveTip', { tag: autoDriveTag })}
         >
           {t('op.autoDrive')}
         </span>
         <span
-          className={`dr-op-btn dr-op-lamp is-wide${lampClass(stopTag, TAG_ON, ' is-alarm')}`}
+          className={`dr-op-btn dr-op-lamp is-wide${stopClass}`}
           data-tag={stopTag}
           title={t('op.estopTip', { tag: stopTag })}
         >
@@ -534,6 +566,95 @@ function LampList({ title, lamps, values, className = '' }) {
   );
 }
 
+/** 하단 램프판 — 입구(ent) 또는 출구(exit) 판 하나.
+ *
+ * 표의 이름 그대로 점 + 글씨 한 줄씩. cols열 격자에 위에서 아래로 채우고, 칸 사이를
+ * 가로·세로 점선으로 나눈다. 점은 1이면 빨강, 0이면 꺼진 회색, 못 읽으면 점선
+ * (2026-11-17 사용자 지정 — 그 전에는 1이 초록이었다. 빨강이어도 깜빡이지 않는다, DrivePage.css).
+ *
+ * @param side 'ent' | 'exit' — LAMP_BOARDS의 키
+ */
+function LampBoardGroup({ side, values }) {
+  const { t } = useTranslation('drive');
+  const { cols, tags } = LAMP_BOARDS[side];
+  const rows = Math.ceil(tags.length / cols);
+  const lampClass = (tag) => {
+    if (!values) return ' unknown';
+    const st = tagState(values[tag]);
+    if (st === TAG_UNKNOWN) return ' unknown';
+    return st === TAG_ON ? ' alarm' : '';
+  };
+
+  return (
+    <div className={`hmi-group dr-panel dr-board is-${side}`}>
+      <div
+        className="dr-board-grid"
+        /* minmax(0, 1fr) — 판 높이(.dr-bottom 160px)를 줄 수로 나눠 갖는다 */
+        style={{
+          gridTemplateColumns: `repeat(${cols}, max-content)`,
+          gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+        }}
+      >
+        {tags.map((tag, i) => {
+          /* 점선: 첫 열이 아니면 왼쪽 세로선. 아래 가로선은 같은 열 바로 밑에 램프가 있을
+             때만 — 열의 끝이거나 밑이 빈칸(null)이면 긋지 않는다. */
+          const left = i >= rows ? ' has-left' : '';
+          const bottom = i % rows !== rows - 1 && tags[i + 1] ? ' has-bottom' : '';
+          /* null은 줄을 맞추려고 비워 두는 자리다(LAMP_BOARDS 참고) */
+          if (!tag) return <span className={`dr-board-cell${left}`} key={`gap-${i}`} />;
+          return (
+            <span
+              className={`hmi-lamp dr-board-cell${lampClass(tag)}${left}${bottom}`}
+              key={tag}
+              data-tag={tag}
+              title={`${t(`lamp.${tag}`)} — ${tag}`}
+            >
+              <span className="hmi-lamp-dot" />
+              {t(`lamp.${tag}`)}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** 누르는 버튼이면서 램프인 ON 또는 OFF 하나.
+ *
+ * 누르고 holdMs를 채우면 <unit>_<action>_cmd에 1, 떼면 0(handleDrivePress/Release).
+ * 색은 짝 램프(<cmd>_lamp)가 1일 때 들어온다 — ON은 초록, OFF는 빨강.
+ * 누른 것과 실제로 돈 것은 다르므로 색을 화면이 먼저 바꾸지 않는다.
+ * disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아 비트가 1로 남는다.
+ *
+ * @param title  툴팁에 들어가는 설비 이름
+ * @param unit   태그 이름 앞부분 (charge / maincc / discharge / fan2 / fan3)
+ * @param action 'on' | 'off'
+ */
+function OnOffButton({
+  title, unit, action, values, onPress, heldTag, armedTag, holdMs,
+}) {
+  const { t } = useTranslation('drive');
+  const cmd = driveCmd(unit, action);
+  return (
+    <button
+      type="button"
+      className={`dr-onoff hmi-lampbox${lampClassOf(values, cmd, action === 'on' ? ' is-on' : ' is-alarm')}`
+        + (heldTag === cmd ? ' is-held' : '')
+        + (armedTag === cmd ? ' is-armed' : '')}
+      onPointerDown={() => onPress(cmd)}
+      data-tag={cmd}
+      title={t('panel.onoffTip', {
+        title, action: action.toUpperCase(), sec: holdMs / 1000, cmd, lamp: lampOf(cmd),
+      })}
+    >
+      {action.toUpperCase()}
+      {heldTag === cmd && (
+        <span className="dr-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
+      )}
+    </button>
+  );
+}
+
 /** ON/OFF 조작 + PV/SV(mm/Min) + 구동감지 한 벌. 그림 위에 떠 있는 박스.
  *
  * ON/OFF는 누르는 버튼이면서 동시에 램프다 — 눌러서 기동/정지시키고, 색은 PLC가
@@ -568,29 +689,9 @@ function DrivePanel({
     return st === TAG_OFF ? ' is-on' : ' is-alarm';
   })();
 
-  /* ON/OFF 버튼 한 개 분량의 속성. 두 버튼이 켜지는 색만 다르고 나머지는 같다.
-     disabled를 쓰지 않는다: 누른 뒤 비활성화되면 뗌 이벤트가 오지 않아 비트가 1로 남는다. */
-  const btn = (action, onClassName) => {
-    const cmd = driveCmd(unit, action);
-    return {
-      type: 'button',
-      className: `dr-onoff hmi-lampbox${lampClassOf(values, cmd, onClassName)}`
-        + (heldTag === cmd ? ' is-held' : '')
-        + (armedTag === cmd ? ' is-armed' : ''),
-      onPointerDown: () => onPress(cmd),
-      'data-tag': cmd,
-      title: t('panel.onoffTip', {
-        title, action: action.toUpperCase(), sec: holdMs / 1000, cmd, lamp: lampOf(cmd),
-      }),
-      children: (
-        <>
-          {action.toUpperCase()}
-          {heldTag === cmd && (
-            <span className="dr-hold-bar" style={{ animationDuration: `${holdMs}ms` }} />
-          )}
-        </>
-      ),
-    };
+  /* ON/OFF 버튼 — 구동 박스와 쿨링챔버 팬 아래 버튼이 같은 부품(OnOffButton)을 쓴다. */
+  const btnProps = {
+    title, unit, values, onPress, heldTag, armedTag, holdMs,
   };
 
   return (
@@ -599,7 +700,7 @@ function DrivePanel({
 
       <div className="dr-drive-row">
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <button {...btn('on', ' is-on')} />
+        <OnOffButton {...btnProps} action="on" />
         <span className="dr-drive-tag">PV</span>
         <LedInput
           value={text(pvTag)}
@@ -614,7 +715,7 @@ function DrivePanel({
       {/* is-sv를 붙여 SV 입력칸만 연두색으로 물들인다(DrivePage.css의 --dr-sv). */}
       <div className="dr-drive-row is-sv">
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <button {...btn('off', ' is-alarm')} />
+        <OnOffButton {...btnProps} action="off" />
         <span className="dr-drive-tag">SV</span>
         <LedInput
           value={text(svTag)}
@@ -741,24 +842,21 @@ export default function DrivePage() {
     .map(([key]) => ` ${railRollClass(key)}`)
     .join('');
 
-  /* 모터는 화살표와 같은 방식이다 — 무대에 클래스만 붙이고 회색으로 만드는 일은 CSS가 한다. */
-  const motorGray = MOTOR_GRAY
-    .filter(({ tag }) => tagState(tagValues?.[tag]) !== TAG_ON)
-    .map(({ grayClass }) => ` ${grayClass}`)
+  /* 모터는 화살표와 같은 방식이다 — 무대에 클래스만 붙이고 색을 바꾸는 일은 CSS가 한다.
+     초록 태그가 1이면 아무것도 안 붙고(작화 그대로 초록), 아니면 노랑 태그가 1일 때
+     노랑, 그것도 아니면 회색이다. */
+  const motorGray = MOTOR_COLOR
+    .map(({
+      tag, yellowTag, grayClass, yellowClass,
+    }) => {
+      if (tagState(tagValues?.[tag]) === TAG_ON) return '';
+      if (yellowTag && tagState(tagValues?.[yellowTag]) === TAG_ON) return ` ${yellowClass}`;
+      return ` ${grayClass}`;
+    })
     .join('');
 
-  /* 입구문과 MAIN 존 구획 — 모터·화살표와 같은 방식이다(무대에 클래스만 붙이고
-     색은 DrivePage.css가 입힌다).
-
-     입구문은 세 갈래다. 빨강·초록이 닫힘·열림이라 못 읽은 것을 둘 중 하나로
-     뭉개면 문 상태를 잘못 읽게 되어, 회색을 따로 둔다.
-       0 → 클래스 없음 = 빨강(CSS 기본) / 1 → 초록 / 못 읽음 → 회색
-     존 구획은 두 갈래다 — 1일 때만 오렌지가 붙고, 0과 못 읽음은 작화 그대로다. */
-  const doorState = tagState(tagValues?.[DOOR_TAG.tag]);
-  const doorClass = doorState === TAG_UNKNOWN
-    ? ` ${doorGrayClass()}`
-    : (doorState === TAG_ON ? ` ${doorGreenClass()}` : '');
-
+  /* MAIN 존 구획 — 모터·화살표와 같은 방식이다(무대에 클래스만 붙이고 색은
+     DrivePage.css가 입힌다). 1일 때만 오렌지가 붙고, 0과 못 읽음은 작화 그대로다. */
   const zoneHot = Object.entries(ZONE_TAGS)
     .filter(([, zone]) => tagState(tagValues?.[zone.tag]) === TAG_ON)
     .map(([cls]) => ` ${zoneHotClass(cls)}`)
@@ -778,6 +876,15 @@ export default function DrivePage() {
     const st = tagState(tagValues?.[tag]);
     if (st === TAG_UNKNOWN) return ' unknown';
     return st === TAG_ON ? ' on' : '';
+  };
+
+  /** 회전감지 램프 셋(TRIP_LAMPS) — 점만 바뀌고 글씨는 늘 그대로다.
+      1이면 빨간 점(' alarm'), 0이면 꺼진 동그라미(''), 못 읽으면 점선(' unknown').
+      위 statusLampClass(1이면 초록)와 켜지는 색이 달라 따로 둔다. */
+  const tripLampClass = (tag) => {
+    const st = tagState(tagValues?.[tag]);
+    if (st === TAG_UNKNOWN) return ' unknown';
+    return st === TAG_ON ? ' alarm' : '';
   };
 
   /* 입구 롤러 줄 맨 끝의 매쉬 롤러 — 0이면 빨강, 1이면 초록, 못 읽으면 회색.
@@ -1001,6 +1108,17 @@ export default function DrivePage() {
                     0       0       0       1 0"
           />
         </filter>
+        {/* 입구 모터 1·출구 모터 4의 노랑(yellowTag가 1). 목표색 #eab308(OP PANEL 수동 램프와
+            같은 노랑)에 위 초록·주황과 같은 공식(목표색 x (0.45 + 0.85 x 밝기))을 쓴 값이다. */}
+        <filter id="dr-yellow" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.16583 0.55786 0.05632 0 0.41294
+                    0.12685 0.42674 0.04308 0 0.31588
+                    0.00567 0.01907 0.00193 0 0.01412
+                    0       0       0       1 0"
+          />
+        </filter>
         {/* 쿨링챔버 판(main-obj-2)을 차가운 푸른색으로 — 작화 원본은 회갈색(베이지) 그라디언트다.
             색이 옅은 그림이라 hue-rotate로는 파랑이 거의 안 나와서, 밝기만 남겨 푸른 축에 싣는다
             (위 초록·주황과 같은 방식). 각 줄 = 고정분 + 밝기 × 배수:
@@ -1095,7 +1213,7 @@ export default function DrivePage() {
         {/* 왼쪽 위를 고정점으로 줄인다(transform-origin: top left). 배율이 가로 기준이라
             줄인 폭이 곧 무대 폭이 되어 좌우 양끝에 딱 맞는다. */}
         <div
-          className={`dr-stage-inner${arrowHideClass}${motorGray}${doorClass}${zoneHot}${railRoll}`}
+          className={`dr-stage-inner${arrowHideClass}${motorGray}${zoneHot}${railRoll}`}
           style={{
             width: STAGE_W,
             height: STAGE_H + STAGE_PAD_B,
@@ -1167,11 +1285,6 @@ export default function DrivePage() {
               </div>
             ))}
 
-            {/* DOOR 이름 — 작화 문짝 폭이 31px뿐이라 글자를 세로로 세운다 */}
-            <div className="dr-door" style={{ left: 494, top: 205 }}>
-              <span className="dr-door-text">DOOR</span>
-            </div>
-
             {/* 로 순환 팬 — 그림과 같은 좌표계에 놓아서 배율이 바뀌어도 판 가운데에 남는다.
                 값이 1이면 도는 그림, 0이거나 못 읽으면 멈춘 그림으로 바꿔 끼운다. */}
             {FANS.map((f) => (
@@ -1183,6 +1296,29 @@ export default function DrivePage() {
                 title={artTitle(FAN_TAGS[f.key])}
                 style={{ left: f.left, top: FAN_TOP, width: FAN_SIZE, height: FAN_SIZE }}
               />
+            ))}
+
+            {/* 팬마다 바로 아래 ON/OFF — 구동 박스의 ON/OFF와 같은 부품·같은 누름 규칙이다. */}
+            {FANS.map((f) => (
+              <div
+                className="dr-fan-btns"
+                key={f.unit}
+                style={{ left: f.left + FAN_SIZE / 2 - FAN_BTN_W / 2, top: FAN_BTN_TOP, width: FAN_BTN_W }}
+              >
+                {['on', 'off'].map((action) => (
+                  <OnOffButton
+                    key={action}
+                    title={t(`art.${FAN_TAGS[f.key].tag}`)}
+                    unit={f.unit}
+                    action={action}
+                    values={tagValues}
+                    onPress={handleDrivePress}
+                    heldTag={heldTag}
+                    armedTag={armedTag}
+                    holdMs={holdMs}
+                  />
+                ))}
+              </div>
             ))}
 
             {/* 입구 롤러 줄 맨 끝 롤러 — 작화에서 빠져 나온 것을 여기서 채운다.
@@ -1223,11 +1359,11 @@ export default function DrivePage() {
                 배율이 바뀌어도 모터와 어긋나지 않는다. */}
             {TRIP_LAMPS.map((l) => (
               <span
-                className={`hmi-lamp dr-trip-lamp${statusLampClass(l.tag)}`}
+                className={`hmi-lamp dr-trip-lamp${tripLampClass(l.tag)}`}
                 key={l.key}
                 style={{ left: l.cx, top: TRIP_TOP, transform: 'translateX(-50%)' }}
                 data-tag={l.tag}
-                title={t('common:hmi.greenAt1', { what: t(`lamp.${l.tag}`).replace('\n', ' '), tag: l.tag })}
+                title={t('rule.tripTip', { what: t(`lamp.${l.tag}`).replace('\n', ' '), tag: l.tag })}
               >
                 <span className="hmi-lamp-dot" />
                 {t(`lamp.${l.tag}`)}
@@ -1269,16 +1405,20 @@ export default function DrivePage() {
         </div>
       </div>
 
-      {/* ===== 하단 경보 목록 + 램프판 ===== */}
+      {/* ===== 하단: 입구 램프판 | 경보 목록 | 출구 램프판 =====
+          그림처럼 왼쪽이 입구, 오른쪽이 출구가 되게 경보 표를 가운데 끼운다.
+          DOM 순서만 바꾼 것이라 CSS는 그대로다 — 넓은 화면은 경보 표 600px 고정에
+          램프판이 남는 폭을 나눠 갖고, 1700px 이하는 경보 표가 order: 1로 맨 아래
+          한 줄로 내려간다(DrivePage.css). 입구/출구는 key 앞부분(ent/exit)으로 가른다. */}
       <div className="dr-bottom">
+        <LampBoardGroup side="ent" values={tagValues} />
+
         <div className="dr-alarm">
           {alarmError && <div className="dr-alarm-error">{alarmError}</div>}
           <HmiTable data={alarms} columns={alarmCols} options={ALARM_OPTIONS} height="100%" />
         </div>
 
-        {LAMP_BOARDS.map((b) => (
-          <LampList key={b.key} lamps={b.lamps} values={tagValues} className="dr-board" />
-        ))}
+        <LampBoardGroup side="exit" values={tagValues} />
       </div>
 
       {/* 쓰기 실패·값 수신 실패 안내. SV를 넣었는데 아무 반응이 없을 때 이유가 보여야 한다. */}

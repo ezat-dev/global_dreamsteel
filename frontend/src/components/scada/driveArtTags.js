@@ -39,38 +39,54 @@ const nameOf = (tag) => i18n.t(`drive:art.${tag}`);
      (ent-motor-3  x 497 y 160  DOOR 바로 위에 있었는데 현장에 없는 설비라 지웠다.
                                 위에 붙던 NOTES의 '입구문 열림'도 같이 뺐다)
      ent-motor-4   x 332 y 360  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리
-     main-motor-1  x 633 y 365  MAIN 존(x 609~1136) 아래
-     main-motor-2  x1162 y 365  MAIN 존 오른쪽 밖 = CC 쪽 아래
+     main-motor-1  x 518 y 365  MAIN 존(x 494~1124) 아래 — 원본 633에서 115 당김(DrivePage.css)
+     (main-motor-2  쿨링챔버 왼쪽 아래 C/C TABLE DRIVE 모터 — 2026-11-17에 지웠다)
      exit-motor-1  x1347 y   0  출구 위쪽 둘 중 위
      exit-motor-2  x1347 y  49  출구 위쪽 둘 중 아래(x가 1번과 같아 위아래로 갈린다)
      exit-motor-3  x1553 y 174  통 모터
      exit-motor-4  x1723 y 172  출구 오른쪽 끝
      exit-motor-5  x1403 y 360  출구 아래줄 */
+/* yellowTag가 있는 모터는 세 갈래다(2026-11-17 사용자 지정):
+     tag(초록)가 1 → 초록 / 아니고 yellowTag가 1 → 노랑 / 둘 다 아니거나 못 읽으면 회색.
+   둘이 동시에 1이면 초록이 먼저다.
+     ent-motor-1   charge_motor1_lamp    Y0CA 초록 / charge_motor1_yellow_lamp    Y0CB 노랑
+     exit-motor-4  discharge_motor4_lamp Y0CD 초록 / discharge_motor4_yellow_lamp Y0CE 노랑
+   (레일 RAIL_TAGS는 초록 쪽 tag만 본다 — 노랑일 때는 구르지 않는다.) */
 export const MOTOR_TAGS = {
-  'ent-motor-1': { tag: 'charge_motor1_lamp' },                              // 입구 모터 1
+  'ent-motor-1': { tag: 'charge_motor1_lamp', yellowTag: 'charge_motor1_yellow_lamp' }, // 입구 모터 1
   'ent-motor-2': { tag: 'charge_motor2_lamp' },                              // 입구 모터 2
-  'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp' },                 // STOPPER 하강 감지
-  'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp' },   // MAIN TABLE DRIVE 컨베이어 회전감지
-  'main-motor-2': { tag: 'cc_table_drive_conveyor_rotate_detect_lamp' },     // CC TABLE DRIVE 컨베이어 회전감지
+  /* 아래 셋은 하단 테이블 드라이브 모터다(Y0C0 / Y0C3 / Y0C5). 태그 이름은 예전 그대로라
+     '감지'가 들어 있지만 실제는 모터 출력이다 — 화면 이름(drive.json art.<태그>)만
+     'TABLE DRIVE 모터'로 고쳤다(2026-11-17, 태그 이름은 DB와 함께 두기로 함). */
+  'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp' },                 // 입구 TABLE DRIVE 모터 (Y0C0)
+  'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp' },   // MAIN TABLE DRIVE 모터 (Y0C3)
   'exit-motor-1': { tag: 'discharge_motor1_lamp' },                          // 출구 모터 1
   'exit-motor-2': { tag: 'discharge_motor2_lamp' },                          // 출구 모터 2
   'exit-motor-3': { tag: 'discharge_motor3_lamp' },                          // 출구 모터 3
-  'exit-motor-4': { tag: 'discharge_motor4_lamp' },                          // 출구 모터 4
-  'exit-motor-5': { tag: 'discharge_table_drive_conveyor_rotate_detect_lamp' }, // 출구 TABLE DRIVE 컨베이어 회전감지
+  'exit-motor-4': { tag: 'discharge_motor4_lamp', yellowTag: 'discharge_motor4_yellow_lamp' }, // 출구 모터 4
+  'exit-motor-5': { tag: 'discharge_table_drive_conveyor_rotate_detect_lamp' }, // 출구 TABLE DRIVE 모터 (Y0C5)
 };
 
 /* 컨베이어 롤러. 한 구역의 롤러는 한 축으로 같이 도니까 태그도 구역당 하나다
    (입구 ent-conv-1~12 / 출구 exit-conv-1~6).
-   입구 줄 맨 끝의 매쉬 롤러는 빠진다 — 제품 감지 자리라 원래 돌지 않는다. */
+   입구 줄 맨 끝의 매쉬 롤러는 빠진다 — 제품 감지 자리라 원래 돌지 않는다.
+
+   태그는 아래 줄 모터의 태그 그대로다(2026-11-17 사용자 지정) — 입구는
+   ent-motor-4(charge_stopper_down_detect_lamp), 출구는 exit-motor-5
+   (discharge_table_drive_conveyor_rotate_detect_lamp). 그 모터가 초록이면 롤러가 돌고,
+   회색이면 선다. 예전의 전용 태그(charge/discharge_side_conveyor_roller)는 쓰지 않는다.
+   레일(RAIL_TAGS)은 이것과 다른 모터를 본다. */
 export const ROLLER_TAGS = {
-  ent: { tag: 'charge_side_conveyor_roller' },      // 입구 SIDE CONVEYOR 롤러
-  exit: { tag: 'discharge_side_conveyor_roller' },  // 출구 SIDE CONVEYOR 롤러
+  ent: { tag: MOTOR_TAGS['ent-motor-4'].tag },    // 입구 롤러 = STOPPER 하강 감지
+  exit: { tag: MOTOR_TAGS['exit-motor-5'].tag },  // 출구 롤러 = 출구 TABLE DRIVE 컨베이어 회전감지
 };
 
 /* 로 순환 팬 둘. 값이 1이면 돌고 0이거나 못 읽으면 선다.
    키는 DrivePage의 FANS와 같다.
-     cc1 x1161   쿨링챔버 판(main-obj-2) 왼쪽
-     cc2 x1266   쿨링챔버 판 오른쪽
+     cc1 x1181(중심)  쿨링챔버 판(main-obj-2, x1124~1353) 왼쪽 1/4
+     cc2 x1296(중심)  쿨링챔버 판 오른쪽 1/4
+   주소는 fan2_lamp M606 / fan3_lamp M608 — 팬 아래 ON 버튼의 램프(fan2_on_cmd_lamp 등)와
+   같은 주소다(2026-11-17 사용자 지정). ON/OFF 버튼은 DrivePage의 FANS 주석 참고.
 
    DOOR 오른쪽 판에도 하나 있었는데(door, fan1_lamp) 그 자리에 팬이 없다고 확인받아
    화면과 함께 뺐다. 이름은 fan2·fan3 그대로 둔다 — DB 태그 이름이라 여기서 바꿀 것이
@@ -99,32 +115,28 @@ export const arrowTitle = (key) => artTitle(ARROW_TAGS.find((a) => a.key === key
 
 /* 모터는 작화 클래스 이름으로 찾는다. 값이 0이라 회색이어도 툴팁은 떠야 한다 —
    값이 안 들어올 때야말로 어느 태그를 봐야 하는지 알아야 하기 때문이다. */
-export const motorTitle = (cls) => artTitle(MOTOR_TAGS[cls]);
+/* 노랑 태그가 있는 모터는 두 태그를 다 적는다 — 툴팁에 매핑된 태그가 빠지면 안 된다. */
+export const motorTitle = (cls) => {
+  const { tag, yellowTag } = MOTOR_TAGS[cls];
+  if (!yellowTag) return artTitle(MOTOR_TAGS[cls]);
+  return `${nameOf(tag)} / ${i18n.t('drive:rule.motorTwo', { green: tag, yellow: yellowTag })}`;
+};
 
-/* 회색으로 만들 때 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다. */
+/* 회색·노랑으로 만들 때 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다. */
 export const motorGrayClass = (cls) => `gray-${cls}`;
+export const motorYellowClass = (cls) => `yellow-${cls}`;
 
 /* ---------------------------------------------------------------------------
-   입구문과 MAIN 존 구획 8개. 위 요소들과 값 규칙이 다르고, 둘끼리도 다르다.
+   MAIN 존 구획 7칸. 1이면 오렌지, 0이거나 못 읽으면 작화 그대로 — 꺼진 모습이
+   곧 원래 색이라 '모름'을 위한 색을 따로 둘 자리가 마땅치 않다.
 
-   입구문은 세 갈래다 — 0이면 빨강, 1이면 초록, 못 읽으면 회색. 빨강·초록이 각각
-   닫힘·열림이라 '모름'을 둘 중 하나로 뭉개면 문 상태를 잘못 읽게 된다.
-   존 구획은 두 갈래다 — 1이면 오렌지, 0이거나 못 읽으면 작화 그대로. 이쪽은 꺼진
-   모습이 곧 원래 색이라 '모름'을 위한 색을 따로 둘 자리가 마땅치 않다.
+   입구문(ent-door-1, ent_door_open_close_lamp — 빨강/초록/회색)도 여기 있었는데
+   2026-11-17 그림에서 DOOR를 지우면서 같이 뺐다. 문 상태는 하단 램프판의
+   입구 DOOR OPEN/CLOSE P/X로 본다.
    ------------------------------------------------------------------------- */
 
-/* 입구문 — 0이면 빨강, 1이면 초록, 못 읽으면 회색.
-   예전에는 바로 위 모터(ent-motor-3)가 charge_door_open_lamp를 따로 보고 있어서 같은
-   문을 두 태그가 보는 꼴이었는데, 그 모터를 지우면서 이 하나만 남았다. */
-export const DOOR_TAG = {
-  cls: 'ent-door-1',
-  tag: 'ent_door_open_close_lamp',   // 입구문
-};
-export const doorTitle = () => `${nameOf(DOOR_TAG.tag)} / ${DOOR_TAG.tag} — ${i18n.t('drive:rule.door')}`;
-
-/* MAIN 존 구획 7칸 — 0이거나 못 읽으면 작화 그대로, 1이면 오렌지.
-   키는 작화 클래스 이름 그대로다(main-1-zone ~ main-7-zone). 왼쪽부터 1~7존이고,
-   x는 609부터 75px 칸이 나란히 붙는다. */
+/* 키는 작화 클래스 이름 그대로다(main-1-zone ~ main-7-zone). 왼쪽부터 1~7존이고,
+   x는 494부터 90px 칸이 나란히 붙는다(원본은 609부터 75px — DrivePage.css가 덮는다). */
 export const ZONE_TAGS = {
   'main-1-zone': { tag: 'main_zone1_lamp' },
   'main-2-zone': { tag: 'main_zone2_lamp' },
@@ -144,11 +156,12 @@ export const zoneTitle = (cls) => {
    값이 1이면 구르고 0이거나 못 읽으면 선다 — 통신이 끊겼는데 계속 흐르면
    설비가 도는 줄로 읽히므로 세우는 쪽이 안전하다.
 
-   주소가 아직 롤러(charge_side_conveyor_roller)와 같은 M300이라 지금은 롤러와
-   레일이 같이 돌고 같이 선다. 실제로도 같은 축이면 나중에 태그를 하나로 합칠 수 있다. */
+   SIDE CONVEYOR 모터의 태그를 그대로 본다(2026-11-17 사용자 지정 — 예전 전용 태그
+   charge/discharge_side_conveyor_rail은 쓰지 않는다). 입구는 ent-motor-1
+   (charge_motor1_lamp), 출구는 exit-motor-4(discharge_motor4_lamp). 롤러와는 다른 태그다. */
 export const RAIL_TAGS = {
-  ent: { tag: 'charge_side_conveyor_rail' },      // 입구 SIDE CONVEYOR 레일
-  exit: { tag: 'discharge_side_conveyor_rail' },  // 출구 SIDE CONVEYOR 레일
+  ent: { tag: MOTOR_TAGS['ent-motor-1'].tag },    // 입구 SIDE CONVEYOR 레일 = 입구 모터 1
+  exit: { tag: MOTOR_TAGS['exit-motor-4'].tag },  // 출구 SIDE CONVEYOR 레일 = 출구 모터 4
 };
 
 /* 구를 때 무대에 붙는 클래스. 붙지 않은 상태가 '멈춤'이다 —
@@ -164,9 +177,5 @@ export const railTitle = (key) => {
 };
 
 /* 무대에 붙는 클래스. DrivePage.css의 선택자와 짝이 맞아야 한다.
-   입구문은 1이면 초록, 못 읽으면 회색이 붙고 0이면 아무것도 안 붙는다 —
-   붙지 않은 상태가 빨강이라 CSS 기본 규칙에 그 색이 적혀 있다.
    존은 오렌지일 때만 붙고, 안 붙은 상태가 작화 그대로다. */
-export const doorGreenClass = () => 'green-ent-door';
-export const doorGrayClass = () => 'gray-ent-door';
 export const zoneHotClass = (cls) => `hot-${cls}`;

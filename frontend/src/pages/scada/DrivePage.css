@@ -195,6 +195,14 @@ html[lang="en"] .dr-top > .dr-time {
   color: #ffffff;
 }
 
+/* 수동에 걸린 상태 — 채운 노랑. 공용 .hmi-lampbox.is-warn과 같은 색이고, 노랑 위
+   흰 글씨는 현장 조명에서 안 읽혀서 글자만 짙은 갈색으로 둔다. */
+.dr-op-row .dr-op-lamp.is-warn {
+  border-color: #eab308;
+  background: #eab308;
+  color: #422006;
+}
+
 /* 값을 못 읽은 상태 — 꺼짐과 구분한다. 다른 화면의 램프와 같은 점선 규칙이다. */
 .dr-op-lamp.is-unknown {
   border-style: dashed;
@@ -483,27 +491,6 @@ html[lang="en"] .dr-time-label {
   color: var(--hmi-led-green);
 }
 
-/* DOOR 이름만 담는 칸. 오른쪽에 있던 PV 값칸은 순환 팬(.dr-fan)으로 바뀌었고,
-   그 자리는 FANS 목록이 따로 잡는다(쿨링챔버 팬 둘과 높이를 맞추려고). */
-.dr-door {
-  display: flex;
-  align-items: center;
-  height: 160px;
-}
-
-/* 글자를 눕히지 않고 선 채로 세로로 쌓는다(D / O / O / R).
-   writing-mode만 주면 알파벳이 90도 돌아가므로 text-orientation: upright가 같이 필요하다.
-   세로쓰기에서는 letter-spacing이 글자 사이 세로 간격이 된다. */
-.dr-door-text {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  width: 31px;
-  text-align: center;
-  font-size: 23px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
 /* ===== 그림 아래 회전감지 =============================================== */
 
 /* 모터 바로 아래에 붙는 램프. 위치는 DrivePage.jsx의 TRIP_LAMPS가 인라인으로 넣고,
@@ -522,6 +509,12 @@ html[lang="en"] .dr-time-label {
 /* 두 줄짜리 글자 옆에서 점이 가운데로 뜨지 않게 첫 줄 높이에 맞춰 내린다 */
 .dr-trip-lamp .hmi-lamp-dot {
   margin-top: 2px;
+}
+
+/* 1이면 빨간 점(.alarm). 공용 .hmi-lamp.alarm은 점이 깜빡이는데, 이 화면의 다른 빨간
+   램프(.dr-lamp-list)처럼 깜빡임은 끈다. 0이면 꺼진 동그라미, 글씨는 늘 그대로다. */
+.dr-trip-lamp.alarm .hmi-lamp-dot {
+  animation: none;
 }
 
 /* 제품감지 — 표시등 아래에 글씨가 붙는 세로 묶음.
@@ -587,10 +580,12 @@ html[lang="en"] .dr-time-label {
 /* ===== 하단 경보 목록 + 램프판 =========================================== */
 
 /* Tabulator에 height="100%"를 주려면 부모가 확정된 높이를 가져야 해서 여기서 못박는다.
-   램프 4줄짜리 묶음이 대략 이 높이라 옆에 나란히 두기에도 맞다. */
+   160px을 넘기면 안 된다 — 더 높이면 위 설비 그림 아래쪽 글씨(회전감지 램프 등)를
+   가린다(2026-11-17 사용자 지적). 출구 램프판 5줄(두 줄 글씨 칸 약 27px)이 이 안에
+   들어가도록 칸 쪽 여백을 줄여 맞췄다 — 램프가 늘어 줄이 늘면 높이가 아니라 칸을 줄일 것. */
 .dr-bottom {
   flex-shrink: 0;
-  height: 140px;
+  height: 160px;
   display: flex;
   align-items: stretch;
   gap: 6px;
@@ -610,9 +605,11 @@ html[lang="en"] .dr-time-label {
   }
 }
 
-/* 경보 목록 — 폭은 고정하고 램프판이 남는 폭을 나눠 갖는다 */
+/* 경보 목록 — 양옆 램프판이 글자 폭만큼 먼저 차지하고, 남는 폭을 이 표가 다 갖는다
+   (예전에는 600px 고정에 램프판이 남는 폭을 나눴다 — 2026-11-17 램프 이름이 잘리지 않게
+   뒤집었다). */
 .dr-alarm {
-  flex: 0 0 600px;
+  flex: 1 1 0;
   min-width: 0;
   position: relative;
   border: 1px solid var(--hmi-light);
@@ -679,13 +676,19 @@ html[lang="en"] .dr-time-label {
 .dr-stage-inner.gray-ent-motor-3 .ent-motor-3,
 .dr-stage-inner.gray-ent-motor-4 .ent-motor-4,
 .dr-stage-inner.gray-main-motor-1 .main-motor-1,
-.dr-stage-inner.gray-main-motor-2 .main-motor-2,
 .dr-stage-inner.gray-exit-motor-1 .exit-motor-1,
 .dr-stage-inner.gray-exit-motor-2 .exit-motor-2,
 .dr-stage-inner.gray-exit-motor-3 .exit-motor-3,
 .dr-stage-inner.gray-exit-motor-4 .exit-motor-4,
 .dr-stage-inner.gray-exit-motor-5 .exit-motor-5 {
   filter: grayscale(1);
+}
+
+/* 노랑 — yellowTag가 있는 두 모터만(driveArtTags.js의 MOTOR_TAGS). 회색 클래스와 동시에
+   붙는 일은 없다(DrivePage가 셋 중 하나만 고른다). #dr-yellow는 DrivePage.jsx가 그려 둔다. */
+.dr-stage-inner.yellow-ent-motor-1 .ent-motor-1,
+.dr-stage-inner.yellow-exit-motor-4 .exit-motor-4 {
+  filter: url(#dr-yellow);
 }
 
 /* ===== 입구 롤러 줄 맨 끝의 매쉬 롤러 =====================================
@@ -734,22 +737,64 @@ html[lang="en"] .dr-time-label {
 
 /* 로 순환 팬 — 마우스를 받는다. 태그 이름 툴팁이 떠야 하는데 pointer-events: none이면
    hover 자체가 안 잡혀서 툴팁도 안 뜨기 때문이다(.dr-overlay > * 가 켜 주는 대로 둔다).
-   눌러도 하는 일은 없고, 아래에 깔린 것은 작화 판(main-obj-1/2)이라 가릴 조작도 없다.
+   눌러도 하는 일은 없고, 아래에 깔린 것은 작화 판(쿨링챔버 main-obj-2)이라 가릴 조작도 없다.
    태블릿에서 길게 눌러 뜨는 메뉴는 ScadaLayout의 blockLongPressMenu가 막는다(img 포함). */
 .dr-fan {
   cursor: default;
 }
 
-/* 제목 없는 램프 묶음 — 제목 자리를 비우고 위쪽 여백만 줄인다 */
-.dr-board {
-  flex: 1;
-  min-width: 0;
-  margin-top: 0;
-  padding: 7px 8px;
+/* 쿨링챔버 팬 아래 ON/OFF 한 쌍. 버튼 모양은 구동 박스와 같은 .dr-onoff다.
+   위치·폭은 DrivePage.jsx의 FAN_BTN_TOP / FAN_BTN_W가 인라인으로 준다. */
+.dr-fan-btns {
+  display: flex;
+  justify-content: space-between;
 }
 
-.dr-board .hmi-lamp {
-  font-size: 11px;
+/* 제목 없는 램프판(입구 한 판 / 출구 한 판) — 제목 자리를 비우고 위쪽 여백만 줄인다.
+
+   폭은 글자에 맞춘다(flex: 0 0 auto) — 표의 이름을 줄이지도 자르지도 않고 한 줄에 다
+   보이게 하려는 것이다(2026-11-17). 가운데 경보 표가 남는 폭을 가져간다(.dr-alarm).
+   1920 화면에서 입구 약 580px / 출구 약 740px / 경보 표 약 560px이 된다. */
+.dr-board {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin-top: 0;
+  padding: 4px 6px;
+}
+
+/* 열 수·줄 수는 JSX가 인라인으로 준다(LAMP_BOARDS의 cols). 위에서 아래로 채운다. */
+.dr-board-grid {
+  flex: 1 1 auto;   /* .dr-board(세로 flex)의 남는 높이를 다 받는다 */
+  min-height: 0;
+  display: grid;
+  grid-auto-flow: column;
+}
+
+/* 칸 하나 = 점 + 이름 한 줄. 칸 사이는 가로·세로 점선(요청). 점선 색은 밝은·어두운
+   테마 양쪽에서 보이도록 반투명 회색이다. */
+.dr-board .dr-board-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 0 10px;
+  font-size: 11.5px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dr-board .dr-board-cell.has-left {
+  border-left: 1px dotted rgba(140, 150, 160, .75);
+}
+
+.dr-board .dr-board-cell.has-bottom {
+  border-bottom: 1px dotted rgba(140, 150, 160, .75);
+}
+
+/* 1이면 빨간 점(.alarm). 공용 .hmi-lamp.alarm은 점이 깜빡이는데, 이 화면의 다른 빨간
+   램프처럼 깜빡임은 끈다 — 31개가 같이 깜빡이면 화면을 볼 수 없다. */
+.dr-board-cell.alarm .hmi-lamp-dot {
+  animation: none;
 }
 
 /* ===== 다크 보정 ============================================================
@@ -809,7 +854,7 @@ html[lang="en"] .dr-time-label {
   }
 
   .dr-bottom {
-    /* 판이 여덟(경보 표 + 램프판 7)이라 한 줄로는 안 된다. 접히게 두고 높이도 푼다. */
+    /* 경보 표 + 입구 판(4칸) + 출구 판(3칸)이 한 줄로는 안 된다. 접히게 두고 높이도 푼다. */
     height: auto;
     flex-wrap: wrap;
   }
@@ -823,10 +868,10 @@ html[lang="en"] .dr-time-label {
     height: 140px;
   }
 
-  /* 한 줄에 넷씩 — 일곱이 4+3으로 앉는다. px 기준으로 두면 폭에 따라 5+2가 되어
-     뒷줄 둘이 600px씩으로 부풀었다. 간격 6px을 셋 빼야 넷이 들어간다(25% - 5px). */
+  /* 입구 판·출구 판이 한 줄씩 통째로 쓴다(예전 4+3 접힘과 같은 모양).
+     인라인 flex-grow(칸 수)는 그대로 둬도 줄마다 판이 하나라 상관없다. */
   .dr-board {
-    flex: 1 1 calc(25% - 5px);
+    flex-basis: 100%;
   }
 }
 
@@ -874,26 +919,51 @@ html[lang="en"] .dr-time-label {
   }
 }
 
-/* ===== 입구문 / MAIN 존 구획 ==========================================
-   둘 다 값이 1일 때만 무대에 클래스가 붙는다. 0과 '못 읽음'을 같게 두기로 해서,
-   아무것도 안 붙은 상태가 곧 0이다.
+/* ===== DOOR 자리 비우기 (2026-11-17) =======================================
+   작화의 DOOR(ent-door-1, x 494~525)와 그 오른쪽 빈 판(main-obj-1, 525~609)을
+   DriveOverview에서 지웠다. 비는 115px만큼 MAIN 존 7칸과 그 아래 모터를 왼쪽으로
+   당겼다. 출구 쪽은 그대로다.
 
-   입구문은 세 갈래다 — 0이 빨강이라 기본 규칙에 filter를 걸어 두고, 1일 때 초록으로,
-   못 읽을 때 회색으로 덮는다. 빨강·초록이 닫힘·열림이라 '모름'을 둘 중 하나로 뭉개면
-   문 상태를 잘못 읽게 되어 회색을 따로 뒀다(모터가 꺼졌을 때와 같은 grayscale이다).
-   존 구획은 두 갈래다 — 0이 작화 그대로라 기본 규칙이 없고 1일 때만 오렌지를 건다.
+   그 다음 MAIN과 쿨링챔버가 x 494~1353을 나눠 쓰도록 폭을 다시 잡았다 — 존 한 칸
+   75 → 90px(494~1124), 쿨링챔버 229px(1124~1353). 쿨링챔버를 331px로 늘렸더니 너무
+   넓다고 해서 존 쪽으로 넘겼다. 존 그림도 가로로 같은 무늬라 fill로 펴도 모양이 그대로다.
+
+   작화 원본 CSS(driveOverview.css)는 손대지 않고 여기서 left만 덮는다. 원본 선택자가
+   .overview-1 .xxx(둘)라 .dr-stage-inner를 앞에 붙여 무게를 넘긴다.
+   그림 위 PV/SV·라벨·회전감지 램프·팬은 DrivePage.jsx의 좌표 표가 같이 옮겨져 있다
+   (ZONE_LEFT 494, LABELS, TRIP_LAMPS, FANS) — 한쪽만 고치면 어긋난다.
+
+   모터 둘은 scale(-1, 1)로 뒤집혀 있어 left가 오른쪽 끝이다(그려지는 자리는 left-24). */
+/* 존 칸 폭·간격은 DrivePage.jsx의 ZONE_LEFT / ZONE_STEP / ZONE_W와 같아야 한다
+   (그 위에 PV/SV 칸이 얹힌다). 원본의 object-fit: cover로 두면 넓힌 폭에 맞춰
+   확대되며 위아래가 잘리므로 fill로 편다. */
+.dr-stage-inner .overview-1 [class^="main-"][class$="-zone"] {
+  width: 90px;
+  object-fit: fill;
+}
+.dr-stage-inner .overview-1 .main-1-zone { left: 494px; }
+.dr-stage-inner .overview-1 .main-2-zone { left: 584px; }
+.dr-stage-inner .overview-1 .main-3-zone { left: 674px; }
+.dr-stage-inner .overview-1 .main-4-zone { left: 764px; }
+.dr-stage-inner .overview-1 .main-5-zone { left: 854px; }
+.dr-stage-inner .overview-1 .main-6-zone { left: 944px; }
+.dr-stage-inner .overview-1 .main-7-zone { left: 1034px; }
+.dr-stage-inner .overview-1 .main-motor-1 { left: 518px; }
+
+/* 쿨링챔버 판 — 그림이 가로로 같은 무늬(세로 그라디언트)라 폭을 바꿔도 모양이 그대로다. */
+.dr-stage-inner .overview-1 .main-obj-2 {
+  left: 1124px;
+  width: 229px;
+  object-fit: fill;
+}
+
+/* ===== MAIN 존 구획 ===================================================
+   값이 1일 때만 무대에 클래스가 붙는다. 0과 '못 읽음'을 같게 두기로 해서,
+   아무것도 안 붙은 상태가 곧 0이다 — 0이 작화 그대로라 기본 규칙이 없고 1일 때만
+   오렌지를 건다.
 
    모터 회색과 같은 사정이다 — filter는 겹쳐 쌓이지 않고 나중 것 하나만 남으므로,
    작화나 다크 테마가 이 자리에 filter를 걸게 되면 한 줄에 같이 적어야 한다. */
-.dr-stage-inner .overview-1 .ent-door-1 {
-  filter: url(#dr-red);
-}
-.dr-stage-inner.green-ent-door .overview-1 .ent-door-1 {
-  filter: url(#dr-green);
-}
-.dr-stage-inner.gray-ent-door .overview-1 .ent-door-1 {
-  filter: grayscale(1);
-}
 
 /* ===== SIDE CONVEYOR 레일이 구르는 모양 ==================================
    레일 12줄(입구 6 · 출구 6) 안에 10x6px 막대(mini-rail)가 39개씩 7px 간격으로
@@ -956,7 +1026,7 @@ html[lang="en"] .dr-time-label {
 
 /* ===== COOLING CHAMBER 판 색 ================================================
 
-   작화의 쿨링챔버 판(main-obj-2, x1137~1353)은 다른 판과 같은 회갈색이라, 차가운 쪽으로
+   작화의 쿨링챔버 판(main-obj-2, 지금 x1124~1353 — 위 'DOOR 자리 비우기')은 다른 판과 같은 회갈색이라, 차가운 쪽으로
    보이게 푸른색으로 물들인다. 색 행렬 #dr-blue는 DrivePage.jsx가 그려 둔다.
    filter는 겹쳐 쌓이지 않으니 이 자리에 다른 filter를 걸게 되면 한 줄에 같이 적어야 한다. */
 .dr-stage-inner .overview-1 .main-obj-2 {

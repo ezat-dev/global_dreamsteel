@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import {
-  ROLLER_TAGS, artTitle, arrowTitle, doorTitle, motorTitle, railTitle, zoneTitle,
+  ROLLER_TAGS, artTitle, arrowTitle, motorTitle, railTitle, zoneTitle,
 } from './driveArtTags';
 
 /* ===========================================================================
@@ -22,7 +22,7 @@ import {
      motor-h.svg     가로 기어드 모터 ent-motor-1 / exit-motor-1 / exit-motor-2 / exit-motor-4
      motor-drum.svg  통 모터          ent-motor-2 / exit-motor-3
      motor-v1.svg    세로 기어드 모터 ent-motor-3
-     motor-v2.svg    세로 모터+감속기 ent-motor-4 / main-motor-1 / main-motor-2 / exit-motor-5
+     motor-v2.svg    세로 모터+감속기 ent-motor-4 / main-motor-1 / exit-motor-5
      arrow-up.svg    위 화살표        ent-up-1~4 / exit-up-1~4
      arrow-down.svg  아래 화살표      ent-down-1~4 / exit-down-1~4
      roller.svg      컨베이어 롤러    ent-conv-1~12
@@ -58,8 +58,10 @@ import {
 // eslint-disable-next-line no-unused-vars
 function DriveOverview({ entRolling = true, exitRolling = true, lang }) {
   /* 기본값이 true인 것은 이 컴포넌트를 값 없이 써도 예전처럼 도는 그림이 나오게 하려는 것이다. */
-  const entRoller = entRolling ? '/scada/drive/roller.svg' : '/scada/drive/roller-still.svg';
-  const exitRoller = exitRolling ? '/scada/drive/roller-exit.svg' : '/scada/drive/roller-still.svg';
+  /* ?v= 는 캐시 무효화다 — public/ 자산은 파일명에 해시가 안 붙어서, 그림을 고치면
+     이 숫자를 올려야 현장 화면에 반영된다(v=2: 2026-11-17 도는 방향을 왼쪽→오른쪽으로). */
+  const entRoller = entRolling ? '/scada/drive/roller.svg?v=2' : '/scada/drive/roller-still.svg';
+  const exitRoller = exitRolling ? '/scada/drive/roller-exit.svg?v=2' : '/scada/drive/roller-still.svg';
 
   /* 그림 위 요소에 붙는 태그 이름 툴팁. 값이 아니라 이름이라 매번 같은 글이고,
      memo와 상관없이 한 번 그려지면 그대로 남는다.
@@ -369,7 +371,9 @@ function DriveOverview({ entRolling = true, exitRolling = true, lang }) {
         {/* ent-motor-3(DOOR 바로 위 세로 기어드 모터)은 뺐다 — 현장에 없는 설비라
             위에 붙던 '입구문 열림' 글귀와 함께 지웠다. */}
         <img className="ent-motor-4" src="/scada/drive/motor-v2.svg" title={motorTitle('ent-motor-4')} />
-        <img className="ent-door-1" src="/scada/drive/ent-door-10.png" title={doorTitle()} />
+        {/* ent-door-1(DOOR, x 494~525)은 뺐다 — 2026-11-17 사용자 요청. 오른쪽 빈 판
+            main-obj-1과 함께 지우고, 그 115px만큼 MAIN 존과 쿨링챔버를 왼쪽으로 당겼다
+            (위치는 DrivePage.css의 'DOOR 자리 비우기'). */}
       </div>
       <div className="main-drive">
         <img className="main-1-zone" src="/scada/drive/main-1-zone0.png" title={zoneTitle('main-1-zone')} />
@@ -380,9 +384,9 @@ function DriveOverview({ entRolling = true, exitRolling = true, lang }) {
         <img className="main-6-zone" src="/scada/drive/main-6-zone0.png" title={zoneTitle('main-6-zone')} />
         <img className="main-7-zone" src="/scada/drive/main-7-zone0.png" title={zoneTitle('main-7-zone')} />
         <img className="main-obj-2" src="/scada/drive/main-obj-20.png" />
-        <img className="main-obj-1" src="/scada/drive/main-obj-10.png" />
         <img className="main-motor-1" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-1')} />
-        <img className="main-motor-2" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-2')} />
+        {/* main-motor-2(쿨링챔버 아래 C/C TABLE DRIVE 모터)는 뺐다 — 2026-11-17 사용자 요청.
+            아래 붙던 C/C 회전감지 램프(DrivePage의 TRIP_LAMPS)와 함께 지웠다. */}
       </div>
       <div className="exit-conv">
         <img className="exit-obj-1" src="/scada/drive/exit-obj-10.png" />

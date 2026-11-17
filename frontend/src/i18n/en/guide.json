@@ -22,9 +22,9 @@
     "opPanel": {
       "title": "Charge / Discharge OP PANEL",
       "body": [
-        "Mode (MANUAL/AUTO) shows which way the selector on the field OP panel is set. It cannot be changed from this screen.",
-        "When AUTO RUN is lit, the line is running automatically.",
-        "When E-STOP lights red [[alarm]], an emergency stop is active.",
+        "Mode shows which way the selector on the field OP panel is set. MANUAL lights yellow [[warn]], AUTO lights green [[on]]. It cannot be changed from this screen.",
+        "When AUTO RUN lights green [[on]], the line is running automatically.",
+        "E-STOP is green [[on]] when normal and red [[alarm]] when an emergency stop is active.",
         "The DISCHARGE OP PANEL works the same way."
       ]
     },
@@ -83,8 +83,8 @@
       "body": [
         "The drawing changes with the equipment state.",
         "Motors: green when running, grey when stopped · Rollers and rails: roll while running · Circulation fans: spin while running",
-        "SIDE CONVEYOR arrows: shown only while rising or lowering · DOOR: green [[on]] / red [[alarm]] shows the door state · MAIN zones: orange while active",
-        "The rotation detect lamps under the motors and the product detect lamp light green [[on]] when detected."
+        "SIDE CONVEYOR arrows: shown only while rising or lowering · MAIN zones: orange while active",
+        "The rotation detect lamps under the motors light red [[alarm]] when detected and stay off [[off]] otherwise. The product detect lamp lights green [[on]] when detected."
       ]
     },
     "alarms": {
@@ -96,10 +96,11 @@
       ]
     },
     "boards": {
-      "title": "Sensor and valve lamps",
+      "title": "Charge/discharge output and detect lamps",
       "body": [
-        "Charge/discharge SOL VALVEs, limit switches (L/S), proximity sensors (P/X) and product detection.",
-        "[[on]] Green: on / detected   [[alarm]] Red: off"
+        "Left board is charge, right board is discharge. In each board the left side shows the hydraulic unit, pocket lift motor and side conveyor outputs, and the right side shows limit switch (L/S) detection.",
+        "[[alarm]] Red: on / detected   [[off]] Grey: off",
+        "Hover a cell to see its full name."
       ]
     },
     "end": {
