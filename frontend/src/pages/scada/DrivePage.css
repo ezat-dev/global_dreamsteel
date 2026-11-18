@@ -708,9 +708,19 @@
 
 /* 쿨링챔버 팬 아래 ON/OFF 한 쌍. 버튼 모양은 구동 박스와 같은 .dr-onoff다.
    위치·폭은 DrivePage.jsx의 FAN_BTN_TOP / FAN_BTN_W가 인라인으로 준다. */
+/* 팬마다 ON/OFF 두 개를 한 박스로 감싼다 — 2026-11-18 사용자 요청. 쿨링챔버 하늘색 판 위에
+   맨몸으로 놓여 있어 글씨표처럼 보였다. 위 구동 박스(.dr-drive)처럼 어두운 판 + 테두리다.
+   작화 위에 얹는 것이라 불투명하게 둔다(다크 테마 규칙). 폭은 JSX의 FAN_BTN_W(테두리·여백 포함). */
 .dr-fan-btns {
+  box-sizing: border-box;
   display: flex;
   justify-content: space-between;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--hmi-shadow-dark);
+  border-radius: 7px;
+  background: var(--hmi-panel);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
 }
 
 /* 제목 없는 램프판(입구 한 판 / 출구 한 판) — 제목 자리를 비우고 위쪽 여백만 줄인다.
