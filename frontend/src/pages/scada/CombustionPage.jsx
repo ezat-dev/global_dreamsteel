@@ -8,7 +8,7 @@ import { useStageStretch } from '../../components/scada/useStageScale';
 import useFolderTagValues from '../../components/scada/useFolderTagValues';
 import useAlarmList from '../../components/scada/useAlarmList';
 import {
-  lampClassOf, lampOf, tagState, writeTag, TAG_OFF, TAG_ON, TAG_UNKNOWN,
+  lampClassOf, lampOf, tagState, writeTag, TAG_ON, TAG_UNKNOWN,
 } from '../../api/scada/foldertagApi';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
@@ -39,7 +39,7 @@ import './CombustionPage.css';
    =========================================================================== */
 
 /* 작화 그림 자체는 1155x469다.
-   무대를 1400으로 더 넓게 잡는 이유는, 사진에서 연소 BLOWER·버너 쿨링 패널이
+   무대를 1400으로 더 넓게 잡는 이유는, 사진에서 연소 BLOWER 패널이
    그림 오른쪽 "바깥"에 놓이기 때문이다. 그 자리(1155~1400)를 미리 비워 둔다.
 
    ※ 크기를 잴 때 주의 — 이 작화는 rotate(-180deg) + transform-origin: 0 0 인 조각이
@@ -184,35 +184,7 @@ const DEVICE_PANELS = [
     onCmd: 'blower_on_cmd',   // M310 / 램프 M610 — 1이면 초록
     offCmd: 'blower_off_cmd', // M311 / 램프 M611 — 1이면 빨강
   },
-  /* 버너 쿨링은 바탕이 없어서 CSS로 그린다. 사진처럼 연소 BLOWER 아래에 두되,
-     7존 개도(for-7-zone-per, x 1047~1115 / y 91~120)를 가리지 않게 오른쪽으로 민다. */
-  {
-    key: 'burnerCool', tone: 'blue',   // 버너 쿨링
-    /* 폭은 제목판과 상태판이 같아야 한다 — 다르면 아래 판이 삐져나온다.
-
-       오른쪽 끝이 무대 폭(STAGE_W 1285)을 넘으면 안 된다. .cb-stage가 overflow: hidden
-       이라 넘는 만큼 그냥 잘린다. 바깥 폭 = width + 좌우 여백 9*2 + 테두리 2 = width+20
-       이므로, left 1145 + 118 + 20 = 1283으로 2px 남기고 맞췄다.
-
-       왼쪽 한계는 1132다 — 그보다 왼쪽에는 7존 개도 상자(for-7-zone-box, x 1045~1117)와
-       작은 조각들(obj21 x 1113~1132)이 있어서 가린다. 판을 더 넓히려면 무대를 넓히는
-       수밖에 없는데, 그러면 그림 전체가 그만큼 작아진다.
-
-       판을 한 단 줄였다(폭 118 → 96, 글자·여백은 CombustionPage.css의 .cb-dev--burnerCool).
-       좌우 여백이 9 → 7px으로 줄어 바깥 폭이 width+16이라, 오른쪽 끝을 전과 같은 1283에
-       맞추려고 left를 1171로 밀었다. state의 top은 제목판이 얇아진 만큼 같이 올렸다
-       — 두 판은 테두리를 맞대고 붙어 있어서 1px만 어긋나도 보인다. */
-    plate: { left: 1171, top: 78, width: 96 },
-    state: { left: 1171, top: 99, width: 96 },
-    on: 'ON', off: 'OFF', stacked: true,
-    /* 위 둘과 OFF 램프 규칙이 다르다 — 여기는 존 연소 ON/OFF와 같은 쪽이다.
-       ON은 1이면 초록, OFF는 0이면 빨강(즉 '지금 꺼져 있다'를 빨강으로 알린다).
-       MAIN GAS·연소 BLOWER의 CLOSE/OFF는 반대로 1일 때 켜진다. 같은 화면에서 갈리는
-       것이라, 램프가 거꾸로 보이면 이 offLitWhen부터 본다. */
-    onCmd: 'burner_cooling_on_cmd',   // M300(임시) / 램프 burner_cooling_on_cmd_lamp
-    offCmd: 'burner_cooling_off_cmd', // M300(임시) / 램프 burner_cooling_off_cmd_lamp
-    offLitWhen: TAG_OFF,
-  },
+  /* 연소 BLOWER 아래에 있던 버너 쿨링 판은 2026-11-18 사용자 요청으로 통째로 뺐다. */
 ];
 
 /* 배관 부속 아래에 붙는 상태 램프. cx는 그 부속이 그려지는 가운데 x다.
@@ -338,7 +310,7 @@ export default function CombustionPage() {
   const holdTip = (cmd) => t('common:hmi.holdSend', { cmd, lamp: lampOf(cmd), sec: holdMs / 1000 });
 
   /* PLC 상태·설정값. 지금은 사진과 같은 더미다(존 연소 ON/OFF는 태그가 붙어서 빠졌다). */
-  const [devices] = useState({ mainGas: false, blower: false, burnerCool: false });
+  const [devices] = useState({ mainGas: false, blower: false });
 
   /* 개별연소 모달을 띄운 존 번호. null이면 닫힘.
      존마다 창을 따로 두지 않고 번호만 바꿔 끼운다 — 내용이 존 번호로만 갈린다. */
@@ -586,14 +558,14 @@ export default function CombustionPage() {
           <div className="cb-overlay">
             {/* ── 설비 제목판 + 상태 두 글자 ── */}
             {DEVICE_PANELS.map((d) => (
-              /* key별 클래스를 같이 준다 — 버너 쿨링만 글자·여백을 줄여야 해서
-                 CSS가 그 판을 집어낼 수 있어야 한다(ACTION_PANELS와 같은 방식). */
+              /* key별 클래스를 같이 준다 — 화면 설명서(guideSteps)가 판을 하나씩 짚을 때
+                 이 이름으로 집어낸다(ACTION_PANELS와 같은 방식). */
               <span className={`cb-dev cb-dev--${d.key}`} key={d.key}>
                 <em className={`cb-plate cb-plate--${d.tone}`} style={d.plate}>{t(`device.${d.key}`)}</em>
 
                 {/* 두 칸 다 램프다. 걸린 쪽만 켜진다 — on쪽은 초록, off쪽은 빨강.
                     명령 태그가 있는 설비는 그 램프가 버튼도 겸한다(모양은 같다). */}
-                <em className={`cb-onoff${d.stacked ? ' is-stacked' : ''}`} style={d.state}>
+                <em className="cb-onoff" style={d.state}>
                   {d.onCmd ? (
                     <>
                       {/* holdMs만큼 누르면 1, 떼면 0. 뗌은 window가 받는다.
@@ -615,7 +587,7 @@ export default function CombustionPage() {
                       </button>
                       <button
                         type="button"
-                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm', d.offLitWhen)}`
+                        className={`hmi-lampbox${lampClass(d.offCmd, ' is-alarm')}`
                           + (heldTag === d.offCmd ? ' is-held' : '')
                           + (armedTag === d.offCmd ? ' is-armed' : '')}
                         onPointerDown={() => handlePress(d.offCmd)}
@@ -629,7 +601,7 @@ export default function CombustionPage() {
                       </button>
                     </>
                   ) : (
-                    /* 아직 태그가 없는 설비(연소 BLOWER·버너 쿨링) — 더미값 표시 전용 */
+                    /* 명령 태그가 없는 설비 — 더미값 표시 전용(지금은 해당 설비 없음) */
                     <>
                       <b className={`hmi-lampbox${devices[d.key] ? ' is-on' : ''}`}>{d.on}</b>
                       <b className={`hmi-lampbox${devices[d.key] ? '' : ' is-alarm'}`}>{d.off}</b>

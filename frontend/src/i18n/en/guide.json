@@ -116,7 +116,7 @@
       "title": "Combustion screen at a glance",
       "body": [
         "Operate the gas, combustion blower and burners, and watch zone 1–7 temperatures and burner state.",
-        "Top: equipment drawing (MAIN GAS, COMBUSTION BLOWER, BURNER COOL, zone temperatures and openings) / Middle: per-zone burn controls / Bottom: recent alarms and alarm/PURGE panels",
+        "Top: equipment drawing (MAIN GAS, COMBUSTION BLOWER, zone temperatures and openings) / Middle: per-zone burn controls / Bottom: recent alarms and alarm/PURGE panels",
         "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
       ]
     },
@@ -141,13 +141,6 @@
         "Starts and stops the combustion blower.",
         "Hold ON/OFF for the hold delay to operate it.",
         "While running, ON lights green [[on]]; when stopped, OFF lights red [[alarm]]."
-      ]
-    },
-    "burnerCool": {
-      "title": "BURNER COOL",
-      "body": [
-        "Turns burner cooling on and off. Hold ON/OFF for the hold delay to operate it.",
-        "When on, ON lights green [[on]]; when off, OFF lights red [[alarm]]."
       ]
     },
     "zones": {

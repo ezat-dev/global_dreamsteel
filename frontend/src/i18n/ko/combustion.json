@@ -1,8 +1,7 @@
 {
   "device": {
     "mainGas": "MAIN GAS",
-    "blower": "연소 BLOWER",
-    "burnerCool": "버너 쿨링"
+    "blower": "연소 BLOWER"
   },
   "lamp": {
     "main_gas_pressure_normal_lamp": "압력 정상",

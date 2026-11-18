@@ -1,8 +1,7 @@
 {
   "device": {
     "mainGas": "MAIN GAS",
-    "blower": "COMBUSTION BLOWER",
-    "burnerCool": "BURNER COOL"
+    "blower": "COMBUSTION BLOWER"
   },
   "lamp": {
     "main_gas_pressure_normal_lamp": "PRESS\nNORMAL",

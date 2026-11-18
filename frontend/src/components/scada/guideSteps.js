@@ -70,7 +70,6 @@ const GUIDE_STEPS = {
     { id: 'mainGas', target: '.cb-dev--mainGas > *' },
     { id: 'pipeLamps', target: '.cb-pipe-label' },
     { id: 'blower', target: '.cb-dev--blower > *' },
-    { id: 'burnerCool', target: '.cb-dev--burnerCool > *' },
     { id: 'zones', target: '.cb-zone-title, .cb-val-row' },
     { id: 'per', target: '.cb-per--top' },
     { id: 'zoneBurn', target: '.cb-zonebar .cb-onoff' },
