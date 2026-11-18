@@ -56,6 +56,6 @@
     "fitting": "normal color at 1 / red at 0 or if unreadable",
     "thunder": "shown only at 1 / hidden at 0 or if unreadable",
     "valve": "green at 1 / red at 0 or if unreadable",
-    "zone": "red at 1 / unchanged at 0 or if unreadable"
+    "zone": "orange at 1 / unchanged at 0 or if unreadable"
   }
 }

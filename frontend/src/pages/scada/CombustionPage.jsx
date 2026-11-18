@@ -384,8 +384,8 @@ export default function CombustionPage() {
     .map(([cls, kind]) => ` ${valveOnClass(cls, kind)}`)
     .join('');
 
-  /* 존 배경판(버너 뒤 판) — 구동화면 MAIN 존과 같은 main_zone1~7_lamp.
-     1일 때만 붉은색 클래스가 붙고, 0과 못 읽음은 작화 그대로다. 색은 CombustionPage.css가 입힌다. */
+  /* 존 배경(zon-box-2를 7칸으로 나눈 판) — 구동화면 MAIN 존과 같은 main_zone1~7_lamp.
+     1일 때만 주황 클래스가 붙고, 0과 못 읽음은 작화 그대로다. 색은 CombustionPage.css가 입힌다. */
   const zoneHotClasses = Object.entries(ZONE_HOT_TAGS)
     .filter(([, tag]) => tagState(tagValues?.[tag]) === TAG_ON)
     .map(([n]) => ` ${zoneHotClass(n)}`)
