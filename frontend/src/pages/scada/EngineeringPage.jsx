@@ -68,24 +68,8 @@ const SECTIONS = [
   },
 ];
 
-/* 온도 보정 열 칸. PV는 읽기 전용, PV보정은 고친다.
-
-   1~7존의 PV는 온도제어 화면과 같은 이름(tic_zN_pv)으로 둔다 — 같은 주소(1존 R100 등)를
-   보는 값이라 이름이 갈리면 같은 온도를 다른 것처럼 읽게 된다. 태그 이름은 폴더 안에서만
-   유일하면 되므로 이 폴더에도 같은 이름으로 한 줄씩 넣으면 된다.
-   예열대·냉각대는 아직 어느 화면에도 없는 값이라 이름을 새로 지었다.
-
-   보정값은 음수가 될 수 있어(실측보다 높게 읽히면 빼야 한다) min을 두지 않는다 —
-   숫자패드는 min이 0 이상일 때만 빼기 키를 막는다. 범위가 정해지면 min/max를 넣으면 된다. */
-const ZONES = [
-  ...[1, 2, 3, 4, 5, 6, 7].map((n) => ({
-    key: `z${n}`, label: `${n}ZONE`, pv: `tic_z${n}_pv`, offset: `tic_z${n}_pv_offset`,
-  })),
-  // 아래 셋은 label이 없다 — 이름이 언어를 따르므로 사전의 zone.<key>에서 찾는다
-  { key: 'preheat', pv: 'tic_preheat_pv', offset: 'tic_preheat_pv_offset' },   // 예열대
-  { key: 'cool1', pv: 'tic_cool1_pv', offset: 'tic_cool1_pv_offset' },         // 냉각대 (1)
-  { key: 'cool2', pv: 'tic_cool2_pv', offset: 'tic_cool2_pv_offset' },         // 냉각대 (2)
-];
+/* 온도 보정 판(1~7존·예열대·냉각대 PV / PV보정)은 2026-11-18 사용자 지시로 지웠다 —
+   한동안 CSS로 숨겨 둔 채였다. */
 
 /* 화면 위 탭. 글자는 사전의 tab.<key>. 버너제어 탭은 놓을 존(zones)만 다르다. */
 const TABS = [
@@ -96,7 +80,6 @@ const TABS = [
 
 export default function EngineeringPage() {
   const { t } = useTranslation('engineering');
-  const zoneLabel = (z) => z.label ?? t(`zone.${z.key}`);
   const { values: tagValues, error: tagValueError } = useFolderTagValues(ENG_FOLDER_ID);
   // 지금 탭(TABS의 key). 처음엔 기본 설정 — 화면 설명서도 이 탭을 설명한다
   const [tab, setTab] = useState('basic');
@@ -296,40 +279,6 @@ export default function EngineeringPage() {
             </span>
           </li>
         </ol>
-      </section>
-
-      <section className="hmi-group eng-tc">
-        <span className="hmi-group-title">{t('section.tc')}</span>
-        <div className="eng-zones">
-          {ZONES.map((z) => (
-            <div className="eng-zone" key={z.key}>
-              <div className="eng-zone-title">{zoneLabel(z)}</div>
-              <div className="eng-zone-row">
-                <b>PV</b>
-                <LedInput
-                  value={text(z.pv)}
-                  color="red"
-                  unit="℃"
-                  size="sm"
-                  readOnly
-                  title={t('pvTip', { label: zoneLabel(z), tag: z.pv })}
-                />
-              </div>
-              <div className="eng-zone-row">
-                <b>{t('offset')}</b>
-                <LedInput
-                  value={text(z.offset)}
-                  onChange={(v) => handleWrite(z.offset, v)}
-                  color="green"
-                  unit="℃"
-                  size="sm"
-                  label={t('offsetLabel', { label: zoneLabel(z) })}
-                  title={t('offsetTip', { label: zoneLabel(z), tag: z.offset })}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {(writeError || tagValueError) && (

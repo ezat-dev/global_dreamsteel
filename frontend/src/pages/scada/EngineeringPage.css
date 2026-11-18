@@ -381,8 +381,7 @@
   width: 120px;
 }
 
-.eng-value .hmi-led-input,
-.eng-zone-row .hmi-led-input {
+.eng-value .hmi-led-input {
   padding: 6px 6px;
   font-size: 13px;
   text-align: center;
@@ -393,51 +392,9 @@
   font-size: 11px;
 }
 
-/* ===== 온도 보정 ===== */
-
-.eng-zones {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.eng-zone {
-  display: grid;
-  gap: 6px;
-  padding: 8px 10px 10px;
-  border: 1px solid var(--hmi-light);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, .03);
-}
-
-.eng-zone-title {
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .5px;
-  text-align: center;
-  color: var(--hmi-text);
-}
-
-.eng-zone-row {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  align-items: center;
-  gap: 6px;
-}
-
-.eng-zone-row b {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--g-muted);
-}
-
-.eng-zone-row .hmi-led-unit {
-  font-size: 11px;
-}
-
 /* ===== 기본 설정 탭 — 세로가 남을 때 =====
    F11 전체화면이나 설명서(세로를 늘린다, ScreenGuide.css)로 세로가 남으면 판 셋(구동부·연소부·
-   분위기제어)이 남는 높이를 나눠 갖고, 판 안의 여덟 줄이 고르게 벌어진다 — 조작 설정·온도 보정 판은 그대로다. */
+   분위기제어)이 남는 높이를 나눠 갖고, 판 안의 여덟 줄이 고르게 벌어진다 — 조작 설정 판은 그대로다. */
 .eng-sections {
   flex: 1 0 auto;
 }
@@ -463,10 +420,6 @@
    1100px 이하(태블릿 세로·작은 노트북)에서는 판 셋이 나란히 서기에 좁다 — 이름이
    두세 줄로 꺾여 줄 높이가 판마다 달라진다. 860px 아래에서 한 줄에 하나씩 쌓는다. */
 @media (max-width: 1100px) {
-  .eng-zones {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
   /* 존 판이 둘씩 서기에 좁다 — 하나씩 쌓고 세로로 스크롤한다 */
   .bz-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -486,9 +439,5 @@
   /* 판이 한 줄에 하나씩 쌓이므로 조작 설정도 폭을 다 쓴다 */
   .eng-rows--operation {
     max-width: none;
-  }
-
-  .eng-zones {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

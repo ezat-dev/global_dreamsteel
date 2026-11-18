@@ -25,8 +25,7 @@
     "drive": "구동부 설정",
     "combustion": "연소부 설정",
     "atmosphere": "분위기제어 설정",
-    "operation": "조작 설정",
-    "tc": "온도 보정"
+    "operation": "조작 설정"
   },
   "item": {
     "eng_facility_onoff_temp": "설비 ON/OFF TEMP 설정",
@@ -56,14 +55,5 @@
     "tip": "로그인 유지 시간 / scada_setting.{{key}} = {{value}}",
     "minutes": "{{n}}분",
     "unread": "못 읽음"
-  },
-  "zone": {
-    "preheat": "예열대",
-    "cool1": "냉각대 (1)",
-    "cool2": "냉각대 (2)"
-  },
-  "pvTip": "{{label}} 현재온도(PV) — 읽기 전용 / {{tag}}",
-  "offset": "PV보정",
-  "offsetLabel": "{{label}} PV 보정",
-  "offsetTip": "{{label}} PV 보정 / {{tag}}"
+  }
 }

@@ -25,8 +25,7 @@
     "drive": "Drive Settings",
     "combustion": "Combustion Settings",
     "atmosphere": "Atmosphere Settings",
-    "operation": "Operation Settings",
-    "tc": "Temperature Calibration"
+    "operation": "Operation Settings"
   },
   "item": {
     "eng_facility_onoff_temp": "Facility ON/OFF TEMP",
@@ -56,14 +55,5 @@
     "tip": "Login time limit / scada_setting.{{key}} = {{value}}",
     "minutes": "{{n}} min",
     "unread": "unreadable"
-  },
-  "zone": {
-    "preheat": "Preheat",
-    "cool1": "Cooling (1)",
-    "cool2": "Cooling (2)"
-  },
-  "pvTip": "{{label}} current temp (PV) — read only / {{tag}}",
-  "offset": "PV adj.",
-  "offsetLabel": "{{label}} PV offset",
-  "offsetTip": "{{label}} PV offset / {{tag}}"
+  }
 }
