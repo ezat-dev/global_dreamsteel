@@ -25,8 +25,7 @@
   },
   "group": {
     "entCond": "입구 자동운전 조건",
-    "exitCond": "출구 자동운전 조건",
-    "exitTime": "출구 구동부 자동운전 TIME 설정"
+    "exitCond": "출구 자동운전 조건"
   },
   "panel": {
     "detect": "구동감지 정상",
@@ -113,11 +112,6 @@
     "main_table_status_lamp": "MAIN TABLE DRIVE\nCONVEYOR 회전감지",
     "cc_table_status_lamp": "C/C TABLE DRIVE\nCONVEYOR 회전감지",
     "discharge_table_status_lamp": "출구 TABLE DRIVE\nCONVEYOR 회전감지"
-  },
-  "time": {
-    "discharge_product_sort_delay_time": "출구제품 정렬(지연)시간",
-    "discharge_product_detect_clear_time": "제품 감지 해제TIME",
-    "discharge_side_conveyor_forward_time": "출구 SIDE CONVEYOR 전진 TIME"
   },
   "art": {
     "charge_motor1_lamp": "입구 모터 1",

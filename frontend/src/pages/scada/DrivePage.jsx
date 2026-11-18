@@ -30,7 +30,7 @@ import './DrivePage.css';
 
    화면에 찍히는 글자(라벨·램프 이름·툴팁)는 사전 i18n/{ko,en}/drive.json에 있다.
    아래 표들에는 위치와 태그만 두고, 글자는 키로 찾는다 — 램프는 lamp.<태그>,
-   TIME 설정은 time.<태그>, 그림 위 라벨은 label.<key>.
+   그림 위 라벨은 label.<key>.
    =========================================================================== */
 
 /* 그림이 실제로 그려지는 범위. 작화 캔버스는 오른쪽으로 1981px까지 있지만 1723 뒤로는
@@ -251,21 +251,8 @@ const EXIT_CONDITIONS = [
   { tag: 'discharge_emergency_off_lamp' },             // 출구 비상정지 OFF
 ];
 
-/* 출구 구동부 자동운전 TIME 설정 — 초 단위 설정값 3개.
-   min/max는 항목마다 다르다. 숫자패드가 이 범위를 벗어난 값은 확정하지 못하게 막는다
-   (NumPad에서 "입력" 버튼이 잠긴다). */
-/* tag는 ez_scada.folders_tags.name이다. 이 셋은 값을 쓰는 태그와 읽는 태그가 하나다 —
-   PLC에 써 놓은 설정값을 그대로 다시 읽어 보여준다(존 SV처럼 표시용 주소가 따로 없다).
-
-   주소는 아직 셋 다 D000이다(현장 주소를 못 받았다). 그래서 한 칸을 고치면 세 칸이
-   같이 바뀐다. 주소를 받으면 DB의 address만 칸마다 고치면 되고 화면은 손댈 필요가 없다.
-
-   이름은 drive.json의 time.<태그>. */
-const EXIT_TIMES = [
-  { key: 'align', min: 0, max: 600, tag: 'discharge_product_sort_delay_time' },       // 출구제품 정렬(지연)시간
-  { key: 'clear', min: 0, max: 600, tag: 'discharge_product_detect_clear_time' },     // 제품 감지 해제TIME
-  { key: 'sideConv', min: 15, max: 50, tag: 'discharge_side_conveyor_forward_time' }, // 출구 SIDE CONVEYOR 전진 TIME
-];
+/* 출구 구동부 자동운전 TIME 설정(윗줄 판)은 2026-11-18 엔지니어링 기본설정의
+   '구동부 자동운전 TIME 설정' 판으로 옮겼다(EngineeringPage.jsx의 SECTIONS autoTime). */
 
 /* ---------------------------------------------------------------------------
    하단 램프판 — 묶음별 램프 목록
@@ -779,24 +766,6 @@ export default function DrivePage() {
   const { alarms, error: alarmError } = useAlarmList();
 
 
-  /* 출구 TIME 설정 세 칸의 표시값 — 폴링으로 받은 PLC 값을 그대로 보여준다.
-     못 받았으면 '---'로 둔다(0으로 보여주면 실제 0과 구분되지 않는다). */
-  const timeText = (tag) => {
-    const v = tagValues?.[tag];
-    return v == null || v === '' ? '---' : String(v);
-  };
-
-  /* 숫자패드에서 확정한 값을 PLC에 쓴다. 값 태그와 표시 태그가 같아서,
-     쓰고 나면 다음 폴링에 그 값이 그대로 돌아온다(안 돌아오면 쓰기가 실패한 것이다). */
-  const handleTime = (tag, value) => {
-    const num = Math.round(Number(value));
-    if (!Number.isFinite(num)) return;
-
-    setWriteError('');
-    writeTag(DR_FOLDER_ID, tag, num)
-      .catch((e) => setWriteError(`${tag} — ${e.message}`));
-  };
-
   /* 구동부 속도 설정(SV) — 숫자패드에서 확정한 값을 PLC에 쓴다.
      값 태그와 표시 태그가 같아서, 쓰고 나면 다음 폴링에 그 값이 그대로 돌아온다. */
   const handleDriveSv = (tag, value) => {
@@ -1171,26 +1140,6 @@ export default function DrivePage() {
         {/* dr-cond — 윗줄에서 글자가 접힐 수 있는 판이라 좁게 시작해 남는 폭을 받는다(DrivePage.css) */}
         <LampList title={t('group.entCond')} lamps={ENT_CONDITIONS} values={tagValues} className="dr-cond" />
         <LampList title={t('group.exitCond')} lamps={EXIT_CONDITIONS} values={tagValues} className="dr-cond" />
-
-        <div className="hmi-group dr-panel dr-time">
-          <span className="hmi-group-title">{t('group.exitTime')}</span>
-          {EXIT_TIMES.map((tm) => (
-            <div className="dr-time-row" key={tm.key}>
-              <span className="dr-time-label">{t(`time.${tm.tag}`)}</span>
-              {/* 색은 DrivePage.css의 .dr-time 규칙이 --dr-sv(존 SV와 같은 연두)로 덮는다. */}
-              <LedInput
-                value={timeText(tm.tag)}
-                onChange={(v) => handleTime(tm.tag, v)}
-                size="sm"
-                unit="SEC"
-                title={`${t(`time.${tm.tag}`)} — ${tm.tag}`}
-                label={t(`time.${tm.tag}`)}
-                min={tm.min}
-                max={tm.max}
-              />
-            </div>
-          ))}
-        </div>
 
         <OpPanel
           title={t('op.exitTitle')}

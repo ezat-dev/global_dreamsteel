@@ -36,9 +36,9 @@ const SESSION_LIMIT_MAX_MIN = 1440;
 const ROWS = 8;
 
 /* 설정 항목. 범위는 확인받은 것이 아니라 임시다(쿨링타워 지연시간과 같은 처리) —
-   시간은 음수가 뜻이 없으니 min 0만 두고, 온도 기준은 다른 화면의 존 SV와 같은 0~1000으로 맞췄다.
-   퍼지시간의 min 60만은 원본 화면에 적힌 조건이다("최소 1분(60초) 이상"). */
-/* 항목 이름은 사전의 item.<태그>, note: true면 그 아래 설명(note.<태그>)이 붙는다. */
+   시간은 음수가 뜻이 없으니 min 0만 두고, 온도 기준은 다른 화면의 존 SV와 같은 0~1000으로 맞췄다. */
+/* 항목 이름은 사전의 item.<태그>, note: true면 그 아래 설명(note.<태그>)이 붙는다.
+   spare: true는 태그 없이 자리만 있는 예비 줄 — 빈 줄처럼 번호만 보인다(글자·입력칸 없음). */
 const SECTIONS = [
   {
     key: 'drive',   // 구동부 설정
@@ -53,11 +53,24 @@ const SECTIONS = [
     ],
   },
   {
-    key: 'combustion',   // 연소부 설정
+    /* 구동부 자동운전 TIME 설정 — 2026-11-18 사용자 지시로 연소부 설정(퍼지 3개) 자리를 대신한다.
+       구동화면 윗줄에 있던 '출구 구동부 자동운전 TIME 설정' 판을 옮겨 온 것이다.
+       1~4줄 입구, 5~8줄 출구. 넷째 줄은 둘 다 자리만 있는 예비 칸(spare)이다.
+
+       출구 셋은 구동화면에서 쓰던 이름 그대로(DB에는 이 폴더 12에 같은 주소 R960/R962/R964로
+       한 줄씩 넣는다). 입구 셋은 출구와 짝이 되게 이름만 지어 두었다 — 매핑은 나중에 하고,
+       DB에 없는 동안은 '---'로 남는다. min/max는 구동화면에서 쓰던 그대로다. */
+    key: 'autoTime',
     items: [
-      { tag: 'eng_purge_open_time', unit: 'sec', min: 0 },                  // 퍼지 OPEN 시간
-      { tag: 'eng_purge_time', note: true, unit: 'sec', min: 60 },          // 퍼지시간 — 최소 1분(60초) 이상
-      { tag: 'eng_purge_close_time', unit: 'sec', min: 0 },                 // 퍼지 CLOSE 시간
+      { tag: 'charge_product_sort_delay_time', unit: 'sec', min: 0, max: 600 },       // 입구제품 정렬(지연)시간
+      { tag: 'charge_product_detect_clear_time', unit: 'sec', min: 0, max: 600 },     // 입구 제품 감지 해제TIME
+      { tag: 'charge_side_conveyor_forward_time', unit: 'sec', min: 15, max: 50 },    // 입구 SIDE CONVEYOR 전진 TIME
+      { spare: true },                                                                 // 예비(번호만)
+      // groupStart — 여기부터 출구. 줄 위에 굵은 선을 그어 입구와 가른다(EngineeringPage.css .is-group-start)
+      { tag: 'discharge_product_sort_delay_time', unit: 'sec', min: 0, max: 600, groupStart: true }, // 출구제품 정렬(지연)시간
+      { tag: 'discharge_product_detect_clear_time', unit: 'sec', min: 0, max: 600 },  // 출구 제품 감지 해제TIME
+      { tag: 'discharge_side_conveyor_forward_time', unit: 'sec', min: 15, max: 50 }, // 출구 SIDE CONVEYOR 전진 TIME
+      { spare: true },                                                                 // 예비(번호만)
     ],
   },
   {
@@ -195,10 +208,14 @@ export default function EngineeringPage() {
             <span className="hmi-group-title">{t(`section.${s.key}`)}</span>
             <ol className="eng-rows">
               {Array.from({ length: ROWS }, (_, i) => {
-                const it = s.items[i];
+                /* 예비(spare) 줄은 빈 줄과 똑같이 번호만 남긴다 — 자리를 지켜 입구·출구가 넷씩 맞게 */
+                const it = s.items[i]?.spare ? null : s.items[i];
                 const label = it ? t(`item.${it.tag}`) : '';
                 return (
-                  <li className={`eng-row${it ? '' : ' is-empty'}`} key={i}>
+                  <li
+                    className={`eng-row${it ? '' : ' is-empty'}${it?.groupStart ? ' is-group-start' : ''}`}
+                    key={i}
+                  >
                     <span className="eng-no">{i + 1}.</span>
                     {it && (
                       <>

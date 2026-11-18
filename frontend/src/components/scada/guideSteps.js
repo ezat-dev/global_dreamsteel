@@ -55,7 +55,6 @@ const GUIDE_STEPS = {
     { id: 'opPanel', target: '.dr-top > .dr-panel:first-child, .dr-top > .dr-panel:last-child', split: true },
     { id: 'alarmSw', target: '.dr-alarm-sw' },
     { id: 'cond', target: '.dr-top > .dr-cond' },
-    { id: 'time', target: '.dr-time' },
     { id: 'drivePanel', target: '.dr-drive' },
     { id: 'zones', target: '.dr-zone' },
     { id: 'facilityOff', target: '.dr-note:has(.dr-note-lamp)' },
@@ -211,11 +210,12 @@ const GUIDE_STEPS = {
     { id: 'excel', target: '.ah-btn.is-excel' },
     { id: 'end' },
   ],
-  /* 엔지니어링 — 설비 설정값 판들(구동부·연소부·분위기제어·온도 보정)은 항목이 아직 바뀔 수 있어서
-     우선 조작 설정 판만 설명한다. 나머지 판은 항목이 정해지면 단계를 더한다. */
+  /* 엔지니어링 — 구동부 자동운전 TIME 판(구동화면에서 옮겨 옴)과 조작 설정 판을 설명한다.
+     구동부·분위기제어 설정 판은 항목이 아직 바뀔 수 있어서, 정해지면 단계를 더한다. */
   engineering: [
     { id: 'intro', target: '.eng-tabs' },
     // 버너제어 탭을 보던 중에 열어도 기본 설정 탭으로 넘겨서 짚는다(탭은 div라 조회 권한도 넘어간다)
+    { id: 'autoTime', target: '.eng-section--autoTime', opens: ENG_BASIC_TAB },
     { id: 'operation', target: '.eng-section--operation', opens: ENG_BASIC_TAB },
     { id: 'hold', target: '.eng-rows--operation > .eng-row:nth-child(1)', opens: ENG_BASIC_TAB },
     { id: 'session', target: '.eng-rows--operation > .eng-row:nth-child(2)', opens: ENG_BASIC_TAB },

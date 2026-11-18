@@ -311,7 +311,7 @@
 }
 
 .eng-section--drive { --eng-tone: #e3a16a; }
-.eng-section--combustion { --eng-tone: #5eb7ff; }
+.eng-section--autoTime { --eng-tone: #5eb7ff; }   /* 구동부 자동운전 TIME(예전 연소부 자리·색) */
 .eng-section--atmosphere { --eng-tone: #4fbf8f; }
 .eng-section--operation { --eng-tone: #c9a7ff; }
 
@@ -358,6 +358,12 @@
 /* 비어 있는 줄은 자리만 — 번호를 흐리게 해서 아직 항목이 없다는 게 보이게 한다 */
 .eng-row.is-empty .eng-no {
   opacity: .35;
+}
+
+/* 묶음이 바뀌는 줄(구동부 자동운전 TIME의 입구 → 출구) — 위에 굵은 선을 긋는다.
+   바로 앞 줄의 밑줄(1px)과 겹치지 않게 앞 줄 밑줄은 그대로 두고 이 줄 위에 덧댄다. */
+.eng-row.is-group-start {
+  border-top: 2px solid rgba(255, 255, 255, .22);
 }
 
 .eng-label {

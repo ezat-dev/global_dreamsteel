@@ -25,8 +25,7 @@
   },
   "group": {
     "entCond": "Charge Auto Conditions",
-    "exitCond": "Discharge Auto Conditions",
-    "exitTime": "Discharge Auto TIME Settings"
+    "exitCond": "Discharge Auto Conditions"
   },
   "panel": {
     "detect": "DRIVE DETECT NORMAL",
@@ -113,11 +112,6 @@
     "main_table_status_lamp": "MAIN TABLE DRIVE\nCONVEYOR ROTATION",
     "cc_table_status_lamp": "C/C TABLE DRIVE\nCONVEYOR ROTATION",
     "discharge_table_status_lamp": "DISCHARGE TABLE DRIVE\nCONVEYOR ROTATION"
-  },
-  "time": {
-    "discharge_product_sort_delay_time": "Product align (delay) TIME",
-    "discharge_product_detect_clear_time": "Product detect clear TIME",
-    "discharge_side_conveyor_forward_time": "SIDE CONVEYOR forward TIME"
   },
   "art": {
     "charge_motor1_lamp": "Charge motor 1",

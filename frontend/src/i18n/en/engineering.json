@@ -23,7 +23,7 @@
   },
   "section": {
     "drive": "Drive Settings",
-    "combustion": "Combustion Settings",
+    "autoTime": "Drive Auto-Run TIME Settings",
     "atmosphere": "Atmosphere Settings",
     "operation": "Operation Settings"
   },
@@ -35,13 +35,13 @@
     "eng_main_table_drive_alarm_time": "MAIN TABLE drive-detect alarm time",
     "eng_cc_table_drive_alarm_time": "C/C TABLE drive-detect alarm time",
     "eng_discharge_table_drive_alarm_time": "Discharge TABLE drive-detect alarm time",
-    "eng_purge_open_time": "Purge OPEN time",
-    "eng_purge_time": "Purge time",
-    "eng_purge_close_time": "Purge CLOSE time",
+    "charge_product_sort_delay_time": "Charge product align (delay) TIME",
+    "charge_product_detect_clear_time": "Charge product detect clear TIME",
+    "charge_side_conveyor_forward_time": "Charge SIDE CONVEYOR forward TIME",
+    "discharge_product_sort_delay_time": "Discharge product align (delay) TIME",
+    "discharge_product_detect_clear_time": "Discharge product detect clear TIME",
+    "discharge_side_conveyor_forward_time": "Discharge SIDE CONVEYOR forward TIME",
     "eng_atmos_allow_temp_detect_time": "Atmosphere allowed-temp detect time"
-  },
-  "note": {
-    "eng_purge_time": "PURGE must be set to at least 1 min (60 s)"
   },
   "hold": {
     "label": "Button hold delay",

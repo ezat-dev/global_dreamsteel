@@ -15,7 +15,7 @@
       "title": "Drive screen at a glance",
       "body": [
         "Monitor and operate the conveyor drives, from the CHARGE POCKET to the DISCHARGE TABLE DRIVE.",
-        "Top: operation status, auto-run conditions, time settings / Middle: equipment drawing / Bottom: recent alarms and sensor lamps",
+        "Top: operation status, auto-run conditions / Middle: equipment drawing / Bottom: recent alarms and sensor lamps (auto-run TIME settings are on the Engineering screen)",
         "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
       ]
     },
@@ -43,14 +43,6 @@
         "State of the conditions needed for auto run.",
         "[[on]] Green: met   [[alarm]] Red: not met",
         "If auto run will not start, check the red lamps first."
-      ]
-    },
-    "time": {
-      "title": "Discharge auto-run TIME settings",
-      "body": [
-        "Tap a number to open the number pad; the value (seconds) is applied right away.",
-        "Input ranges — Product align (delay) TIME 0–600, Product detect clear TIME 0–600, SIDE CONVEYOR forward TIME 15–50",
-        "Values outside the range cannot be entered."
       ]
     },
     "drivePanel": {
@@ -785,8 +777,15 @@
       "title": "Engineering screen at a glance",
       "body": [
         "Change equipment settings and how the screens are operated. Use the tabs at the top to switch between General and Burner Control (zones 1–4, 5–7).",
-        "This guide covers the Operation Settings panel on the General tab.",
+        "This guide covers the Drive Auto-Run TIME Settings and Operation Settings panels on the General tab.",
         "Without control permission, 'View only' appears next to the title and inputs are locked."
+      ]
+    },
+    "autoTime": {
+      "title": "Drive Auto-Run TIME Settings",
+      "body": [
+        "Rows 1–4 are the charge side and rows 5–8 the discharge side auto-run times. Tap a box to open the number pad; the value (seconds) is applied right away.",
+        "Input ranges — align (delay) TIME 0–600, product detect clear TIME 0–600, SIDE CONVEYOR forward TIME 15–50. Values outside the range cannot be entered."
       ]
     },
     "operation": {
@@ -814,7 +813,7 @@
     "end": {
       "title": "Good to know",
       "body": [
-        "Drive, Combustion and Atmosphere Settings will be added to this guide once their items are settled.",
+        "Drive and Atmosphere Settings will be added to this guide once their items are settled.",
         "You can reopen this guide any time with the ? button at the top right."
       ]
     }

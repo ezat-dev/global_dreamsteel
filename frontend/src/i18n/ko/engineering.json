@@ -23,7 +23,7 @@
   },
   "section": {
     "drive": "구동부 설정",
-    "combustion": "연소부 설정",
+    "autoTime": "구동부 자동운전 TIME 설정",
     "atmosphere": "분위기제어 설정",
     "operation": "조작 설정"
   },
@@ -35,13 +35,13 @@
     "eng_main_table_drive_alarm_time": "MAIN TABLE 구동감지 알람시간",
     "eng_cc_table_drive_alarm_time": "C/C TABLE 구동감지 알람시간",
     "eng_discharge_table_drive_alarm_time": "출구 TABLE 구동감지 알람시간",
-    "eng_purge_open_time": "퍼지 OPEN 시간",
-    "eng_purge_time": "퍼지시간",
-    "eng_purge_close_time": "퍼지 CLOSE 시간",
+    "charge_product_sort_delay_time": "입구제품 정렬(지연)시간",
+    "charge_product_detect_clear_time": "입구 제품 감지 해제TIME",
+    "charge_side_conveyor_forward_time": "입구 SIDE CONVEYOR 전진 TIME",
+    "discharge_product_sort_delay_time": "출구제품 정렬(지연)시간",
+    "discharge_product_detect_clear_time": "출구 제품 감지 해제TIME",
+    "discharge_side_conveyor_forward_time": "출구 SIDE CONVEYOR 전진 TIME",
     "eng_atmos_allow_temp_detect_time": "분위기 제어 허용온도 감지시간"
-  },
-  "note": {
-    "eng_purge_time": "최소 1분(60초) 이상 PURGE 설정상태"
   },
   "hold": {
     "label": "버튼 누름 지연 시간",
