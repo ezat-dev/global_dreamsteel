@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { fireTitle, fittingTitle, thunderTitle, valveTitle } from './combustionArtTags';
+import { fireTitle, fittingTitle, thunderTitle, valveTitle, zoneBoxTitle } from './combustionArtTags';
 
 /* ===========================================================================
    연소화면 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -214,7 +214,7 @@ function CombustionOverview({ lang }) {
       <div className="zon-box-1"></div>
       <div className="zon-box-2"></div>
       <div className="for-1-zone-obj">
-        <div className="for-1-zone-box"></div>
+        <div className="for-1-zone-box" title={zoneBoxTitle(1)}></div>
         <div className="pipe137"></div>
         <div className="pipe138"></div>
         <img className="obj" src="/scada/combustion/obj-valve-small.svg" />
@@ -234,7 +234,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-up is-flip is-outer for-1-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('for-1-zone-valve-4', 'gas')} />
       </div>
       <div className="for-2-zone-obj">
-        <div className="for-2-zone-box"></div>
+        <div className="for-2-zone-box" title={zoneBoxTitle(2)}></div>
         <div className="pipe139"></div>
         <div className="pipe140"></div>
         <img className="obj4" src="/scada/combustion/obj-valve-small.svg" />
@@ -253,7 +253,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-up is-flip is-outer for-2-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('for-2-zone-valve-4', 'gas')} />
       </div>
       <div className="for-3-zone-obj">
-        <div className="for-3-zone-box"></div>
+        <div className="for-3-zone-box" title={zoneBoxTitle(3)}></div>
         <div className="pipe141"></div>
         <div className="pipe142"></div>
         <img className="obj7" src="/scada/combustion/obj-valve-small.svg" />
@@ -272,7 +272,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-up is-flip is-outer for-3-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('for-3-zone-valve-4', 'gas')} />
       </div>
       <div className="for-4-zone-obj">
-        <div className="for-4-zone-box"></div>
+        <div className="for-4-zone-box" title={zoneBoxTitle(4)}></div>
         <div className="pipe143"></div>
         <div className="pipe144"></div>
         <img className="obj10" src="/scada/combustion/obj-valve-small.svg" />
@@ -289,7 +289,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-up is-flip is-outer for-4-zone-valve-3" src="/scada/combustion/zone-valve.svg" title={valveTitle('for-4-zone-valve-3', 'gas')} />
       </div>
       <div className="for-5-zone-obj">
-        <div className="for-5-zone-box"></div>
+        <div className="for-5-zone-box" title={zoneBoxTitle(5)}></div>
         <div className="pipe145"></div>
         <div className="pipe146"></div>
         <img className="obj13" src="/scada/combustion/obj-valve-small.svg" />
@@ -305,7 +305,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-up is-flip is-outer for-5-zone-valve-3" src="/scada/combustion/zone-valve.svg" title={valveTitle('for-5-zone-valve-3', 'gas')} />
       </div>
       <div className="for-6-zone-obj">
-        <div className="for-6-zone-box"></div>
+        <div className="for-6-zone-box" title={zoneBoxTitle(6)}></div>
         <div className="pipe147"></div>
         <div className="pipe148"></div>
         <img className="obj16" src="/scada/combustion/obj-valve-small.svg" />
@@ -321,7 +321,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-up is-flip is-outer for-6-zone-valve-3" src="/scada/combustion/zone-valve.svg" title={valveTitle('for-6-zone-valve-3', 'gas')} />
       </div>
       <div className="for-7-zone-obj">
-        <div className="for-7-zone-box"></div>
+        <div className="for-7-zone-box" title={zoneBoxTitle(7)}></div>
         <div className="pipe149"></div>
         <div className="pipe150"></div>
         <img className="obj19" src="/scada/combustion/obj-valve-small.svg" />
@@ -405,7 +405,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-fire-up for-fire-25" src="/scada/combustion/zone-fire.svg?v=5" title={fireTitle('for-fire-25')} />
       </div>
       <div className="rev-1-zone-obj">
-        <div className="rev-1-zone-box"></div>
+        <div className="rev-1-zone-box" title={zoneBoxTitle(7)}></div>
         <div className="pipe151"></div>
         <div className="pipe152"></div>
         <img className="obj22" src="/scada/combustion/obj-valve-small.svg" />
@@ -425,7 +425,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-down is-outer rev-1-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('rev-1-zone-valve-4', 'gas')} />
       </div>
       <div className="rev-2-zone-obj">
-        <div className="rev-2-zone-box"></div>
+        <div className="rev-2-zone-box" title={zoneBoxTitle(6)}></div>
         <div className="pipe153"></div>
         <div className="pipe154"></div>
         <img className="obj25" src="/scada/combustion/obj-valve-small.svg" />
@@ -444,7 +444,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-down is-outer rev-2-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('rev-2-zone-valve-4', 'gas')} />
       </div>
       <div className="rev-3-zone-obj">
-        <div className="rev-3-zone-box"></div>
+        <div className="rev-3-zone-box" title={zoneBoxTitle(5)}></div>
         <div className="pipe155"></div>
         <div className="pipe156"></div>
         <img className="obj28" src="/scada/combustion/obj-valve-small.svg" />
@@ -463,7 +463,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-down is-outer rev-3-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('rev-3-zone-valve-4', 'gas')} />
       </div>
       <div className="rev-4-zone-obj">
-        <div className="rev-4-zone-box"></div>
+        <div className="rev-4-zone-box" title={zoneBoxTitle(4)}></div>
         <div className="pipe157"></div>
         <div className="pipe158"></div>
         <img className="obj31" src="/scada/combustion/obj-valve-small.svg" />
@@ -482,7 +482,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-down is-outer rev-4-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('rev-4-zone-valve-4', 'gas')} />
       </div>
       <div className="rev-5-zone-obj">
-        <div className="rev-5-zone-box"></div>
+        <div className="rev-5-zone-box" title={zoneBoxTitle(3)}></div>
         <div className="pipe159"></div>
         <div className="pipe160"></div>
         <img className="obj34" src="/scada/combustion/obj-valve-small.svg" />
@@ -501,7 +501,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-down is-outer rev-5-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('rev-5-zone-valve-4', 'gas')} />
       </div>
       <div className="rev-6-zone-obj">
-        <div className="rev-6-zone-box"></div>
+        <div className="rev-6-zone-box" title={zoneBoxTitle(2)}></div>
         <div className="pipe161"></div>
         <div className="pipe162"></div>
         <img className="obj37" src="/scada/combustion/obj-valve-small.svg" />
@@ -520,7 +520,7 @@ function CombustionOverview({ lang }) {
         <img className="zone-valve-down is-outer rev-6-zone-valve-4" src="/scada/combustion/zone-valve.svg" title={valveTitle('rev-6-zone-valve-4', 'gas')} />
       </div>
       <div className="rev-7-zone-obj">
-        <div className="rev-7-zone-box"></div>
+        <div className="rev-7-zone-box" title={zoneBoxTitle(1)}></div>
         <div className="pipe163"></div>
         <div className="pipe164"></div>
         <img className="obj40" src="/scada/combustion/obj-valve-small.svg" />

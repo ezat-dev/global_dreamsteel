@@ -59,6 +59,26 @@
   filter: url(#cb-red);
 }
 
+/* 존 배경판 — main_zone1~7_lamp가 1이면 붉은색(구동화면 MAIN 존 #dr-orange가 이 회갈색 판에
+   만드는 색과 같게 맞췄다). 존마다 위판 for-N, 아래판 rev-(8-N)이다(combustionArtTags의 존 배경판 설명).
+   판은 빈 div라 filter 대신 배경색만 바꾼다. */
+.cb-stage-inner.hot-zone-1 .for-1-zone-box,
+.cb-stage-inner.hot-zone-1 .rev-7-zone-box,
+.cb-stage-inner.hot-zone-2 .for-2-zone-box,
+.cb-stage-inner.hot-zone-2 .rev-6-zone-box,
+.cb-stage-inner.hot-zone-3 .for-3-zone-box,
+.cb-stage-inner.hot-zone-3 .rev-5-zone-box,
+.cb-stage-inner.hot-zone-4 .for-4-zone-box,
+.cb-stage-inner.hot-zone-4 .rev-4-zone-box,
+.cb-stage-inner.hot-zone-5 .for-5-zone-box,
+.cb-stage-inner.hot-zone-5 .rev-3-zone-box,
+.cb-stage-inner.hot-zone-6 .for-6-zone-box,
+.cb-stage-inner.hot-zone-6 .rev-2-zone-box,
+.cb-stage-inner.hot-zone-7 .for-7-zone-box,
+.cb-stage-inner.hot-zone-7 .rev-1-zone-box {
+  background: #e8570c;
+}
+
 /* 버너 밸브 106개 — 노란 가스 밸브(.is-outer)와 흰 공기 밸브(나머지).
    기본은 빨강이고, 열린(값 1) 것만 CombustionPage가 무대에 gas-on-<작화 클래스> /
    air-on-<작화 클래스>를 붙여 초록으로 바꾼다. 가스·공기가 작화 클래스를 나눠 쓰므로

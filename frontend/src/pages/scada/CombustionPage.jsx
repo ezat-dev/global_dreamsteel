@@ -15,7 +15,7 @@ import { beginPress, endPress } from '../../components/scada/pressGuard';
 import {
   BOTTOM_EACH, ZONE_TOP,
   FIRE_TAGS, FITTING_TAGS, THUNDER_TAGS, VALVE_TAGS, fireHideClass, fireTag, fittingRedClass,
-  thunderHideClass, thunderTag, valveOnClass, valveTag,
+  thunderHideClass, thunderTag, valveOnClass, valveTag, ZONE_HOT_TAGS, zoneHotClass,
 } from '../../components/scada/combustionArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './combustionOverview.css';
@@ -384,6 +384,13 @@ export default function CombustionPage() {
     .map(([cls, kind]) => ` ${valveOnClass(cls, kind)}`)
     .join('');
 
+  /* 존 배경판(버너 뒤 판) — 구동화면 MAIN 존과 같은 main_zone1~7_lamp.
+     1일 때만 붉은색 클래스가 붙고, 0과 못 읽음은 작화 그대로다. 색은 CombustionPage.css가 입힌다. */
+  const zoneHotClasses = Object.entries(ZONE_HOT_TAGS)
+    .filter(([, tag]) => tagState(tagValues?.[tag]) === TAG_ON)
+    .map(([n]) => ` ${zoneHotClass(n)}`)
+    .join('');
+
   const [writeError, setWriteError] = useState('');
 
   /* 조작 버튼을 이만큼 누르고 있어야 실제로 명령이 나간다(엔지니어링 화면의 누름 시간, 기본 2초).
@@ -562,7 +569,7 @@ export default function CombustionPage() {
           배율을 낼 수 있다(높이를 배율로 정하면 서로를 참조해 0에서 못 벗어난다). */}
       <div className="cb-stage" ref={stageRef}>
         <div
-          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}${fireHideClasses}${valveOnClasses}`}
+          className={`cb-stage-inner${fittingRedClasses}${thunderHideClasses}${fireHideClasses}${valveOnClasses}${zoneHotClasses}`}
           style={{
             width: STAGE_W,
             height: STAGE_TOTAL_H,

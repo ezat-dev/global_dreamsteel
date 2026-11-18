@@ -179,3 +179,24 @@ export const valveTitle = (cls, kind) =>
 /* 열렸을 때(1) 무대에 붙는 클래스. CombustionPage.css의 선택자와 짝이 맞아야 한다.
    거꾸로(닫힘에 클래스) 두지 않는 이유 — 기본이 빨강이어야 값을 못 받은 첫 화면도 빨강이다. */
 export const valveOnClass = (cls, kind) => `${kind}-on-${cls}`;
+
+/* ---------------------------------------------------------------------------
+   존 배경판(버너 뒤 회갈색 판, *-zone-box) — 구동화면 MAIN 존 구획과 같은 태그·같은 규칙이다
+   (main_zone1~7_lamp, 1이면 붉은색, 0이거나 못 읽으면 작화 그대로). 2026-11-18 사용자 지정.
+   태그는 구동화면 폴더(9)와 별개로 이 화면 폴더(7)에도 같은 이름·주소로 있어야 한다.
+
+   존 하나에 판이 위·아래 둘이다. 아래 줄은 rotate(-180deg) 탓에 작화 번호가 오→왼이라
+   화면 N존 아래판은 rev-(8-N)-zone-box다(밸브의 rev-R ↔ (8-R)존과 같은 사정).
+   ------------------------------------------------------------------------- */
+export const ZONE_HOT_TAGS = Object.fromEntries(
+  range(7).map((n) => [n, `main_zone${n}_lamp`]),
+);
+
+/** 판 위에 뜨는 글 — 이름은 구동화면 사전(drive:art.*)을 그대로 쓴다 */
+export const zoneBoxTitle = (n) => {
+  const tag = ZONE_HOT_TAGS[n];
+  return `${i18n.t(`drive:art.${tag}`)} / ${tag} — ${i18n.t('combustion:rule.zone')}`;
+};
+
+/* 1일 때 무대에 붙는 클래스. CombustionPage.css의 선택자와 짝이 맞아야 한다. */
+export const zoneHotClass = (n) => `hot-zone-${n}`;
