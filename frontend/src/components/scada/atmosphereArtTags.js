@@ -65,6 +65,14 @@ export const ROTATE_VALVE = {
 export const rotateValveTitle = () =>
   `${nameOf(ROTATE_VALVE.tag)} / ${ROTATE_VALVE.tag} — ${i18n.t('atmosphere:rule.valve')}`;
 
+/* 질소발생기 왼쪽 볼밸브(작화 valve-3, x 1369~1493 / y 350~398) — Y19E, 2026-11-18 사용자 지정.
+   위 다섯 부속과 0일 때가 다르다 — 회색으로 죽이지 않고 그림 원래 색 그대로 둔다.
+   그래서 1일 때만 무대에 on-valve-3 클래스가 붙고, 꺼짐 클래스는 없다. */
+export const N2_VALVE = { cls: 'valve-3', tag: 'n2_gen_valve_lamp' };
+
+export const n2ValveTitle = () =>
+  `${nameOf(N2_VALVE.tag)} / ${N2_VALVE.tag} — ${i18n.t('atmosphere:rule.n2Valve')}`;
+
 /* 무대에 붙는 클래스. AtmospherePage.css의 선택자와 짝이 맞아야 한다.
    초록·회색 둘 다 클래스를 붙인다 — 둘 다 filter를 걸어야 해서, 한쪽만 붙이고
    나머지를 '규칙 없음'으로 두면 0일 때 가스 밸브의 주황이 그대로 남는다. */

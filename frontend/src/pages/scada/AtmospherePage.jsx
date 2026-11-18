@@ -9,7 +9,7 @@ import {
 } from '../../api/scada/foldertagApi';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import {
-  BEACON, FITTING_TAGS, ROTATE_VALVE, fittingOffClass, fittingOnClass,
+  BEACON, FITTING_TAGS, N2_VALVE, ROTATE_VALVE, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
@@ -61,14 +61,22 @@ const DEVICE_PANELS = [
   {
     key: 'blower', tone: 'blower',   // ADDITION BLOWER
     plate: { left: 4, top: 8, width: 220 },
-    state: { left: 16, top: 70, width: 170 },
+    /* OPEN/CLOSE는 솔밸브(blowe-sol, 가운데 x 495) 바로 아래 — 2026-11-18 사용자 지정.
+       예전엔 제목판 아래(left 16)였고, 이 자리에 있던 SOL 열림/닫힘 램프는 뺐다. */
+    state: { left: 495 - 85, top: 82, width: 170 },
+    /* 상자 안 ON/OFF — 오른쪽 모터(블로워)용, 2026-11-18 사용자 지정. 동작은 OPEN/CLOSE와 같다.
+       자리는 예전 OPEN/CLOSE가 있던 곳이다(상자 x1~260 / y18~111, 모터 그림 왼쪽). */
+    boxState: { left: 16, top: 70, width: 170 },
+    boxOnCmd: 'add_air_blower_on_cmd',    // M312 / 램프 M612 — 1이면 초록
+    boxOffCmd: 'add_air_blower_off_cmd',  // M313 / 램프 M613 — 0이면 빨강
     onCmd: 'add_air_open_cmd',    // M324 / 램프 M624 — 1이면 초록
     offCmd: 'add_air_close_cmd',  // M325 / 램프 M625 — 0이면 빨강
   },
   {
     key: 'gas', tone: 'gas',   // ADDITION GAS
     plate: { left: 4, top: 168, width: 178 },
-    state: { left: 16, top: 228, width: 170 },
+    // OPEN/CLOSE는 솔밸브(gas-sol, 가운데 x 407) 바로 아래 — 위 블로워와 같은 사정
+    state: { left: 407 - 85, top: 244, width: 170 },
     onCmd: 'add_gas_open_cmd',    // M322 / 램프 M622 — 1이면 초록
     offCmd: 'add_gas_close_cmd',  // M323 / 램프 M623 — 0이면 빨강
   },
@@ -84,6 +92,19 @@ const DEVICE_PANELS = [
     openTag: 'generator_open_lamp',
     closeTag: 'generator_close_lamp',
   },
+  {
+    /* 질소발생기 — 2026-11-18 사용자 요청. 위 발생기를 그대로 240px 내린 자리다
+       (그림은 atmosphereOverview.css의 obj-5 등).
+       모양(tone)은 위 발생기와 같고 이름판 글씨만 다르다(atmosphere.json의 device.n2gen).
+       위 발생기와 달리 명령 태그가 있어서 OPEN/CLOSE가 ADDITION 블로워·가스와 같은 누름 버튼이다. */
+    key: 'gen2', tone: 'gen', label: 'n2gen',   // 질소발생기
+    /* 글자 간격만 4px(.at-plate--gen) → 2px — 영어 'N2 GENERATOR'가 4px이면 판(172)을 꽉 채워
+       좌우 여백이 없어진다(2026-11-18 캡처로 확인). 판 폭은 상자(190) 때문에 못 늘린다. */
+    plate: { left: 1500, top: 100 + 240, width: 172, letterSpacing: 2 },
+    state: { left: 1495, top: 158 + 240, width: 182 },
+    onCmd: 'n2_gen_open_cmd',    // M328 / 램프 M628 — 1이면 초록
+    offCmd: 'n2_gen_close_cmd',  // M329 / 램프 M629 — 0이면 빨강
+  },
 ];
 
 /* 압력계·솔밸브 아래에 붙는 상태 글씨. cx는 그 부품이 그려지는 가운데 x다.
@@ -96,12 +117,13 @@ const DEVICE_PANELS = [
      1 → 초록  압력 정상 / SOL열림
      0 → 빨강  압력 이상 / SOL닫힘
    값을 못 읽으면 점선(모름)에 '압력' / 'SOL'만 쓴다. 글씨는 atmosphere.json의 pipe.<kind>.
-   태그 이름(…_abnormal / …_close)은 뜻과 반대다(1이 정상·열림) — 이름이 아니라 위 규칙을 따른다. */
+   태그 이름(…_abnormal / …_close)은 뜻과 반대다(1이 정상·열림) — 이름이 아니라 위 규칙을 따른다.
+
+   SOL 열림/닫힘 둘(add_blowe_sol_close_lamp, add_gas_sol_close_lamp)은 2026-11-18 사용자
+   지정으로 뺐다 — 그 자리(솔밸브 아래)에 ADDITION BLOWER·GAS의 OPEN/CLOSE가 들어갔다. */
 const PIPE_LABELS = [
   { key: 'bPre', cx: 368, top: 82, tag: 'add_blowe_pressure_abnormal_lamp', kind: 'press' },
-  { key: 'bSol', cx: 495, top: 82, tag: 'add_blowe_sol_close_lamp', kind: 'sol' },
   { key: 'gPre', cx: 266, top: 244, tag: 'add_gas_pressure_abnormal_lamp', kind: 'press' },
-  { key: 'gSol', cx: 407, top: 244, tag: 'add_gas_sol_close_lamp', kind: 'sol' },
 ];
 
 /* 로(obj-4, y 600~742)로 내려가는 관 끝에 붙는 이름판.
@@ -111,8 +133,16 @@ const PIPE_LABELS = [
    세로는 화살표 아래끝(573)과 로 윗변(600) 사이에 걸치도록 잡았다. */
 const FURNACE_PLATE = { left: 1277, top: 592, width: 190 };   // 로내 투입 (atmosphere.json의 furnace)
 
-// 로 위에 얹는 O2 센서 표시부
-const O2_PANEL = { left: 940, top: 620, titleWidth: 135, valueWidth: 100 };
+/* 로 위에 얹는 O2 센서 표시부 — 2026-11-18부터 두 줄. 아래 줄은 위 줄과 모양이 같고 색만 다르다
+   (tone → AtmospherePage.css의 .at-o2--<tone>). 둘 다 PLC가 주는 값이라 표시 전용이다.
+     위  o2_pv    R805   (예전 D241)
+     아래 o2_pv_2  R806
+   세로는 로(y600~742) 안 — 위 줄 620, 아래 줄은 판 높이(약 36)에 띄움을 더해 665. */
+const O2_PANEL = { left: 940, titleWidth: 135, valueWidth: 100 };
+const O2_ROWS = [
+  { key: 'o2', top: 620, tag: 'o2_pv', tone: 'blue' },
+  { key: 'o2b', top: 665, tag: 'o2_pv_2', tone: 'teal' },
+];
 
 /* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '분위기제어').
    DB에 만든 행의 id와 반드시 같아야 한다. 틀리면 오류가 아니라 태그 0개 응답으로
@@ -193,14 +223,17 @@ export default function AtmospherePage() {
     .map(([cls, fitting]) => (tagState(tagValues?.[fitting.tag]) === TAG_ON
       ? ` ${fittingOnClass(cls)}`
       : ` ${fittingOffClass(cls)}`))
-    .join('');
+    .join('')
+    /* 질소발생기 볼밸브 — 1일 때만 초록. 0이거나 못 읽으면 클래스 없이 그림 원래 색이다
+       (위 다섯과 달리 회색으로 죽이지 않는다 — 2026-11-18 사용자 지정). */
+    + (tagState(tagValues?.[N2_VALVE.tag]) === TAG_ON ? ` ${fittingOnClass(N2_VALVE.cls)}` : '');
 
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다 — 읽지 못한 값을 0으로 그리면
      실제로 0인 것과 구분되지 않는다. */
-  const o2Text = (() => {
-    const v = tagValues?.o2_pv;
+  const o2Text = (tag) => {
+    const v = tagValues?.[tag];
     return v == null || v === '' ? '---' : String(v);
-  })();
+  };
 
   /* 자동모드 동작 조건 일곱 줄 — 줄마다 초록이 되는 값이 다르다(greenWhen). */
   const conditions = CONDITIONS.map((c) => {
@@ -267,16 +300,17 @@ export default function AtmospherePage() {
     .then(() => writeTag(AT_FOLDER_ID, selfCmd, 1))
     .catch((e) => setWriteError(`${selfCmd} — ${e.message}`));
 
-  const handlePress = (selfCmd, otherCmd) => {
+  /* pressId는 진행 바·테두리를 그릴 버튼을 가린다(기본은 태그 이름). */
+  const handlePress = (selfCmd, otherCmd, pressId = selfCmd) => {
     if (heldRef.current) return;   // OPEN과 CLOSE를 동시에 누르는 상황은 만들지 않는다
     heldRef.current = selfCmd;
-    setHeldTag(selfCmd);
+    setHeldTag(pressId);
     setArmedTag('');
     setWriteError('');
 
     holdTimerRef.current = setTimeout(() => {
       holdTimerRef.current = null;
-      setArmedTag(selfCmd);
+      setArmedTag(pressId);
       sendPair(selfCmd, otherCmd);
     }, holdMs);
   };
@@ -312,6 +346,48 @@ export default function AtmospherePage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* 명령 버튼 한 쌍 — onText 쪽이 onCmd, offText 쪽이 offCmd다.
+     솔밸브 아래 OPEN/CLOSE와 블로워 상자 안 ON/OFF가 이것을 같이 쓴다(태그와 글자만 다르다). */
+  const cmdButtons = (onCmd, offCmd, onText, offText) => (
+    /* other = 반대쪽 버튼의 태그. 누를 때 이쪽에 1, 반대쪽에 0을 준다. */
+    [
+      { cmd: onCmd, other: offCmd, text: onText, onClassName: ' is-on' },
+      /* 끄는 쪽만 켜지는 값이 반대다 — 램프가 0일 때 빨강이고 1이면 회색이다.
+         PLC가 그렇게 주는 것이라 화면에서 맞춘다(연소화면 MAIN GAS CLOSE와 같다). */
+      {
+        cmd: offCmd, other: onCmd, text: offText,
+        onClassName: ' is-alarm', litWhen: TAG_OFF,
+      },
+    ].map((b) => {
+      const pressId = `${b.cmd}:${b.text}`;
+      return (
+        /* disabled를 걸지 않는다 — 비활성 요소는 뗌 이벤트를 못 받아서
+           시간을 채우기 전에 떼도 취소가 안 된다. */
+        <button
+          type="button"
+          key={b.cmd}
+          /* litWhen이 없으면(켜는 쪽) lampClassOf의 기본값인 TAG_ON이 쓰인다. */
+          className={`hmi-lampbox${lampClassOf(tagValues, b.cmd, b.onClassName, b.litWhen)}`
+            + (heldTag === pressId ? ' is-held' : '')
+            + (armedTag === pressId ? ' is-armed' : '')}
+          onPointerDown={() => handlePress(b.cmd, b.other, pressId)}
+          data-tag={b.cmd}
+          title={t('openCloseTip', {
+            sec: holdMs / 1000, other: b.other, cmd: b.cmd, lamp: lampOf(b.cmd),
+          })}
+        >
+          {b.text}
+          {heldTag === pressId && (
+            <span
+              className="at-hold-bar"
+              style={{ animationDuration: `${holdMs}ms` }}
+            />
+          )}
+        </button>
+      );
+    })
+  );
 
   /* ADDITION CONTROL MOTOR VALVE — 자동/수동 두 칸만 명령 태그(add_valve_*_cmd)이고
      나머지는 여기 있는 값 태그다. 쓰는 칸도 읽는 태그와 같은 이름을 쓴다
@@ -425,45 +501,14 @@ export default function AtmospherePage() {
                 명령 태그가 있는 설비는 그 램프가 버튼도 겸한다(모양은 같다). */}
             {DEVICE_PANELS.map((d) => (
               <Fragment key={d.key}>
-                <span className={`at-plate at-plate--${d.tone}`} style={d.plate}>
-                  {t(`device.${d.key}`)}
+                {/* at-dev--<key> — 설명서(guideSteps)가 발생기와 질소발생기를 따로 짚으려고 쓴다
+                    (둘 다 at-plate--gen이라 그것만으로는 구분이 안 된다) */}
+                <span className={`at-plate at-plate--${d.tone} at-dev--${d.key}`} style={d.plate}>
+                  {t(`device.${d.label ?? d.key}`)}
                 </span>
-                <span className="at-openclose" style={d.state}>
+                <span className={`at-openclose at-dev--${d.key}`} style={d.state}>
                   {d.onCmd ? (
-                    /* other = 반대쪽 버튼의 태그. 누를 때 이쪽에 1, 반대쪽에 0을 준다. */
-                    [
-                      { cmd: d.onCmd, other: d.offCmd, text: 'OPEN', onClassName: ' is-on' },
-                      /* CLOSE만 켜지는 값이 반대다 — 램프가 0일 때 빨강이고 1이면 회색이다.
-                         PLC가 그렇게 주는 것이라 화면에서 맞춘다(연소화면 MAIN GAS CLOSE와 같다). */
-                      {
-                        cmd: d.offCmd, other: d.onCmd, text: 'CLOSE',
-                        onClassName: ' is-alarm', litWhen: TAG_OFF,
-                      },
-                    ].map((b) => (
-                      /* disabled를 걸지 않는다 — 비활성 요소는 뗌 이벤트를 못 받아서
-                         시간을 채우기 전에 떼도 취소가 안 된다. */
-                      <button
-                        type="button"
-                        key={b.cmd}
-                        /* litWhen이 없으면(OPEN) lampClassOf의 기본값인 TAG_ON이 쓰인다. */
-                        className={`hmi-lampbox${lampClassOf(tagValues, b.cmd, b.onClassName, b.litWhen)}`
-                          + (heldTag === b.cmd ? ' is-held' : '')
-                          + (armedTag === b.cmd ? ' is-armed' : '')}
-                        onPointerDown={() => handlePress(b.cmd, b.other)}
-                        data-tag={b.cmd}
-                        title={t('openCloseTip', {
-                          sec: holdMs / 1000, other: b.other, cmd: b.cmd, lamp: lampOf(b.cmd),
-                        })}
-                      >
-                        {b.text}
-                        {heldTag === b.cmd && (
-                          <span
-                            className="at-hold-bar"
-                            style={{ animationDuration: `${holdMs}ms` }}
-                          />
-                        )}
-                      </button>
-                    ))
+                    cmdButtons(d.onCmd, d.offCmd, 'OPEN', 'CLOSE')
                   ) : (
                     <>
                       <em
@@ -483,6 +528,12 @@ export default function AtmospherePage() {
                     </>
                   )}
                 </span>
+                {/* 상자 안 ON/OFF — 위 OPEN/CLOSE와 같은 동작, 태그만 다르다(블로워만, DEVICE_PANELS의 boxState) */}
+                {d.boxState && (
+                  <span className="at-openclose at-openclose--box" style={d.boxState}>
+                    {cmdButtons(d.boxOnCmd, d.boxOffCmd, 'ON', 'OFF')}
+                  </span>
+                )}
               </Fragment>
             ))}
 
@@ -510,20 +561,26 @@ export default function AtmospherePage() {
             </span>
 
             {/* O2 SENSOR — PLC가 주는 값이라 표시 전용 */}
-            <span className="at-o2" style={{ left: O2_PANEL.left, top: O2_PANEL.top }}>
-              <em className="at-plate at-plate--o2" style={{ width: O2_PANEL.titleWidth }}>
-                O2 SENSOR
-              </em>
-              <em
-                className="at-val"
-                style={{ width: O2_PANEL.valueWidth }}
-                data-tag="o2_pv"
-                title={t('o2Tip')}
+            {O2_ROWS.map((o) => (
+              <span
+                key={o.key}
+                className={`at-o2 at-o2--${o.tone}`}
+                style={{ left: O2_PANEL.left, top: o.top }}
               >
-                {o2Text}
-              </em>
-              <em className="at-o2-unit">mmV</em>
-            </span>
+                <em className="at-plate at-plate--o2" style={{ width: O2_PANEL.titleWidth }}>
+                  O2 SENSOR
+                </em>
+                <em
+                  className="at-val"
+                  style={{ width: O2_PANEL.valueWidth }}
+                  data-tag={o.tag}
+                  title={t(`${o.key}Tip`)}
+                >
+                  {o2Text(o.tag)}
+                </em>
+                <em className="at-o2-unit">mmV</em>
+              </span>
+            ))}
 
             <div className="at-slot at-slot--valve" style={SLOTS.valve}>
               {/* 자동/수동 모드는 위 OPEN/CLOSE와 같은 래치 버튼이라 누름 처리를

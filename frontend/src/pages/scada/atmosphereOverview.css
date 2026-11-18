@@ -251,3 +251,45 @@
   object-fit: cover;
   aspect-ratio: 40/44;
 }
+
+/* ===== 두 번째 발생기 (작화 원본에 없음 — 2026-11-18 추가) =====================
+   위 발생기 묶음을 그대로 240px 내린 것이다. 크기·x는 같고 top만 +240.
+     pipe-11  ← pipe-9의 끝부분(x1362~1418)   — 왼쪽 세로관 pipe-10(x1362~1383)에서 갈라진다
+     valve-3  ← valve-2   obj-5 ← obj-3   alarm-2 ← alarm-1
+   240인 이유: 좁은 화면(1100px 이하)에서 발생기를 1.4배로 키우면 위 상자가 y240까지
+   내려온다 — 아래 경광등(1.4배 때 y258~)과 겹치지 않는 최소값이다. */
+.atmosphere .pipe-11 {
+  background: #ff6600;
+  width: 56px;
+  height: 21px;
+  position: absolute;
+  left: 1362px;
+  top: 369px;
+}
+.atmosphere .valve-3 {
+  width: 124px;
+  height: 48px;
+  position: absolute;
+  left: 1369px;
+  top: 350px;
+  object-fit: cover;
+  aspect-ratio: 124/48;
+}
+.atmosphere .obj-5 {
+  width: 190px;
+  height: 114px;
+  position: absolute;
+  left: 1490px;
+  top: 320px;
+  object-fit: cover;
+  aspect-ratio: 190/114;
+}
+.atmosphere .alarm-2 {
+  width: 40px;
+  height: 44px;
+  position: absolute;
+  left: 1565px;
+  top: 276px;
+  object-fit: cover;
+  aspect-ratio: 40/44;
+}

@@ -2,7 +2,8 @@
   "device": {
     "blower": "ADDITION BLOWER",
     "gas": "ADDITION GAS",
-    "gen": "GENERATOR"
+    "gen": "GENERATOR",
+    "n2gen": "N2 GENERATOR"
   },
   "lamp": {
     "add_blowe_pressure_abnormal_lamp": "PRESS ABNORMAL",
@@ -29,7 +30,8 @@
     "sol": { "on": "SOL OPEN", "off": "SOL SHUT", "unknown": "SOL" }
   },
   "pipeTip": "{{tag}} — read only / green {{on}} at 1, red {{off}} at 0",
-  "o2Tip": "O2 SENSOR — read only / o2_pv (D241)",
+  "o2Tip": "O2 SENSOR — read only / o2_pv (R805)",
+  "o2bTip": "O2 SENSOR (lower) — read only / o2_pv_2 (R806)",
   "valve": {
     "autoMode": "AUTO",
     "manualMode": "MANUAL",
@@ -59,10 +61,12 @@
     "add_gas_valve_lamp": "ADDITION GAS pressure control valve",
     "add_gas_sol_valve_lamp": "ADDITION GAS solenoid valve",
     "generator_lamp": "Generator beacon",
-    "atmosphere_rotate_valve_lamp": "ADDITION control valve"
+    "atmosphere_rotate_valve_lamp": "ADDITION control valve",
+    "n2_gen_valve_lamp": "N2 generator valve"
   },
   "rule": {
     "fitting": "green at 1 / gray at 0 or if unreadable",
+    "n2Valve": "green at 1 / original color at 0 or if unreadable",
     "beacon": "green at 0 / red at 1 / gray if unreadable",
     "valve": "spins at 1 / stops at 0 or if unreadable"
   }

@@ -306,23 +306,24 @@
       "title": "Atmosphere screen at a glance",
       "body": [
         "Monitor and operate the ADDITION BLOWER and GAS lines and the ADDITION CONTROL MOTOR VALVE.",
-        "Top left: ADDITION BLOWER/GAS / Center: control valve panel / Bottom left: auto-mode conditions / Right: generator, to furnace, O2 SENSOR",
+        "Top left: ADDITION BLOWER/GAS / Center: control valve panel / Bottom left: auto-mode conditions / Right: generator, N2 generator, to furnace, O2 SENSOR",
         "Without control permission, 'View only' appears next to the title and buttons and inputs are locked."
       ]
     },
     "addition": {
       "title": "ADDITION BLOWER · GAS",
       "body": [
-        "Hold OPEN/CLOSE for the hold delay (2 s by default) to operate it. A bar fills under the button while you hold.",
-        "When open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]].",
+        "ON/OFF inside the BLOWER box runs the blower motor; OPEN/CLOSE under the solenoid valve operates the valve.",
+        "Hold a button for the hold delay (2 s by default) to operate it. A bar fills under the button while you hold.",
+        "When on or open, ON/OPEN lights green [[on]]; when off or closed, OFF/CLOSE lights red [[alarm]].",
         "It stays that way after you let go. To change it, hold the other button."
       ]
     },
     "pipeLamps": {
-      "title": "Pressure · SOL status",
+      "title": "Pressure status",
       "body": [
-        "Status lamps under the pressure control valves and solenoid valves.",
-        "Normal or open shows green [[on]]; abnormal or shut shows red [[alarm]]. The text changes with it."
+        "Status lamps under the pressure control valves.",
+        "Normal shows green [[on]]; abnormal shows red [[alarm]]. The text changes with it."
       ]
     },
     "fittings": {
@@ -384,10 +385,18 @@
         "It cannot be opened or closed from this screen."
       ]
     },
+    "n2gen": {
+      "title": "N2 GENERATOR",
+      "body": [
+        "Hold OPEN/CLOSE for the hold delay (2 s by default) to operate it; it stays that way after you let go.",
+        "When open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]].",
+        "The valve on the left turns green [[on]] while operating."
+      ]
+    },
     "o2": {
       "title": "O2 SENSOR",
       "body": [
-        "The O2 sensor value inside the furnace (mmV)."
+        "O2 sensor values inside the furnace (mmV). There are two sensors, shown in two rows (blue and teal)."
       ]
     },
     "end": {

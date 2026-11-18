@@ -97,10 +97,16 @@ const GUIDE_STEPS = {
   ],
   atmosphere: [
     { id: 'intro' },
-    /* 제목판·OPEN/CLOSE 칸은 감싸는 묶음이 없어 그 뒤의 설비 상자 그림(.blowe / .gas)을 짚는다.
-       둘을 한 상자로 묶으면 블로워 그림 한가운데를 가로지른다 — 따로 짚는다 */
-    { id: 'addition', target: '.blowe, .gas', split: true },
-    { id: 'pipeLamps', target: '.at-pipe-label' },
+    /* 설비 상자 그림(.blowe / .gas — 블로워 상자 안 ON/OFF도 여기 들어간다)과,
+       2026-11-18부터 솔밸브 아래로 옮긴 OPEN/CLOSE 칸을 짚는다.
+       한 상자로 묶으면 배관 한가운데를 가로지른다 — 따로 짚는다 */
+    {
+      id: 'addition',
+      target: '.blowe, .gas, .at-plate--blower + .at-openclose, .at-plate--gas + .at-openclose',
+      split: true,
+    },
+    /* 압력 램프 둘(위·아래)은 한 상자로 묶으면 그 사이의 가스 OPEN 버튼까지 덮는다 — 따로 짚는다 */
+    { id: 'pipeLamps', target: '.at-pipe-label', split: true },
     // 그림 속 부속 — 블로워·압력 조절밸브·솔레노이드 밸브·컨트롤 밸브·경광등. 흩어져 있어 따로 짚는다
     {
       id: 'fittings',
@@ -113,7 +119,10 @@ const GUIDE_STEPS = {
     { id: 'mode', target: '.at-mode' },
     { id: 'manualMv', target: '.at-manual' },
     { id: 'cond', target: '.at-cond' },
-    { id: 'gen', target: '.at-plate--gen, .at-plate--gen + .at-openclose' },
+    /* 발생기와 질소발생기는 이름판 모양(.at-plate--gen)이 같아서 at-dev--<key>로 가른다 */
+    { id: 'gen', target: '.at-dev--gen' },
+    // 질소발생기 — 왼쪽 볼밸브(valve-3)가 이름판에 바로 붙어 있어 한 상자로 짚는다
+    { id: 'n2gen', target: '.valve-3, .at-dev--gen2' },
     { id: 'o2', target: '.at-o2' },
     { id: 'end' },
   ],

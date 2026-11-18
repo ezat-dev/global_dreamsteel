@@ -1,5 +1,7 @@
 import { memo } from 'react';
-import { beaconTitle, fittingTitle, rotateValveTitle } from './atmosphereArtTags';
+import {
+  beaconTitle, fittingTitle, n2ValveTitle, rotateValveTitle,
+} from './atmosphereArtTags';
 
 /* ===========================================================================
    분위기제어 설비 그림 — 작화 도구가 뽑아준 index.html을 그대로 옮긴 것.
@@ -79,6 +81,14 @@ function AtmosphereOverview({ valveSpinning = true, lang }) {
       <img className="down-1" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="down-2" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="alarm-1" src="/scada/atmosphere/at-beacon.svg" title={beaconTitle()} />
+      {/* 두 번째 발생기 — 원본 작화에 없던 것을 2026-11-18 사용자 요청으로 덧붙였다.
+          위 발생기(obj-3·alarm-1·valve-2·pipe-9 끝)와 같은 그림을 240px 아래에 한 벌 더 놓고,
+          왼쪽 세로관(pipe-10)에서 가지관(pipe-11)을 내어 잇는다.
+          태그는 볼밸브(valve-3 = n2_gen_valve_lamp)만 있다 — 상자·경광등은 아직 없다. */}
+      <div className="pipe-11"></div>
+      <img className="valve-3" src="/scada/atmosphere/at-ballvalve.svg" title={n2ValveTitle()} />
+      <img className="obj-5" src="/scada/atmosphere/obj-30.png" />
+      <img className="alarm-2" src="/scada/atmosphere/at-beacon.svg" />
     </div>
   );
 }

@@ -87,7 +87,8 @@
 .at-stage-inner.on-blowe-pre .blowe-pre,
 .at-stage-inner.on-blowe-sol .blowe-sol,
 .at-stage-inner.on-gas-pre .gas-pre,
-.at-stage-inner.on-gas-sol .gas-sol {
+.at-stage-inner.on-gas-sol .gas-sol,
+.at-stage-inner.on-valve-3 .valve-3 {   /* 질소발생기 볼밸브 — 꺼짐 규칙은 없다(원래 색) */
   filter: contrast(1.8) url(#at-green);
 }
 
@@ -98,6 +99,12 @@
 }
 
 .at-stage-inner.beacon-gray .alarm-1 {
+  filter: grayscale(1);
+}
+
+/* 두 번째 발생기 경광등 — 태그가 아직 없어서 '못 읽음'과 같은 회색으로 둔다.
+   그림 그대로(빨강) 두면 이상이 난 것처럼 보인다. */
+.atmosphere .alarm-2 {
   filter: grayscale(1);
 }
 
@@ -311,6 +318,17 @@
   font-style: normal;
   letter-spacing: 1px;
   text-align: center;
+}
+
+/* 아래 줄 O2 SENSOR(o2_pv_2) — 위 줄(파랑)과 구분되게 청록. 모양은 같고 색만 다르다.
+   이름판(.at-plate--o2)·값 글자(.at-val) 둘 다 바꾼다. 다크 판은 아래 '다크 보정'에 있다. */
+.at-o2--teal .at-plate--o2 {
+  border-color: #1f9e8f;
+  background: #d3f3ee;
+}
+
+.at-o2--teal .at-val {
+  color: #3fd1c0;
 }
 
 /* 단위는 검은 표시칸(.at-val) 바깥, 밝은 작화 위에 맨몸으로 놓인다 —
@@ -684,6 +702,12 @@
   color: #79c2ff;
 }
 
+/* 아래 줄 O2 SENSOR — 청록. 위 규칙보다 무거워야(클래스 하나 더) 파랑을 이긴다 */
+.at-page.hmi-dark .at-o2--teal .at-plate--o2 {
+  border-color: #3fd1c0;
+  color: #5fe0cf;
+}
+
 /* 로내 투입만 예외로 채운 색을 지킨다 — 이 화면에서 제일 눈에 띄어야 하는 판이고,
    갈색 바탕에 흰 글자는 어두운 바탕에서도 그대로 읽힌다. */
 
@@ -751,13 +775,16 @@
      1.4배 결과: 상자 1490~1756, 경광등 1595~1665, 이름표 ~1745, OPEN/CLOSE ~1752
      — 그림 오른쪽 끝(1801)까지 45px 남는다. 작화 파일(atmosphereOverview.css)은
      건드리지 않고 여기서만 덮는다. */
-  .atmosphere .obj-3 {
+  /* obj-5 / alarm-2 는 두 번째 발생기(240px 아래) — 기준점도 같은 계산이다 */
+  .atmosphere .obj-3,
+  .atmosphere .obj-5 {
     transform: scale(1.4);
     transform-origin: left top;
   }
 
   /* 경광등은 상자 윗변에 얹혀 있다(1565, 36) — 같이 커지고 같이 오른쪽으로 밀려야 한다 */
-  .atmosphere .alarm-1 {
+  .atmosphere .alarm-1,
+  .atmosphere .alarm-2 {
     transform: scale(1.4);
     transform-origin: -75px 44px;
   }
@@ -823,20 +850,18 @@
      배율을 주고 있어서, 여기서 또 transform을 쓰면 서로 덮어 배율이 사라진다.
      절대배치 요소라 margin-top은 top에서 그만큼 밀어내는 것과 같다.
 
-     당기는 양은 칸마다 다르다(이름판 위치와 상자 높이가 달라서):
-       블로워 y70 → 54  (이름판 아래 36 ~ 상자 밑 111 사이의 가운데)
-       가스   y228 → 215 (이름판 아래 199 ~ 상자 밑 271)
-       발생기 y158 → 144 (이름판 아래 128 ~ 상자 밑 194) */
-  .at-overlay > .at-openclose {
-    margin-top: -16px;
-  }
+     발생기 y158 → 144 (이름판 아래 128 ~ 상자 밑 194)
 
-  .at-overlay > .at-plate--gas + .at-openclose {
-    margin-top: -13px;
-  }
-
+     ADDITION 블로워·가스는 2026-11-18부터 상자 안이 아니라 솔밸브 아래(y82 / y244)에 있다.
+     솔밸브 밑변 바로 아래라 위로 당기면 밸브를 덮는다 — 당기지 않고 아래로 자라게 둔다
+     (아래는 비어 있다: 블로워는 가스 이름판 y168까지, 가스는 조건판 y460까지). */
   .at-overlay > .at-plate--gen + .at-openclose {
     margin-top: -14px;
+  }
+
+  /* 블로워 상자 안 ON/OFF(y70) — 예전 OPEN/CLOSE 자리라 그때처럼 위로 당겨 상자 안 가운데에 둔다 */
+  .at-overlay > .at-openclose--box {
+    margin-top: -16px;
   }
 
   /* 발생기만 조금 낮게. 설비 상자가 y80~194이고 이 칸이 y158에서 시작해서

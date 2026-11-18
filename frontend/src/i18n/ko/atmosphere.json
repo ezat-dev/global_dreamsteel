@@ -2,7 +2,8 @@
   "device": {
     "blower": "ADDITION BLOWER",
     "gas": "ADDITION GAS",
-    "gen": "발 생 기"
+    "gen": "발 생 기",
+    "n2gen": "질소발생기"
   },
   "lamp": {
     "add_blowe_pressure_abnormal_lamp": "압력 이상",
@@ -29,7 +30,8 @@
     "sol": { "on": "SOL열림", "off": "SOL닫힘", "unknown": "SOL" }
   },
   "pipeTip": "{{tag}} — 읽기 전용 / 1이면 초록 {{on}}, 0이면 빨강 {{off}}",
-  "o2Tip": "O2 SENSOR — 읽기 전용 / o2_pv (D241)",
+  "o2Tip": "O2 SENSOR — 읽기 전용 / o2_pv (R805)",
+  "o2bTip": "O2 SENSOR (아래) — 읽기 전용 / o2_pv_2 (R806)",
   "valve": {
     "autoMode": "자동모드",
     "manualMode": "수동모드",
@@ -59,10 +61,12 @@
     "add_gas_valve_lamp": "ADDITION GAS 압력 조절밸브",
     "add_gas_sol_valve_lamp": "ADDITION GAS 솔레노이드 밸브",
     "generator_lamp": "발생기 경광등",
-    "atmosphere_rotate_valve_lamp": "ADDITION 컨트롤 밸브"
+    "atmosphere_rotate_valve_lamp": "ADDITION 컨트롤 밸브",
+    "n2_gen_valve_lamp": "질소발생기 밸브"
   },
   "rule": {
     "fitting": "값이 1이면 초록 / 0이거나 못 읽으면 회색",
+    "n2Valve": "값이 1이면 초록 / 0이거나 못 읽으면 원래 색",
     "beacon": "값이 0이면 초록 / 1이면 빨강 / 못 읽으면 회색",
     "valve": "값이 1이면 돌고 0이거나 못 읽으면 선다"
   }
