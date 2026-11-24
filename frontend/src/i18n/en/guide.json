@@ -323,7 +323,7 @@
       "body": [
         "The drawing changes with the equipment state.",
         "Blower, pressure control valves, solenoid valves: green [[on]] when operating, grey [[off]] otherwise",
-        "Control valve on the main pipe: spins while operating · Beacon above the generator: shows the state in green [[on]] / red [[alarm]]."
+        "Control valve on the main pipe: spins while operating · Beacons above the generator and N2 generator: show the state in green [[on]] / red [[alarm]]."
       ]
     },
     "valveValues": {
@@ -374,7 +374,8 @@
       "title": "GENERATOR",
       "body": [
         "When the generator GAS is open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]].",
-        "It cannot be opened or closed from this screen."
+        "It cannot be opened or closed from this screen.",
+        "The valve on the left turns green [[on]] while operating."
       ]
     },
     "n2gen": {

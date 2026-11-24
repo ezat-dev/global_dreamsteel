@@ -88,23 +88,21 @@
 .at-stage-inner.on-blowe-sol .blowe-sol,
 .at-stage-inner.on-gas-pre .gas-pre,
 .at-stage-inner.on-gas-sol .gas-sol,
+.at-stage-inner.on-valve-2 .valve-2,   /* 발생기 볼밸브 — 꺼짐 규칙은 없다(원래 색) */
 .at-stage-inner.on-valve-3 .valve-3 {   /* 질소발생기 볼밸브 — 꺼짐 규칙은 없다(원래 색) */
   filter: contrast(1.8) url(#at-green);
 }
 
-/* 발생기 위 경광등 — 그림이 원래 빨간 경광등이라 1(이상)일 때는 아무것도 안 건다.
+/* 발생기·질소발생기 위 경광등 — 각자 자기 태그(generator_lamp / n2_gen_lamp)를 본다.
+   그림이 원래 빨간 경광등이라 1(이상)일 때는 아무것도 안 건다.
    0이면 위 부속과 같은 초록으로 물들이고, 못 읽으면 회색으로 죽인다. */
-.at-stage-inner.beacon-green .alarm-1 {
+.at-stage-inner.beacon-green-alarm-1 .alarm-1,
+.at-stage-inner.beacon-green-alarm-2 .alarm-2 {
   filter: contrast(1.8) url(#at-green);
 }
 
-.at-stage-inner.beacon-gray .alarm-1 {
-  filter: grayscale(1);
-}
-
-/* 두 번째 발생기 경광등 — 태그가 아직 없어서 '못 읽음'과 같은 회색으로 둔다.
-   그림 그대로(빨강) 두면 이상이 난 것처럼 보인다. */
-.atmosphere .alarm-2 {
+.at-stage-inner.beacon-gray-alarm-1 .alarm-1,
+.at-stage-inner.beacon-gray-alarm-2 .alarm-2 {
   filter: grayscale(1);
 }
 

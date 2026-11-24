@@ -9,7 +9,8 @@ import {
 } from '../../api/scada/foldertagApi';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import {
-  BEACON, FITTING_TAGS, N2_VALVE, ROTATE_VALVE, fittingOffClass, fittingOnClass,
+  BEACONS, FITTING_TAGS, GEN_VALVE, N2_VALVE, ROTATE_VALVE, beaconGrayClass, beaconGreenClass,
+  fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
@@ -194,7 +195,7 @@ export default function AtmospherePage() {
   }, []);
 
   /* 이 화면의 PLC 값 — 램프·밸브 패널·조건판이 전부 여기서 온다.
-     작화 위 그림 중 볼밸브(valve-2)와 로내 투입 화살표(down-1 / down-2)는 태그가 없다 —
+     작화 위 그림 중 로내 투입 화살표(down-1 / down-2)는 태그가 없다 —
      맞는 PLC 값이 없어서 그냥 그려만 둔다. */
   /* OPEN/CLOSE를 누른 뒤에도 PLC를 따로 바로 읽지 않는다 — 바뀐 램프는 0.9초 폴링으로만
      들어온다(10/30 사용자 결정, foldertagApi의 PLC_POLL_MS). */
@@ -224,9 +225,11 @@ export default function AtmospherePage() {
       ? ` ${fittingOnClass(cls)}`
       : ` ${fittingOffClass(cls)}`))
     .join('')
-    /* 질소발생기 볼밸브 — 1일 때만 초록. 0이거나 못 읽으면 클래스 없이 그림 원래 색이다
-       (위 다섯과 달리 회색으로 죽이지 않는다 — 2026-11-18 사용자 지정). */
-    + (tagState(tagValues?.[N2_VALVE.tag]) === TAG_ON ? ` ${fittingOnClass(N2_VALVE.cls)}` : '');
+    /* 발생기·질소발생기 볼밸브 — 1일 때만 초록. 0이거나 못 읽으면 클래스 없이 그림 원래 색이다
+       (위 다섯과 달리 회색으로 죽이지 않는다 — 2026-11-18 사용자 지정, 발생기 쪽은 11-24 같은 규칙으로). */
+    + [GEN_VALVE, N2_VALVE]
+      .map((v) => (tagState(tagValues?.[v.tag]) === TAG_ON ? ` ${fittingOnClass(v.cls)}` : ''))
+      .join('');
 
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다 — 읽지 못한 값을 0으로 그리면
      실제로 0인 것과 구분되지 않는다. */
@@ -257,10 +260,12 @@ export default function AtmospherePage() {
      <animateTransform>이라 바깥 CSS로는 멈출 수 없어 그림 파일을 바꿔 끼우기 때문이다. */
   const valveSpinning = tagState(tagValues?.[ROTATE_VALVE.tag]) === TAG_ON;
 
-  const beaconState = tagState(tagValues?.[BEACON.tag]);
-  const beaconClass = beaconState === TAG_OFF
-    ? ' beacon-green'
-    : (beaconState === TAG_UNKNOWN ? ' beacon-gray' : '');
+  /* 경광등 둘(발생기·질소발생기) — 각자 자기 태그를 본다. */
+  const beaconClass = BEACONS.map((b) => {
+    const st = tagState(tagValues?.[b.tag]);
+    if (st === TAG_OFF) return ` ${beaconGreenClass(b.cls)}`;
+    return st === TAG_UNKNOWN ? ` ${beaconGrayClass(b.cls)}` : '';
+  }).join('');
 
   /* ── ADDITION 블로워·가스 OPEN/CLOSE ───────────────────────────────────
      모멘터리가 아니다. holdMs를 채우면 누른 쪽 태그에 1, 반대쪽 태그에 0을 주고

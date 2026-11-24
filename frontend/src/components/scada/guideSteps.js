@@ -109,7 +109,7 @@ const GUIDE_STEPS = {
     // 그림 속 부속 — 블로워·압력 조절밸브·솔레노이드 밸브·컨트롤 밸브·경광등. 흩어져 있어 따로 짚는다
     {
       id: 'fittings',
-      target: '.motor-1, .blowe-pre, .blowe-sol, .gas-pre, .gas-sol, .valve-1, .alarm-1',
+      target: '.motor-1, .blowe-pre, .blowe-sol, .gas-pre, .gas-sol, .valve-1, .alarm-1, .alarm-2',
       split: true,
     },
     { id: 'valveValues', target: '.at-valve-boxes > .at-box:first-child' },
@@ -119,7 +119,8 @@ const GUIDE_STEPS = {
     { id: 'manualMv', target: '.at-manual' },
     { id: 'cond', target: '.at-cond' },
     /* 발생기와 질소발생기는 이름판 모양(.at-plate--gen)이 같아서 at-dev--<key>로 가른다 */
-    { id: 'gen', target: '.at-dev--gen' },
+    // 발생기도 질소발생기처럼 왼쪽 볼밸브(valve-2)를 이름판과 한 상자로 짚는다
+    { id: 'gen', target: '.valve-2, .at-dev--gen' },
     // 질소발생기 — 왼쪽 볼밸브(valve-3)가 이름판에 바로 붙어 있어 한 상자로 짚는다
     { id: 'n2gen', target: '.valve-3, .at-dev--gen2' },
     { id: 'o2', target: '.at-o2' },

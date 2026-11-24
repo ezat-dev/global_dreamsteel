@@ -43,13 +43,25 @@ export const fittingTitle = (cls) => {
   return `${nameOf(tag)} / ${tag} — ${i18n.t('atmosphere:rule.fitting')}`;
 };
 
-/* 발생기 위 경광등(작화 alarm-1, x 1565~1605 / y 36~80).
+/* 발생기·질소발생기 위 경광등 — 둘 다 같은 규칙이고 태그만 따로다.
+     alarm-1  x 1565~1605 / y  36~80   발생기 경광등
+     alarm-2  x 1565~1605 / y 276~320  질소발생기 경광등(2026-11-24 사용자 지정, 주소는 임시 M300)
    위 다섯과 규칙이 반대다 — 0이 정상(초록)이고 1이 이상(빨강)이다.
-   그림이 원래 빨간 경광등이라 1일 때는 아무것도 걸지 않는다. */
-export const BEACON = { cls: 'alarm-1', tag: 'generator_lamp' };   // 발생기 경광등
+   그림이 원래 빨간 경광등이라 1일 때는 아무것도 걸지 않는다.
+   태그를 나눠 둔 것은 현장에서 DB address만 바꾸면 되게 하려는 것이다. */
+export const BEACONS = [
+  { cls: 'alarm-1', tag: 'generator_lamp' },   // 발생기 경광등
+  { cls: 'alarm-2', tag: 'n2_gen_lamp' },      // 질소발생기 경광등
+];
 
-export const beaconTitle = () =>
-  `${nameOf(BEACON.tag)} / ${BEACON.tag} — ${i18n.t('atmosphere:rule.beacon')}`;
+export const beaconTitle = (cls) => {
+  const { tag } = BEACONS.find((b) => b.cls === cls);
+  return `${nameOf(tag)} / ${tag} — ${i18n.t('atmosphere:rule.beacon')}`;
+};
+
+/* 무대에 붙는 클래스 — 0이면 초록, 못 읽으면 회색. AtmospherePage.css의 선택자와 짝이다. */
+export const beaconGreenClass = (cls) => `beacon-green-${cls}`;
+export const beaconGrayClass = (cls) => `beacon-gray-${cls}`;
 
 /* 주배관 위 컨트롤 밸브(작화 valve-1, x 626~676 / y 118~161).
    디스크가 도는 그림(at-valve-spin.svg)과 멈춘 그림(at-valve.svg) 두 벌이 있어서
@@ -69,6 +81,14 @@ export const rotateValveTitle = () =>
    위 다섯 부속과 0일 때가 다르다 — 회색으로 죽이지 않고 그림 원래 색 그대로 둔다.
    그래서 1일 때만 무대에 on-valve-3 클래스가 붙고, 꺼짐 클래스는 없다. */
 export const N2_VALVE = { cls: 'valve-3', tag: 'n2_gen_valve_lamp' };
+
+/* 발생기 왼쪽 볼밸브(작화 valve-2) — 바로 아래 질소발생기 볼밸브(valve-3)와 짝이라
+   값 규칙도 같다(1이면 초록, 0이거나 못 읽으면 원래 색). 2026-11-24 사용자 지정.
+   주소는 아직 임시(M300)다 — 현장에서 DB address만 고치면 된다. */
+export const GEN_VALVE = { cls: 'valve-2', tag: 'generator_valve_lamp' };
+
+export const genValveTitle = () =>
+  `${nameOf(GEN_VALVE.tag)} / ${GEN_VALVE.tag} — ${i18n.t('atmosphere:rule.n2Valve')}`;
 
 export const n2ValveTitle = () =>
   `${nameOf(N2_VALVE.tag)} / ${N2_VALVE.tag} — ${i18n.t('atmosphere:rule.n2Valve')}`;
