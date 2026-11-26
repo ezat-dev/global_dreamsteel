@@ -30,7 +30,10 @@
   "layout": {
     "readonly": "View only",
     "logout": "Logout",
-    "logoutConfirm": "Do you want to log out?"
+    "logoutConfirm": "Do you want to log out?",
+    "exit": "Exit",
+    "exitConfirm": "Do you want to close this screen?",
+    "exitBlocked": "This window cannot be closed from the screen. Please close the browser yourself."
   },
   "lang": {
     "label": "한",

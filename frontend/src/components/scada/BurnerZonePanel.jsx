@@ -88,7 +88,7 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
      번호는 연소화면 번호표와 같다: 위 줄 왼쪽부터 1번, 아래 줄 왼쪽부터 이어서. */
   const mapCell = (o) => (
     <div className="bz-map-cell" key={o.tag}>
-      <img className="bz-map-burner" src="/scada/engineering/eng-burner.svg?v=1" alt=""
+      <img className="bz-map-burner" src="/scada/engineering/eng-burner.svg?v=2" alt=""
         title={`${o.label} / ${o.tag}`} />
       <div className="bz-map-set">
         <span className="bz-map-no">{o.b}</span>
@@ -97,7 +97,7 @@ export default function BurnerZonePanel({ zone, values, onWrite }) {
     </div>
   );
 
-  // 위 줄 버너 수는 연소화면 작화와 같은 표(4·5·6존 3개, 나머지 4개). 아래 줄은 나머지.
+  // 위 줄 버너 수는 연소화면 작화와 같은 표(모든 존 4개). 아래 줄은 나머지(4·5·6존 3개).
   const topCount = ZONE_TOP[zone - 1];
 
   return (

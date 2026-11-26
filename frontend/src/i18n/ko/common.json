@@ -30,7 +30,10 @@
   "layout": {
     "readonly": "조회 전용",
     "logout": "로그아웃",
-    "logoutConfirm": "로그아웃하시겠습니까?"
+    "logoutConfirm": "로그아웃하시겠습니까?",
+    "exit": "종료",
+    "exitConfirm": "화면을 종료하시겠습니까?",
+    "exitBlocked": "이 창은 화면에서 닫을 수 없습니다. 브라우저를 직접 닫아 주세요."
   },
   "lang": {
     "label": "EN",

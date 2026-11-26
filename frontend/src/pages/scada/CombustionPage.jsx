@@ -13,7 +13,7 @@ import {
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import { beginPress, endPress } from '../../components/scada/pressGuard';
 import {
-  BOTTOM_EACH, ZONE_TOP,
+  ZONE_BOTTOM, ZONE_TOP,
   FIRE_TAGS, FITTING_TAGS, THUNDER_TAGS, VALVE_TAGS, fireHideClass, fireTag, fittingRedClass,
   thunderHideClass, thunderTag, valveOnClass, valveTag, ZONE_HOT_TAGS, zoneHotClass,
 } from '../../components/scada/combustionArtTags';
@@ -121,7 +121,7 @@ const PER_BOT = 442;   // 하단 개도 글씨 top (박스 y 437~467 안쪽 — 
      위 줄  for-fire-N : 가운데 = left + 8.5   → 1존 157.5, 184.5, 212.5, 239.5
      아래 줄 rev-fire-N : 가운데 = left - 8.5   → 1존 158.5, 185.5, 213.5, 240.5
      (아래 줄은 rotate(-180deg) + transform-origin: 0 0 이라 left가 오른쪽 끝이다)
-   존 간격은 147로 일정하고, 존 안 간격은 4개짜리가 27·28·27, 3개짜리(4~6존 위 줄)가 41·41이다.
+   존 간격은 147로 일정하고, 존 안 간격은 4개짜리가 27·28·27, 3개짜리(4~6존 아래 줄)가 41·41이다.
 
    번개가 위 줄은 불꽃 오른쪽 위, 아래 줄은 왼쪽 아래에 있어서 번호표는 그 반대편에 둔다 —
    위 줄은 불꽃 왼쪽 뿌리 옆, 아래 줄은 불꽃 오른쪽 뿌리 옆. 뿌리 높이라 존 이름표(217~)와
@@ -136,7 +136,7 @@ const BURNER_NOS = ZONES.flatMap((z) => {
   const top = BURNER_DX[ZONE_TOP[z - 1]].map((dx, k) => (
     { zone: z, no: k + 1, cx: BURNER_TOP_CX0 + x0 + dx, row: 'top' }
   ));
-  const bot = BURNER_DX[BOTTOM_EACH].map((dx, k) => (
+  const bot = BURNER_DX[ZONE_BOTTOM[z - 1]].map((dx, k) => (
     { zone: z, no: ZONE_TOP[z - 1] + k + 1, cx: BURNER_BOT_CX0 + x0 + dx, row: 'bot' }
   ));
   return [...top, ...bot];

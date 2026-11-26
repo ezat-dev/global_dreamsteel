@@ -71,8 +71,10 @@ function goToLogin() {
     // 스토리지를 못 쓰는 환경이어도 아래 이동은 해야 한다
   }
   // 이미 로그인 화면이면 그대로 둔다(무한 새로고침 방지)
+  /* replace — 뒤로 가기 기록을 남기지 않는다. 남으면 헤더의 종료 버튼이 창을 못 닫는다
+     (크롬은 기록이 한 칸인 창만 스크립트로 닫게 해 준다 — ScadaLayout의 handleExit). */
   if (window.location.pathname !== '/login') {
-    window.location.href = '/login';
+    window.location.replace('/login');
   }
 }
 

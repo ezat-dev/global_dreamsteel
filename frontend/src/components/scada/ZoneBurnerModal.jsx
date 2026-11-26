@@ -41,10 +41,10 @@ const COMPACT_BELOW = 600;
 
 /* 존 번호 → [위 줄 버너 수, 아래 줄 버너 수]. 연소화면 그림의 불꽃 개수 그대로다. */
 const ZONE_BURNERS = {
-  1: [4, 4], 2: [4, 4], 3: [4, 4], 4: [3, 4], 5: [3, 4], 6: [3, 4], 7: [4, 4],
+  1: [4, 4], 2: [4, 4], 3: [4, 4], 4: [4, 3], 5: [4, 3], 6: [4, 3], 7: [4, 4],
 };
 
-/* 존 번호 → 줄별 버너 번호. 예: 4존 → [{ row: 'top', nos: [1,2,3] }, { row: 'bottom', nos: [4,5,6,7] }]
+/* 존 번호 → 줄별 버너 번호. 예: 4존 → [{ row: 'top', nos: [1,2,3,4] }, { row: 'bottom', nos: [5,6,7] }]
    row는 사전 키다(combustion.json의 modal.top = 위 줄 / modal.bottom = 아래 줄). */
 const burnerRows = (zone) => {
   const [top, bottom] = ZONE_BURNERS[zone];

@@ -1,6 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 42" width="26" height="42">
   <!-- 엔지니어링 '버너제어' 탭의 순번 배치도 버너 한 자리(BurnerZonePanel).
-       실물 사진(녹색 주물 머리 + 은색 연소관)과 도면 기호(위 꼭지 + 넓은 판 + 아래로 긴 관)를 합쳤다.
+       실물 사진(주물 머리 + 은색 연소관)과 도면 기호(위 꼭지 + 넓은 판 + 아래로 긴 관)를 합쳤다.
+
+       ── 색 ──
+       머리·플랜지·꼭지·부착판은 회색이다(2026-11-26 사용자 지정 — 처음엔 사진대로 녹색이었다).
+       연소관(은색)과 구분되도록 관보다 한 단 어둡게 둔다.
 
        ── 방향 ──
        머리가 위, 관이 아래로 뻗는다 — 노 윗벽에 붙어 아래로 쏘는 윗줄 버너 그대로다.
@@ -11,9 +15,9 @@
        어긋나므로, 그림을 키우려면 viewBox가 아니라 이 안의 도형을 고친다. -->
   <defs>
     <linearGradient id="body" x1="0" x2="1">
-      <stop offset="0" stop-color="#3b7663" />
-      <stop offset=".45" stop-color="#6fae98" />
-      <stop offset="1" stop-color="#2f6151" />
+      <stop offset="0" stop-color="#4f555b" />
+      <stop offset=".45" stop-color="#8e959b" />
+      <stop offset="1" stop-color="#42474c" />
     </linearGradient>
     <linearGradient id="tube" x1="0" x2="1">
       <stop offset="0" stop-color="#737a81" />
@@ -24,29 +28,29 @@
   </defs>
 
   <!-- 위 꼭지(도면의 작은 네모) -->
-  <rect x="10.5" y="0.5" width="5" height="3" rx=".5" fill="#2f6151" stroke="#1f4337" stroke-width=".7" />
+  <rect x="10.5" y="0.5" width="5" height="3" rx=".5" fill="#42474c" stroke="#26292d" stroke-width=".7" />
 
-  <!-- 머리(녹색 주물) -->
-  <rect x="6" y="3" width="14" height="10" rx="1.2" fill="url(#body)" stroke="#1f4337" stroke-width=".8" />
+  <!-- 머리(회색 주물) -->
+  <rect x="6" y="3" width="14" height="10" rx="1.2" fill="url(#body)" stroke="#26292d" stroke-width=".8" />
 
   <!-- 왼쪽 가스 입구 플랜지 — 네모 판에 둥근 구멍, 모서리 볼트 -->
-  <rect x="0.8" y="5" width="5.6" height="6.6" rx=".8" fill="url(#body)" stroke="#1f4337" stroke-width=".7" />
-  <circle cx="3.6" cy="8.3" r="1.6" fill="#17241f" />
-  <g fill="#a9c4b9">
+  <rect x="0.8" y="5" width="5.6" height="6.6" rx=".8" fill="url(#body)" stroke="#26292d" stroke-width=".7" />
+  <circle cx="3.6" cy="8.3" r="1.6" fill="#18191b" />
+  <g fill="#c2c6ca">
     <circle cx="1.8" cy="6" r=".45" /><circle cx="5.4" cy="6" r=".45" />
     <circle cx="1.8" cy="10.6" r=".45" /><circle cx="5.4" cy="10.6" r=".45" />
   </g>
 
   <!-- 오른쪽 공기 입구 플랜지 — 가스보다 크다(사진에서도 공기 쪽 구멍이 크다) -->
-  <rect x="19.6" y="4" width="5.6" height="8.6" rx=".8" fill="url(#body)" stroke="#1f4337" stroke-width=".7" />
-  <circle cx="22.4" cy="8.3" r="2.1" fill="#17241f" />
-  <g fill="#a9c4b9">
+  <rect x="19.6" y="4" width="5.6" height="8.6" rx=".8" fill="url(#body)" stroke="#26292d" stroke-width=".7" />
+  <circle cx="22.4" cy="8.3" r="2.1" fill="#18191b" />
+  <g fill="#c2c6ca">
     <circle cx="20.6" cy="5" r=".45" /><circle cx="24.2" cy="5" r=".45" />
     <circle cx="20.6" cy="11.6" r=".45" /><circle cx="24.2" cy="11.6" r=".45" />
   </g>
 
   <!-- 부착 플랜지(노 벽에 붙는 판, 도면의 넓은 가로판) -->
-  <rect x="3.5" y="13" width="19" height="2.6" rx=".6" fill="#2f6151" stroke="#1f4337" stroke-width=".7" />
+  <rect x="3.5" y="13" width="19" height="2.6" rx=".6" fill="#42474c" stroke="#26292d" stroke-width=".7" />
 
   <!-- 연소관(은색) — 끝은 살짝 둥글게 -->
   <path d="M7.5 15.6 H18.5 V39 Q18.5 41.3 13 41.3 Q7.5 41.3 7.5 39 Z"

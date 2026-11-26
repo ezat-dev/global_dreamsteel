@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { IconHelp, IconLogout } from '@tabler/icons-react';
+import { IconHelp, IconLogout, IconPower } from '@tabler/icons-react';
 import { findScadaMenu, filterScadaMenu } from '../constants/scadaMenu';
 import ScadaLogo from '../components/scada/ScadaLogo';
 import ScadaClock from '../components/scada/ScadaClock';
@@ -110,6 +110,25 @@ export default function ScadaLayout() {
     navigate('/login', { replace: true });
   };
 
+  /* 종료 — 누른 기기의 브라우저 창을 닫는다(서버 PC면 서버 PC의 키오스크 크롬, 태블릿이면
+     그 태블릿의 크롬 탭). 기기끼리 연동하지 않는다.
+
+     크롬은 '뒤로 가기 기록이 없는 창'만 스크립트로 닫게 해 준다. 그래서 앱 안의 화면 이동을
+     전부 replace로 해서 기록을 한 칸으로 유지한다(아래 하단 메뉴, MainPage, axiosInstance).
+     바로가기(키오스크·홈 화면)로 연 창은 첫 칸이 이 앱이라 닫힌다.
+     주소창에 직접 쳐서 연 탭처럼 앞에 다른 기록이 있으면 크롬이 막는다 — 그때는 창이
+     그대로 남으므로 안내만 띄운다. 안드로이드는 탭이 닫히고 크롬 앱 자체는 남는다.
+
+     로그아웃은 하지 않는다 — 다음에 켤 때 로그인 유지 설정을 그대로 따른다. */
+  const handleExit = () => {
+    if (!window.confirm(t('layout.exitConfirm'))) return;
+    window.close();
+    /* 닫혔으면 이 타이머는 돌지 않는다. 남아 있으면 크롬이 막은 것이다. */
+    setTimeout(() => {
+      if (!window.closed) window.alert(t('layout.exitBlocked'));
+    }, 300);
+  };
+
   /* 안드로이드 태블릿에서 버튼을 1초쯤 누르고 있으면 브라우저의 롱프레스 메뉴
      (다운로드·공유·인쇄)가 떠서 조작을 가로챈다. 이 화면의 조작 버튼은 정해진 시간
      (엔지니어링 화면의 누름 시간, 기본 2초)을 눌러야 값이 나가서, 정상 조작이 매번 그 메뉴에 막힌다.
@@ -167,6 +186,12 @@ export default function ScadaLayout() {
           {/* 한/영 전환 — 로그아웃 왼쪽. 아래 관리자 버튼들은 로그아웃 폭에 맞춰 있어 영향이 없다 */}
           <LangToggle />
 
+          {/* 종료 — 로그아웃 왼쪽. 이 기기의 브라우저 창을 닫는다(위 handleExit) */}
+          <button type="button" className="hmi-exit" onClick={handleExit} title={t('layout.exit')}>
+            <IconPower size={16} />
+            <span>{t('layout.exit')}</span>
+          </button>
+
           <button type="button" className="hmi-logout" onClick={handleLogout}>
             <IconLogout size={16} />
             <span>{t('layout.logout')}</span>
@@ -198,7 +223,8 @@ export default function ScadaLayout() {
                 key={menu.key}
                 type="button"
                 className={`hmi-menu-item${menu.key === current.key ? ' active' : ''}`}
-                onClick={() => navigate(menu.path)}
+                /* replace — 뒤로 가기 기록을 남기지 않아야 종료 버튼이 창을 닫을 수 있다(handleExit) */
+                onClick={() => navigate(menu.path, { replace: true })}
                 title={menuName(menu)}
               >
                 {menuShort(menu)}

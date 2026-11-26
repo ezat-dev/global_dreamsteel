@@ -1779,11 +1779,14 @@
   left: 606px;
   top: 92px;
 }
-/* 4존 밸브 3개 — 이 존은 버너가 3개다 */
+/* 4존 밸브 4개 — 위 줄은 4·5·6존도 버너가 4개다(아래 줄만 3개).
+   자리는 3존 값에 존 간격 147을 더한 것이다. */
 .combustion .for-4-zone-valve-1 { left: 581.5px; }
-.combustion .for-4-zone-valve-2 { left: 622.5px; }
-.combustion .for-4-zone-valve-3 { left: 697.5px; }
-.combustion .for-4-gas-drop-2 { left: 634.5px; }
+.combustion .for-4-zone-valve-2 { left: 608.5px; }
+.combustion .for-4-zone-valve-3 { left: 670.5px; }
+.combustion .for-4-zone-valve-4 { left: 697.5px; }
+.combustion .for-4-gas-drop-2 { left: 620.5px; }
+.combustion .for-4-gas-drop-3 { left: 648.5px; }
 .combustion .for-5-zone-obj {
   width: 124px;
   height: 107px;
@@ -1848,11 +1851,13 @@
   left: 753px;
   top: 91px;
 }
-/* 5존 밸브 3개 */
+/* 5존 밸브 4개 */
 .combustion .for-5-zone-valve-1 { left: 728.5px; }
-.combustion .for-5-zone-valve-2 { left: 769.5px; }
-.combustion .for-5-zone-valve-3 { left: 844.5px; }
-.combustion .for-5-gas-drop-2 { left: 781.5px; }
+.combustion .for-5-zone-valve-2 { left: 755.5px; }
+.combustion .for-5-zone-valve-3 { left: 817.5px; }
+.combustion .for-5-zone-valve-4 { left: 844.5px; }
+.combustion .for-5-gas-drop-2 { left: 767.5px; }
+.combustion .for-5-gas-drop-3 { left: 795.5px; }
 .combustion .for-6-zone-obj {
   width: 124px;
   height: 107px;
@@ -1917,11 +1922,13 @@
   left: 900px;
   top: 91px;
 }
-/* 6존 밸브 3개 */
+/* 6존 밸브 4개 */
 .combustion .for-6-zone-valve-1 { left: 875.5px; }
-.combustion .for-6-zone-valve-2 { left: 916.5px; }
-.combustion .for-6-zone-valve-3 { left: 991.5px; }
-.combustion .for-6-gas-drop-2 { left: 928.5px; }
+.combustion .for-6-zone-valve-2 { left: 902.5px; }
+.combustion .for-6-zone-valve-3 { left: 964.5px; }
+.combustion .for-6-zone-valve-4 { left: 991.5px; }
+.combustion .for-6-gas-drop-2 { left: 914.5px; }
+.combustion .for-6-gas-drop-3 { left: 942.5px; }
 .combustion .for-7-zone-obj {
   width: 124px;
   height: 107px;
@@ -1999,9 +2006,9 @@
   position: static;
 }
 /* ---------------------------------------------------------------------------
-   존 불꽃·번개 (위쪽 25개)
+   존 불꽃·번개 (위쪽 28개)
 
-   버너는 존마다 개수가 다르다 — 1·2·3·7존이 위 4개, 4·5·6존이 위 3개다.
+   위 줄은 7개 존 모두 4개다(4·5·6존은 아래 줄이 3개 — 2026-11-26 정정, 그 전엔 위가 3개였다).
    자리는 존 폭(99px) 안에 균등하게 나눈 값이고, 존은 147px 간격으로 놓인다.
    양 끝(존 첫째·마지막)은 개수와 상관없이 항상 같은 자리다.
 
@@ -2146,36 +2153,42 @@
 .combustion .for-fire-11 { left: 498px; }
 .combustion .for-thun-12 { left: 524px; }
 .combustion .for-fire-12 { left: 525px; }
-/* 4존 — 3개 */
+/* 4존 */
 .combustion .for-thun-13 { left: 589px; }
 .combustion .for-fire-13 { left: 590px; }
-.combustion .for-thun-14 { left: 630px; }
-.combustion .for-fire-14 { left: 631px; }
-.combustion .for-thun-15 { left: 671px; }
-.combustion .for-fire-15 { left: 672px; }
-/* 5존 — 3개 */
-.combustion .for-thun-16 { left: 736px; }
-.combustion .for-fire-16 { left: 737px; }
-.combustion .for-thun-17 { left: 777px; }
-.combustion .for-fire-17 { left: 778px; }
-.combustion .for-thun-18 { left: 818px; }
-.combustion .for-fire-18 { left: 819px; }
-/* 6존 — 3개 */
-.combustion .for-thun-19 { left: 883px; }
-.combustion .for-fire-19 { left: 884px; }
-.combustion .for-thun-20 { left: 924px; }
-.combustion .for-fire-20 { left: 925px; }
-.combustion .for-thun-21 { left: 965px; }
-.combustion .for-fire-21 { left: 966px; }
+.combustion .for-thun-14 { left: 616px; }
+.combustion .for-fire-14 { left: 617px; }
+.combustion .for-thun-15 { left: 644px; }
+.combustion .for-fire-15 { left: 645px; }
+.combustion .for-thun-16 { left: 671px; }
+.combustion .for-fire-16 { left: 672px; }
+/* 5존 */
+.combustion .for-thun-17 { left: 736px; }
+.combustion .for-fire-17 { left: 737px; }
+.combustion .for-thun-18 { left: 763px; }
+.combustion .for-fire-18 { left: 764px; }
+.combustion .for-thun-19 { left: 791px; }
+.combustion .for-fire-19 { left: 792px; }
+.combustion .for-thun-20 { left: 818px; }
+.combustion .for-fire-20 { left: 819px; }
+/* 6존 */
+.combustion .for-thun-21 { left: 883px; }
+.combustion .for-fire-21 { left: 884px; }
+.combustion .for-thun-22 { left: 910px; }
+.combustion .for-fire-22 { left: 911px; }
+.combustion .for-thun-23 { left: 938px; }
+.combustion .for-fire-23 { left: 939px; }
+.combustion .for-thun-24 { left: 965px; }
+.combustion .for-fire-24 { left: 966px; }
 /* 7존 */
-.combustion .for-thun-22 { left: 1030px; }
-.combustion .for-fire-22 { left: 1031px; }
-.combustion .for-thun-23 { left: 1057px; }
-.combustion .for-fire-23 { left: 1058px; }
-.combustion .for-thun-24 { left: 1085px; }
-.combustion .for-fire-24 { left: 1086px; }
-.combustion .for-thun-25 { left: 1112px; }
-.combustion .for-fire-25 { left: 1113px; }
+.combustion .for-thun-25 { left: 1030px; }
+.combustion .for-fire-25 { left: 1031px; }
+.combustion .for-thun-26 { left: 1057px; }
+.combustion .for-fire-26 { left: 1058px; }
+.combustion .for-thun-27 { left: 1085px; }
+.combustion .for-fire-27 { left: 1086px; }
+.combustion .for-thun-28 { left: 1112px; }
+.combustion .for-fire-28 { left: 1113px; }
 .combustion .rev-1-zone-obj {
   width: 124px;
   height: 107px;
@@ -2340,13 +2353,13 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-/* 2존 밸브 4개 */
+/* 2존(화면 6존) 밸브 3개 — 아래 줄은 화면 4·5·6존이 버너 3개다.
+   자리는 위 줄 3개 배치(옛 4~6존 위 줄)와 같은 값이고, 번호만 오른쪽부터다.
+   세로 토막은 가운데 하나뿐이다. */
 .combustion .rev-2-zone-valve-1 { left: 991.5px; }
-.combustion .rev-2-zone-valve-2 { left: 964.5px; }
-.combustion .rev-2-zone-valve-3 { left: 902.5px; }
-.combustion .rev-2-zone-valve-4 { left: 875.5px; }
-.combustion .rev-2-gas-drop-2 { left: 942.5px; }
-.combustion .rev-2-gas-drop-3 { left: 914.5px; }
+.combustion .rev-2-zone-valve-2 { left: 916.5px; }
+.combustion .rev-2-zone-valve-3 { left: 875.5px; }
+.combustion .rev-2-gas-drop-2 { left: 928.5px; }
 .combustion .rev-3-zone-obj {
   width: 124px;
   height: 107px;
@@ -2425,13 +2438,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-/* 3존 밸브 4개 */
+/* 3존(화면 5존) 밸브 3개 */
 .combustion .rev-3-zone-valve-1 { left: 844.5px; }
-.combustion .rev-3-zone-valve-2 { left: 817.5px; }
-.combustion .rev-3-zone-valve-3 { left: 755.5px; }
-.combustion .rev-3-zone-valve-4 { left: 728.5px; }
-.combustion .rev-3-gas-drop-2 { left: 795.5px; }
-.combustion .rev-3-gas-drop-3 { left: 767.5px; }
+.combustion .rev-3-zone-valve-2 { left: 769.5px; }
+.combustion .rev-3-zone-valve-3 { left: 728.5px; }
+.combustion .rev-3-gas-drop-2 { left: 781.5px; }
 .combustion .rev-4-zone-obj {
   width: 124px;
   height: 107px;
@@ -2510,13 +2521,11 @@
   transform-origin: 0 0;
   transform: rotate(-180deg) scale(1, 1);
 }
-/* 4존 밸브 4개 — 아래쪽은 4·5·6존도 버너가 4개다(위쪽만 3개) */
+/* 4존(화면 4존) 밸브 3개 */
 .combustion .rev-4-zone-valve-1 { left: 697.5px; }
-.combustion .rev-4-zone-valve-2 { left: 670.5px; }
-.combustion .rev-4-zone-valve-3 { left: 608.5px; }
-.combustion .rev-4-zone-valve-4 { left: 581.5px; }
-.combustion .rev-4-gas-drop-2 { left: 648.5px; }
-.combustion .rev-4-gas-drop-3 { left: 620.5px; }
+.combustion .rev-4-zone-valve-2 { left: 622.5px; }
+.combustion .rev-4-zone-valve-3 { left: 581.5px; }
+.combustion .rev-4-gas-drop-2 { left: 634.5px; }
 .combustion .rev-5-zone-obj {
   width: 124px;
   height: 107px;
@@ -2778,7 +2787,8 @@
   position: static;
 }
 /* ---------------------------------------------------------------------------
-   존 불꽃·번개 (아래쪽 28개) — 존마다 4개씩.
+   존 불꽃·번개 (아래쪽 25개) — 화면 4·5·6존만 3개, 나머지 존은 4개.
+   3개짜리는 위 줄의 옛 3개 배치(존 안 간격 41)를 그대로 옮긴 자리다.
 
    rotate(-180deg) + transform-origin: 0 0이라 left가 그림의 오른쪽 끝이다.
    그래서 존1이 오른쪽(1131)이고 존7이 왼쪽(167)으로, 위쪽과 좌표 방향이 반대다.
@@ -2804,7 +2814,7 @@
   aspect-ratio: 3/2;
 }
 
-/* 1존 */
+/* 작화 1존 = 화면 7존 아래 — 4개 */
 .combustion .rev-thun-1 { left: 1132px; }
 .combustion .rev-fire-1 { left: 1131px; }
 .combustion .rev-thun-2 { left: 1105px; }
@@ -2813,60 +2823,54 @@
 .combustion .rev-fire-3 { left: 1076px; }
 .combustion .rev-thun-4 { left: 1050px; }
 .combustion .rev-fire-4 { left: 1049px; }
-/* 2존 */
+/* 작화 2존 = 화면 6존 아래 — 3개 */
 .combustion .rev-thun-5 { left: 985px; }
 .combustion .rev-fire-5 { left: 984px; }
-.combustion .rev-thun-6 { left: 958px; }
-.combustion .rev-fire-6 { left: 957px; }
-.combustion .rev-thun-7 { left: 930px; }
-.combustion .rev-fire-7 { left: 929px; }
-.combustion .rev-thun-8 { left: 903px; }
-.combustion .rev-fire-8 { left: 902px; }
-/* 3존 */
-.combustion .rev-thun-9 { left: 838px; }
-.combustion .rev-fire-9 { left: 837px; }
-.combustion .rev-thun-10 { left: 811px; }
-.combustion .rev-fire-10 { left: 810px; }
-.combustion .rev-thun-11 { left: 783px; }
-.combustion .rev-fire-11 { left: 782px; }
-.combustion .rev-thun-12 { left: 756px; }
-.combustion .rev-fire-12 { left: 755px; }
-/* 4존 */
-.combustion .rev-thun-13 { left: 691px; }
-.combustion .rev-fire-13 { left: 690px; }
-.combustion .rev-thun-14 { left: 664px; }
-.combustion .rev-fire-14 { left: 663px; }
-.combustion .rev-thun-15 { left: 636px; }
-.combustion .rev-fire-15 { left: 635px; }
-.combustion .rev-thun-16 { left: 609px; }
-.combustion .rev-fire-16 { left: 608px; }
-/* 5존 */
-.combustion .rev-thun-17 { left: 544px; }
-.combustion .rev-fire-17 { left: 543px; }
-.combustion .rev-thun-18 { left: 517px; }
-.combustion .rev-fire-18 { left: 516px; }
-.combustion .rev-thun-19 { left: 489px; }
-.combustion .rev-fire-19 { left: 488px; }
-.combustion .rev-thun-20 { left: 462px; }
-.combustion .rev-fire-20 { left: 461px; }
-/* 6존 */
-.combustion .rev-thun-21 { left: 397px; }
-.combustion .rev-fire-21 { left: 396px; }
-.combustion .rev-thun-22 { left: 370px; }
-.combustion .rev-fire-22 { left: 369px; }
-.combustion .rev-thun-23 { left: 342px; }
-.combustion .rev-fire-23 { left: 341px; }
-.combustion .rev-thun-24 { left: 315px; }
-.combustion .rev-fire-24 { left: 314px; }
-/* 7존 */
-.combustion .rev-thun-25 { left: 250px; }
-.combustion .rev-fire-25 { left: 249px; }
-.combustion .rev-thun-26 { left: 223px; }
-.combustion .rev-fire-26 { left: 222px; }
-.combustion .rev-thun-27 { left: 195px; }
-.combustion .rev-fire-27 { left: 194px; }
-.combustion .rev-thun-28 { left: 168px; }
-.combustion .rev-fire-28 { left: 167px; }
+.combustion .rev-thun-6 { left: 944px; }
+.combustion .rev-fire-6 { left: 943px; }
+.combustion .rev-thun-7 { left: 903px; }
+.combustion .rev-fire-7 { left: 902px; }
+/* 작화 3존 = 화면 5존 아래 — 3개 */
+.combustion .rev-thun-8 { left: 838px; }
+.combustion .rev-fire-8 { left: 837px; }
+.combustion .rev-thun-9 { left: 797px; }
+.combustion .rev-fire-9 { left: 796px; }
+.combustion .rev-thun-10 { left: 756px; }
+.combustion .rev-fire-10 { left: 755px; }
+/* 작화 4존 = 화면 4존 아래 — 3개 */
+.combustion .rev-thun-11 { left: 691px; }
+.combustion .rev-fire-11 { left: 690px; }
+.combustion .rev-thun-12 { left: 650px; }
+.combustion .rev-fire-12 { left: 649px; }
+.combustion .rev-thun-13 { left: 609px; }
+.combustion .rev-fire-13 { left: 608px; }
+/* 작화 5존 = 화면 3존 아래 — 4개 */
+.combustion .rev-thun-14 { left: 544px; }
+.combustion .rev-fire-14 { left: 543px; }
+.combustion .rev-thun-15 { left: 517px; }
+.combustion .rev-fire-15 { left: 516px; }
+.combustion .rev-thun-16 { left: 489px; }
+.combustion .rev-fire-16 { left: 488px; }
+.combustion .rev-thun-17 { left: 462px; }
+.combustion .rev-fire-17 { left: 461px; }
+/* 작화 6존 = 화면 2존 아래 — 4개 */
+.combustion .rev-thun-18 { left: 397px; }
+.combustion .rev-fire-18 { left: 396px; }
+.combustion .rev-thun-19 { left: 370px; }
+.combustion .rev-fire-19 { left: 369px; }
+.combustion .rev-thun-20 { left: 342px; }
+.combustion .rev-fire-20 { left: 341px; }
+.combustion .rev-thun-21 { left: 315px; }
+.combustion .rev-fire-21 { left: 314px; }
+/* 작화 7존 = 화면 1존 아래 — 4개 */
+.combustion .rev-thun-22 { left: 250px; }
+.combustion .rev-fire-22 { left: 249px; }
+.combustion .rev-thun-23 { left: 223px; }
+.combustion .rev-fire-23 { left: 222px; }
+.combustion .rev-thun-24 { left: 195px; }
+.combustion .rev-fire-24 { left: 194px; }
+.combustion .rev-thun-25 { left: 168px; }
+.combustion .rev-fire-25 { left: 167px; }
 
 /* ---------------------------------------------------------------------------
    번개 숨기기 — 값이 1인 것만 보인다.
@@ -2898,9 +2902,9 @@
 .cb-stage-inner.hide-for-thun-23 .for-thun-23 { display: none; }
 .cb-stage-inner.hide-for-thun-24 .for-thun-24 { display: none; }
 .cb-stage-inner.hide-for-thun-25 .for-thun-25 { display: none; }
-.cb-stage-inner.hide-rev-thun-28 .rev-thun-28 { display: none; }
-.cb-stage-inner.hide-rev-thun-27 .rev-thun-27 { display: none; }
-.cb-stage-inner.hide-rev-thun-26 .rev-thun-26 { display: none; }
+.cb-stage-inner.hide-for-thun-26 .for-thun-26 { display: none; }
+.cb-stage-inner.hide-for-thun-27 .for-thun-27 { display: none; }
+.cb-stage-inner.hide-for-thun-28 .for-thun-28 { display: none; }
 .cb-stage-inner.hide-rev-thun-25 .rev-thun-25 { display: none; }
 .cb-stage-inner.hide-rev-thun-24 .rev-thun-24 { display: none; }
 .cb-stage-inner.hide-rev-thun-23 .rev-thun-23 { display: none; }
@@ -2955,9 +2959,9 @@
 .cb-stage-inner.hide-for-fire-23 .for-fire-23 { display: none; }
 .cb-stage-inner.hide-for-fire-24 .for-fire-24 { display: none; }
 .cb-stage-inner.hide-for-fire-25 .for-fire-25 { display: none; }
-.cb-stage-inner.hide-rev-fire-28 .rev-fire-28 { display: none; }
-.cb-stage-inner.hide-rev-fire-27 .rev-fire-27 { display: none; }
-.cb-stage-inner.hide-rev-fire-26 .rev-fire-26 { display: none; }
+.cb-stage-inner.hide-for-fire-26 .for-fire-26 { display: none; }
+.cb-stage-inner.hide-for-fire-27 .for-fire-27 { display: none; }
+.cb-stage-inner.hide-for-fire-28 .for-fire-28 { display: none; }
 .cb-stage-inner.hide-rev-fire-25 .rev-fire-25 { display: none; }
 .cb-stage-inner.hide-rev-fire-24 .rev-fire-24 { display: none; }
 .cb-stage-inner.hide-rev-fire-23 .rev-fire-23 { display: none; }

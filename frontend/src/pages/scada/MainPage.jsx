@@ -90,7 +90,8 @@ export default function MainPage() {
             key={menu.key}
             type="button"
             className="hmi-mainmenu-tile"
-            onClick={() => navigate(menu.path)}
+            /* replace — 뒤로 가기 기록을 남기지 않는다(헤더 종료 버튼, ScadaLayout의 handleExit) */
+            onClick={() => navigate(menu.path, { replace: true })}
           >
             <ScreenArt name={menu.key} />
             <span className="hmi-tile-label">{t(`menu.${menu.key}`, { defaultValue: menu.label })}</span>

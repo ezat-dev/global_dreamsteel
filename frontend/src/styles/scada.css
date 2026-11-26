@@ -372,6 +372,35 @@ button {
   background: var(--g-glass-hi);
 }
 
+/* 종료 — 로그아웃 왼쪽. 같은 유리 버튼이고, 폭을 고정해 한/영이 바뀌어도(종료/Exit)
+   옆 칸이 흔들리지 않는다. 로그아웃 폭(--hmi-topbtn-w)과는 따로라 관리자 버튼 줄에 영향이 없다. */
+.hmi-exit {
+  flex-shrink: 0;
+  width: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--g-glass-line);
+  background: var(--g-glass);
+  color: var(--g-ink);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hmi-exit:hover {
+  background: var(--g-glass-hi);
+}
+
+.hmi-exit:active {
+  background: rgba(0, 0, 0, .18);
+}
+
 /* 로그인 화면 — 판 오른쪽 위 구석에 띄운다(제목줄이 없는 화면이라) */
 .hmi-lang.is-login {
   position: absolute;
@@ -2342,6 +2371,11 @@ html[lang="en"] .hmi-authgrid-row {
      좌우 여백은 로그아웃보다 2px 적다(로그아웃은 '로그아웃' 4글자라 여유가 있다). */
   .hmi-logout {
     padding: 0 10px;
+    font-size: 12.5px;
+  }
+
+  .hmi-exit {
+    width: 72px;
     font-size: 12.5px;
   }
 
