@@ -9,8 +9,8 @@ import {
 } from '../../api/scada/foldertagApi';
 import { useHoldMs } from '../../components/scada/HoldMsContext';
 import {
-  BEACONS, FITTING_TAGS, GEN_VALVE, N2_VALVE, ROTATE_VALVE, beaconGrayClass, beaconGreenClass,
-  fittingOffClass, fittingOnClass,
+  BEACONS, FITTING_TAGS, GEN_VALVE, ROTATE_VALVE, beaconGrayClass, beaconGreenClass,
+  fittingAlarmClass, fittingOffClass, fittingOnClass,
 } from '../../components/scada/atmosphereArtTags';
 // 작화 도구가 뽑아준 설비 그림 스타일. 우리 CSS보다 먼저 깐다.
 import './atmosphereOverview.css';
@@ -36,8 +36,9 @@ const STAGE_H = 742;
 
    설비 조각이 실제로 그려지는 자리(작화 CSS에서 확인한 값):
      블로워      x    1~ 260, y  18~111     가스        x    0~ 202, y 178~271
-     컨트롤밸브  x  626~ 676, y 118~161     주배관      x  656~1418, y 129~150
-     발생기      x 1490~1680, y  80~194     로(furnace) x  924~1801, y 600~742
+     컨트롤밸브  x  626~ 676, y 118~161     주배관      x  656~1463, y 129~150
+     발생기      x 1535~1725, y  80~194     로(furnace) x  924~1801, y 600~742
+     질소발생기  x 1535~1725, y 320~434     (왼쪽 회색 관 x1440~1538, y 286~632)
      내림관      x 1284~1332 / 1413~1461, y 461~573
    비어 있는 곳은 x 60~900 / y 280~740(왼쪽 아래)와 x 700~1250 / y 180~590(가운데)다. */
 const SLOTS = {
@@ -88,8 +89,9 @@ const DEVICE_PANELS = [
 
        두 칸의 규칙이 서로 다르다 — OPEN은 0일 때 초록, CLOSE는 1일 때 빨강이다. */
     key: 'gen', tone: 'gen',   // 발 생 기
-    plate: { left: 1500, top: 100, width: 172 },
-    state: { left: 1495, top: 158, width: 182 },
+    /* x는 2026-11-26 상자와 같이 +45 옮긴 값이다(원래 1500 / 1495, atmosphereOverview.css 질소발생기 주석) */
+    plate: { left: 1545, top: 100, width: 172 },
+    state: { left: 1540, top: 158, width: 182 },
     openTag: 'generator_open_lamp',
     closeTag: 'generator_close_lamp',
   },
@@ -101,8 +103,8 @@ const DEVICE_PANELS = [
     key: 'gen2', tone: 'gen', label: 'n2gen',   // 질소발생기
     /* 글자 간격만 4px(.at-plate--gen) → 2px — 영어 'N2 GENERATOR'가 4px이면 판(172)을 꽉 채워
        좌우 여백이 없어진다(2026-11-18 캡처로 확인). 판 폭은 상자(190) 때문에 못 늘린다. */
-    plate: { left: 1500, top: 100 + 240, width: 172, letterSpacing: 2 },
-    state: { left: 1495, top: 158 + 240, width: 182 },
+    plate: { left: 1545, top: 100 + 240, width: 172, letterSpacing: 2 },
+    state: { left: 1540, top: 158 + 240, width: 182 },
     onCmd: 'n2_gen_open_cmd',    // M328 / 램프 M628 — 1이면 초록
     offCmd: 'n2_gen_close_cmd',  // M329 / 램프 M629 — 0이면 빨강
   },
@@ -212,7 +214,7 @@ export default function AtmospherePage() {
       : { cls: ' is-alarm', text: t(`pipe.${l.kind}.off`) };
   };
 
-  /* 왼쪽 위 배관 부속 다섯 — 값이 1이면 초록, 0이거나 못 읽으면 회색.
+  /* 배관 부속(왼쪽 위 다섯 + 질소발생기 압력 스위치·솔밸브) — 값이 1이면 초록, 0이거나 못 읽으면 회색.
      구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
      않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 AtmospherePage.css가 맡는다.
 
@@ -220,16 +222,18 @@ export default function AtmospherePage() {
      켜짐은 초록으로 물들인다). 한쪽만 붙이면 0일 때 가스 밸브의 주황이 그대로 남는다.
 
      tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
+  /* 질소발생기 압력 스위치·솔밸브(zeroRed)만 0일 때 빨강이다 — 못 읽을 때는 다른 부속처럼 회색. */
   const fittingClasses = Object.entries(FITTING_TAGS)
-    .map(([cls, fitting]) => (tagState(tagValues?.[fitting.tag]) === TAG_ON
-      ? ` ${fittingOnClass(cls)}`
-      : ` ${fittingOffClass(cls)}`))
+    .map(([cls, fitting]) => {
+      const st = tagState(tagValues?.[fitting.tag]);
+      if (st === TAG_ON) return ` ${fittingOnClass(cls)}`;
+      if (st === TAG_OFF && fitting.zeroRed) return ` ${fittingAlarmClass(cls)}`;
+      return ` ${fittingOffClass(cls)}`;
+    })
     .join('')
-    /* 발생기·질소발생기 볼밸브 — 1일 때만 초록. 0이거나 못 읽으면 클래스 없이 그림 원래 색이다
-       (위 다섯과 달리 회색으로 죽이지 않는다 — 2026-11-18 사용자 지정, 발생기 쪽은 11-24 같은 규칙으로). */
-    + [GEN_VALVE, N2_VALVE]
-      .map((v) => (tagState(tagValues?.[v.tag]) === TAG_ON ? ` ${fittingOnClass(v.cls)}` : ''))
-      .join('');
+    /* 발생기 볼밸브 — 1일 때만 초록. 0이거나 못 읽으면 클래스 없이 그림 원래 색이다
+       (위 부속들과 달리 회색으로 죽이지 않는다 — 2026-11-24 사용자 지정). */
+    + (tagState(tagValues?.[GEN_VALVE.tag]) === TAG_ON ? ` ${fittingOnClass(GEN_VALVE.cls)}` : '');
 
   /* 값을 못 받았으면 0이 아니라 '---'로 보여준다 — 읽지 못한 값을 0으로 그리면
      실제로 0인 것과 구분되지 않는다. */
@@ -476,6 +480,17 @@ export default function AtmospherePage() {
             values="0.01489 0.05009 0.00506 0 0.03708
                     0.09072 0.30518 0.03081 0 0.22590
                     0.04323 0.14541 0.01468 0 0.10764
+                    0       0       0       1 0"
+          />
+        </filter>
+        {/* 빨강 — 질소발생기 압력 스위치·솔밸브가 0일 때. 위 초록과 같은 계산을 화면 램프의
+            빨강(#dc2626)에 실은 것이다(구동화면 #dr-red와 같은 값). */}
+        <filter id="at-red" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            type="matrix"
+            values="0.15591 0.52448 0.05295 0 0.38824
+                    0.02693 0.09059 0.00915 0 0.06706
+                    0.02693 0.09059 0.00915 0 0.06706
                     0       0       0       1 0"
           />
         </filter>

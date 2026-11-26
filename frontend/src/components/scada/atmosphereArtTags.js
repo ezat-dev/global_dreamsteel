@@ -22,25 +22,32 @@ import i18n from '../../i18n';
 const nameOf = (tag) => i18n.t(`atmosphere:art.${tag}`);
 
 /* 키는 작화 클래스 이름 그대로다 — 클래스(on-<키> / off-<키>)와 짝이 눈으로 맞춰진다.
-   다섯 개 모두 왼쪽 위 배관에 있다.
+   앞 다섯은 왼쪽 위 배관, 뒤 둘은 질소발생기 왼쪽에 있다.
      motor-1    x 202 y  43  ADDITION BLOWER 블로워
      blowe-pre  x 327 y  14  공기 압력 조절밸브
      blowe-sol  x 455 y   0  공기 솔레노이드 밸브
      gas-pre    x 227 y 183  가스 압력 조절밸브
      gas-sol    x 373 y 172  가스 솔레노이드 밸브
-   (압력·솔 그림은 원본 작화와 맞바꿔 그렸다 — 키와 태그는 자리를 따라가므로 그대로다) */
+     n2-pre     x1453 y 286  질소발생기 압력 스위치     (2026-11-26, 주소는 임시 M300)
+     n2-sol     x1481 y 339  질소발생기 솔레노이드 밸브 (2026-11-26, 주소는 임시 M300)
+   (압력·솔 그림은 원본 작화와 맞바꿔 그렸다 — 키와 태그는 자리를 따라가므로 그대로다)
+
+   zeroRed — 0일 때 회색이 아니라 빨강이다(못 읽을 때만 회색). 질소발생기 둘만 그렇다
+   (2026-11-26 사용자 지정). 왼쪽 위 다섯은 그대로 0이면 회색이다. */
 export const FITTING_TAGS = {
   'motor-1': { tag: 'add_blowe_motor_lamp' },
   'blowe-pre': { tag: 'add_blowe_valve_lamp' },
   'blowe-sol': { tag: 'add_blowe_sol_valve_lamp' },
   'gas-pre': { tag: 'add_gas_valve_lamp' },
   'gas-sol': { tag: 'add_gas_sol_valve_lamp' },
+  'n2-pre': { tag: 'n2_gen_pressure_switch_lamp', zeroRed: true },
+  'n2-sol': { tag: 'n2_gen_sol_valve_lamp', zeroRed: true },
 };
 
 /* 그림 위에 마우스를 올렸을 때 뜨는 글. 화면의 다른 title들과 같은 꼴이다. */
 export const fittingTitle = (cls) => {
-  const { tag } = FITTING_TAGS[cls];
-  return `${nameOf(tag)} / ${tag} — ${i18n.t('atmosphere:rule.fitting')}`;
+  const { tag, zeroRed } = FITTING_TAGS[cls];
+  return `${nameOf(tag)} / ${tag} — ${i18n.t(zeroRed ? 'atmosphere:rule.fittingRed' : 'atmosphere:rule.fitting')}`;
 };
 
 /* 발생기·질소발생기 위 경광등 — 둘 다 같은 규칙이고 태그만 따로다.
@@ -77,24 +84,21 @@ export const ROTATE_VALVE = {
 export const rotateValveTitle = () =>
   `${nameOf(ROTATE_VALVE.tag)} / ${ROTATE_VALVE.tag} — ${i18n.t('atmosphere:rule.valve')}`;
 
-/* 질소발생기 왼쪽 볼밸브(작화 valve-3, x 1369~1493 / y 350~398) — Y19E, 2026-11-18 사용자 지정.
-   위 다섯 부속과 0일 때가 다르다 — 회색으로 죽이지 않고 그림 원래 색 그대로 둔다.
-   그래서 1일 때만 무대에 on-valve-3 클래스가 붙고, 꺼짐 클래스는 없다. */
-export const N2_VALVE = { cls: 'valve-3', tag: 'n2_gen_valve_lamp' };
-
-/* 발생기 왼쪽 볼밸브(작화 valve-2) — 바로 아래 질소발생기 볼밸브(valve-3)와 짝이라
-   값 규칙도 같다(1이면 초록, 0이거나 못 읽으면 원래 색). 2026-11-24 사용자 지정.
-   주소는 아직 임시(M300)다 — 현장에서 DB address만 고치면 된다. */
+/* 발생기 왼쪽 볼밸브(작화 valve-2) — 2026-11-24 사용자 지정.
+   위 부속들과 0일 때가 다르다 — 회색으로 죽이지 않고 그림 원래 색 그대로 둔다.
+   그래서 1일 때만 무대에 on-valve-2 클래스가 붙고, 꺼짐 클래스는 없다.
+   주소는 아직 임시(M300)다 — 현장에서 DB address만 고치면 된다.
+   (질소발생기 쪽 짝 볼밸브 valve-3 / n2_gen_valve_lamp는 2026-11-26 사용자 요청으로 그림째 지웠다.
+   규칙 이름 rule.n2Valve는 그때 이름 그대로 남아 있다.) */
 export const GEN_VALVE = { cls: 'valve-2', tag: 'generator_valve_lamp' };
 
 export const genValveTitle = () =>
   `${nameOf(GEN_VALVE.tag)} / ${GEN_VALVE.tag} — ${i18n.t('atmosphere:rule.n2Valve')}`;
-
-export const n2ValveTitle = () =>
-  `${nameOf(N2_VALVE.tag)} / ${N2_VALVE.tag} — ${i18n.t('atmosphere:rule.n2Valve')}`;
 
 /* 무대에 붙는 클래스. AtmospherePage.css의 선택자와 짝이 맞아야 한다.
    초록·회색 둘 다 클래스를 붙인다 — 둘 다 filter를 걸어야 해서, 한쪽만 붙이고
    나머지를 '규칙 없음'으로 두면 0일 때 가스 밸브의 주황이 그대로 남는다. */
 export const fittingOnClass = (cls) => `on-${cls}`;
 export const fittingOffClass = (cls) => `off-${cls}`;
+/* zeroRed 부속이 0일 때 붙는 클래스 — 빨강(#at-red). 못 읽으면 이것 대신 off-(회색)가 붙는다. */
+export const fittingAlarmClass = (cls) => `alarm-${cls}`;

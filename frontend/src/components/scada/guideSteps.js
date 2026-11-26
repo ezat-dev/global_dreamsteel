@@ -121,8 +121,8 @@ const GUIDE_STEPS = {
     /* 발생기와 질소발생기는 이름판 모양(.at-plate--gen)이 같아서 at-dev--<key>로 가른다 */
     // 발생기도 질소발생기처럼 왼쪽 볼밸브(valve-2)를 이름판과 한 상자로 짚는다
     { id: 'gen', target: '.valve-2, .at-dev--gen' },
-    // 질소발생기 — 왼쪽 볼밸브(valve-3)가 이름판에 바로 붙어 있어 한 상자로 짚는다
-    { id: 'n2gen', target: '.valve-3, .at-dev--gen2' },
+    // 질소발생기 — 왼쪽에 붙은 압력 스위치·솔밸브(n2-pre / n2-sol)를 이름판과 한 상자로 짚는다
+    { id: 'n2gen', target: '.n2-pre, .n2-sol, .at-dev--gen2' },
     { id: 'o2', target: '.at-o2' },
     { id: 'end' },
   ],

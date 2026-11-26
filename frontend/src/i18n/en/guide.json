@@ -383,7 +383,7 @@
       "body": [
         "Hold OPEN/CLOSE for the hold delay (2 s by default) to operate it; it stays that way after you let go.",
         "When open, OPEN lights green [[on]]; when closed, CLOSE lights red [[alarm]].",
-        "The valve on the left turns green [[on]] while operating."
+        "The pressure switch and solenoid valve on the left turn green [[on]] while operating and red [[alarm]] when stopped."
       ]
     },
     "o2": {

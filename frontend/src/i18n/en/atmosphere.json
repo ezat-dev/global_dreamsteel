@@ -62,12 +62,14 @@
     "add_gas_sol_valve_lamp": "ADDITION GAS solenoid valve",
     "generator_lamp": "Generator beacon",
     "atmosphere_rotate_valve_lamp": "ADDITION control valve",
-    "n2_gen_valve_lamp": "N2 generator valve",
+    "n2_gen_pressure_switch_lamp": "N2 generator pressure switch",
+    "n2_gen_sol_valve_lamp": "N2 generator solenoid valve",
     "generator_valve_lamp": "Generator valve",
     "n2_gen_lamp": "N2 generator beacon"
   },
   "rule": {
     "fitting": "green at 1 / gray at 0 or if unreadable",
+    "fittingRed": "green at 1 / red at 0 / gray if unreadable",
     "n2Valve": "green at 1 / original color at 0 or if unreadable",
     "beacon": "green at 0 / red at 1 / gray if unreadable",
     "valve": "spins at 1 / stops at 0 or if unreadable"

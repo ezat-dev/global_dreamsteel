@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import {
-  beaconTitle, fittingTitle, genValveTitle, n2ValveTitle, rotateValveTitle,
+  beaconTitle, fittingTitle, genValveTitle, rotateValveTitle,
 } from './atmosphereArtTags';
 
 /* ===========================================================================
@@ -32,6 +32,9 @@ import {
      at-ballvalve.svg                              레버식 볼밸브   valve-2
      at-arrow-down.svg                             로내 투입 화살표 down-1 / down-2
                                                    (원본 두 파일이 같은 그림이라 하나만 쓴다)
+   원본에 없던 그림(2026-11-26, 현장 사진을 그린 것):
+     at-pressure-switch.svg                        질소발생기 압력 스위치    n2-pre
+     at-solenoid-n2.svg                            질소발생기 솔레노이드 밸브 n2-sol
 
    원본 PNG는 public 폴더에 그대로 두었다. 되돌리려면 src를 원래 파일명으로 바꾸면 된다
    (motor-10, gas-pre0, blowe-pre0, gas-sol0, blowe-sol0, alarm-10, valve-10, valve-20, down-10, down-20).
@@ -81,15 +84,23 @@ function AtmosphereOverview({ valveSpinning = true, lang }) {
       <img className="down-1" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="down-2" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="alarm-1" src="/scada/atmosphere/at-beacon.svg" title={beaconTitle('alarm-1')} />
-      {/* 두 번째 발생기 — 원본 작화에 없던 것을 2026-11-18 사용자 요청으로 덧붙였다.
-          위 발생기(obj-3·alarm-1·valve-2·pipe-9 끝)와 같은 그림을 240px 아래에 한 벌 더 놓고,
-          왼쪽 세로관(pipe-10)에서 가지관(pipe-11)을 내어 잇는다.
-          태그는 볼밸브(valve-3 = n2_gen_valve_lamp)와 경광등(alarm-2 = n2_gen_lamp)이다.
-          상자에는 없다. */}
-      <div className="pipe-11"></div>
-      <img className="valve-3" src="/scada/atmosphere/at-ballvalve.svg" title={n2ValveTitle()} />
+      {/* 두 번째 발생기(질소발생기) — 원본 작화에 없던 것을 2026-11-18 사용자 요청으로 덧붙였다.
+          위 발생기 상자·경광등(obj-3·alarm-1)과 같은 그림을 240px 아래에 한 벌 더 놓았다.
+
+          2026-11-26부터 주황 세로관과는 이어지지 않는다 — 예전 가지관(pipe-11)과 볼밸브(valve-3)를
+          지우고, 상자 왼쪽에 압력 스위치(n2-pre)와 솔레노이드 밸브(n2-sol)를 붙여 회색 관
+          (pipe-12~14)으로 '로내 투입' 판까지 따로 내린다. 자리는 atmosphereOverview.css 주석.
+          태그는 경광등(alarm-2 = n2_gen_lamp)과 두 부속(FITTING_TAGS의 n2-pre / n2-sol)이다.
+          상자에는 없다.
+
+          관을 그림보다 먼저 둔다 — 부속 그림이 관 위에 얹혀야 이음부가 가려진다. */}
       <img className="obj-5" src="/scada/atmosphere/obj-30.png" />
       <img className="alarm-2" src="/scada/atmosphere/at-beacon.svg" title={beaconTitle('alarm-2')} />
+      <div className="pipe-12"></div>
+      <div className="pipe-13"></div>
+      <div className="pipe-14"></div>
+      <img className="n2-sol" src="/scada/atmosphere/at-solenoid-n2.svg" title={fittingTitle('n2-sol')} />
+      <img className="n2-pre" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('n2-pre')} />
     </div>
   );
 }

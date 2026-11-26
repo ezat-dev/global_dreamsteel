@@ -62,12 +62,14 @@
     "add_gas_sol_valve_lamp": "ADDITION GAS 솔레노이드 밸브",
     "generator_lamp": "발생기 경광등",
     "atmosphere_rotate_valve_lamp": "ADDITION 컨트롤 밸브",
-    "n2_gen_valve_lamp": "질소발생기 밸브",
+    "n2_gen_pressure_switch_lamp": "질소발생기 압력 스위치",
+    "n2_gen_sol_valve_lamp": "질소발생기 솔레노이드 밸브",
     "generator_valve_lamp": "발생기 밸브",
     "n2_gen_lamp": "질소발생기 경광등"
   },
   "rule": {
     "fitting": "값이 1이면 초록 / 0이거나 못 읽으면 회색",
+    "fittingRed": "값이 1이면 초록 / 0이면 빨강 / 못 읽으면 회색",
     "n2Valve": "값이 1이면 초록 / 0이거나 못 읽으면 원래 색",
     "beacon": "값이 0이면 초록 / 1이면 빨강 / 못 읽으면 회색",
     "valve": "값이 1이면 돌고 0이거나 못 읽으면 선다"

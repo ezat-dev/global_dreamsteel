@@ -64,6 +64,17 @@
   translate: 0 var(--at-gap, 0px);
 }
 
+/* 질소발생기에서 로내 투입 판으로 내려가는 회색 관 — 판이 내려가는 만큼 세로관(pipe-13)을
+   늘리고 아래끝 꺾임(pipe-14)을 같이 내린다. pipe-13은 돌리지 않은 세운 막대라
+   height가 곧 길이고, 윗끝(360, 압력 스위치 밑)은 제자리다. */
+.at-stage-inner .atmosphere .pipe-13 {
+  height: calc(272px + var(--at-gap, 0px));
+}
+
+.at-stage-inner .atmosphere .pipe-14 {
+  translate: 0 var(--at-gap, 0px);
+}
+
 .at-overlay > .at-slot--valve {
   translate: 0 calc(var(--at-gap, 0px) / 2);
 }
@@ -88,8 +99,9 @@
 .at-stage-inner.on-blowe-sol .blowe-sol,
 .at-stage-inner.on-gas-pre .gas-pre,
 .at-stage-inner.on-gas-sol .gas-sol,
-.at-stage-inner.on-valve-2 .valve-2,   /* 발생기 볼밸브 — 꺼짐 규칙은 없다(원래 색) */
-.at-stage-inner.on-valve-3 .valve-3 {   /* 질소발생기 볼밸브 — 꺼짐 규칙은 없다(원래 색) */
+.at-stage-inner.on-n2-pre .n2-pre,     /* 질소발생기 압력 스위치 */
+.at-stage-inner.on-n2-sol .n2-sol,     /* 질소발생기 솔레노이드 밸브 */
+.at-stage-inner.on-valve-2 .valve-2 {  /* 발생기 볼밸브 — 꺼짐 규칙은 없다(원래 색) */
   filter: contrast(1.8) url(#at-green);
 }
 
@@ -110,8 +122,17 @@
 .at-stage-inner.off-blowe-pre .blowe-pre,
 .at-stage-inner.off-blowe-sol .blowe-sol,
 .at-stage-inner.off-gas-pre .gas-pre,
-.at-stage-inner.off-gas-sol .gas-sol {
+.at-stage-inner.off-gas-sol .gas-sol,
+.at-stage-inner.off-n2-pre .n2-pre,
+.at-stage-inner.off-n2-sol .n2-sol {
   filter: grayscale(1);
+}
+
+/* 질소발생기 압력 스위치·솔밸브는 0이면 빨강이다(2026-11-26 사용자 지정) — 위 off-(회색)는
+   이 둘에게는 못 읽었을 때만 붙는다. 초록과 같이 대비를 먼저 벌리고 물들인다. */
+.at-stage-inner.alarm-n2-pre .n2-pre,
+.at-stage-inner.alarm-n2-sol .n2-sol {
+  filter: contrast(1.8) url(#at-red);
 }
 
 /* 색 행렬만 담는 그림. 자리를 차지하면 안 되므로 크기를 0으로 둔다
@@ -646,6 +667,20 @@
   );
 }
 
+/* 질소발생기 회색 세로관(pipe-13)만 rotate 없이 세운 막대다 — 명암을 좌우로 준다
+   (위 규칙을 그대로 두면 세로관에 가로 줄무늬가 진다). */
+.atmosphere .pipe-13 {
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, .34) 0%,
+    rgba(0, 0, 0, .10) 14%,
+    rgba(255, 255, 255, .55) 32%,
+    rgba(255, 255, 255, .14) 52%,
+    rgba(0, 0, 0, .12) 72%,
+    rgba(0, 0, 0, .36) 100%
+  );
+}
+
 /* ===== 다크 보정 ============================================================
 
    틀(배경·유리 판·버튼)은 scada.css의 .hmi-dark가 맡는다. 여기서는 이 화면에만
@@ -761,18 +796,19 @@
 
   /* 발생기는 상자째로 키운다.
 
-     이름표(172)와 OPEN/CLOSE(182)가 상자(x1490~1680, 폭 190)를 이미 꽉 채우고 있어서
+     이름표(172)와 OPEN/CLOSE(182)가 상자(x1535~1725, 폭 190)를 이미 꽉 채우고 있어서
      판만 키우면 무조건 상자 밖으로 나간다. 그런데 상자 오른쪽은 x1801까지 비어 있다 —
      설비 그림과 판을 같은 비율로 같이 키우면 서로의 자리는 그대로고 전체만 커진다.
 
-     기준점은 넷 다 상자의 왼쪽 위(1490, 80)다. 그래야 왼쪽에서 들어오는 배관(~1490)의
+     기준점은 넷 다 상자의 왼쪽 위(1535, 80)다. 그래야 왼쪽에서 들어오는 배관(~1535)의
      연결부가 제자리에 남고, 커지는 쪽이 빈 오른쪽·아래가 된다. 각 요소는 자기 좌표가
-     달라서 그 한 점을 자기 기준으로 환산해 음수 origin으로 준다(예: 이름표는 1500,100에
-     있으므로 1490-1500 = -10px, 80-100 = -20px).
+     달라서 그 한 점을 자기 기준으로 환산해 음수 origin으로 준다(예: 이름표는 1545,100에
+     있으므로 1535-1545 = -10px, 80-100 = -20px).
 
-     1.4배 결과: 상자 1490~1756, 경광등 1595~1665, 이름표 ~1745, OPEN/CLOSE ~1752
-     — 그림 오른쪽 끝(1801)까지 45px 남는다. 작화 파일(atmosphereOverview.css)은
-     건드리지 않고 여기서만 덮는다. */
+     1.4배 결과: 상자 1535~1801, 경광등 1640~1710, 이름표 ~1790, OPEN/CLOSE ~1797
+     — 그림 오른쪽 끝(1801)에 딱 맞는다. 상자를 1490에서 1535로 옮길 때(2026-11-26,
+     질소발생기 회색 관 자리) 이 끝이 상한이었다 — 더 오른쪽으로 옮기면 여기서 잘린다.
+     작화 파일(atmosphereOverview.css)은 건드리지 않고 여기서만 덮는다. */
   /* obj-5 / alarm-2 는 두 번째 발생기(240px 아래) — 기준점도 같은 계산이다 */
   .atmosphere .obj-3,
   .atmosphere .obj-5 {
