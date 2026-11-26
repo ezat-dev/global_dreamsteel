@@ -577,9 +577,13 @@ function LampBoardGroup({ side, values }) {
     <div className={`hmi-group dr-panel dr-board is-${side}`}>
       <div
         className="dr-board-grid"
-        /* minmax(0, 1fr) — 판 높이(.dr-bottom 160px)를 줄 수로 나눠 갖는다 */
+        /* 줄: minmax(0, 1fr) — 판 높이(.dr-bottom 160px)를 줄 수로 나눠 갖는다.
+           열: 글자 폭 이상(max-content)이면서 남는 폭은 나눠 갖는다(1fr). 넓은 화면은 판이
+           글자 폭만큼이라(.dr-board flex: 0 0 auto) 남는 폭이 없어 전과 같고, 판이 한 줄을
+           통째로 쓰는 1700px 이하에서만 열이 판 폭에 고르게 퍼진다 — 왼쪽에 몰려 오른쪽이
+           비던 것(2026-11-26 태블릿 지적)을 고친 것이다. */
         style={{
-          gridTemplateColumns: `repeat(${cols}, max-content)`,
+          gridTemplateColumns: `repeat(${cols}, minmax(max-content, 1fr))`,
           gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
         }}
       >
