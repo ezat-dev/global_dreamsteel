@@ -4,6 +4,7 @@ import { useAuth, SESSION_EXPIRED_KEY } from '../../context/AuthContext';
 import { login as loginApi } from '../../api/scada/scadaAuthApi';
 import ScadaLogo from '../../components/scada/ScadaLogo';
 import LangToggle from '../../components/scada/LangToggle';
+import ExitButton from '../../components/scada/ExitButton';
 import { useTranslation } from 'react-i18next';
 import '../../styles/scada.css';
 
@@ -91,6 +92,9 @@ export default function ScadaLoginPage() {
 
         {/* 한/영 전환 — 제목줄이 없는 화면이라 오른쪽 위 구석에 띄운다 */}
         <LangToggle className="is-login" />
+
+        {/* 종료 — 한/영 왼쪽. 키오스크가 이 화면에서 시작하므로 로그인 전에도 닫을 수 있어야 한다 */}
+        <ExitButton className="is-login" />
 
         <div className="hmi-login-box">
           <ScadaLogo className="hmi-logo--login" />

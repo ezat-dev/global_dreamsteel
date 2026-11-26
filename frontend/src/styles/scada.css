@@ -401,6 +401,15 @@ button {
   background: rgba(0, 0, 0, .18);
 }
 
+/* 로그인 화면 — 한/영(.hmi-lang.is-login, right 14 · 폭 52) 왼쪽에 8px 띄워 나란히 */
+.hmi-exit.is-login {
+  position: absolute;
+  top: 14px;
+  right: 74px;
+  z-index: 2;
+  height: 36px;
+}
+
 /* 로그인 화면 — 판 오른쪽 위 구석에 띄운다(제목줄이 없는 화면이라) */
 .hmi-lang.is-login {
   position: absolute;
