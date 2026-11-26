@@ -389,7 +389,7 @@
     "o2": {
       "title": "O2 SENSOR",
       "body": [
-        "O2 sensor values inside the furnace (mmV). There are two sensors, shown in two rows (blue and teal)."
+        "O2 sensor value inside the furnace (mmV)."
       ]
     },
     "end": {

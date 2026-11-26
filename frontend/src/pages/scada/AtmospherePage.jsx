@@ -136,15 +136,14 @@ const PIPE_LABELS = [
    세로는 화살표 아래끝(573)과 로 윗변(600) 사이에 걸치도록 잡았다. */
 const FURNACE_PLATE = { left: 1277, top: 592, width: 190 };   // 로내 투입 (atmosphere.json의 furnace)
 
-/* 로 위에 얹는 O2 센서 표시부 — 2026-11-18부터 두 줄. 아래 줄은 위 줄과 모양이 같고 색만 다르다
-   (tone → AtmospherePage.css의 .at-o2--<tone>). 둘 다 PLC가 주는 값이라 표시 전용이다.
-     위  o2_pv    R805   (예전 D241)
-     아래 o2_pv_2  R806
-   세로는 로(y600~742) 안 — 위 줄 620, 아래 줄은 판 높이(약 36)에 띄움을 더해 665. */
+/* 로 위에 얹는 O2 센서 표시부 — PLC가 주는 값이라 표시 전용이다.
+     o2_pv    R805   (예전 D241)
+   11/18에 아래 줄(o2_pv_2, R806, 청록)을 더했다가 2026-11-26 사용자 요청으로 뺐다 — 센서는 하나다.
+   줄을 다시 늘리려면 여기 한 줄 더 넣고 tone별 색(AtmospherePage.css의 .at-o2--<tone>)을 만든다.
+   세로는 로(y600~742) 안 620. */
 const O2_PANEL = { left: 940, titleWidth: 135, valueWidth: 100 };
 const O2_ROWS = [
   { key: 'o2', top: 620, tag: 'o2_pv', tone: 'blue' },
-  { key: 'o2b', top: 665, tag: 'o2_pv_2', tone: 'teal' },
 ];
 
 /* 이 화면의 PLC 태그가 든 폴더 — ez_scada.folders.id (폴더 이름 '분위기제어').

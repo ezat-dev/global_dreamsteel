@@ -339,17 +339,6 @@
   text-align: center;
 }
 
-/* 아래 줄 O2 SENSOR(o2_pv_2) — 위 줄(파랑)과 구분되게 청록. 모양은 같고 색만 다르다.
-   이름판(.at-plate--o2)·값 글자(.at-val) 둘 다 바꾼다. 다크 판은 아래 '다크 보정'에 있다. */
-.at-o2--teal .at-plate--o2 {
-  border-color: #1f9e8f;
-  background: #d3f3ee;
-}
-
-.at-o2--teal .at-val {
-  color: #3fd1c0;
-}
-
 /* 단위는 검은 표시칸(.at-val) 바깥, 밝은 작화 위에 맨몸으로 놓인다 —
    그래서 화면 글자색(밝은 쪽)을 따르지 않고 검은 글자로 둔다. */
 .at-o2-unit {
@@ -733,12 +722,6 @@
 .at-page.hmi-dark .at-plate--o2 {
   border-color: #58aaff;
   color: #79c2ff;
-}
-
-/* 아래 줄 O2 SENSOR — 청록. 위 규칙보다 무거워야(클래스 하나 더) 파랑을 이긴다 */
-.at-page.hmi-dark .at-o2--teal .at-plate--o2 {
-  border-color: #3fd1c0;
-  color: #5fe0cf;
 }
 
 /* 로내 투입만 예외로 채운 색을 지킨다 — 이 화면에서 제일 눈에 띄어야 하는 판이고,

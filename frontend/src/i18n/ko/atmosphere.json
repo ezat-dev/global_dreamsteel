@@ -31,7 +31,6 @@
   },
   "pipeTip": "{{tag}} — 읽기 전용 / 1이면 초록 {{on}}, 0이면 빨강 {{off}}",
   "o2Tip": "O2 SENSOR — 읽기 전용 / o2_pv (R805)",
-  "o2bTip": "O2 SENSOR (아래) — 읽기 전용 / o2_pv_2 (R806)",
   "valve": {
     "autoMode": "자동모드",
     "manualMode": "수동모드",
