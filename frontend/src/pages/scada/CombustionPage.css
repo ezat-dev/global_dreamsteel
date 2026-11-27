@@ -53,6 +53,8 @@
    분위기제어의 같은 이름(.gas-pre / .gas-sol)과 겹치지 않는다 — 그 화면에는 이 무대가
    없기 때문이다. */
 .cb-stage-inner.red-gas-pre .gas-pre,
+.cb-stage-inner.red-gas-pre2 .gas-pre2,
+.cb-stage-inner.red-gas-pre3 .gas-pre3,
 .cb-stage-inner.red-gas-sol .gas-sol,
 .cb-stage-inner.red-blower-pre .blower-pre,
 .cb-stage-inner.red-blower-pump .blower-pump {

@@ -19,14 +19,19 @@ import i18n from '../../i18n';
 
 /* 키는 작화 클래스 이름 그대로다 — 빨강 클래스(red-<키>)와 짝이 눈으로 맞춰진다.
    넷 다 작화 위쪽 배관에 있고, 앞 둘이 MAIN GAS 쪽, 뒤 둘이 연소 BLOWER 쪽이다.
-     gas-pre     x 252 y  9  MAIN GAS 압력 조절밸브
-     gas-sol     x 317 y  8  MAIN GAS 솔레노이드 밸브
+     gas-pre     x 264 y  0  MAIN GAS 압력 조절밸브(압력 1)
+     gas-pre2    x 380 y  0  MAIN GAS 압력 2 (2026-11-27 추가 — 새 태그, 임시 M300)
+     gas-pre3    x 456 y  0  MAIN GAS 압력 3 (2026-11-27 추가 — 새 태그, 임시 M300)
+     gas-sol     x 514 y  2  MAIN GAS 솔레노이드 밸브
+     (압력 1과 2 사이의 가스 거버너 gas-gov는 태그가 없다 — 그림만 있다)
      blower-pre  x 917 y  9  연소 BLOWER 압력 조절밸브
      blower-pump x1001 y 26  연소 BLOWER 송풍기
    (2026-11 압력·솔 그림을 모양에 맞게 바꿔 끼웠다 — combustionOverview.css의 .gas-pre 주석.
     키와 태그는 자리를 따라가므로 그대로다) */
 export const FITTING_TAGS = {
   'gas-pre': { tag: 'main_gas_valve_lamp' },
+  'gas-pre2': { tag: 'main_gas_valve2_lamp' },
+  'gas-pre3': { tag: 'main_gas_valve3_lamp' },
   'gas-sol': { tag: 'main_gas_sol_valve_lamp' },
   'blower-pre': { tag: 'combustion_blower_valve_lamp' },
   'blower-pump': { tag: 'combustion_blower_motor_lamp' },

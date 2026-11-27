@@ -42,6 +42,8 @@
   },
   "art": {
     "main_gas_valve_lamp": "MAIN GAS 압력 조절밸브",
+    "main_gas_valve2_lamp": "MAIN GAS 압력 조절밸브 2",
+    "main_gas_valve3_lamp": "MAIN GAS 압력 조절밸브 3",
     "main_gas_sol_valve_lamp": "MAIN GAS 솔레노이드 밸브",
     "combustion_blower_valve_lamp": "연소 BLOWER 압력 조절밸브",
     "combustion_blower_motor_lamp": "연소 BLOWER 송풍기",

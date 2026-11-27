@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 45" width="52" height="45">
+  <!-- MAIN GAS 가스 거버너(감압 조절기) — 현장 사진(2026-11-27)을 옮긴 것. 태그 없는 그림이다.
+       압력 스위치 1번과 2번 사이 가로관에 끼워진다(combustionOverview.css의 .gas-gov).
+         스프링 탑      x 20~32, y  0~13   (위 검은 캡, 아래 파란 가스켓)
+         다이어프램 돔  x  4~48, y 11~25
+         알루미늄 몸통  x  7~45, y 23~44   (볼트 — 흐름 화살표는 2026-11-27 사용자 요청으로 뺐다)
+         노랑 플랜지    x  2~7 / 45~50, y 19~45
+       가로관 중심이 y 32다 — 연소화면 위쪽 관(y 27~37)과 같은 높이라 top 0에 놓으면 맞는다. -->
+  <defs>
+    <linearGradient id="gv-alu" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7d838a"/>
+      <stop offset=".42" stop-color="#e6e9ec"/>
+      <stop offset="1" stop-color="#6c727a"/>
+    </linearGradient>
+    <linearGradient id="gv-dome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef1f4"/>
+      <stop offset=".6" stop-color="#b9bfc6"/>
+      <stop offset="1" stop-color="#868d95"/>
+    </linearGradient>
+    <linearGradient id="gv-yellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b38f00"/>
+      <stop offset=".45" stop-color="#ffd84a"/>
+      <stop offset="1" stop-color="#a88400"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 좌우 관 이음 -->
+  <rect x="0" y="27" width="3" height="10" fill="url(#gv-yellow)"/>
+  <rect x="49" y="27" width="3" height="10" fill="url(#gv-yellow)"/>
+
+  <g stroke="#4f565e" stroke-width=".7" stroke-linejoin="round">
+    <!-- 노랑 플랜지 -->
+    <rect x="2" y="19" width="5.5" height="26" rx="1.2" fill="url(#gv-yellow)" stroke="#7a6200"/>
+    <rect x="44.5" y="19" width="5.5" height="26" rx="1.2" fill="url(#gv-yellow)" stroke="#7a6200"/>
+
+    <!-- 알루미늄 몸통 -->
+    <path d="M8 24 H44 V40 Q44 44 40 44 H12 Q8 44 8 40 Z" fill="url(#gv-alu)"/>
+
+    <!-- 다이어프램 돔 -->
+    <path d="M4 24 Q4 14 26 12 Q48 14 48 24 Z" fill="url(#gv-dome)"/>
+    <rect x="3.5" y="22.5" width="45" height="2.8" rx="1" fill="url(#gv-alu)"/>
+
+    <!-- 스프링 탑 -->
+    <rect x="20.5" y="2" width="11" height="11" fill="url(#gv-alu)"/>
+    <rect x="20" y="0.5" width="12" height="2.6" rx=".8" fill="#2a2d31" stroke="#111"/>
+  </g>
+  <!-- 파란 가스켓 -->
+  <ellipse cx="26" cy="13" rx="8" ry="1.6" fill="#7fa8d8" stroke="#4a6f99" stroke-width=".5"/>
+
+  <!-- 볼트·명판 -->
+  <g fill="#3a3f45">
+    <circle cx="4.75" cy="22" r=".9"/><circle cx="4.75" cy="42" r=".9"/>
+    <circle cx="47.25" cy="22" r=".9"/><circle cx="47.25" cy="42" r=".9"/>
+    <circle cx="10" cy="23.9" r=".7"/><circle cx="18" cy="23.9" r=".7"/>
+    <circle cx="34" cy="23.9" r=".7"/><circle cx="42" cy="23.9" r=".7"/>
+  </g>
+  <rect x="30" y="16.5" width="8" height="3.5" rx=".5" fill="#f4f4f4" stroke="#999" stroke-width=".3"/>
+</svg>

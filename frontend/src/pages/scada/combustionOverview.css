@@ -1362,7 +1362,7 @@
   width: 21px;     /* 원래 14 @354 — 솔밸브 그림이 좁아져 생긴 틈을 메운다(아래 .gas-pre 주석) */
   height: 10px;
   position: absolute;
-  left: 347px;
+  left: 549px;     /* 347 → 549 — SOL이 오른쪽으로 밀려서(2026-11-27, 아래 .gas-gov 주석) */
   top: 27px;
 }
 .combustion .pipe131 {
@@ -1370,17 +1370,20 @@
   width: 66px;
   height: 10px;
   position: absolute;
-  left: 378px;
+  left: 580px;     /* 378 → 580(회전이라 x 570~580) — SOL을 따라 오른쪽으로(2026-11-27). 아래 가스 헤더(x 220~1127)에 그대로 떨어진다 */
   top: 27px;
   transform-origin: 0 0;
   transform: rotate(90deg) scale(1, 1);
 }
 .combustion .pipe132 {
   background: #ffcc00;
-  width: 28px;     /* 원래 21 — 솔밸브 그림이 오른쪽으로 옮겨 생긴 틈을 메운다(아래 .gas-pre 주석) */
+  /* 원래 21 @289 — 솔밸브 그림이 오른쪽으로 옮겨 28로 늘렸고, 2026-11-27 압력 스위치(폭 21)로
+     바꾸며 왼쪽 틈(x 260~289)까지 메우려고 왼쪽 끝을 260으로 당겼다(아래 .gas-pre 주석).
+     같은 날 거버너·압력 2·3번을 넣으며 SOL 밑(x 550)까지 늘렸다 — 그림들이 이 관 위에 얹힌다. */
+  width: 290px;
   height: 10px;
   position: absolute;
-  left: 289px;
+  left: 260px;
   top: 27px;
 }
 /* 압력(pre)·솔밸브(sol) 두 자리 — 원본 작화와 그림이 서로 바뀌어 있어(압력 자리에 솔레노이드,
@@ -1389,22 +1392,58 @@
    그림마다 크기가 달라서 크기·좌표를 새로 잡았고, 가운데 x는 원래 자리 그대로 두어 아래 상태 램프
    (CombustionPage의 PIPE_LABELS cx 273·332)가 그대로 맞는다.
    원래 값: gas-pre 31x31 @258,8 / gas-sol 44x29 @310,9.
-   틈이 생긴 쪽은 pipe132·pipe130을 몇 px 늘려 메웠다(배관이 그림 밑에 깔린다). */
+   틈이 생긴 쪽은 pipe132·pipe130을 몇 px 늘려 메웠다(배관이 그림 밑에 깔린다).
+
+   2026-11-27 사용자 요청으로 그림을 분위기제어 질소발생기 왼쪽의 압력 스위치(at-pressure-switch.svg)와
+   솔밸브(at-solenoid-n2.svg)로 바꿨다 — 파일을 같이 쓴다. blower-pre도 같은 압력 스위치다.
+     압력 스위치  44:76 세로 그림. 아래 끝 황동 이음이 관에 얹히는 모양이라, 관(y 27~37) 위로 남는
+                  높이에 맞춰 21x37로 줄이고 아래 끝을 관 아래 선(y 37)에 맞췄다. 가운데 x 274.5.
+     솔밸브       56:56, 그림 속 관 중심이 y 42/56. 40x40으로 두면 30이라 top 2 → 관 중심 y 32.
+
+   2026-11-27 같은 날 MAIN GAS 줄을 오른쪽으로 늘렸다(사용자 요청 — 가로로 길어져도 된다고 함).
+     gas-pre   x 264~285 (가운데 274.5)  압력 1 — 그대로
+     gas-gov   x 300~352 (가운데 326)    가스 거버너(현장 사진, cb-gas-governor.svg) — 태그 없음
+     gas-pre2  x 380~401 (가운데 390.5)  압력 2
+     gas-pre3  x 456~477 (가운데 466.5)  압력 3
+     gas-sol   x 514~554 (가운데 534)    원래 312 → 514
+     pipe130   x 549~570, pipe131(세로) x 570~580
+   압력 1·2 간격 116, 2·3 간격 76은 아래 상태 램프 '압력 정상/이상'(한글 약 58px, 영문 PRESS ABNORMAL 약 74px)이 서로 안 닿게 잡은 값이다
+   (CombustionPage의 PIPE_LABELS cx 273·390·466·534). */
 .combustion .gas-pre {
-  width: 44px;
-  height: 29px;
+  width: 21px;
+  height: 37px;
   position: absolute;
-  left: 252px;
-  top: 9px;
+  left: 264px;
+  top: 0;
   object-fit: cover;
-  aspect-ratio: 44/29;
+  aspect-ratio: 44/76;
 }
-.combustion .gas-sol {
-  width: 31px;
-  height: 31px;
+.combustion .gas-gov {
+  width: 52px;
+  height: 45px;
   position: absolute;
-  left: 317px;
-  top: 8px;
+  left: 300px;
+  top: 0;
+  object-fit: cover;
+  aspect-ratio: 52/45;
+}
+.combustion .gas-pre2,
+.combustion .gas-pre3 {
+  width: 21px;
+  height: 37px;
+  position: absolute;
+  top: 0;
+  object-fit: cover;
+  aspect-ratio: 44/76;
+}
+.combustion .gas-pre2 { left: 380px; }
+.combustion .gas-pre3 { left: 456px; }
+.combustion .gas-sol {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: 514px;
+  top: 2px;
   object-fit: cover;
   aspect-ratio: 1;
 }
@@ -1432,12 +1471,14 @@
   transform-origin: 0 0;
   transform: rotate(0deg) scale(-1, 1);
 }
+/* 원래 14 @926(반전이라 x 912~926). 2026-11-27 blower-pre를 좁은 압력 스위치로 바꾸며 생긴
+   틈을 메우려고 오른쪽 끝을 951(pipe136 시작)까지 늘렸다 — x 912~951. */
 .combustion .pipe134 {
   background: #ffffff;
-  width: 14px;
+  width: 39px;
   height: 10px;
   position: absolute;
-  left: 926px;
+  left: 951px;
   top: 27px;
   transform-origin: 0 0;
   transform: rotate(0deg) scale(-1, 1);
@@ -1466,22 +1507,26 @@
    없어서 MAIN GAS 쪽 압력 조절밸브 그림을 파랑으로 칠해 끼웠다(2026-11, cb-regulator-air.svg).
    크기가 MAIN GAS 쪽(44x29)과 같아졌고, 가운데 x(938.5)와 배관 높이(y 27~37)는 원래대로다 —
    좌우 배관(pipe134 912~926, pipe136 951~1002)이 그림 밑으로 들어가 틈이 없다.
-   원래 값: 37x39 @920,4. */
+   원래 값: 37x39 @920,4.
+   2026-11-27부터는 MAIN GAS 쪽과 같은 압력 스위치(at-pressure-switch.svg, 21x37, 위 .gas-pre 주석)다.
+   가운데 x 939.5, 아래 끝은 관 아래 선(y 37). */
 .combustion .blower-pre {
-  width: 44px;
-  height: 29px;
+  width: 21px;
+  height: 37px;
   position: absolute;
-  left: 917px;
-  top: 9px;
+  left: 929px;
+  top: 0;
   object-fit: cover;
-  aspect-ratio: 44/29;
+  aspect-ratio: 44/76;
 }
+/* 송풍기(cb-blower-fan.svg) — 2026-11-27 사용자 요청으로 26 → 9. 흡입 필터 통 가운데(그림 y 26~66의 46 →
+   칸 23)를 흰 관(y 27~37) 가운데 32에 맞췄다. */
 .combustion .blower-pump {
   width: 43px;
   height: 34px;
   position: absolute;
   left: 1001px;
-  top: 26px;
+  top: 9px;
   object-fit: cover;
   aspect-ratio: 43/34;
 }

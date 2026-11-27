@@ -11,6 +11,8 @@ import { fireTitle, fittingTitle, thunderTitle, valveTitle, zoneBoxTitle } from 
      - 배관 부속 4개(gas-pre0 / gas-sol0 / blower-pre0 / blower-pump0)를 .png → .svg
        (2026-11 압력·솔 그림을 모양에 맞게 바꿔 끼웠다 — cb-regulator-gas / cb-solenoid-gas /
         cb-regulator-air.svg. combustionOverview.css의 .gas-pre 주석)
+       (2026-11-27 gas-pre / blower-pre는 분위기제어의 at-pressure-switch.svg, gas-sol은
+        at-solenoid-n2.svg로 다시 바꿨다 — 질소발생기 왼쪽과 같은 그림을 같이 쓴다)
      - 존 밸브 42개(obj0~obj41.png)를 obj-valve-small.svg / obj-valve-wide.svg 로 교체
      - 존 가스 밸브 28개(*-zone-valve-*.png)를 zone-valve.svg 로 교체
      - 존 불꽃 28개(*-fire-*.png)를 zone-fire.svg 로 교체 (뒤의 ?v=2는 캐시 무효화다 —
@@ -207,8 +209,13 @@ function CombustionOverview({ lang }) {
         <div className="pipe131"></div>
         <div className="pipe132"></div>
         {/* 압력·솔 그림은 원본과 맞바꿨다(2026-11) — combustionOverview.css의 .gas-pre 주석 */}
-        <img className="gas-pre" src="/scada/combustion/cb-regulator-gas.svg?v=2" title={fittingTitle('gas-pre')} />
-        <img className="gas-sol" src="/scada/combustion/cb-solenoid-gas.svg" title={fittingTitle('gas-sol')} />
+        <img className="gas-pre" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('gas-pre')} />
+        {/* 2026-11-27 추가 — 압력 1번 오른쪽에 가스 거버너(태그 없음), 그 오른쪽에 압력 2·3번.
+            SOL과 세로관(pipe130·131)은 그만큼 오른쪽으로 밀었다(combustionOverview.css의 .gas-gov 주석). */}
+        <img className="gas-gov" src="/scada/combustion/cb-gas-governor.svg" />
+        <img className="gas-pre2" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('gas-pre2')} />
+        <img className="gas-pre3" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('gas-pre3')} />
+        <img className="gas-sol" src="/scada/atmosphere/at-solenoid-n2.svg" title={fittingTitle('gas-sol')} />
       </div>
       <div className="main-blower">
         <img className="main-blower2" src="/scada/combustion/main-blower1.png" />
@@ -216,8 +223,9 @@ function CombustionOverview({ lang }) {
         <div className="pipe134"></div>
         <div className="pipe135"></div>
         <div className="pipe136"></div>
-        <img className="blower-pre" src="/scada/combustion/cb-regulator-air.svg" title={fittingTitle('blower-pre')} />
-        <img className="blower-pump" src="/scada/combustion/blower-pump0.svg" title={fittingTitle('blower-pump')} />
+        <img className="blower-pre" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('blower-pre')} />
+        {/* 송풍기 그림은 현장 사진대로 바꿨다(2026-11-27, cb-blower-fan.svg). 예전 그림은 blower-pump0.svg */}
+        <img className="blower-pump" src="/scada/combustion/cb-blower-fan.svg" title={fittingTitle('blower-pump')} />
       </div>
       <div className="zon-box-1"></div>
       <div className="zon-box-2"></div>

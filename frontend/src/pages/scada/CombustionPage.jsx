@@ -200,7 +200,11 @@ const DEVICE_PANELS = [
    (sol_close가 1이면 열림, pressure_abnormal이 1이면 정상). 이름이 아니라 위 규칙을 따른다. */
 const PIPE_LABELS = [
   { key: 'gasPre', cx: 273, top: 44, tag: 'main_gas_pressure_normal_lamp', kind: 'press' },
-  { key: 'gasSol', cx: 332, top: 44, tag: 'main_gas_sol_close_lamp', kind: 'sol' },
+  /* 압력 2·3 — 2026-11-27 추가(새 태그, 임시 M300). 1번과 같은 규칙·글씨다. 툴팁의 태그로 구분한다.
+     cx는 그림 가운데(combustionOverview.css의 .gas-gov 주석). SOL도 그만큼 밀렸다(332 → 534). */
+  { key: 'gasPre2', cx: 390, top: 44, tag: 'main_gas_pressure2_normal_lamp', kind: 'press' },
+  { key: 'gasPre3', cx: 466, top: 44, tag: 'main_gas_pressure3_normal_lamp', kind: 'press' },
+  { key: 'gasSol', cx: 534, top: 44, tag: 'main_gas_sol_close_lamp', kind: 'sol' },
   // 블로워 압력 조절밸브(blower-pre, x 917~961 / y 9~38) 바로 아래
   { key: 'blowPre', cx: 938, top: 48, tag: 'combustion_blower_pressure_abnormal_lamp', kind: 'press' },
 ];

@@ -42,6 +42,8 @@
   },
   "art": {
     "main_gas_valve_lamp": "MAIN GAS pressure control valve",
+    "main_gas_valve2_lamp": "MAIN GAS pressure control valve 2",
+    "main_gas_valve3_lamp": "MAIN GAS pressure control valve 3",
     "main_gas_sol_valve_lamp": "MAIN GAS solenoid valve",
     "combustion_blower_valve_lamp": "Combustion BLOWER pressure control valve",
     "combustion_blower_motor_lamp": "Combustion BLOWER fan",
