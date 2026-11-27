@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 58" width="112" height="58">
+  <!-- POCKET 구동 모터 — 현장 사진(브레이크 모터 + 플랜지 + 평행축 감속기 + 체인 스프로킷).
+       쓰는 자리: ent-motor-1 / exit-motor-1 / exit-motor-2 (셋 다 오른쪽이 POCKET이라 뒤집지 않는다).
+       exit-motor-4는 예전 그림(motor-h.svg) 그대로다.
+
+       viewBox 112x58 = 칸 비율 56:29 그대로 — CSS의 object-fit: cover가 어긋난 비율을 자른다.
+       색은 초록 한 계열만 쓴다. 정지·끊김 회색(grayscale)과 노랑 색 행렬(#dr-yellow)이
+       초록 한 색을 전제로 짜여 있다(DrivePage.css). 사진의 빨간 해제 레버도 초록 계열로 둔다.
+
+       배치(왼→오른)  브레이크 커버 x 3~24   모터 냉각핀 x 24~56   플랜지 x 56~62
+                      감속기 x 62~97          스프로킷 x 97~110     단자함은 모터 아래 -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#146414"/>
+      <stop offset=".2" stop-color="#0dc30d"/>
+      <stop offset=".46" stop-color="#3bff3b"/>
+      <stop offset=".78" stop-color="#0db80d"/>
+      <stop offset="1" stop-color="#125c12"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#127012"/>
+      <stop offset=".45" stop-color="#22e022"/>
+      <stop offset="1" stop-color="#115811"/>
+    </linearGradient>
+    <linearGradient id="flange" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#127012"/>
+      <stop offset=".5" stop-color="#2bf02b"/>
+      <stop offset="1" stop-color="#115811"/>
+    </linearGradient>
+  </defs>
+
+  <g stroke="#0f4f0f" stroke-width="1.1" stroke-linejoin="round">
+    <!-- 브레이크 해제 레버 — 커버 위로 비스듬히 -->
+    <path d="M12.5 13 L8 4.5" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+    <circle cx="7.6" cy="3.8" r="2.2" fill="url(#band)"/>
+
+    <!-- 모터 단자함 — 몸통 아래 -->
+    <rect x="29" y="44" width="22" height="11" rx="1.4" fill="url(#band)"/>
+
+    <!-- 브레이크/팬 커버 — 매끈한 통, 왼쪽 끝 둥글게 -->
+    <path d="M24 12 V46 H9 Q3 46 3 40 V18 Q3 12 9 12 Z" fill="url(#body)"/>
+    <!-- 모터 몸통(냉각핀) -->
+    <rect x="23" y="10" width="34" height="37" rx="1.4" fill="url(#body)"/>
+    <!-- 들어올림 고리 -->
+    <path d="M38 10 Q38 5 42 5 Q46 5 46 10" fill="none" stroke-width="1.6"/>
+
+    <!-- 모터 플랜지 -->
+    <rect x="56" y="5" width="6" height="48" rx="2" fill="url(#flange)"/>
+    <!-- 플랜지와 감속기 사이 목 -->
+    <rect x="62" y="16" width="6" height="26" rx="1" fill="url(#band)"/>
+
+    <!-- 감속기 본체 -->
+    <path d="M71 3 H94 Q97 3 97 6 V52 Q97 55 94 55 H71 Q67 55 67 51 V7 Q67 3 71 3 Z" fill="url(#body)"/>
+    <!-- 감속기 위 덮개(사진의 골진 판) -->
+    <rect x="82" y="6" width="13" height="26" rx="1" fill="url(#band)"/>
+
+    <!-- 출력축 + 스프로킷(옆에서 본 톱니 바퀴) -->
+    <rect x="97" y="20" width="6" height="18" rx="1" fill="url(#band)"/>
+    <path d="M103 7 H109 V51 H103 Z" fill="url(#flange)"/>
+  </g>
+
+  <!-- 질감 — 모터 냉각핀(가로), 감속기 골, 스프로킷 톱니, 명판, 볼트 -->
+  <g stroke="#0f5a0f" stroke-width="1" opacity=".75">
+    <path d="M24 15 H56 M24 19.5 H56 M24 24 H56 M24 37 H56 M24 41.5 H56"/>
+    <path d="M85 8 V30 M88.5 8 V30 M92 8 V30"/>
+    <path d="M24 12 V46"/>
+  </g>
+  <g stroke="#0f4f0f" stroke-width="1.2">
+    <path d="M102 10 H110 M102 15 H110 M102 20 H110 M102 25 H110 M102 30 H110 M102 35 H110 M102 40 H110 M102 45 H110"/>
+  </g>
+  <rect x="30" y="27" width="14" height="8" rx=".8" fill="#0aa80a" stroke="#0f4f0f" stroke-width=".9"/>
+  <rect x="71" y="34" width="8" height="12" rx=".8" fill="#0aa80a" stroke="#0f4f0f" stroke-width=".9"/>
+  <g fill="#0f4f0f">
+    <circle cx="59" cy="9" r="1.2"/><circle cx="59" cy="49" r="1.2"/>
+    <circle cx="71" cy="7" r="1.2"/><circle cx="93" cy="51" r="1.2"/>
+    <circle cx="71" cy="51" r="1.2"/>
+  </g>
+</svg>

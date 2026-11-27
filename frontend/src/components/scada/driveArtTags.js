@@ -34,7 +34,7 @@ const nameOf = (tag) => i18n.t(`drive:art.${tag}`);
 
    자리와 태그를 짝지은 근거는 작화 좌표다(overview 기준, 왼쪽 위가 0,0).
    회전감지 셋은 전부 아래줄(y≈360)의 같은 모터 그림이라 짝이 갈린다.
-     ent-motor-1   x   0 y 124  입구 왼쪽 끝(가로 기어드)
+     ent-motor-1   x   0 y  26  입구 POCKET 왼쪽 옆 — 원본 y 124에서 올림(DrivePage.css, 2026-11-27)
      ent-motor-2   x 170 y 175  그 오른쪽(통 모터)
      (ent-motor-3  x 497 y 160  DOOR 바로 위에 있었는데 현장에 없는 설비라 지웠다.
                                 위에 붙던 NOTES의 '입구문 열림'도 같이 뺐다)

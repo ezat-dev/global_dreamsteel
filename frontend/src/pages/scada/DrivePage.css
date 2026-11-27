@@ -943,15 +943,11 @@
 .dr-stage-inner .overview-1 .main-motor-2 { left: 1349px; }
 .dr-stage-inner .overview-1 .exit-motor-5 { left: 1632px; }
 
-/* 입구모터1 세로 칸 (2026-11-27) — 그림을 입구 POCKET 승강 풀리(pocket-pulley.svg)로 바꾸고
-   왼쪽으로 90도 세웠다. 원본 칸(x 0, y 124, 56x29)의 세로 가운데(138)는 그대로 두고 29x56으로 세운다.
-   가로는 오른쪽 x 56부터인 POCKET에 붙인다(x 27~56). */
+/* 입구모터1 (2026-11-27) — 그림은 POCKET 구동 모터(motor-pocket.svg), 칸은 원본 그대로(56x29, x 0).
+   세로만 원본 y 124에서 입구 POCKET 판(ent-obj-1, x 56~320, y 1~79) 가운데로 올렸다(y 26~55).
+   출구모터1·2가 출구 POCKET 왼쪽에 붙어 있는 것과 같은 배치다. */
 .dr-stage-inner .overview-1 .ent-motor-1 {
-  left: 27px;
-  top: 110px;
-  width: 29px;
-  height: 56px;
-  aspect-ratio: 29/56;
+  top: 26px;
 }
 
 /* 쿨링챔버 판 — 그림이 가로로 같은 무늬(세로 그라디언트)라 폭을 바꿔도 모양이 그대로다. */
