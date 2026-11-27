@@ -341,12 +341,11 @@ const TRIP_TOP = 410;
    바로 위 모터에도 회전감지 이름의 태그가 따로 붙어 있다(driveArtTags.js의 MOTOR_TAGS —
    main_table_drive_conveyor_rotate_detect_lamp 등). 이름이 겹치지만 다른 태그다.
    모터는 그림 색, 여기는 글씨 램프라 따로 움직인다 — 한쪽만 바뀌어도 고장이 아니다. */
+/* 입구·출구 TABLE DRIVE CONVEYOR 회전감지(charge_ / discharge_table_status_lamp)는
+   2026-11-27 사용자 요청으로 뺐다("안 써"). DB 태그도 지우는 DELETE를 건넸다. */
 const TRIP_LAMPS = [
-  { key: 'ent', cx: 344, tag: 'charge_table_status_lamp' },      // 입구 TABLE DRIVE / CONVEYOR 회전감지
   { key: 'main', cx: 1108, tag: 'main_table_status_lamp' },      // MAIN TABLE DRIVE / CONVEYOR 회전감지
   { key: 'cc', cx: 1337, tag: 'cc_table_status_lamp' },          // COOLING CHAMBER DRIVE 회전감지
-  /* 출구는 모터 가운데(1644)보다 10 왼쪽 — 영문 글자가 무대 오른쪽 끝에서 잘리지 않게(2026-11-27) */
-  { key: 'exit', cx: 1634, tag: 'discharge_table_status_lamp' }, // 출구 TABLE DRIVE / CONVEYOR 회전감지
 ];
 
 /* 입구 롤러 줄 맨 끝의 제품 감지 자리.

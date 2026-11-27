@@ -108,10 +108,8 @@
     "discharge_pocket1_down_ls_lamp": "No.1 discharge pocket DOWN detect L/S",
     "discharge_pocket2_up_ls_lamp": "No.2 discharge pocket UP detect L/S",
     "discharge_pocket2_down_ls_lamp": "No.2 discharge pocket DOWN detect L/S",
-    "charge_table_status_lamp": "CHARGE TABLE DRIVE\nCONVEYOR ROTATION",
     "main_table_status_lamp": "MAIN TABLE DRIVE\nCONVEYOR ROTATION",
-    "cc_table_status_lamp": "COOLING CHAMBER DRIVE\nROTATION",
-    "discharge_table_status_lamp": "DISCHARGE TABLE DRIVE\nCONVEYOR ROTATION"
+    "cc_table_status_lamp": "COOLING CHAMBER DRIVE\nROTATION"
   },
   "art": {
     "charge_motor1_lamp": "Charge motor 1",
