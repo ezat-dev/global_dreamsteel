@@ -119,17 +119,19 @@
 }
 
 .at-stage-inner.off-motor-1 .motor-1,
-.at-stage-inner.off-blowe-pre .blowe-pre,
-.at-stage-inner.off-blowe-sol .blowe-sol,
-.at-stage-inner.off-gas-pre .gas-pre,
-.at-stage-inner.off-gas-sol .gas-sol,
 .at-stage-inner.off-n2-pre .n2-pre,
 .at-stage-inner.off-n2-sol .n2-sol {
   filter: grayscale(1);
 }
 
 /* 질소발생기 압력 스위치·솔밸브는 0이면 빨강이다(2026-11-26 사용자 지정) — 위 off-(회색)는
-   이 둘에게는 못 읽었을 때만 붙는다. 초록과 같이 대비를 먼저 벌리고 물들인다. */
+   이 둘에게는 못 읽었을 때만 붙는다. 초록과 같이 대비를 먼저 벌리고 물들인다.
+   왼쪽 위 압력·솔 넷은 0이거나 못 읽으면 빨강이다(2026-11-27, 연소화면 위 부속과 같은 규칙 —
+   atmosphereArtTags.js의 offRed). 이 넷에는 off-(회색) 클래스가 붙지 않는다. */
+.at-stage-inner.alarm-blowe-pre .blowe-pre,
+.at-stage-inner.alarm-blowe-sol .blowe-sol,
+.at-stage-inner.alarm-gas-pre .gas-pre,
+.at-stage-inner.alarm-gas-sol .gas-sol,
 .at-stage-inner.alarm-n2-pre .n2-pre,
 .at-stage-inner.alarm-n2-sol .n2-sol {
   filter: contrast(1.8) url(#at-red);

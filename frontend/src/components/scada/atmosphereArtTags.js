@@ -33,21 +33,25 @@ const nameOf = (tag) => i18n.t(`atmosphere:art.${tag}`);
    (압력·솔 그림은 원본 작화와 맞바꿔 그렸다 — 키와 태그는 자리를 따라가므로 그대로다)
 
    zeroRed — 0일 때 회색이 아니라 빨강이다(못 읽을 때만 회색). 질소발생기 둘만 그렇다
-   (2026-11-26 사용자 지정). 왼쪽 위 다섯은 그대로 0이면 회색이다. */
+   (2026-11-26 사용자 지정).
+
+   offRed — 0이거나 못 읽으면 빨강이다(연소화면 위 부속과 같은 규칙, 2026-11-27 사용자 지정).
+   왼쪽 위 압력·솔 넷이 그렇다. 블로워(motor-1)만 그대로 0이거나 못 읽으면 회색이다. */
 export const FITTING_TAGS = {
   'motor-1': { tag: 'add_blowe_motor_lamp' },
-  'blowe-pre': { tag: 'add_blowe_valve_lamp' },
-  'blowe-sol': { tag: 'add_blowe_sol_valve_lamp' },
-  'gas-pre': { tag: 'add_gas_valve_lamp' },
-  'gas-sol': { tag: 'add_gas_sol_valve_lamp' },
+  'blowe-pre': { tag: 'add_blowe_valve_lamp', offRed: true },
+  'blowe-sol': { tag: 'add_blowe_sol_valve_lamp', offRed: true },
+  'gas-pre': { tag: 'add_gas_valve_lamp', offRed: true },
+  'gas-sol': { tag: 'add_gas_sol_valve_lamp', offRed: true },
   'n2-pre': { tag: 'n2_gen_pressure_switch_lamp', zeroRed: true },
   'n2-sol': { tag: 'n2_gen_sol_valve_lamp', zeroRed: true },
 };
 
 /* 그림 위에 마우스를 올렸을 때 뜨는 글. 화면의 다른 title들과 같은 꼴이다. */
 export const fittingTitle = (cls) => {
-  const { tag, zeroRed } = FITTING_TAGS[cls];
-  return `${nameOf(tag)} / ${tag} — ${i18n.t(zeroRed ? 'atmosphere:rule.fittingRed' : 'atmosphere:rule.fitting')}`;
+  const { tag, zeroRed, offRed } = FITTING_TAGS[cls];
+  const rule = offRed ? 'fittingOffRed' : (zeroRed ? 'fittingRed' : 'fitting');
+  return `${nameOf(tag)} / ${tag} — ${i18n.t(`atmosphere:rule.${rule}`)}`;
 };
 
 /* 발생기·질소발생기 위 경광등 — 둘 다 같은 규칙이고 태그만 따로다.
@@ -100,5 +104,5 @@ export const genValveTitle = () =>
    나머지를 '규칙 없음'으로 두면 0일 때 가스 밸브의 주황이 그대로 남는다. */
 export const fittingOnClass = (cls) => `on-${cls}`;
 export const fittingOffClass = (cls) => `off-${cls}`;
-/* zeroRed 부속이 0일 때 붙는 클래스 — 빨강(#at-red). 못 읽으면 이것 대신 off-(회색)가 붙는다. */
+/* 빨강(#at-red) 클래스 — zeroRed 부속은 0일 때(못 읽으면 off- 회색), offRed 부속은 0이거나 못 읽을 때 붙는다. */
 export const fittingAlarmClass = (cls) => `alarm-${cls}`;

@@ -185,7 +185,7 @@
       "title": "Equipment drawing",
       "body": [
         "The drawing changes with the equipment state.",
-        "The MAIN GAS valves and the combustion blower valve and fan keep their own colour when open/running and turn red [[alarm]] when closed/stopped.",
+        "The MAIN GAS valves and the combustion blower valve and fan turn green [[on]] when open/running and red [[alarm]] when closed/stopped.",
         "The lightning marks behind the flames appear only while igniting.",
         "A flame appears only while a flame is detected at that burner.",
         "Each burner's gas valve (yellow) and air valve (white) turn green [[on]] when open and red [[alarm]] when closed."
@@ -322,7 +322,7 @@
       "title": "Equipment drawing",
       "body": [
         "The drawing changes with the equipment state.",
-        "Blower, pressure control valves, solenoid valves: green [[on]] when operating, grey [[off]] otherwise",
+        "Blower: green [[on]] when operating, grey [[off]] otherwise · Pressure control valves, solenoid valves: green [[on]] when operating, red [[alarm]] otherwise",
         "Control valve on the main pipe: spins while operating · Beacons above the generator and N2 generator: show the state in green [[on]] / red [[alarm]]."
       ]
     },

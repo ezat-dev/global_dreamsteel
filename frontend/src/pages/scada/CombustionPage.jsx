@@ -327,7 +327,7 @@ export default function CombustionPage() {
      들어온다(10/30 사용자 결정, foldertagApi의 PLC_POLL_MS). */
   const { values: tagValues, error: tagValueError } = useFolderTagValues(CB_FOLDER_ID);
 
-  /* 위쪽 배관 부속 넷 — 값이 1이면 작화 그대로, 0이거나 못 읽으면 빨강.
+  /* 위쪽 배관 부속 여섯 — 값이 1이면 초록, 0이거나 못 읽으면 빨강(빨강일 때만 클래스가 붙는다).
      구동화면 화살표·모터와 같은 방식이다: 작화는 memo로 묶인 고정 그림이라 값을 넘기지
      않고, 무대에 클래스만 붙여서 실제로 색을 바꾸는 일은 CombustionPage.css가 맡는다.
 

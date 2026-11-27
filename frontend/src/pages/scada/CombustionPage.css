@@ -40,9 +40,11 @@
   transform-origin: top left;
 }
 
-/* ===== 위쪽 배관 부속 넷 ====================================================
+/* ===== 위쪽 배관 부속 여섯 ==================================================
 
-   값이 1이면 작화 그대로의 제 색, 0이거나 못 읽으면 빨강이다.
+   값이 1이면 초록, 0이거나 못 읽으면 빨강이다(2026-11-27부터 — 그 전엔 1이면 작화 그대로의 제 색).
+   기본을 초록으로 두고 red-* 클래스가 붙으면 빨강이 이긴다(선택자에 클래스가 하나 더 있어 우선한다).
+   태그 없는 가스 거버너(gas-gov)는 여기 없다 — 늘 제 색이다.
    무대에 red-* 클래스만 붙고(CombustionPage.jsx의 FITTING_TAGS) 색을 바꾸는 일은
    여기서 한다 — 그래야 작화가 memo로 묶인 채 남아 1초마다 다시 그려지지 않는다.
 
@@ -52,6 +54,15 @@
    화면 이름(.combustion)을 앞에 붙이는 작화 CSS와 달리 여기는 무대 클래스로 좁히므로
    분위기제어의 같은 이름(.gas-pre / .gas-sol)과 겹치지 않는다 — 그 화면에는 이 무대가
    없기 때문이다. */
+.cb-stage-inner .gas-pre,
+.cb-stage-inner .gas-pre2,
+.cb-stage-inner .gas-pre3,
+.cb-stage-inner .gas-sol,
+.cb-stage-inner .blower-pre,
+.cb-stage-inner .blower-pump {
+  filter: url(#cb-green);
+}
+
 .cb-stage-inner.red-gas-pre .gas-pre,
 .cb-stage-inner.red-gas-pre2 .gas-pre2,
 .cb-stage-inner.red-gas-pre3 .gas-pre3,

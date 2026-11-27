@@ -69,6 +69,7 @@
   "rule": {
     "fitting": "green at 1 / gray at 0 or if unreadable",
     "fittingRed": "green at 1 / red at 0 / gray if unreadable",
+    "fittingOffRed": "green at 1 / red at 0 or if unreadable",
     "n2Valve": "green at 1 / original color at 0 or if unreadable",
     "beacon": "green at 0 / red at 1 / gray if unreadable",
     "valve": "spins at 1 / stops at 0 or if unreadable"

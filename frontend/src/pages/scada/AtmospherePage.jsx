@@ -221,12 +221,13 @@ export default function AtmospherePage() {
      켜짐은 초록으로 물들인다). 한쪽만 붙이면 0일 때 가스 밸브의 주황이 그대로 남는다.
 
      tagValues 아래에 두어야 한다 — 위에 두면 선언 전에 읽어서(TDZ) 렌더가 통째로 죽는다. */
-  /* 질소발생기 압력 스위치·솔밸브(zeroRed)만 0일 때 빨강이다 — 못 읽을 때는 다른 부속처럼 회색. */
+  /* 질소발생기 압력 스위치·솔밸브(zeroRed)는 0일 때 빨강, 못 읽으면 회색.
+     왼쪽 위 압력·솔 넷(offRed)은 0이거나 못 읽으면 빨강(연소화면과 같은 규칙). 블로워만 회색. */
   const fittingClasses = Object.entries(FITTING_TAGS)
     .map(([cls, fitting]) => {
       const st = tagState(tagValues?.[fitting.tag]);
       if (st === TAG_ON) return ` ${fittingOnClass(cls)}`;
-      if (st === TAG_OFF && fitting.zeroRed) return ` ${fittingAlarmClass(cls)}`;
+      if (fitting.offRed || (st === TAG_OFF && fitting.zeroRed)) return ` ${fittingAlarmClass(cls)}`;
       return ` ${fittingOffClass(cls)}`;
     })
     .join('')
