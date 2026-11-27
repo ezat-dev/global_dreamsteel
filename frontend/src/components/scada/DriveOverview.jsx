@@ -19,10 +19,11 @@ import {
    45자리에 SVG는 7개뿐이다. 파일은 45개였지만 실제 그림은 7종이고(나머지는 같은
    그림의 고해상도판), 자리마다 방향이 다른 것은 작화 CSS가 scale(-1,1)로 뒤집어
    주기 때문이다. 그래서 파일 하나를 여러 자리에 그대로 끼워도 방향이 유지된다.
-     motor-h.svg     가로 기어드 모터 ent-motor-1 / exit-motor-1 / exit-motor-2 / exit-motor-4
+     motor-h.svg     가로 기어드 모터 exit-motor-1 / exit-motor-2 / exit-motor-4
+     pocket-pulley.svg 입구 POCKET 승강 풀리 ent-motor-1 (현장 사진 기준, 이 자리 전용)
      motor-drum.svg  통 모터          ent-motor-2 / exit-motor-3
      motor-v1.svg    세로 기어드 모터 ent-motor-3
-     motor-v2.svg    세로 모터+감속기 ent-motor-4 / main-motor-1 / exit-motor-5
+     motor-v2.svg    세로 모터+감속기 ent-motor-4 / main-motor-1 / main-motor-2 / exit-motor-5
      arrow-up.svg    위 화살표        ent-up-1~4 / exit-up-1~4
      arrow-down.svg  아래 화살표      ent-down-1~4 / exit-down-1~4
      roller.svg      컨베이어 롤러    ent-conv-1~12
@@ -366,7 +367,7 @@ function DriveOverview({ entRolling = true, exitRolling = true, lang }) {
         <img className="ent-down-3" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
         <img className="ent-up-4" src="/scada/drive/arrow-up.svg" title={arrowTitle('entUp')} />
         <img className="ent-down-4" src="/scada/drive/arrow-down.svg" title={arrowTitle('entDown')} />
-        <img className="ent-motor-1" src="/scada/drive/motor-h.svg" title={motorTitle('ent-motor-1')} />
+        <img className="ent-motor-1" src="/scada/drive/pocket-pulley.svg" title={motorTitle('ent-motor-1')} />
         <img className="ent-motor-2" src="/scada/drive/motor-drum.svg" title={motorTitle('ent-motor-2')} />
         {/* ent-motor-3(DOOR 바로 위 세로 기어드 모터)은 뺐다 — 현장에 없는 설비라
             위에 붙던 '입구문 열림' 글귀와 함께 지웠다. */}
@@ -385,8 +386,9 @@ function DriveOverview({ entRolling = true, exitRolling = true, lang }) {
         <img className="main-7-zone" src="/scada/drive/main-7-zone0.png" title={zoneTitle('main-7-zone')} />
         <img className="main-obj-2" src="/scada/drive/main-obj-20.png" />
         <img className="main-motor-1" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-1')} />
-        {/* main-motor-2(쿨링챔버 아래 C/C TABLE DRIVE 모터)는 뺐다 — 2026-11-17 사용자 요청.
-            아래 붙던 C/C 회전감지 램프(DrivePage의 TRIP_LAMPS)와 함께 지웠다. */}
+        {/* main-motor-2(쿨링챔버 아래 C/C TABLE DRIVE 모터) — 2026-11-17에 뺐다가 2026-11-27에
+            쿨링챔버 오른쪽 끝으로 되살렸다(자리는 DrivePage.css). 아래 C/C 회전감지 램프는 그대로 없다. */}
+        <img className="main-motor-2" src="/scada/drive/motor-v2.svg" title={motorTitle('main-motor-2')} />
       </div>
       <div className="exit-conv">
         <img className="exit-obj-1" src="/scada/drive/exit-obj-10.png" />

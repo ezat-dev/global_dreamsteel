@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 58 112" width="58" height="112">
+  <!-- 입구 POCKET 승강 풀리(입구 모터1, ent-motor-1 자리 전용).
+       현장 사진: 양쪽 브래킷 사이 축에 플랜지 달린 드럼이 있고, 흰 평벨트가 감겨 아래로 풀려 나간다.
+       축을 가로로 놓고 옆에서 본 모양 — 오른쪽이 POCKET 쪽이다.
+
+       viewBox 112x58 = 칸 비율 56:29 그대로 — CSS의 object-fit: cover가 어긋난 비율을 자른다.
+       색은 초록 한 계열만 쓴다. 정지·끊김 회색(grayscale)과 노랑 색 행렬(#dr-yellow)이
+       초록 한 색을 전제로 짜여 있다(DrivePage.css). 벨트는 옅은 초록으로 구분한다.
+
+       배치(왼→오른)  왼쪽 브래킷 x 2~12   드럼+플랜지 x 24~86   베어링 x 90~102   오른쪽 브래킷 x 100~110 -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#146414"/>
+      <stop offset=".2" stop-color="#0dc30d"/>
+      <stop offset=".46" stop-color="#3bff3b"/>
+      <stop offset=".78" stop-color="#0db80d"/>
+      <stop offset="1" stop-color="#125c12"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#127012"/>
+      <stop offset=".45" stop-color="#22e022"/>
+      <stop offset="1" stop-color="#115811"/>
+    </linearGradient>
+    <linearGradient id="belt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fd07f"/>
+      <stop offset=".45" stop-color="#e2ffe2"/>
+      <stop offset="1" stop-color="#8fd88f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 그림 전체를 왼쪽(반시계)으로 90도 돌려 세운다 — 2026-11-27 사용자 요청.
+       칸도 세로(29x56)로 바꿨다(DrivePage.css의 '입구모터1 세로 칸'). viewBox 58x112가 그 비율이다.
+       아래 좌표는 돌리기 전(가로 112x58) 기준이다. -->
+  <g transform="translate(0 112) rotate(-90)">
+  <g stroke="#0f4f0f" stroke-width="1.1" stroke-linejoin="round">
+    <!-- 축 -->
+    <rect x="6" y="26" width="98" height="6" rx="1" fill="url(#body)"/>
+
+    <!-- 왼쪽 브래킷(ㄱ자 앵글) -->
+    <path d="M2 3 H12 V55 H2 Z" fill="url(#band)"/>
+    <rect x="12" y="20" width="8" height="18" rx="1" fill="url(#band)"/>
+
+    <!-- 드럼 몸통(플랜지 사이) -->
+    <rect x="30" y="9" width="50" height="40" rx="2" fill="url(#body)"/>
+    <!-- 감긴 벨트 -->
+    <rect x="33" y="11" width="44" height="36" rx="3" fill="url(#belt)"/>
+    <!-- 풀려 나가는 벨트 꼬리 — 사진처럼 왼쪽 아래로 -->
+    <path d="M33 42 H77 L64 58 H20 Z" fill="url(#belt)"/>
+
+    <!-- 플랜지 두 장 -->
+    <ellipse cx="29" cy="29" rx="4" ry="26" fill="url(#body)"/>
+    <ellipse cx="81" cy="29" rx="4" ry="26" fill="url(#body)"/>
+    <!-- 플랜지 고정 핀(사진 오른쪽 원판의 작은 원) -->
+    <circle cx="82" cy="14" r="2" fill="url(#band)"/>
+
+    <!-- 베어링 블록 -->
+    <rect x="90" y="15" width="12" height="28" rx="2" fill="url(#band)"/>
+    <!-- 오른쪽 브래킷 -->
+    <path d="M100 3 H110 V55 H100 Z" fill="url(#band)"/>
+  </g>
+
+  <!-- 질감 — 벨트 짜임(가는 세로줄), 베어링·브래킷 볼트 -->
+  <g stroke="#2e8a2e" stroke-width=".8" opacity=".6">
+    <path d="M39 12 V46 M45 12 V46 M51 12 V46 M57 12 V46 M63 12 V46 M69 12 V46"/>
+    <path d="M33 47 H77"/>
+  </g>
+  <g fill="#0f4f0f">
+    <circle cx="96" cy="19.5" r="1.5"/><circle cx="96" cy="38.5" r="1.5"/>
+    <circle cx="7" cy="8" r="1.3"/><circle cx="7" cy="50" r="1.3"/>
+    <circle cx="105" cy="8" r="1.3"/><circle cx="105" cy="50" r="1.3"/>
+  </g>
+  </g>
+</svg>

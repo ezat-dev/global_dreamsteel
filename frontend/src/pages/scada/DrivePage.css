@@ -462,7 +462,10 @@
    램프 이름은 \n으로 두 줄로 끊어 쓴다 — .hmi-lamp 기본값이 nowrap이라 그대로 두면
    \n이 공백으로 접혀 한 줄이 된다. pre-line은 줄바꿈만 살리고 들여쓰기용 앞뒤 공백은
    접어주므로 이 용도에 맞다. */
+/* width: max-content — 출구 램프(cx 1644)가 무대 오른쪽 끝에 가까워 남은 폭으로 줄어들면서
+   4줄로 꺾여 아래 줄이 무대 밖에서 잘렸다(2026-11-27). 사전 글자의 \n 줄바꿈만 쓰게 폭을 글자에 맞춘다. */
 .dr-trip-lamp {
+  width: max-content;
   align-items: flex-start;
   white-space: pre-line;
   line-height: 1.2;
@@ -639,6 +642,7 @@
 .dr-stage-inner.gray-ent-motor-3 .ent-motor-3,
 .dr-stage-inner.gray-ent-motor-4 .ent-motor-4,
 .dr-stage-inner.gray-main-motor-1 .main-motor-1,
+.dr-stage-inner.gray-main-motor-2 .main-motor-2,
 .dr-stage-inner.gray-exit-motor-1 .exit-motor-1,
 .dr-stage-inner.gray-exit-motor-2 .exit-motor-2,
 .dr-stage-inner.gray-exit-motor-3 .exit-motor-3,
@@ -928,7 +932,27 @@
 .dr-stage-inner .overview-1 .main-5-zone { left: 854px; }
 .dr-stage-inner .overview-1 .main-6-zone { left: 944px; }
 .dr-stage-inner .overview-1 .main-7-zone { left: 1034px; }
-.dr-stage-inner .overview-1 .main-motor-1 { left: 518px; }
+/* 하단 드라이브 자리 (2026-11-27 사용자 요청)
+   MAIN은 MAIN 존 오른쪽 끝, C/C는 쿨링챔버 오른쪽 끝. 둘 다 scale(-1,1) 반전이라 left가
+   오른쪽 끝이다 — 그려지는 자리는 MAIN x 1096~1120, C/C x 1325~1349.
+   출구(exit-motor-5, 반전 없음)는 '출구 TABLE DRIVE' 글자 바로 오른쪽으로 1403 → 1632(x 1632~1656).
+   글자(DrivePage.jsx LABELS의 exitTable, cx 1524)는 한글 x 1457~1600, 영문 두 줄 ~1624까지라
+   둘 다 안 닿는다. 출구 컨베이어 틀 오른쪽 끝(~1669) 안쪽이다.
+   아래 회전감지 램프의 cx(DrivePage.jsx의 TRIP_LAMPS)도 같이 옮겼다. */
+.dr-stage-inner .overview-1 .main-motor-1 { left: 1120px; }
+.dr-stage-inner .overview-1 .main-motor-2 { left: 1349px; }
+.dr-stage-inner .overview-1 .exit-motor-5 { left: 1632px; }
+
+/* 입구모터1 세로 칸 (2026-11-27) — 그림을 입구 POCKET 승강 풀리(pocket-pulley.svg)로 바꾸고
+   왼쪽으로 90도 세웠다. 원본 칸(x 0, y 124, 56x29)의 세로 가운데(138)는 그대로 두고 29x56으로 세운다.
+   가로는 오른쪽 x 56부터인 POCKET에 붙인다(x 27~56). */
+.dr-stage-inner .overview-1 .ent-motor-1 {
+  left: 27px;
+  top: 110px;
+  width: 29px;
+  height: 56px;
+  aspect-ratio: 29/56;
+}
 
 /* 쿨링챔버 판 — 그림이 가로로 같은 무늬(세로 그라디언트)라 폭을 바꿔도 모양이 그대로다. */
 .dr-stage-inner .overview-1 .main-obj-2 {

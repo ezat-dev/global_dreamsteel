@@ -110,7 +110,7 @@
     "discharge_pocket2_down_ls_lamp": "No.2 추출포켓 하강감지 L/S",
     "charge_table_status_lamp": "입구 TABLE DRIVE\nCONVEYOR 회전감지",
     "main_table_status_lamp": "MAIN TABLE DRIVE\nCONVEYOR 회전감지",
-    "cc_table_status_lamp": "C/C TABLE DRIVE\nCONVEYOR 회전감지",
+    "cc_table_status_lamp": "COOLING CHAMBER DRIVE\n회전감지",
     "discharge_table_status_lamp": "출구 TABLE DRIVE\nCONVEYOR 회전감지"
   },
   "art": {
@@ -118,7 +118,7 @@
     "charge_motor2_lamp": "입구 모터 2",
     "charge_stopper_down_detect_lamp": "입구 TABLE DRIVE 모터",
     "main_table_drive_conveyor_rotate_detect_lamp": "MAIN TABLE DRIVE 모터",
-    "cc_table_drive_conveyor_rotate_detect_lamp": "CC TABLE DRIVE 컨베이어 회전감지",
+    "cc_table_drive_conveyor_rotate_detect_lamp": "C/C TABLE DRIVE 모터",
     "discharge_motor1_lamp": "출구 모터 1",
     "discharge_motor2_lamp": "출구 모터 2",
     "discharge_motor3_lamp": "출구 모터 3",

@@ -78,7 +78,9 @@ const LABELS = [
   { key: 'coolTable', cx: 1238, top: 168 },
   { key: 'exitPocket', cx: 1535, top: -2 },   // 출구 POCKET
   { key: 'exitSide', cx: 1535, top: 70 },     // 출구 SIDE CONVEYOR
-  { key: 'exitTable', cx: 1540, top: 357 },   // 출구 TABLE DRIVE
+  /* 출구 TABLE DRIVE — 오른쪽 옆에 exit-motor-5(x 1632~)가 붙는다. 영문(DISCHARGE TABLE DRIVE)이
+     두 줄로 넓어져도 모터에 안 닿게 1540에서 16 당겼다(2026-11-27). */
+  { key: 'exitTable', cx: 1524, top: 357 },
 ];
 
 // 빈 띠(그림 위쪽 y 10~145)에 떠 있는 드라이브 조작 박스 3개.
@@ -321,11 +323,13 @@ const LAMP_BOARDS = {
 /* 회전감지 램프 — 각각 짝이 되는 모터 바로 아래에 붙는다.
    cx는 그 모터가 화면에 실제로 그려지는 가운데 x다(MAIN 쪽 둘은 반전이라
    CSS의 left 값과 다르니 주의):
-     ent-motor-4  x 332~356  → 344       main-motor-1 x  494~ 518 → 506
-     exit-motor-5 x 1403~1427 → 1415
-   (main-motor-1은 DOOR 자리를 지우면서 115px 당겼다 — DrivePage.css)
-   C/C TABLE DRIVE / CONVEYOR 회전감지(cc_table_status_lamp)는 그 위 모터(main-motor-2)와
-   함께 2026-11-17에 지웠다(사용자 요청).
+     ent-motor-4  x 332~356  → 344       main-motor-1 x 1096~1120 → 1108
+     exit-motor-5 x 1632~1656 → 1644
+   (main-motor-1은 MAIN 존 오른쪽 끝, exit-motor-5는 '출구 TABLE DRIVE' 글자 오른쪽으로 옮겼다
+    — 2026-11-27, DrivePage.css)
+     main-motor-2 x 1325~1349 → 1337
+   C/C 회전감지(cc_table_status_lamp)는 2026-11-17에 그 위 모터와 함께 지웠다가, 2026-11-27에
+   둘 다 쿨링챔버 오른쪽 끝으로 되살렸다. 글자는 'COOLING CHAMBER DRIVE 회전감지'(사용자 지정).
    글자는 drive.json의 lamp.<태그>. 그 안의 \n 줄바꿈은 DrivePage.css의 .dr-trip-lamp에서
    white-space: pre-line으로 살린다. */
 const TRIP_TOP = 410;
@@ -339,8 +343,10 @@ const TRIP_TOP = 410;
    모터는 그림 색, 여기는 글씨 램프라 따로 움직인다 — 한쪽만 바뀌어도 고장이 아니다. */
 const TRIP_LAMPS = [
   { key: 'ent', cx: 344, tag: 'charge_table_status_lamp' },      // 입구 TABLE DRIVE / CONVEYOR 회전감지
-  { key: 'main', cx: 506, tag: 'main_table_status_lamp' },       // MAIN TABLE DRIVE / CONVEYOR 회전감지
-  { key: 'exit', cx: 1415, tag: 'discharge_table_status_lamp' }, // 출구 TABLE DRIVE / CONVEYOR 회전감지
+  { key: 'main', cx: 1108, tag: 'main_table_status_lamp' },      // MAIN TABLE DRIVE / CONVEYOR 회전감지
+  { key: 'cc', cx: 1337, tag: 'cc_table_status_lamp' },          // COOLING CHAMBER DRIVE 회전감지
+  /* 출구는 모터 가운데(1644)보다 10 왼쪽 — 영문 글자가 무대 오른쪽 끝에서 잘리지 않게(2026-11-27) */
+  { key: 'exit', cx: 1634, tag: 'discharge_table_status_lamp' }, // 출구 TABLE DRIVE / CONVEYOR 회전감지
 ];
 
 /* 입구 롤러 줄 맨 끝의 제품 감지 자리.

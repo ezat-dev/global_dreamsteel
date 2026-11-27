@@ -1,15 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="2 3 29.3 50" width="29.3" height="50">
-  <!-- 세로 모터 + 감속기. 원본 main-motor-10.png(35x56)의 픽셀 배치를 옮긴 것.
-       11개 모터 중 4자리에 쓴다 — ent-motor-4 / main-motor-1 / main-motor-2 / exit-motor-5.
-       (main-motor-1·2는 작화 CSS가 scale(-1,1)로 좌우를 뒤집어 쓴다.)
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 82" width="48" height="82">
+  <!-- 세로 기어드 모터 — 현장 TABLE DRIVE 사진(헬리컬 감속기 + 중간 감속기 + 브레이크 모터)을
+       칸(24x41)에 맞춰 90도 세워 그린 것. 위가 감속기(롤러 쪽), 아래가 모터 꼬리다.
+       쓰는 자리: ent-motor-4 / main-motor-1 / exit-motor-5 (main-motor-1은 작화 CSS가 좌우를 뒤집는다).
 
-       viewBox는 원본의 내용 영역에 맞추고 칸(24x41)의 비율에 맞췄다.
-       CSS에 object-fit: cover가 걸려 있어 비율이 어긋나면 잘린다.
+       viewBox 48x82 = 칸 비율 24:41 그대로 — CSS의 object-fit: cover가 어긋난 비율을 자른다.
+       색은 초록 한 계열만 쓴다. 정지·끊김 회색(grayscale)과 노랑/초록/빨강 색 행렬이
+       초록 한 색을 전제로 짜여 있다(DrivePage.css).
 
-       원본 좌표: 위 축 x 13~17, y 3~7     팬 커버 x 7~24, y 8~12
-                  냉각핀 x 3~30, y 12~21   (오른쪽으로 팔이 뻗는다)
-                  중간 밴드 x 6~26, y 21~26  몸통 x 7~25, y 26~41
-                  아래 밴드 x 6~26, y 41~48  받침 x 9~24, y 48~52 -->
+       배치(위→아래)  감속기 본체 y 1~27   중간 감속기 y 27~38   플랜지 y 38~42
+                      모터 냉각핀 y 42~63  브레이크 커버 y 63~80  단자함은 오른쪽 옆 -->
   <defs>
     <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#146414"/>
@@ -23,34 +22,49 @@
       <stop offset=".45" stop-color="#22e022"/>
       <stop offset="1" stop-color="#115811"/>
     </linearGradient>
+    <radialGradient id="cover" cx=".42" cy=".38" r=".7">
+      <stop offset="0" stop-color="#3bff3b"/>
+      <stop offset=".6" stop-color="#0dc30d"/>
+      <stop offset="1" stop-color="#126812"/>
+    </radialGradient>
   </defs>
 
-  <g stroke="#0f4f0f" stroke-width=".8" stroke-linejoin="round">
-    <!-- 위 축 -->
-    <rect x="12.8" y="3.2" width="4" height="4.6" rx=".5" fill="url(#band)"/>
-    <!-- 팬 커버 -->
-    <path d="M7.4 12 L9.4 8.2 H22.4 L24.4 12 Z" fill="url(#body)"/>
+  <g stroke="#0f4f0f" stroke-width="1" stroke-linejoin="round">
+    <!-- 감속기 본체 — 위쪽 각진 주물 + 다리(받침 볼트 자리) -->
+    <path d="M5 4 Q5 1.5 7.5 1.5 H40.5 Q43 1.5 43 4 V22 Q43 26.5 38 27 H10 Q5 26.5 5 22 Z" fill="url(#body)"/>
+    <rect x="1.5" y="3" width="4.5" height="9" rx="1" fill="url(#band)"/>
+    <rect x="42" y="3" width="4.5" height="9" rx="1" fill="url(#band)"/>
+    <!-- 출력축 베어링 커버(사진의 큰 원판) -->
+    <circle cx="24" cy="14" r="8.6" fill="url(#cover)"/>
+    <circle cx="24" cy="14" r="4" fill="url(#band)"/>
 
-    <!-- 냉각핀 묶음 — 오른쪽으로 팔이 뻗는다 -->
-    <rect x="3" y="12" width="24.2" height="9.4" rx="1.4" fill="url(#body)"/>
-    <path d="M27 12.8 H30.6 V20.6 H27 Z" fill="url(#band)"/>
+    <!-- 중간 감속기 — 좁은 상자 -->
+    <path d="M10 27 H38 V35.5 Q38 38 35.5 38 H12.5 Q10 38 10 35.5 Z" fill="url(#band)"/>
+    <!-- 명판 -->
+    <rect x="15" y="29.5" width="9" height="5" rx=".6" fill="#0aa80a"/>
 
-    <!-- 중간 밴드 -->
-    <rect x="6" y="21.2" width="20.2" height="5" rx="1" fill="url(#band)"/>
-    <!-- 몸통 -->
-    <rect x="7" y="26" width="18.2" height="15.4" rx="1" fill="url(#body)"/>
-    <!-- 아래 밴드 -->
-    <rect x="6" y="41.2" width="20.2" height="6.8" rx="1" fill="url(#band)"/>
-    <!-- 받침 -->
-    <path d="M9 48 H23.2 C22.8 50.8 20.6 52.4 16.1 52.4 C11.6 52.4 9.4 50.8 9 48 Z"
-          fill="url(#band)"/>
+    <!-- 모터 플랜지 -->
+    <rect x="8" y="38" width="32" height="4" rx="1.2" fill="url(#body)"/>
+
+    <!-- 모터 몸통(냉각핀) -->
+    <rect x="11" y="42" width="26" height="21" rx="1" fill="url(#body)"/>
+    <!-- 모터 단자함 — 오른쪽 옆 -->
+    <rect x="37" y="44" width="7" height="10" rx="1" fill="url(#band)"/>
+
+    <!-- 브레이크/팬 커버 — 매끈한 통, 아래 끝 둥글게 -->
+    <path d="M11.5 63 H36.5 V76 Q36.5 80.5 32 80.5 H16 Q11.5 80.5 11.5 76 Z" fill="url(#body)"/>
+    <!-- 브레이크 단자함 -->
+    <rect x="36.5" y="65" width="5" height="6.5" rx=".8" fill="url(#band)"/>
   </g>
 
-  <!-- 냉각핀(가로 줄)과 몸통 명판.
-       선만 얹어 질감을 낸다 — 작은 크기라 홈을 파면 뭉개진다. -->
-  <g stroke="#0f5a0f" stroke-width=".7" opacity=".72">
-    <path d="M3.6 14.2 H26.6 M3.6 16.6 H26.6 M3.6 19 H26.6"/>
+  <!-- 질감 — 모터 축 방향(세로) 냉각핀, 감속기 볼트, 커버 이음선 -->
+  <g stroke="#0f5a0f" stroke-width=".9" opacity=".75">
+    <path d="M14.5 43 V62 M18 43 V62 M21.5 43 V62 M25 43 V62 M28.5 43 V62 M32 43 V62"/>
+    <path d="M11.5 66 H36.5"/>
   </g>
-  <rect x="13.6" y="31.4" width="5" height="5" rx="1.2" transform="rotate(45 16.1 33.9)"
-        fill="#0aa80a" stroke="#0f4f0f" stroke-width=".7"/>
+  <g fill="#0f4f0f">
+    <circle cx="9" cy="5.5" r="1.2"/><circle cx="39" cy="5.5" r="1.2"/>
+    <circle cx="9" cy="23" r="1.2"/><circle cx="39" cy="23" r="1.2"/>
+    <circle cx="3.75" cy="7.5" r="1"/><circle cx="44.25" cy="7.5" r="1"/>
+  </g>
 </svg>

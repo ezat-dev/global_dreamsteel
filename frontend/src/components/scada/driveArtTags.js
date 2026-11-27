@@ -39,13 +39,15 @@ const nameOf = (tag) => i18n.t(`drive:art.${tag}`);
      (ent-motor-3  x 497 y 160  DOOR 바로 위에 있었는데 현장에 없는 설비라 지웠다.
                                 위에 붙던 NOTES의 '입구문 열림'도 같이 뺐다)
      ent-motor-4   x 332 y 360  NOTES의 'STOPPER 하강 감지'가 오른쪽 옆에 붙는 자리
-     main-motor-1  x 518 y 365  MAIN 존(x 494~1124) 아래 — 원본 633에서 115 당김(DrivePage.css)
-     (main-motor-2  쿨링챔버 왼쪽 아래 C/C TABLE DRIVE 모터 — 2026-11-17에 지웠다)
+     main-motor-1  x1120 y 365  MAIN 존(x 494~1124) 아래 오른쪽 끝 — 2026-11-27에 옮김(DrivePage.css)
+     main-motor-2  x1349 y 365  쿨링챔버(x 1124~1353) 아래 오른쪽 끝 C/C TABLE DRIVE 모터
+                                (2026-11-17에 지웠다가 2026-11-27에 이 자리로 되살림)
+                   둘 다 scale(-1,1)로 뒤집혀 있어 x가 오른쪽 끝이다(그려지는 자리는 x-24~x).
      exit-motor-1  x1347 y   0  출구 위쪽 둘 중 위
      exit-motor-2  x1347 y  49  출구 위쪽 둘 중 아래(x가 1번과 같아 위아래로 갈린다)
      exit-motor-3  x1553 y 174  통 모터
      exit-motor-4  x1723 y 172  출구 오른쪽 끝
-     exit-motor-5  x1403 y 360  출구 아래줄 */
+     exit-motor-5  x1632 y 360  출구 아래줄 '출구 TABLE DRIVE' 글자 오른쪽 — 원본 1403에서 옮김(DrivePage.css) */
 /* yellowTag가 있는 모터는 세 갈래다(2026-11-17 사용자 지정):
      tag(초록)가 1 → 초록 / 아니고 yellowTag가 1 → 노랑 / 둘 다 아니거나 못 읽으면 회색.
    둘이 동시에 1이면 초록이 먼저다.
@@ -60,6 +62,7 @@ export const MOTOR_TAGS = {
      'TABLE DRIVE 모터'로 고쳤다(2026-11-17, 태그 이름은 DB와 함께 두기로 함). */
   'ent-motor-4': { tag: 'charge_stopper_down_detect_lamp' },                 // 입구 TABLE DRIVE 모터 (Y0C0)
   'main-motor-1': { tag: 'main_table_drive_conveyor_rotate_detect_lamp' },   // MAIN TABLE DRIVE 모터 (Y0C3)
+  'main-motor-2': { tag: 'cc_table_drive_conveyor_rotate_detect_lamp' },     // C/C TABLE DRIVE 모터 (예전 그 자리 태그 그대로)
   'exit-motor-1': { tag: 'discharge_motor1_lamp' },                          // 출구 모터 1
   'exit-motor-2': { tag: 'discharge_motor2_lamp' },                          // 출구 모터 2
   'exit-motor-3': { tag: 'discharge_motor3_lamp' },                          // 출구 모터 3
