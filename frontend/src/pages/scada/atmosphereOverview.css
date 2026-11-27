@@ -17,7 +17,7 @@
 }
 .atmosphere .pipe-1 {
   background: #ffffff;
-  width: 53px;
+  width: 119px;   /* 원래 53 — 2026-11-27 압력 스위치(좁은 그림)로 바꾸며 pipe-2 시작(400)까지 이었다 */
   height: 21px;
   position: absolute;
   left: 281px;
@@ -25,7 +25,7 @@
 }
 .atmosphere .pipe-2 {
   background: #ffffff;
-  width: 60px;    /* 원래 56 — 압력/솔 그림 맞바꿈(아래 .blowe-pre 주석) */
+  width: 129px;   /* 원래 56 → 60(압력/솔 그림 맞바꿈) → 129(2026-11-27 솔밸브 그림 교체, pipe-3 시작 529까지 이음) */
   height: 21px;
   position: absolute;
   left: 400px;
@@ -69,7 +69,7 @@
 }
 .atmosphere .pipe-7 {
   background: #ffcc00;
-  width: 78px;    /* 원래 68 */
+  width: 138px;   /* 원래 68 → 78 → 138(2026-11-27 솔밸브 그림 교체, pipe-6 시작 438까지 이음) */
   height: 21px;
   position: absolute;
   left: 300px;
@@ -77,7 +77,7 @@
 }
 .atmosphere .pipe-8 {
   background: #ffcc00;
-  width: 33px;
+  width: 98px;    /* 원래 33 — 2026-11-27 압력 스위치(좁은 그림)로 바꾸며 pipe-7 시작(300)까지 이었다 */
   height: 21px;
   position: absolute;
   left: 202px;
@@ -187,40 +187,50 @@
    잡았고, 가운데 x는 원래 자리 그대로 두어 아래 상태 글씨(AtmospherePage의 PIPE_LABELS cx)가
    그대로 맞는다. 원래 값: blowe-pre 77x77 @328,0 / blowe-sol 79x54 @454,14 /
    gas-pre 68x68 @232,172 / gas-sol 78x52 @368,183.
-   그림 사이가 좁아진 쪽은 pipe-2·3·6·7을 몇 px 늘려 틈을 메웠다(배관이 그림 밑에 깔린다). */
+   그림 사이가 좁아진 쪽은 pipe-2·3·6·7을 몇 px 늘려 틈을 메웠다(배관이 그림 밑에 깔린다).
+
+   2026-11-27 사용자 요청으로 네 자리 그림을 질소발생기 왼쪽과 같은 압력 스위치(at-pressure-switch.svg)와
+   솔밸브(at-solenoid-n2.svg)로 바꿨다. 가운데 x는 그대로(아래 PIPE_LABELS cx 368·266과 맞음).
+     압력 스위치  44:76 세로 그림, 아래 끝이 관에 얹힌다. 공기관(y 45~66) 위로는 66px뿐이라
+                  38x66으로 줄이고 아래 끝을 관 아래 선에 맞췄다. 가스 쪽도 같은 크기로 맞췄다.
+                    blowe-pre x 347.5~385.5 / y 0~66      gas-pre x 247~285 / y 169~235
+     솔밸브       56x56 그대로(질소발생기 쪽과 같은 배율 — 관 굵기 21이 같다). 그림 속 관 중심 y 42를
+                  관 가운데에 맞췄다.
+                    blowe-sol x 465.5~521.5 / y 13.5~69.5   gas-sol x 379~435 / y 182.5~238.5
+   그림이 좁아져 생긴 틈은 pipe-1·2·7·8을 늘려 메웠다. */
 .atmosphere .blowe-pre {
-  width: 79px;
-  height: 54px;
+  width: 38px;
+  height: 66px;
   position: absolute;
-  left: 327px;
-  top: 14px;
+  left: 347.5px;
+  top: 0;
   object-fit: cover;
-  aspect-ratio: 79/54;
+  aspect-ratio: 44/76;
 }
 .atmosphere .blowe-sol {
-  width: 77px;
-  height: 77px;
+  width: 56px;
+  height: 56px;
   position: absolute;
-  left: 455px;
-  top: 0px;
+  left: 465.5px;
+  top: 13.5px;
   object-fit: cover;
   aspect-ratio: 1;
 }
 .atmosphere .gas-pre {
-  width: 78px;
-  height: 52px;
+  width: 38px;
+  height: 66px;
   position: absolute;
-  left: 227px;
-  top: 183px;
+  left: 247px;
+  top: 169px;
   object-fit: cover;
-  aspect-ratio: 3/2;
+  aspect-ratio: 44/76;
 }
 .atmosphere .gas-sol {
-  width: 68px;
-  height: 68px;
+  width: 56px;
+  height: 56px;
   position: absolute;
-  left: 373px;
-  top: 172px;
+  left: 379px;
+  top: 182.5px;
   object-fit: cover;
   aspect-ratio: 1;
 }

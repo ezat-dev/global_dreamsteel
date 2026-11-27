@@ -20,8 +20,9 @@ import {
    5자리에 기기는 3종이다. 가스 배관은 주황, 공기 배관은 은색으로 같은 기기가 두 벌씩
    있어서, 도형은 같고 색만 다른 파일로 나눴다 — 모양을 고칠 일이 생기면 두 파일을
    같이 고쳐야 한다(파일 머리말에도 적어 두었다).
-     at-regulator-gas.svg / at-regulator-air.svg   압력 조절밸브   gas-pre / blowe-pre
-     at-solenoid-gas.svg  / at-solenoid-air.svg    솔레노이드 밸브 gas-sol / blowe-sol
+     at-regulator-gas.svg / at-regulator-air.svg   압력 조절밸브   (2026-11-27부터 안 씀)
+     at-solenoid-gas.svg  / at-solenoid-air.svg    솔레노이드 밸브 (2026-11-27부터 안 씀)
+       → gas-pre / blowe-pre는 at-pressure-switch.svg, gas-sol / blowe-sol은 at-solenoid-n2.svg
      at-blower.svg                                 송풍기 케이싱   motor-1
      at-beacon.svg                                 경광등          alarm-1
      at-valve-spin.svg / at-valve.svg              컨트롤 밸브     valve-1
@@ -77,10 +78,12 @@ function AtmosphereOverview({ valveSpinning = true, lang }) {
       />
       <img className="valve-2" src="/scada/atmosphere/at-ballvalve.svg" title={genValveTitle()} />
       <img className="motor-1" src="/scada/atmosphere/at-blower.svg" title={fittingTitle('motor-1')} />
-      <img className="blowe-pre" src="/scada/atmosphere/at-regulator-air.svg" title={fittingTitle('blowe-pre')} />
-      <img className="blowe-sol" src="/scada/atmosphere/at-solenoid-air.svg" title={fittingTitle('blowe-sol')} />
-      <img className="gas-pre" src="/scada/atmosphere/at-regulator-gas.svg" title={fittingTitle('gas-pre')} />
-      <img className="gas-sol" src="/scada/atmosphere/at-solenoid-gas.svg" title={fittingTitle('gas-sol')} />
+      {/* 압력·솔 네 자리는 2026-11-27부터 질소발생기 왼쪽(n2-pre / n2-sol)과 같은 그림이다
+          (atmosphereOverview.css의 .blowe-pre 주석). */}
+      <img className="blowe-pre" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('blowe-pre')} />
+      <img className="blowe-sol" src="/scada/atmosphere/at-solenoid-n2.svg" title={fittingTitle('blowe-sol')} />
+      <img className="gas-pre" src="/scada/atmosphere/at-pressure-switch.svg" title={fittingTitle('gas-pre')} />
+      <img className="gas-sol" src="/scada/atmosphere/at-solenoid-n2.svg" title={fittingTitle('gas-sol')} />
       <img className="down-1" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="down-2" src="/scada/atmosphere/at-arrow-down.svg" />
       <img className="alarm-1" src="/scada/atmosphere/at-beacon.svg" title={beaconTitle('alarm-1')} />
